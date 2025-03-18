@@ -10,7 +10,7 @@ from sqlmodel import (
 )
 from datetime import datetime
 
-class CategoriaDocumento(SQLModel):
+class CategoriaDocumento(SQLModel, table=True):
     __tablename__ = "categorias_documento"
     __table_args__ = (
         CheckConstraint("LENGTH(name) > 3", name="ck_categoria_documento_name"),
