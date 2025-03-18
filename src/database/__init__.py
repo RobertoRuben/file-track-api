@@ -1,3 +1,3 @@
-from .database import settings
+from .database import engine
 
-__all__ = ["settings"]
+__all__ = ["engine"]
