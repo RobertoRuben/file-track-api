@@ -32,12 +32,12 @@ class ICategoriaDocumentoRepository(ABC):
         pass
 
     @abstractmethod
-    async def delete(self, id: int) -> bool:
+    async def delete(self, category_document_id: int) -> bool:
         """
         Delete a document category by its ID.
 
         Args:
-            id: The ID of the document category to delete
+            category_document_id: The ID of the document category to delete
 
         Returns:
             True if the category was successfully deleted, False otherwise
@@ -45,12 +45,12 @@ class ICategoriaDocumentoRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_by_id(self, id: int) -> CategoriaDocumento:
+    async def get_by_id(self, category_document_id: int) -> CategoriaDocumento:
         """
         Get a document category by its ID.
 
         Args:
-            id: The ID of the document category to retrieve
+            category_document_id: The ID of the document category to retrieve
 
         Returns:
             The found document category
@@ -76,7 +76,7 @@ class ICategoriaDocumentoRepository(ABC):
             self,
             page: int,
             size: int,
-            search_term: dict[str, str],
+            search_dict: dict[str, str],
     ) -> Page:
         """
         Find document categories by search criteria.
@@ -84,7 +84,7 @@ class ICategoriaDocumentoRepository(ABC):
         Args:
             page: The page number (starts at 1)
             size: The size of each page
-            search_term: Dictionary containing search parameters
+            search_dict: Dictionary containing search parameters
 
         Returns:
             A Page object with document categories matching the search criteria
