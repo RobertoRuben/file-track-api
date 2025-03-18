@@ -1,8 +1,8 @@
 """agregar_tabla_categorias_documento
 
-Revision ID: 7924641e9ae4
+Revision ID: 0c5344e7d87a
 Revises: 
-Create Date: 2025-03-18 08:38:41.706764
+Create Date: 2025-03-18 08:44:47.785421
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '7924641e9ae4'
+revision: str = '0c5344e7d87a'
 down_revision: Union[str, None] = None
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -24,7 +24,7 @@ def upgrade() -> None:
     op.create_table('categorias_documento',
     sa.Column('id', sa.BIGINT(), nullable=False),
     sa.Column('name', sa.TEXT(), nullable=False),
-    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text("CURRENT_TIMESTAMP AT TIME ZONE 'UTC'"), nullable=True),
+    sa.Column('created_at', sa.DateTime(timezone=True), server_default=sa.text('CURRENT_TIMESTAMP'), nullable=True),
     sa.Column('updated_at', sa.DateTime(timezone=True), nullable=True),
     sa.CheckConstraint('LENGTH(name) > 3', name='ck_categoria_documento_name'),
     sa.PrimaryKeyConstraint('id'),
