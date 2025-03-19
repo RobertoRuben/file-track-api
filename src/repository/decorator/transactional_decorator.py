@@ -1,15 +1,22 @@
 import functools
-from typing import Callable, TypeVar, Any, Optional
+from typing import Callable, TypeVar, Any, Optional, Union
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from src.exception import DatabaseException, InvalidFieldException
 
 T = TypeVar('T')
 
 
-def transactional(func: Optional[Callable[..., T]] = None) -> Callable[[Callable[..., T]], Callable[..., T]]:
+def transactional(
+        func: Optional[Callable[..., T]] = None,
+        readonly: bool = False
+) -> Union[Callable[..., T], Callable[[Callable[..., T]], Callable[..., T]]]:
     """
     Decorator to handle transactions in SQLAlchemy.
-    It commits the transaction if the function is successful,
+
+    Args:
+        func: The function to decorate
+        readonly: If True, indicates this is a read-only operation (no commit/refresh needed)
+                 If False, indicates this is a write operation (needs commit/refresh)
     """
 
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
@@ -18,8 +25,18 @@ def transactional(func: Optional[Callable[..., T]] = None) -> Callable[[Callable
             try:
                 result = await func(self, *args, **kwargs)
 
-                if any(method in func.__name__ for method in ['save', 'delete', 'update']):
+                # Solo hacer commit para operaciones de escritura (readonly=False)
+                if not readonly:
                     await self.session.commit()
+
+                    # Hacer refresh después del commit
+                    if result is not None:
+                        if hasattr(result, '__table__'):
+                            await self.session.refresh(result)
+                        elif isinstance(result, list):
+                            for item in result:
+                                if hasattr(item, '__table__'):
+                                    await self.session.refresh(item)
 
                 return result
 
@@ -30,7 +47,14 @@ def transactional(func: Optional[Callable[..., T]] = None) -> Callable[[Callable
                     details=str(e.orig),
                 )
             except InvalidFieldException as e:
+                await self.session.rollback()
                 raise e
+            except AttributeError as e:
+                await self.session.rollback()
+                raise InvalidFieldException(
+                    message="Error en los atributos proporcionados",
+                    details=str(e)
+                )
             except SQLAlchemyError as e:
                 await self.session.rollback()
                 raise DatabaseException(
