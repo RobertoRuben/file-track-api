@@ -56,7 +56,7 @@ async def create_role(
 @router.get(
     "",
     response_model=list[RoleResponseDTO],
-    summary="Retrieve all roles in the system",
+    summary="Get all roles",
     responses={
         200: {"model": list[RoleResponseDTO], "description": "List of roles"},
         400: {"model": BackRequestError, "description": "Bad request error"},
