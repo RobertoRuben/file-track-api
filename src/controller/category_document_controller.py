@@ -2,6 +2,7 @@ from fastapi import APIRouter, Depends, Query
 from src.exception.schema import BackRequestError, ConflictError, InternalServerError, NotFoundError
 from src.dto.request import CategoryDocumentRequestDTO
 from src.dto.response import CategoryDocumentResponseDTO, CategoryDocumentPage
+from src.schema import MessageResponse
 from src.service.dependencies import get_category_document_service
 from src.service.interfaces import ICategoryDocumentService
 
@@ -19,15 +20,14 @@ category_document_tags_metadata = {
 
 @router.get(
     "",
-    status_code=200,
     response_model=list[CategoryDocumentResponseDTO],
+    summary="Get all document categories",
     responses={
         200: {"model": list[CategoryDocumentResponseDTO], "description": "List of document categories"},
         400: {"model": BackRequestError, "description": "Bad request error"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
     description="Retrieve all document categories in the system.",
-    summary="Get all document categories",
 )
 async def get_all_category_documents(
     category_document_service: ICategoryDocumentService = Depends(get_category_document_service),
@@ -43,17 +43,18 @@ async def get_all_category_documents(
     return await category_document_service.get_all_categories_documents()
 
 
+
+
 @router.get(
     "/paginated/",
-    status_code=200,
     response_model=CategoryDocumentPage,
+    summary="Get paginated document categories",
     responses={
         200: {"model": CategoryDocumentPage, "description": "Paginated list of document categories"},
         400: {"model": BackRequestError, "description": "Bad request error"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
     description="Get a paginated list of document categories.",
-    summary="Get paginated document categories",
 )
 async def get_paginated_category_documents(
     page: int = Query(1, ge=1, description="Page number"),
@@ -76,8 +77,8 @@ async def get_paginated_category_documents(
 
 @router.get(
     "/search/",
-    status_code=200,
     response_model=CategoryDocumentPage,
+    summary="Search for categories documents based on a search term.",
     responses={
         200: {"model": CategoryDocumentPage, "description": "Document categories search results"},
         404: {"model": NotFoundError, "description": "No document categories found"},
@@ -85,7 +86,6 @@ async def get_paginated_category_documents(
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
     description="Search document categories based on a search term.",
-    summary="Search for categories documents based on a search term.",
 )
 async def find_category_documents(
     search_term: str = Query(..., description="Search term"),
@@ -110,8 +110,8 @@ async def find_category_documents(
 
 @router.get(
     "/{category_document_id}",
-    status_code=200,
     response_model=CategoryDocumentResponseDTO,
+    summary="Get a document category by ID",
     responses={
         200: {"model": CategoryDocumentResponseDTO, "description": "Document category found"},
         404: {"model": NotFoundError, "description": "Document category not found"},
@@ -119,7 +119,6 @@ async def find_category_documents(
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
     description="Retrieve a specific document category by its ID.",
-    summary="Get a document category by ID",
 )
 async def get_category_document_by_id(
     category_document_id: int,
@@ -139,8 +138,8 @@ async def get_category_document_by_id(
 
 @router.put(
     "/{category_document_id}",
-    status_code=200,
     response_model=CategoryDocumentResponseDTO,
+    summary="Update document category",
     responses={
         200: {"model": CategoryDocumentResponseDTO, "description": "Document category successfully updated"},
         404: {"model": NotFoundError, "description": "Document category not found"},
@@ -149,7 +148,6 @@ async def get_category_document_by_id(
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
     description="Update the details of an existing document category.",
-    summary="Update document category",
 )
 async def update_category_document(
     category_document_id: int,
@@ -172,7 +170,8 @@ async def update_category_document(
 
 @router.delete(
     "/{category_document_id}",
-    status_code=200,
+    response_model=MessageResponse,
+    summary="Delete document category",
     responses={
         200: {"description": "Document category successfully deleted"},
         404: {"model": NotFoundError, "description": "Document category not found"},
@@ -180,7 +179,6 @@ async def update_category_document(
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
     description="Delete a document category from the system by its ID.",
-    summary="Delete document category",
 )
 async def delete_category_document(
     category_document_id: int,
