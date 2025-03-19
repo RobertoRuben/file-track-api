@@ -5,5 +5,5 @@ class Pagination(BaseModel):
     per_page: int
     total: int
     total_pages: int
-    next_page: int
+    next_page: int | None = None
     previous_page: int | None = None
