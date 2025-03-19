@@ -5,7 +5,7 @@ from src.dto.response import CategoryDocumentResponseDTO, CategoryDocumentPage
 from src.service.dependencies import get_category_document_service
 from src.service.interfaces import ICategoryDocumentService
 
-router = APIRouter(prefix="/category", tags=["category"])
+router = APIRouter(prefix="/category", tags=["Category Document"])
 
 category_document_tags_metadata = {
     "name": "Category Document",
