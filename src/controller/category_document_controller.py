@@ -43,6 +43,33 @@ async def get_all_category_documents(
     return await category_document_service.get_all_categories_documents()
 
 
+@router.post(
+    "",
+    status_code=201,
+    response_model=CategoryDocumentResponseDTO,
+    summary="Create a new document category in the system",
+    responses={
+        201: {"model": CategoryDocumentResponseDTO, "description": "Document category successfully created"},
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        409: {"model": ConflictError, "description": "Document category already exists"},
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Create a new document category in the system. Provide the necessary details to create a new category.",
+)
+async def create_category_document(
+    category_document_request: CategoryDocumentRequestDTO,
+    category_document_service: ICategoryDocumentService = Depends(get_category_document_service),
+) -> CategoryDocumentResponseDTO:
+    """
+    Create a new document category in the system.
+
+    This endpoint allows for the creation of a new document category by providing the necessary details.
+
+    :param category_document_request: The data required to create a new document category.
+    :param category_document_service: Service to handle the creation logic.
+    :return: The created document category's details.
+    """
+    return await category_document_service.add_category_document(category_document_request)
 
 
 @router.get(
