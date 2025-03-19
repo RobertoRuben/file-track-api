@@ -9,6 +9,19 @@ class CategoryDocumentRequestDTO(BaseModel):
 
     @field_validator("nombre", mode="before")
     def strip_and_validate_string(cls, v, info: ValidationInfo):
+        """
+        Validates that the input is a string and strips whitespace.
+
+        Args:
+            v: The value to validate
+            info: Validation information context
+
+        Returns:
+            The stripped string value
+
+        Raises:
+            ValueError: If the value is not a string or is empty after stripping
+        """
         field_name = info.field_name.replace("_", " ").title()
 
         if not isinstance(v, str):
@@ -22,6 +35,18 @@ class CategoryDocumentRequestDTO(BaseModel):
 
     @field_validator("nombre", mode="after")
     def validate_name_format(cls, v):
+        """
+        Validates that the name contains only alphabetic characters and spaces.
+
+        Args:
+            v: The string value to validate
+
+        Returns:
+            The validated string value
+
+        Raises:
+            ValueError: If the name contains invalid characters
+        """
         pattern = re.compile(r"^[A-Za-zÁÉÍÓÚáéíóúÑñ][A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$")
         if not pattern.fullmatch(v):
             raise ValueError(

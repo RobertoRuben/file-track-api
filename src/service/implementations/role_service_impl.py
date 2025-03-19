@@ -8,13 +8,40 @@ from src.exception.decorator import handle_exceptions
 from src.repository.interfaces import IRolRepository
 from src.service.interfaces import IRoleService
 
+
 class RoleServiceImpl(IRoleService):
+    """
+    Implementation of the role service interface.
+
+    Provides business logic for role operations including creating,
+    updating, deleting, and querying roles.
+    """
 
     def __init__(self, repository: IRolRepository):
+        """
+        Initialize the role service with a repository.
+
+        Args:
+            repository: The role repository implementation
+        """
         self.repository = repository
 
     @handle_exceptions
     async def add_role(self, role_request: RoleRequestDTO) -> RoleResponseDTO:
+        """
+        Create a new role.
+
+        Validates that the role name does not already exist before creating the new entry.
+
+        Args:
+            role_request: DTO containing the role data
+
+        Returns:
+            A DTO containing the created role details
+
+        Raises:
+            ConflictException: If a role with the same name already exists
+        """
         exists_role = await self.repository.exists_by(nombre=role_request.nombre)
         if exists_role:
             raise ConflictException(
@@ -36,6 +63,12 @@ class RoleServiceImpl(IRoleService):
 
     @handle_exceptions
     async def get_all_roles(self) -> list[RoleResponseDTO]:
+        """
+        Retrieve all roles.
+
+        Returns:
+            A list of DTOs containing all roles
+        """
         roles = await self.repository.get_all()
         return [
             RoleResponseDTO(
@@ -49,6 +82,22 @@ class RoleServiceImpl(IRoleService):
 
     @handle_exceptions
     async def update_role(self, role_id: int, role_request: RoleRequestDTO) -> RoleResponseDTO:
+        """
+        Update an existing role.
+
+        Validates that the role exists and that the new name is not already taken.
+
+        Args:
+            role_id: ID of the role to update
+            role_request: DTO containing the updated data
+
+        Returns:
+            A DTO containing the updated role details
+
+        Raises:
+            NotFoundException: If the role with the given ID does not exist
+            ConflictException: If another role with the new name already exists
+        """
         exists_role_id = await self.repository.exists_by(id=role_id)
         if not exists_role_id:
             raise NotFoundException(
@@ -77,6 +126,18 @@ class RoleServiceImpl(IRoleService):
 
     @handle_exceptions
     async def delete_role(self, role_id: int) -> MessageResponse:
+        """
+        Delete a role by its ID.
+
+        Args:
+            role_id: ID of the role to delete
+
+        Returns:
+            A message response indicating success or failure
+
+        Raises:
+            NotFoundException: If the role with the given ID does not exist
+        """
         exists_role_id = await self.repository.exists_by(id=role_id)
         if not exists_role_id:
             raise NotFoundException(
@@ -100,6 +161,18 @@ class RoleServiceImpl(IRoleService):
 
     @handle_exceptions
     async def get_role_by_id(self, role_id: int) -> RoleResponseDTO:
+        """
+        Retrieve a role by its ID.
+
+        Args:
+            role_id: ID of the role to retrieve
+
+        Returns:
+            A DTO containing the role details
+
+        Raises:
+            NotFoundException: If the role with the given ID does not exist
+        """
         exists_role_id = await self.repository.exists_by(id=role_id)
         if not exists_role_id:
             raise NotFoundException(
@@ -115,6 +188,19 @@ class RoleServiceImpl(IRoleService):
 
     @handle_exceptions
     async def get_paginated_roles(self, page: int, size: int) -> RolePage:
+        """
+        Retrieve a paginated list of roles.
+
+        Args:
+            page: Page number (1-based indexing)
+            size: Number of items per page
+
+        Returns:
+            A page object containing roles and pagination metadata
+
+        Raises:
+            BadRequestException: If page or size values are invalid
+        """
         if page < 1:
             raise BadRequestException(
                 message="Invalid page number",
@@ -134,9 +220,23 @@ class RoleServiceImpl(IRoleService):
             meta=page_result.meta,
         )
 
-
     @handle_exceptions
     async def find(self, page: int, size: int, search_term: str) -> RolePage:
+        """
+        Search for roles with name filtering and pagination.
+
+        Args:
+            page: Page number (1-based indexing)
+            size: Number of items per page
+            search_term: Term to search for in role names
+
+        Returns:
+            A page object containing the filtered roles and pagination metadata
+
+        Raises:
+            BadRequestException: If page or size values are invalid
+            NotFoundException: If no roles match the search criteria
+        """
         if page < 1:
             raise BadRequestException(
                 message="Invalid page number",
