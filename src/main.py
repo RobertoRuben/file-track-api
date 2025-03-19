@@ -1,3 +1,42 @@
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
+from .db import init_db
+from .exception.globals import register_exception_handlers
+from .controller import category_document_router, category_document_tags_metadata
 
-app = FastAPI()
+API_PREFIX = "/api/v1"
+
+tags_metadata = [
+    category_document_tags_metadata
+]
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """
+    Lifespan context manager for FastAPI application.
+    Initializes the database and registers exception handlers.
+    """
+    await init_db()
+    await register_exception_handlers(app)
+    yield
+app = FastAPI(
+    title="File Track API",
+    description="API for File Track",
+    version="0.1.0",
+    openapi_tags=tags_metadata,
+    debug=True,
+    lifespan=lifespan,
+    license_info={
+        "name": "MIT",
+        "url": "https://opensource.org/licenses/MIT",
+    },
+    servers=[
+        {
+            "url": "http://localhost:8000",
+            "description": "Local server",
+        },
+    ],
+    terms_of_service="https://opensource.org/licenses/MIT",
+)
+
+app.include_router(category_document_router, prefix=API_PREFIX)
