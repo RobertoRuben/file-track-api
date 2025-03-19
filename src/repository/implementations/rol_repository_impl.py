@@ -1,5 +1,5 @@
 import math
-from sqlalchemy import select, func, or_
+from sqlmodel import select, func, or_
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.repository.decorator import transactional
 from src.repository.interfaces import IRolRepository
@@ -21,7 +21,7 @@ class RolRepositoryImpl(IRolRepository):
 
     @transactional(readonly=True)
     async def get_all(self) -> list[Rol]:
-        stmt = select(Rol).order_by(Rol.id)
+        stmt = select(Rol)
         results = await self.session.exec(stmt)
         roles = results.all()
         return list(roles)
