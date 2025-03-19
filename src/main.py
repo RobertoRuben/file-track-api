@@ -2,12 +2,18 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 from .db import init_db
 from .exception.globals import register_exception_handlers
-from .controller import category_document_router, category_document_tags_metadata
+from .controller import (
+    category_document_router,
+    category_document_tags_metadata,
+    role_router,
+    role_tags_metadata
+)
 
 API_PREFIX = "/api/v1"
 
 tags_metadata = [
-    category_document_tags_metadata
+    category_document_tags_metadata,
+    role_tags_metadata
 ]
 
 @asynccontextmanager
@@ -40,3 +46,4 @@ app = FastAPI(
 )
 
 app.include_router(category_document_router, prefix=API_PREFIX)
+app.include_router(role_router, prefix=API_PREFIX)
