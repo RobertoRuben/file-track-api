@@ -1,6 +1,7 @@
 from .category_document_response_dto import CategoryDocumentResponseDTO, CategoryDocumentPage
 from .role_response_dto import RoleResponseDTO, RolePage
 from .department_response_dto import DepartmentResponseDTO, DepartmentPage
+from .documentary_topic_response_dto import DocumentaryTopicResponseDTO, DocumentaryTopicPage
 
 __all__ = [
     "CategoryDocumentResponseDTO",
@@ -9,4 +10,6 @@ __all__ = [
     "RolePage",
     "DepartmentResponseDTO",
     "DepartmentPage",
+    "DocumentaryTopicResponseDTO",
+    "DocumentaryTopicPage",
 ]
