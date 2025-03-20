@@ -115,8 +115,8 @@ class DocumentaryTopicRepositoryImpl(IDocumentaryTopicRepository):
         total_items = count_results.first()
         total_pages = math.ceil(total_items / size) if total_items > 0 else 1
 
-        next_page = page + 1 if page < total_pages else 0
-        previous_page = page - 1 if page > 1 else 0
+        next_page = page + 1 if page < total_pages else None
+        previous_page = page - 1 if page > 1 else None
 
         page_info = Pagination(
             current_page=page,
