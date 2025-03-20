@@ -4,7 +4,7 @@ from src.app.service.implementations import DocumentaryTopicServiceImpl
 from src.app.repository.interfaces import IDocumentaryTopicRepository
 from src.app.repository.dependencies import get_documentary_topic_repository
 
-async def get_department_service(repository: IDocumentaryTopicRepository = Depends(get_documentary_topic_repository)) -> IDocumentaryTopicService:
+async def get_documentary_topic_service(repository: IDocumentaryTopicRepository = Depends(get_documentary_topic_repository)) -> IDocumentaryTopicService:
     """
     Dependency function to get the department service implementation.
 
