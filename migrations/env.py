@@ -6,6 +6,7 @@ from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlmodel import SQLModel
 from alembic import context
 from src.app.config import settings
+from src.app.model.entity import *
 
 config = context.config
 

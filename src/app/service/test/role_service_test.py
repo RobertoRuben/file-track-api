@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime
 from unittest.mock import AsyncMock
 from src.app.model.entity import Rol
-from src.app.dto import RoleRequestDTO
+from src.app.dto.request import RoleRequestDTO
 from src.app.dto.response import RoleResponseDTO, RolePage
 from src.app.service.implementations import RoleServiceImpl
 from src.app.exception import ConflictException, NotFoundException, BadRequestException

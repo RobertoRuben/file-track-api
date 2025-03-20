@@ -9,6 +9,7 @@ from sqlmodel import SQLModel
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.pool import AsyncAdaptedQueuePool
 from src.app.config import settings
+from src.app.model.entity import *
 
 # Database connection URL from application settings
 postgres_url = settings.database_url

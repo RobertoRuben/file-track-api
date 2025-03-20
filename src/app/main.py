@@ -6,14 +6,17 @@ from src.app.controller import (
     category_document_router,
     category_document_tags_metadata,
     role_router,
-    role_tags_metadata
+    role_tags_metadata,
+    department_router,
+    department_tags_metadata,
 )
 
 API_PREFIX = "/api/v1"
 
 tags_metadata = [
     category_document_tags_metadata,
-    role_tags_metadata
+    role_tags_metadata,
+    department_tags_metadata,
 ]
 
 @asynccontextmanager
@@ -47,3 +50,4 @@ app = FastAPI(
 
 app.include_router(category_document_router, prefix=API_PREFIX)
 app.include_router(role_router, prefix=API_PREFIX)
+app.include_router(department_router, prefix=API_PREFIX)
