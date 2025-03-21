@@ -11,9 +11,9 @@ class SettlementReponseDTO(BaseModel):
 
     id: int = Field(..., description="ID of the settlement")
     nombre: str = Field(..., description="Name of the settlement")
-    fecha_creacion: datetime = Field(..., description="Creation date of the settlement")
-    fecha_modificacion: datetime = Field(
-        ..., description="Modification date of the settlement"
+    created_at: datetime = Field(..., description="Creation date of the settlement")
+    updated_at: datetime | None = Field(
+        default=None, description="Modification date of the settlement"
     )
 
 
