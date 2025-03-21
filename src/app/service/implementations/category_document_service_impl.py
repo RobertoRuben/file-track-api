@@ -28,8 +28,7 @@ class CategoryDocumentServiceImpl(ICategoryDocumentService):
 
     @handle_exceptions
     async def add_category_document(
-        self,
-        category_document_request: CategoryDocumentRequestDTO
+        self, category_document_request: CategoryDocumentRequestDTO
     ) -> CategoryDocumentResponseDTO:
         """
         Create a new document category.
@@ -45,7 +44,9 @@ class CategoryDocumentServiceImpl(ICategoryDocumentService):
         Raises:
             ConflictException: If a document category with the same name already exists
         """
-        exists_category_document = await self.repository.exists_by(nombre=category_document_request.nombre)
+        exists_category_document = await self.repository.exists_by(
+            nombre=category_document_request.nombre
+        )
         if exists_category_document:
             raise ConflictException(
                 details=f"Category document with name {category_document_request.nombre} already exists.",
@@ -61,7 +62,7 @@ class CategoryDocumentServiceImpl(ICategoryDocumentService):
             id=created_category_document.id,
             nombre=created_category_document.nombre,
             created_at=created_category_document.created_at,
-            updated_at=created_category_document.updated_at
+            updated_at=created_category_document.updated_at,
         )
 
     @handle_exceptions
@@ -78,7 +79,7 @@ class CategoryDocumentServiceImpl(ICategoryDocumentService):
                 id=category_document.id,
                 nombre=category_document.nombre,
                 created_at=category_document.created_at,
-                updated_at=category_document.updated_at
+                updated_at=category_document.updated_at,
             )
             for category_document in category_documents
         ]
@@ -87,7 +88,7 @@ class CategoryDocumentServiceImpl(ICategoryDocumentService):
     async def update_category_document(
         self,
         category_document_id: int,
-        category_document_request: CategoryDocumentRequestDTO
+        category_document_request: CategoryDocumentRequestDTO,
     ) -> CategoryDocumentResponseDTO:
         """
         Update an existing document category.
@@ -105,7 +106,9 @@ class CategoryDocumentServiceImpl(ICategoryDocumentService):
             NotFoundException: If the document category with the given ID does not exist
             ConflictException: If another document category with the new name already exists
         """
-        exists_category_document_id = await self.repository.exists_by(id=category_document_id)
+        exists_category_document_id = await self.repository.exists_by(
+            id=category_document_id
+        )
         if not exists_category_document_id:
             raise NotFoundException(
                 details=f"Category document with ID {category_document_id} not found.",
@@ -113,7 +116,9 @@ class CategoryDocumentServiceImpl(ICategoryDocumentService):
         category_document = await self.repository.get_by_id(category_document_id)
 
         if category_document.nombre != category_document_request.nombre:
-            name_exists = await self.repository.exists_by(nombre=category_document_request.nombre)
+            name_exists = await self.repository.exists_by(
+                nombre=category_document_request.nombre
+            )
             if name_exists:
                 raise ConflictException(
                     details=f"Category document with name {category_document_request.nombre} already exists.",
@@ -128,11 +133,13 @@ class CategoryDocumentServiceImpl(ICategoryDocumentService):
             id=updated_category_document.id,
             nombre=updated_category_document.nombre,
             created_at=updated_category_document.created_at,
-            updated_at=updated_category_document.updated_at
+            updated_at=updated_category_document.updated_at,
         )
 
     @handle_exceptions
-    async def delete_category_document(self, category_document_id: int) -> MessageResponse:
+    async def delete_category_document(
+        self, category_document_id: int
+    ) -> MessageResponse:
         """
         Delete a document category by its ID.
 
@@ -145,7 +152,9 @@ class CategoryDocumentServiceImpl(ICategoryDocumentService):
         Raises:
             NotFoundException: If the document category with the given ID does not exist
         """
-        exists_category_document_id = await self.repository.exists_by(id=category_document_id)
+        exists_category_document_id = await self.repository.exists_by(
+            id=category_document_id
+        )
         if not exists_category_document_id:
             raise NotFoundException(
                 details=f"Category document with ID {category_document_id} not found.",
@@ -156,18 +165,20 @@ class CategoryDocumentServiceImpl(ICategoryDocumentService):
                 message="Category document deleted successfully.",
                 success=True,
                 details=f"Category document with ID {category_document_id} deleted successfully.",
-                status_code=200
+                status_code=200,
             )
         else:
             return MessageResponse(
                 message="Failed to delete category document.",
                 success=False,
                 details=f"Category document with ID {category_document_id} could not be deleted.",
-                status_code=500
+                status_code=500,
             )
 
     @handle_exceptions
-    async def get_category_document_by_id(self, category_document_id: int) -> CategoryDocumentResponseDTO:
+    async def get_category_document_by_id(
+        self, category_document_id: int
+    ) -> CategoryDocumentResponseDTO:
         """
         Retrieve a document category by its ID.
 
@@ -180,7 +191,9 @@ class CategoryDocumentServiceImpl(ICategoryDocumentService):
         Raises:
             NotFoundException: If the document category with the given ID does not exist
         """
-        exists_category_document_id = await self.repository.exists_by(id=category_document_id)
+        exists_category_document_id = await self.repository.exists_by(
+            id=category_document_id
+        )
         if not exists_category_document_id:
             raise NotFoundException(
                 details=f"Category document with ID {category_document_id} not found.",
@@ -190,11 +203,13 @@ class CategoryDocumentServiceImpl(ICategoryDocumentService):
             id=category_document.id,
             nombre=category_document.nombre,
             created_at=category_document.created_at,
-            updated_at=category_document.updated_at
+            updated_at=category_document.updated_at,
         )
 
     @handle_exceptions
-    async def get_paginated_category_documents(self, page: int, size: int) -> CategoryDocumentPage:
+    async def get_paginated_category_documents(
+        self, page: int, size: int
+    ) -> CategoryDocumentPage:
         """
         Retrieve a paginated list of document categories.
 
@@ -221,7 +236,8 @@ class CategoryDocumentServiceImpl(ICategoryDocumentService):
 
         page_result = await self.repository.get_pageable(page, size)
         category_documents_response = [
-            CategoryDocumentResponseDTO(**category_document.__dict__) for category_document in page_result.data
+            CategoryDocumentResponseDTO(**category_document.__dict__)
+            for category_document in page_result.data
         ]
         return CategoryDocumentPage(
             data=category_documents_response,
@@ -229,7 +245,9 @@ class CategoryDocumentServiceImpl(ICategoryDocumentService):
         )
 
     @handle_exceptions
-    async def find(self, page: int, size: int, search_term: str) -> CategoryDocumentPage:
+    async def find(
+        self, page: int, size: int, search_term: str
+    ) -> CategoryDocumentPage:
         """
         Search for document categories with name filtering and pagination.
 
@@ -256,9 +274,7 @@ class CategoryDocumentServiceImpl(ICategoryDocumentService):
                 details="Size number must be greater than 0.",
             )
 
-        search_dict = {
-            "nombre": search_term
-        }
+        search_dict = {"nombre": search_term}
 
         page_result = await self.repository.find(page, size, search_dict)
 
@@ -268,7 +284,8 @@ class CategoryDocumentServiceImpl(ICategoryDocumentService):
             )
 
         category_documents_response = [
-            CategoryDocumentResponseDTO(**category_document.__dict__) for category_document in page_result.data
+            CategoryDocumentResponseDTO(**category_document.__dict__)
+            for category_document in page_result.data
         ]
 
         return CategoryDocumentPage(

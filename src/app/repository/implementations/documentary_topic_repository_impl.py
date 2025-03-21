@@ -124,7 +124,7 @@ class DocumentaryTopicRepositoryImpl(IDocumentaryTopicRepository):
             total=total_items,
             total_pages=total_pages,
             next_page=next_page,
-            previous_page=previous_page
+            previous_page=previous_page,
         )
 
         return Page(
@@ -159,7 +159,9 @@ class DocumentaryTopicRepositoryImpl(IDocumentaryTopicRepository):
 
             if field_name == "nombre":
                 normalized_search = search_value.lower()
-                conditions.append(func.lower(Ambito.nombre).like(f"%{normalized_search}%"))
+                conditions.append(
+                    func.lower(Ambito.nombre).like(f"%{normalized_search}%")
+                )
 
         stmt = select(Ambito)
 
@@ -191,11 +193,7 @@ class DocumentaryTopicRepositoryImpl(IDocumentaryTopicRepository):
             previous_page=previous_page,
         )
 
-        return Page(
-            data=documentary_topics,
-            meta=page_info
-        )
-
+        return Page(data=documentary_topics, meta=page_info)
 
     @transactional(readonly=True)
     async def exists_by(self, **kwargs) -> bool:
@@ -217,7 +215,7 @@ class DocumentaryTopicRepositoryImpl(IDocumentaryTopicRepository):
             if key not in valid_fields:
                 raise InvalidFieldException(
                     message=f"Field '{key}' does not exist in the Ambito model",
-                    details=f"Valid fields are: {', '.join([f for f in valid_fields if not f.startswith('_')])}"
+                    details=f"Valid fields are: {', '.join([f for f in valid_fields if not f.startswith('_')])}",
                 )
 
         stmt = select(Ambito.id)

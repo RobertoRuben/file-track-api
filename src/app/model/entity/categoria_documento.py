@@ -6,9 +6,10 @@ from sqlmodel import (
     Column,
     BIGINT,
     TEXT,
-    DateTime
+    DateTime,
 )
 from datetime import datetime
+
 
 class CategoriaDocumento(SQLModel, table=True):
     __tablename__ = "categorias_documento"
@@ -26,4 +27,3 @@ class CategoriaDocumento(SQLModel, table=True):
     updated_at: datetime | None = Field(
         default=None, sa_column=Column(DateTime(timezone=True))
     )
-

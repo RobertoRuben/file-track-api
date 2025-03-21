@@ -1,20 +1,19 @@
 from sqlmodel import (
-    SQLModel,
-    text,
-    Field,
-    CheckConstraint,
-    Column,
     BIGINT,
     TEXT,
-    DateTime
+    CheckConstraint,
+    Column,
+    DateTime,
+    Field,
+    SQLModel,
+    text,
 )
 from datetime import datetime
 
+
 class Area(SQLModel, table=True):
     __tablename__ = "areas"
-    __table_args__ = (
-        CheckConstraint("LENGTH(nombre) > 3", name="ck_area_name"),
-    )
+    __table_args__ = (CheckConstraint("LENGTH(nombre) > 3", name="ck_area_name"),)
 
     id: int | None = Field(default=None, sa_column=Column(BIGINT, primary_key=True))
     nombre: str = Field(default=None, sa_column=Column(TEXT, unique=True))
