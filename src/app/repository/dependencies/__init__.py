@@ -4,6 +4,7 @@ from .area_repository_dependency import get_area_repository
 from .documentary_topic_repository_dependency import get_documentary_topic_repository
 from .settlement_repository_dependency import get_settlement_repository
 from .submitter_repository_dependency import get_submitter_repository
+from .position_repository_dependency import get_position_repository
 
 __all__ = [
     "get_categoria_documento_repository",
@@ -11,4 +12,5 @@ __all__ = [
     "get_area_repository",
     "get_documentary_topic_repository",
     "get_settlement_repository",
+    "get_submitter_repository",
 ]
