@@ -136,15 +136,15 @@ class SubmitterRepositoryImpl(ISubmitterRepository):
     @transactional(readonly=True)
     async def find(self, page: int, size: int, search_dict: dict[str, str]) -> Page:
         """
-        Search for senders with filtering and pagination.
+        Search submitters with filtering and pagination, case-insensitive.
 
         Args:
-            page: The page number (1-based indexing)
-            size: The number of items per page
+            page: Page number (1-based indexing)
+            size: Number of items per page
             search_dict: Dictionary of field-value pairs to search for
 
         Returns:
-            A Page object containing the filtered senders and pagination metadata
+            A Page object containing the filtered submitters and pagination metadata
 
         Raises:
             DatabaseException: If an error occurs during the search operation
@@ -152,17 +152,37 @@ class SubmitterRepositoryImpl(ISubmitterRepository):
         offset_value = (page - 1) * size
         conditions = []
 
-        allowed_fields = ["nombre"]
+        allowed_fields = ["nombres", "dni", "apellido_paterno", "apellido_materno"]
 
         for field_name, search_value in search_dict.items():
             if not search_value or field_name not in allowed_fields:
                 continue
 
-            if field_name == "nombre":
+            if field_name == "dni":
+                try:
+                    dni_value = int(search_value)
+                    conditions.append(Remitente.dni == dni_value)
+                except ValueError:
+                    conditions.append(
+                        func.cast(Remitente.dni, func.text('text')).like(
+                            f"{search_value}%"
+                        )
+                    )
+            else:
                 normalized_search = search_value.lower()
+
+                if field_name == "nombres":
+                    field = Remitente.nombres
+                elif field_name == "apellido_paterno":
+                    field = Remitente.apellido_paterno
+                elif field_name == "apellido_materno":
+                    field = Remitente.apellido_materno
+
+                conditions.append(func.lower(field) == normalized_search)
+                conditions.append(func.lower(field).like(f"{normalized_search}%"))
                 conditions.append(
-                    func.lower(Remitente.nombre).like(f"%{normalized_search}%")
-                )
+                    func.lower(field).like(f"%{normalized_search}%")
+                )  # Contains
 
         stmt = select(Remitente)
 
