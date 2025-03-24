@@ -75,11 +75,11 @@ class TestRolRepositoryImpl:
         result = await rol_repository.get_all()
 
         assert len(result) == 2
-        assert result[0].nombre == "Administrador"
-        assert result[1].nombre == "Usuario"
+        assert result[0].nombres == "Administrador"
+        assert result[1].nombres == "Usuario"
         print(f"✅ All roles retrieved: {len(result)} roles found")
         for i, rol in enumerate(result):
-            print(f"   - Role {i + 1}: ID={rol.id}, Name='{rol.nombre}'")
+            print(f"   - Role {i + 1}: ID={rol.id}, Name='{rol.nombres}'")
 
     @pytest.mark.asyncio
     async def test_delete_success(self, rol_repository, mock_session, rol_sample):
@@ -105,8 +105,8 @@ class TestRolRepositoryImpl:
         result = await rol_repository.get_by_id(1)
 
         assert result == rol_sample
-        assert result.nombre == "Administrador"
-        print(f"✅ Role retrieved by ID: ID={result.id}, Name='{result.nombre}'")
+        assert result.nombres == "Administrador"
+        print(f"✅ Role retrieved by ID: ID={result.id}, Name='{result.nombres}'")
 
     @pytest.mark.asyncio
     async def test_get_pageable_success(self, rol_repository, mock_session):
@@ -139,7 +139,7 @@ class TestRolRepositoryImpl:
             f"showing {len(result.data)} of {result.meta.total} roles"
         )
         for i, rol in enumerate(result.data):
-            print(f"   - Role {i + 1}: ID={rol.id}, Name='{rol.nombre}'")
+            print(f"   - Role {i + 1}: ID={rol.id}, Name='{rol.nombres}'")
 
     @pytest.mark.asyncio
     async def test_exists_by_success(self, rol_repository, mock_session):
@@ -204,10 +204,10 @@ class TestRolRepositoryImpl:
 
         assert isinstance(result, Page)
         assert len(result.data) == 1
-        assert result.data[0].nombre == "Administrador"
+        assert result.data[0].nombres == "Administrador"
         assert result.meta.total == 1
         print(
             f"✅ Search with filters successful: Found {result.meta.total} results for criteria {search_params}"
         )
         for i, rol in enumerate(result.data):
-            print(f"   - Result {i + 1}: ID={rol.id}, Name='{rol.nombre}'")
+            print(f"   - Result {i + 1}: ID={rol.id}, Name='{rol.nombres}'")

@@ -85,11 +85,11 @@ class TestDocumentaryTopicRepositoryImpl:
         result = await documentary_topic_repository.get_all()
 
         assert len(result) == 2
-        assert result[0].nombre == "Legal Documentation"
-        assert result[1].nombre == "Technical Documentation"
+        assert result[0].nombres == "Legal Documentation"
+        assert result[1].nombres == "Technical Documentation"
         print(f"✅ All documentary topics retrieved: {len(result)} topics found")
         for i, topic in enumerate(result):
-            print(f"   - Topic {i+1}: ID={topic.id}, Name='{topic.nombre}'")
+            print(f"   - Topic {i+1}: ID={topic.id}, Name='{topic.nombres}'")
 
     @pytest.mark.asyncio
     async def test_delete_success(
@@ -124,9 +124,9 @@ class TestDocumentaryTopicRepositoryImpl:
         result = await documentary_topic_repository.get_by_id(1)
 
         assert result == documentary_topic_sample
-        assert result.nombre == "Legal Documentation"
+        assert result.nombres == "Legal Documentation"
         print(
-            f"✅ Documentary topic retrieved by ID: ID={result.id}, Name='{result.nombre}'"
+            f"✅ Documentary topic retrieved by ID: ID={result.id}, Name='{result.nombres}'"
         )
 
     @pytest.mark.asyncio
@@ -165,7 +165,7 @@ class TestDocumentaryTopicRepositoryImpl:
             f"showing {len(result.data)} of {result.meta.total} topics"
         )
         for i, topic in enumerate(result.data):
-            print(f"   - Topic {i+1}: ID={topic.id}, Name='{topic.nombre}'")
+            print(f"   - Topic {i+1}: ID={topic.id}, Name='{topic.nombres}'")
 
     @pytest.mark.asyncio
     async def test_exists_by_success(self, documentary_topic_repository, mock_session):
@@ -242,13 +242,13 @@ class TestDocumentaryTopicRepositoryImpl:
 
         assert isinstance(result, Page)
         assert len(result.data) == 1
-        assert result.data[0].nombre == "Legal Documentation"
+        assert result.data[0].nombres == "Legal Documentation"
         assert result.meta.total == 1
         print(
             f"✅ Search with filters successful: Found {result.meta.total} results for criteria {search_params}"
         )
         for i, topic in enumerate(result.data):
-            print(f"   - Result {i+1}: ID={topic.id}, Name='{topic.nombre}'")
+            print(f"   - Result {i+1}: ID={topic.id}, Name='{topic.nombres}'")
 
     @pytest.mark.asyncio
     async def test_find_no_results(self, documentary_topic_repository, mock_session):
