@@ -10,6 +10,7 @@ from .documentary_topic_response_dto import (
 )
 from .settlement_reponse_dto import SettlementReponseDTO, SettlementPage
 from .submitter_response_dto import SubmitterResponseDTO, SubmitterPage
+from .position_response_dto import PositionResponseDTO, PositionPage
 
 __all__ = [
     "CategoryDocumentResponseDTO",
@@ -24,4 +25,6 @@ __all__ = [
     "SettlementPage",
     "SubmitterResponseDTO",
     "SubmitterPage",
+    "PositionResponseDTO",
+    "PositionPage",
 ]

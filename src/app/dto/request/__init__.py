@@ -4,6 +4,7 @@ from .department_request_dto import DepartmentRequestDTO
 from .documentary_topic_request_dto import DocumentaryTopicRequestDTO
 from .settlement_request_dto import SettlementRequestDTO
 from .submitter_request_dto import SubmitterRequestDTO
+from .position_request_dto import PositionRequestDTO
 
 __all__ = [
     "CategoryDocumentRequestDTO",
@@ -12,4 +13,5 @@ __all__ = [
     "DocumentaryTopicRequestDTO",
     "SettlementRequestDTO",
     "SubmitterRequestDTO",
+    "PositionRequestDTO",
 ]
