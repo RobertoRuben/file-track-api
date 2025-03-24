@@ -3,6 +3,7 @@ from .rol import Rol
 from .area import Area
 from .ambito import Ambito
 from .centro_poblado import CentroPoblado
+from .remitente import Remitente
 
 __all__ = [
     "CategoriaDocumento",
@@ -10,4 +11,5 @@ __all__ = [
     "Area",
     "Ambito",
     "CentroPoblado",
+    "Remitente",
 ]
