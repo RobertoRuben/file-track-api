@@ -6,7 +6,9 @@ from src.app.exception import ServerException
 T = TypeVar('T')
 
 
-def handle_exceptions(func: Optional[Callable[..., T]] = None) -> Callable[[Callable[..., T]], Callable[..., T]]:
+def handle_exceptions(
+    func: Optional[Callable[..., T]] = None,
+) -> Callable[[Callable[..., T]], Callable[..., T]]:
     """
     Decorator that handles exceptions in a unified way.
     BaseHTTPException subclasses are propagated without changes.

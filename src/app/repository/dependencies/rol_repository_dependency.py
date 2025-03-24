@@ -4,7 +4,10 @@ from src.app.db.dependencies import get_async_session
 from src.app.repository.interfaces import IRolRepository
 from src.app.repository.implementations import RolRepositoryImpl
 
-async def get_rol_repository(session: AsyncSession = Depends(get_async_session)) -> IRolRepository:
+
+async def get_rol_repository(
+    session: AsyncSession = Depends(get_async_session),
+) -> IRolRepository:
     """
     Dependency function to get the role repository implementation.
 

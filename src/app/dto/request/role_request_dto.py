@@ -6,6 +6,7 @@ class RoleRequestDTO(BaseModel):
     """
     DTO for creating or updating a role.
     """
+
     nombre: str = Field(description="Nombre del rol", min_length=3)
 
     @field_validator("nombre", mode="before")
@@ -30,7 +31,9 @@ class RoleRequestDTO(BaseModel):
 
         stripped_value = v.strip()
         if not stripped_value:
-            raise ValueError(f"{field_name} no puede estar vacío o contener solo espacios")
+            raise ValueError(
+                f"{field_name} no puede estar vacío o contener solo espacios"
+            )
 
         return stripped_value
 

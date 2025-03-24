@@ -4,7 +4,10 @@ from src.app.service.implementations import DepartmentServiceImpl
 from src.app.repository.interfaces import IAreaRepository
 from src.app.repository.dependencies import get_area_repository
 
-async def get_department_service(repository: IAreaRepository = Depends(get_area_repository)) -> IDepartmentService:
+
+async def get_department_service(
+    repository: IAreaRepository = Depends(get_area_repository),
+) -> IDepartmentService:
     """
     Dependency function to get the department service implementation.
 

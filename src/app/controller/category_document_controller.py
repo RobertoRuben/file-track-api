@@ -1,36 +1,44 @@
 from fastapi import APIRouter, Depends, Query
-from src.app.exception.schema import BackRequestError, ConflictError, InternalServerError, NotFoundError
+from src.app.exception.schema import (
+    BackRequestError,
+    ConflictError,
+    InternalServerError,
+    NotFoundError,
+)
 from src.app.dto.request import CategoryDocumentRequestDTO
 from src.app.dto.response import CategoryDocumentResponseDTO, CategoryDocumentPage
 from src.app.schema import MessageResponse
 from src.app.service.dependencies import get_category_document_service
 from src.app.service.interfaces import ICategoryDocumentService
 
-router = APIRouter(
-    prefix="/category",
-    tags=["Category Document"]
-)
+router = APIRouter(prefix="/category", tags=["Category Document"])
 
 category_document_tags_metadata = {
     "name": "Category Document",
     "description": "Manage document classification categories in the system. Includes endpoints for creating, "
-                   "retrieving, updating, and deleting document categories, as well as advanced search and pagination "
-                   "capabilities for efficient data management.",
+    "retrieving, updating, and deleting document categories, as well as advanced search and pagination "
+    "capabilities for efficient data management.",
 }
+
 
 @router.get(
     "",
     response_model=list[CategoryDocumentResponseDTO],
     summary="Get all document categories",
     responses={
-        200: {"model": list[CategoryDocumentResponseDTO], "description": "List of document categories"},
+        200: {
+            "model": list[CategoryDocumentResponseDTO],
+            "description": "List of document categories",
+        },
         400: {"model": BackRequestError, "description": "Bad request error"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
     description="Retrieve all document categories in the system.",
 )
 async def get_all_category_documents(
-    category_document_service: ICategoryDocumentService = Depends(get_category_document_service),
+    category_document_service: ICategoryDocumentService = Depends(
+        get_category_document_service
+    ),
 ) -> list[CategoryDocumentResponseDTO]:
     """
     Retrieve all document categories available in the system.
@@ -49,16 +57,24 @@ async def get_all_category_documents(
     response_model=CategoryDocumentResponseDTO,
     summary="Create a new document category in the system",
     responses={
-        201: {"model": CategoryDocumentResponseDTO, "description": "Document category successfully created"},
+        201: {
+            "model": CategoryDocumentResponseDTO,
+            "description": "Document category successfully created",
+        },
         400: {"model": BackRequestError, "description": "Bad request error"},
-        409: {"model": ConflictError, "description": "Document category already exists"},
+        409: {
+            "model": ConflictError,
+            "description": "Document category already exists",
+        },
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
     description="Create a new document category in the system. Provide the necessary details to create a new category.",
 )
 async def create_category_document(
     category_document_request: CategoryDocumentRequestDTO,
-    category_document_service: ICategoryDocumentService = Depends(get_category_document_service),
+    category_document_service: ICategoryDocumentService = Depends(
+        get_category_document_service
+    ),
 ) -> CategoryDocumentResponseDTO:
     """
     Create a new document category in the system.
@@ -69,7 +85,9 @@ async def create_category_document(
     :param category_document_service: Service to handle the creation logic.
     :return: The created document category's details.
     """
-    return await category_document_service.add_category_document(category_document_request)
+    return await category_document_service.add_category_document(
+        category_document_request
+    )
 
 
 @router.get(
@@ -77,7 +95,10 @@ async def create_category_document(
     response_model=CategoryDocumentPage,
     summary="Get paginated document categories",
     responses={
-        200: {"model": CategoryDocumentPage, "description": "Paginated list of document categories"},
+        200: {
+            "model": CategoryDocumentPage,
+            "description": "Paginated list of document categories",
+        },
         400: {"model": BackRequestError, "description": "Bad request error"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -86,7 +107,9 @@ async def create_category_document(
 async def get_paginated_category_documents(
     page: int = Query(1, ge=1, description="Page number"),
     size: int = Query(10, ge=1, description="Page size"),
-    category_document_service: ICategoryDocumentService = Depends(get_category_document_service),
+    category_document_service: ICategoryDocumentService = Depends(
+        get_category_document_service
+    ),
 ) -> CategoryDocumentPage:
     """
     Retrieve document categories in a paginated format.
@@ -107,7 +130,10 @@ async def get_paginated_category_documents(
     response_model=CategoryDocumentPage,
     summary="Search for categories documents based on a search term.",
     responses={
-        200: {"model": CategoryDocumentPage, "description": "Document categories search results"},
+        200: {
+            "model": CategoryDocumentPage,
+            "description": "Document categories search results",
+        },
         404: {"model": NotFoundError, "description": "No document categories found"},
         400: {"model": BackRequestError, "description": "Bad request error"},
         500: {"model": InternalServerError, "description": "Internal server error"},
@@ -118,7 +144,9 @@ async def find_category_documents(
     search_term: str = Query(..., description="Search term"),
     page: int = Query(1, ge=1, description="Page number"),
     size: int = Query(10, ge=1, description="Page size"),
-    category_document_service: ICategoryDocumentService = Depends(get_category_document_service),
+    category_document_service: ICategoryDocumentService = Depends(
+        get_category_document_service
+    ),
 ) -> CategoryDocumentPage:
     """
     Search for document categories based on a search term.
@@ -140,7 +168,10 @@ async def find_category_documents(
     response_model=CategoryDocumentResponseDTO,
     summary="Get a document category by ID",
     responses={
-        200: {"model": CategoryDocumentResponseDTO, "description": "Document category found"},
+        200: {
+            "model": CategoryDocumentResponseDTO,
+            "description": "Document category found",
+        },
         404: {"model": NotFoundError, "description": "Document category not found"},
         400: {"model": BackRequestError, "description": "Bad request error"},
         500: {"model": InternalServerError, "description": "Internal server error"},
@@ -149,7 +180,9 @@ async def find_category_documents(
 )
 async def get_category_document_by_id(
     category_document_id: int,
-    category_document_service: ICategoryDocumentService = Depends(get_category_document_service),
+    category_document_service: ICategoryDocumentService = Depends(
+        get_category_document_service
+    ),
 ) -> CategoryDocumentResponseDTO:
     """
     Retrieve a document category by its unique ID.
@@ -160,7 +193,9 @@ async def get_category_document_by_id(
     :param category_document_service: Service to handle the query and return the document category.
     :return: The details of the document category.
     """
-    return await category_document_service.get_category_document_by_id(category_document_id)
+    return await category_document_service.get_category_document_by_id(
+        category_document_id
+    )
 
 
 @router.put(
@@ -168,9 +203,15 @@ async def get_category_document_by_id(
     response_model=CategoryDocumentResponseDTO,
     summary="Update document category",
     responses={
-        200: {"model": CategoryDocumentResponseDTO, "description": "Document category successfully updated"},
+        200: {
+            "model": CategoryDocumentResponseDTO,
+            "description": "Document category successfully updated",
+        },
         404: {"model": NotFoundError, "description": "Document category not found"},
-        409: {"model": ConflictError, "description": "Document category already exists"},
+        409: {
+            "model": ConflictError,
+            "description": "Document category already exists",
+        },
         400: {"model": BackRequestError, "description": "Bad request error"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -179,7 +220,9 @@ async def get_category_document_by_id(
 async def update_category_document(
     category_document_id: int,
     category_document: CategoryDocumentRequestDTO,
-    category_document_service: ICategoryDocumentService = Depends(get_category_document_service),
+    category_document_service: ICategoryDocumentService = Depends(
+        get_category_document_service
+    ),
 ) -> CategoryDocumentResponseDTO:
     """
     Update an existing document category with the provided data.
@@ -192,7 +235,9 @@ async def update_category_document(
     :param category_document_service: Service to handle the update process.
     :return: The updated document category's details.
     """
-    return await category_document_service.update_category_document(category_document_id, category_document)
+    return await category_document_service.update_category_document(
+        category_document_id, category_document
+    )
 
 
 @router.delete(
@@ -209,7 +254,9 @@ async def update_category_document(
 )
 async def delete_category_document(
     category_document_id: int,
-    category_document_service: ICategoryDocumentService = Depends(get_category_document_service),
+    category_document_service: ICategoryDocumentService = Depends(
+        get_category_document_service
+    ),
 ):
     """
     Delete a document category identified by its ID.
@@ -220,9 +267,6 @@ async def delete_category_document(
     :param category_document_service: Service to handle the deletion logic.
     :return: A success message indicating the deletion.
     """
-    return await category_document_service.delete_category_document(category_document_id)
-
-
-
-
-
+    return await category_document_service.delete_category_document(
+        category_document_id
+    )

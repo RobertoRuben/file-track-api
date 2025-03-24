@@ -53,14 +53,17 @@ class TestDepartmentServiceImpl:
             An Area instance with test data.
         """
         return Area(
-            id=1,
-            nombre="Recursos Humanos",
-            created_at=datetime.now(),
-            updated_at=None
+            id=1, nombre="Recursos Humanos", created_at=datetime.now(), updated_at=None
         )
 
     @pytest.mark.asyncio
-    async def test_add_department_success(self, department_service, area_repository, department_request_dto, department_entity):
+    async def test_add_department_success(
+        self,
+        department_service,
+        area_repository,
+        department_request_dto,
+        department_entity,
+    ):
         """
         Tests successful department creation.
         """
@@ -74,32 +77,48 @@ class TestDepartmentServiceImpl:
         assert isinstance(result, DepartmentResponseDTO)
         assert result.id == department_entity.id
         assert result.nombre == department_entity.nombre
-        area_repository.exists_by.assert_called_once_with(nombre=department_request_dto.nombre)
+        area_repository.exists_by.assert_called_once_with(
+            nombre=department_request_dto.nombre
+        )
         area_repository.save.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_add_department_conflict(self, department_service, area_repository, department_request_dto):
+    async def test_add_department_conflict(
+        self, department_service, area_repository, department_request_dto
+    ):
         """
         Tests department creation with a name that already exists.
         """
-        print(f"\n🔹 Attempting to create duplicate department: '{department_request_dto.nombre}' 🔹")
+        print(
+            f"\n🔹 Attempting to create duplicate department: '{department_request_dto.nombre}' 🔹"
+        )
         area_repository.exists_by = AsyncMock(return_value=True)
 
         with pytest.raises(ConflictException) as exc_info:
             await department_service.add_department(department_request_dto)
         print(f"⚠️ Conflict detected: {exc_info.value}")
 
-        assert f"Department with name {department_request_dto.nombre} already exists" in str(exc_info.value)
-        area_repository.exists_by.assert_called_once_with(nombre=department_request_dto.nombre)
+        assert (
+            f"Department with name {department_request_dto.nombre} already exists"
+            in str(exc_info.value)
+        )
+        area_repository.exists_by.assert_called_once_with(
+            nombre=department_request_dto.nombre
+        )
         area_repository.save.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_get_all_departments(self, department_service, area_repository, department_entity):
+    async def test_get_all_departments(
+        self, department_service, area_repository, department_entity
+    ):
         """
         Tests retrieving all departments.
         """
         print("\n🔹 Getting all departments 🔍")
-        departments = [department_entity, Area(id=2, nombre="Ventas", created_at=datetime.now())]
+        departments = [
+            department_entity,
+            Area(id=2, nombre="Ventas", created_at=datetime.now()),
+        ]
         area_repository.get_all = AsyncMock(return_value=departments)
 
         result = await department_service.get_all_departments()
@@ -115,7 +134,9 @@ class TestDepartmentServiceImpl:
         area_repository.get_all.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_update_department_success(self, department_service, area_repository, department_entity):
+    async def test_update_department_success(
+        self, department_service, area_repository, department_entity
+    ):
         """
         Tests successful department update.
         """
@@ -125,7 +146,7 @@ class TestDepartmentServiceImpl:
             id=1,
             nombre="RRHH",
             created_at=department_entity.created_at,
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
         )
 
         area_repository.exists_by = AsyncMock(side_effect=[True, False])
@@ -144,7 +165,9 @@ class TestDepartmentServiceImpl:
         area_repository.save.assert_called_once()
 
     @pytest.mark.asyncio
-    async def test_update_department_not_found(self, department_service, area_repository):
+    async def test_update_department_not_found(
+        self, department_service, area_repository
+    ):
         """
         Tests department update when the department doesn't exist.
         """
@@ -161,7 +184,9 @@ class TestDepartmentServiceImpl:
         area_repository.save.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_update_department_name_conflict(self, department_service, area_repository, department_entity):
+    async def test_update_department_name_conflict(
+        self, department_service, area_repository, department_entity
+    ):
         """
         Tests department update with a conflicting name.
         """
@@ -198,7 +223,9 @@ class TestDepartmentServiceImpl:
         area_repository.delete.assert_called_once_with(1)
 
     @pytest.mark.asyncio
-    async def test_delete_department_not_found(self, department_service, area_repository):
+    async def test_delete_department_not_found(
+        self, department_service, area_repository
+    ):
         """
         Tests department deletion when the department doesn't exist.
         """
@@ -232,7 +259,9 @@ class TestDepartmentServiceImpl:
         area_repository.delete.assert_called_once_with(1)
 
     @pytest.mark.asyncio
-    async def test_get_department_by_id_success(self, department_service, area_repository, department_entity):
+    async def test_get_department_by_id_success(
+        self, department_service, area_repository, department_entity
+    ):
         """
         Tests retrieving a department by ID.
         """
@@ -250,7 +279,9 @@ class TestDepartmentServiceImpl:
         area_repository.get_by_id.assert_called_once_with(1)
 
     @pytest.mark.asyncio
-    async def test_get_department_by_id_not_found(self, department_service, area_repository):
+    async def test_get_department_by_id_not_found(
+        self, department_service, area_repository
+    ):
         """
         Tests retrieving a non-existent department by ID.
         """
@@ -266,19 +297,24 @@ class TestDepartmentServiceImpl:
         area_repository.get_by_id.assert_not_called()
 
     @pytest.mark.asyncio
-    async def test_get_departments_paginated_success(self, department_service, area_repository, department_entity):
+    async def test_get_departments_paginated_success(
+        self, department_service, area_repository, department_entity
+    ):
         """
         Tests retrieving paginated departments.
         """
         print("\n🔹 Getting departments with pagination (page: 1, size: 10) 📄")
-        departments = [department_entity, Area(id=2, nombre="Ventas", created_at=datetime.now())]
+        departments = [
+            department_entity,
+            Area(id=2, nombre="Ventas", created_at=datetime.now()),
+        ]
         pagination = Pagination(
             current_page=1,
             per_page=10,
             total=2,
             total_pages=1,
             next_page=None,
-            previous_page=None
+            previous_page=None,
         )
         page_result = Page(data=departments, meta=pagination)
 
@@ -286,7 +322,8 @@ class TestDepartmentServiceImpl:
 
         result = await department_service.get_departments_paginated(page=1, size=10)
         print(
-            f"📋 Page {result.meta.current_page} of {result.meta.total_pages}, {len(result.data)} results of {result.meta.total} in total")
+            f"📋 Page {result.meta.current_page} of {result.meta.total_pages}, {len(result.data)} results of {result.meta.total} in total"
+        )
 
         assert isinstance(result, DepartmentPage)
         assert len(result.data) == 2
@@ -314,7 +351,9 @@ class TestDepartmentServiceImpl:
         assert "Size number must be greater than 0" in str(exc_info.value)
 
     @pytest.mark.asyncio
-    async def test_find_success(self, department_service, area_repository, department_entity):
+    async def test_find_success(
+        self, department_service, area_repository, department_entity
+    ):
         """
         Tests searching for departments with filter criteria.
         """
@@ -326,7 +365,7 @@ class TestDepartmentServiceImpl:
             total=1,
             total_pages=1,
             next_page=None,
-            previous_page=None
+            previous_page=None,
         )
         page_result = Page(data=departments, meta=pagination)
 
@@ -374,7 +413,7 @@ class TestDepartmentServiceImpl:
             total=0,
             total_pages=0,
             next_page=None,
-            previous_page=None
+            previous_page=None,
         )
         page_result = Page(data=[], meta=pagination)
         area_repository.find = AsyncMock(return_value=page_result)
@@ -383,5 +422,7 @@ class TestDepartmentServiceImpl:
             await department_service.find(page=1, size=10, search_term="NotFound")
         print(f"⚠️ Expected error: {exc_info.value}")
 
-        assert "No departments found with the search term NotFound" in str(exc_info.value)
+        assert "No departments found with the search term NotFound" in str(
+            exc_info.value
+        )
         area_repository.find.assert_called_once_with(1, 10, {"nombre": "NotFound"})

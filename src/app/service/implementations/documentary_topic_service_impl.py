@@ -26,8 +26,7 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
 
     @handle_exceptions
     async def add_documentary_topic(
-        self,
-        documentary_topic_request: DocumentaryTopicRequestDTO
+        self, documentary_topic_request: DocumentaryTopicRequestDTO
     ) -> DocumentaryTopicResponseDTO:
         """
         Adds a new documentary topic to the system.
@@ -41,7 +40,9 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
         Raises:
             ConflictException: If a documentary topic with the same name already exists
         """
-        existing_topic = await self.repository.exists_by(nombre=documentary_topic_request.nombre)
+        existing_topic = await self.repository.exists_by(
+            nombre=documentary_topic_request.nombre
+        )
         if existing_topic:
             raise ConflictException(
                 details=f"Documentary topic with name {documentary_topic_request.nombre} already exists",
@@ -74,7 +75,7 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
                 id=topic.id,
                 nombre=topic.nombre,
                 created_at=topic.created_at,
-                updated_at=topic.updated_at
+                updated_at=topic.updated_at,
             )
             for topic in topics
         ]
@@ -83,7 +84,7 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
     async def update_documentary_topic(
         self,
         documentary_topic_id: int,
-        documentary_topic_request: DocumentaryTopicRequestDTO
+        documentary_topic_request: DocumentaryTopicRequestDTO,
     ) -> DocumentaryTopicResponseDTO:
         """
         Updates an existing documentary topic.
@@ -107,7 +108,9 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
         topic = await self.repository.get_by_id(documentary_topic_id)
 
         if topic.nombre != documentary_topic_request.nombre:
-            existing_topic = await self.repository.exists_by(nombre=documentary_topic_request.nombre)
+            existing_topic = await self.repository.exists_by(
+                nombre=documentary_topic_request.nombre
+            )
             if existing_topic:
                 raise ConflictException(
                     details=f"Documentary topic with name {documentary_topic_request.nombre} already exists",
@@ -126,7 +129,9 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
         )
 
     @handle_exceptions
-    async def delete_documentary_topic(self, documentary_topic_id: int) -> MessageResponse:
+    async def delete_documentary_topic(
+        self, documentary_topic_id: int
+    ) -> MessageResponse:
         """
         Deletes a documentary topic by its ID.
 
@@ -150,18 +155,20 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
                 message="Documentary topic deleted successfully.",
                 success=True,
                 details=f"Documentary topic with id {documentary_topic_id} deleted successfully.",
-                status_code=200
+                status_code=200,
             )
         else:
             return MessageResponse(
                 message="Failed to delete documentary topic.",
                 success=False,
                 details=f"Documentary topic with id {documentary_topic_id} could not be deleted.",
-                status_code=500
+                status_code=500,
             )
 
     @handle_exceptions
-    async def get_documentary_topic_by_id(self, documentary_topic_id: int) -> DocumentaryTopicResponseDTO:
+    async def get_documentary_topic_by_id(
+        self, documentary_topic_id: int
+    ) -> DocumentaryTopicResponseDTO:
         """
         Retrieves a documentary topic by its ID.
 
@@ -184,11 +191,13 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
             id=topic.id,
             nombre=topic.nombre,
             created_at=topic.created_at,
-            updated_at=topic.updated_at
+            updated_at=topic.updated_at,
         )
 
     @handle_exceptions
-    async def get_documentary_topics_paginated(self, page: int, size: int) -> DocumentaryTopicPage:
+    async def get_documentary_topics_paginated(
+        self, page: int, size: int
+    ) -> DocumentaryTopicPage:
         """
         Retrieves a paginated list of documentary topics.
 
@@ -224,7 +233,9 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
         )
 
     @handle_exceptions
-    async def find(self, page: int, size: int, search_term: str) -> DocumentaryTopicPage:
+    async def find(
+        self, page: int, size: int, search_term: str
+    ) -> DocumentaryTopicPage:
         """
         Searches for documentary topics matching the given search term.
 
@@ -251,9 +262,7 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
                 details="Size number must be greater than 0",
             )
 
-        search_dict = {
-            "nombre": search_term
-        }
+        search_dict = {"nombre": search_term}
 
         page_result = await self.repository.find(page, size, search_dict)
 
@@ -262,7 +271,9 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
                 details=f"No documentary topics found with the search term {search_term}",
             )
 
-        topic_response = [DocumentaryTopicResponseDTO(**topic.__dict__) for topic in page_result.data]
+        topic_response = [
+            DocumentaryTopicResponseDTO(**topic.__dict__) for topic in page_result.data
+        ]
 
         return DocumentaryTopicPage(
             data=topic_response,

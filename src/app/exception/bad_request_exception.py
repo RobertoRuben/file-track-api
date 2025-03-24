@@ -8,20 +8,16 @@ class BadRequestException(BaseHTTPException):
     """
 
     def __init__(
-            self,
-            message: str = "The request contains invalid parameters.",
-            details: str = None,
-            time: str = None,
-            type_: str = "Bad Request Error",
-            code: int = 400
+        self,
+        message: str = "The request contains invalid parameters.",
+        details: str = None,
+        time: str = None,
+        type_: str = "Bad Request Error",
+        code: int = 400,
     ):
         """
         Initialize a new BadRequestException.
         """
         super().__init__(
-            type_=type_,
-            code=code,
-            message=message,
-            details=details,
-            time=time
+            type_=type_, code=code, message=message, details=details, time=time
         )

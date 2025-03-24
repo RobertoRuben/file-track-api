@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from src.app.model.entity import Area
 from src.app.schema import Page
 
+
 class IAreaRepository(ABC):
     """
     Interface for the Area repository.

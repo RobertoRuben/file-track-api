@@ -3,7 +3,7 @@ from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
     InternalServerError,
-    NotFoundError
+    NotFoundError,
 )
 from src.app.dto.request import DepartmentRequestDTO
 from src.app.dto.response import DepartmentResponseDTO, DepartmentPage
@@ -11,16 +11,14 @@ from src.app.schema import MessageResponse
 from src.app.service.interfaces import IDepartmentService
 from src.app.service.dependencies import get_department_service
 
-router = APIRouter(
-    prefix="/department",
-    tags=["Department"]
-)
+router = APIRouter(prefix="/department", tags=["Department"])
 
 department_tags_metadata = {
     "name": "Department",
     "description": "Manages departments within the system. These operations allow creating, retrieving, "
-                   "updating, and deleting departments, as well as searching and listing them with pagination.",
+    "updating, and deleting departments, as well as searching and listing them with pagination.",
 }
+
 
 @router.post(
     "",
@@ -28,7 +26,10 @@ department_tags_metadata = {
     summary="Create a new department in the system",
     status_code=201,
     responses={
-        201: {"model": DepartmentResponseDTO, "description": "Department created successfully"},
+        201: {
+            "model": DepartmentResponseDTO,
+            "description": "Department created successfully",
+        },
         400: {"model": BackRequestError, "description": "Bad request error"},
         409: {"model": ConflictError, "description": "Department already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
@@ -58,7 +59,10 @@ async def create_department(
     response_model=list[DepartmentResponseDTO],
     summary="Get all departments",
     responses={
-        200: {"model": list[DepartmentResponseDTO], "description": "List of departments"},
+        200: {
+            "model": list[DepartmentResponseDTO],
+            "description": "List of departments",
+        },
         400: {"model": BackRequestError, "description": "Bad request error"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -122,7 +126,9 @@ async def get_paginated_departments(
     description="Search departments based on a keyword or phrase, with pagination for better management of search results.",
 )
 async def find_departments(
-    search_term: str | None = Query(None, description="Search term to filter departments"),
+    search_term: str | None = Query(
+        None, description="Search term to filter departments"
+    ),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of departments per page"),
     department_service: IDepartmentService = Depends(get_department_service),
@@ -176,7 +182,10 @@ async def get_department_by_id(
     response_model=DepartmentResponseDTO,
     summary="Update an existing department by ID",
     responses={
-        200: {"model": DepartmentResponseDTO, "description": "Department updated successfully"},
+        200: {
+            "model": DepartmentResponseDTO,
+            "description": "Department updated successfully",
+        },
         400: {"model": BackRequestError, "description": "Bad request error"},
         404: {"model": NotFoundError, "description": "Department not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
@@ -208,7 +217,10 @@ async def update_department(
     response_model=MessageResponse,
     summary="Delete a department by ID",
     responses={
-        200: {"model": MessageResponse, "description": "Department deleted successfully"},
+        200: {
+            "model": MessageResponse,
+            "description": "Department deleted successfully",
+        },
         400: {"model": BackRequestError, "description": "Bad request error"},
         404: {"model": NotFoundError, "description": "Department not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},

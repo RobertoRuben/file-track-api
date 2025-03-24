@@ -7,8 +7,7 @@ T = TypeVar('T')
 
 
 def transactional(
-        func: Optional[Callable[..., T]] = None,
-        readonly: bool = False
+    func: Optional[Callable[..., T]] = None, readonly: bool = False
 ) -> Union[Callable[..., T], Callable[[Callable[..., T]], Callable[..., T]]]:
     """
     Decorator to handle transactions in SQLAlchemy.
@@ -52,8 +51,7 @@ def transactional(
             except AttributeError as e:
                 await self.session.rollback()
                 raise InvalidFieldException(
-                    message="Error en los atributos proporcionados",
-                    details=str(e)
+                    message="Error en los atributos proporcionados", details=str(e)
                 )
             except SQLAlchemyError as e:
                 await self.session.rollback()

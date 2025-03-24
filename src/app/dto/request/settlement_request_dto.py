@@ -1,10 +1,12 @@
 import re
 from pydantic import BaseModel, field_validator, ValidationInfo
 
+
 class SettlementRequestDTO(BaseModel):
     """
     DTO for creating or updating a settlement.
     """
+
     nombre: str
 
     @field_validator("nombre", mode="before")
@@ -29,7 +31,9 @@ class SettlementRequestDTO(BaseModel):
 
         stripped_value = v.strip()
         if not stripped_value:
-            raise ValueError(f"{field_name} no puede estar vacío o contener solo espacios")
+            raise ValueError(
+                f"{field_name} no puede estar vacío o contener solo espacios"
+            )
 
         return stripped_value
 

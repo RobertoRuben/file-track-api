@@ -23,7 +23,7 @@ engine = create_async_engine(
     max_overflow=10,  # Maximum number of additional connections
     pool_timeout=30,  # Seconds to wait before timing out on getting a connection
     pool_pre_ping=True,  # Verify connections are alive before using them
-    poolclass=AsyncAdaptedQueuePool  # Connection pool implementation
+    poolclass=AsyncAdaptedQueuePool,  # Connection pool implementation
 )
 
 

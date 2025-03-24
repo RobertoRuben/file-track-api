@@ -3,6 +3,7 @@ from src.app.dto.request import DocumentaryTopicRequestDTO
 from src.app.dto.response import DocumentaryTopicResponseDTO, DocumentaryTopicPage
 from src.app.schema import MessageResponse
 
+
 class IDocumentaryTopicService(ABC):
     """
     Interfaz para operaciones del servicio de ámbitos documentales.
@@ -10,7 +11,9 @@ class IDocumentaryTopicService(ABC):
     """
 
     @abstractmethod
-    async def add_documentary_topic(self, documentary_topic_request: DocumentaryTopicRequestDTO) -> DocumentaryTopicResponseDTO:
+    async def add_documentary_topic(
+        self, documentary_topic_request: DocumentaryTopicRequestDTO
+    ) -> DocumentaryTopicResponseDTO:
         """
         Añade un nuevo ámbito documental.
 
@@ -33,7 +36,11 @@ class IDocumentaryTopicService(ABC):
         pass
 
     @abstractmethod
-    async def update_documentary_topic(self, documentary_topic_id: int, documentary_topic_request: DocumentaryTopicRequestDTO) -> DocumentaryTopicResponseDTO:
+    async def update_documentary_topic(
+        self,
+        documentary_topic_id: int,
+        documentary_topic_request: DocumentaryTopicRequestDTO,
+    ) -> DocumentaryTopicResponseDTO:
         """
         Actualiza un ámbito documental existente.
 
@@ -47,7 +54,9 @@ class IDocumentaryTopicService(ABC):
         pass
 
     @abstractmethod
-    async def delete_documentary_topic(self, documentary_topic_id: int) -> MessageResponse:
+    async def delete_documentary_topic(
+        self, documentary_topic_id: int
+    ) -> MessageResponse:
         """
         Elimina un ámbito documental por su ID.
 
@@ -60,7 +69,9 @@ class IDocumentaryTopicService(ABC):
         pass
 
     @abstractmethod
-    async def get_documentary_topic_by_id(self, documentary_topic_id: int) -> DocumentaryTopicResponseDTO:
+    async def get_documentary_topic_by_id(
+        self, documentary_topic_id: int
+    ) -> DocumentaryTopicResponseDTO:
         """
         Recupera un ámbito documental por su ID.
 
@@ -73,7 +84,9 @@ class IDocumentaryTopicService(ABC):
         pass
 
     @abstractmethod
-    async def get_documentary_topics_paginated(self, page: int, size: int) -> DocumentaryTopicPage:
+    async def get_documentary_topics_paginated(
+        self, page: int, size: int
+    ) -> DocumentaryTopicPage:
         """
         Recupera una lista paginada de ámbitos documentales.
 
@@ -87,7 +100,9 @@ class IDocumentaryTopicService(ABC):
         pass
 
     @abstractmethod
-    async def find(self, page: int, size: int, search_term: str) -> DocumentaryTopicPage:
+    async def find(
+        self, page: int, size: int, search_term: str
+    ) -> DocumentaryTopicPage:
         """
         Busca ámbitos documentales según criterios de búsqueda.
 

@@ -3,7 +3,7 @@ from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
     InternalServerError,
-    NotFoundError
+    NotFoundError,
 )
 from src.app.dto.request import DocumentaryTopicRequestDTO
 from src.app.dto.response import DocumentaryTopicResponseDTO, DocumentaryTopicPage
@@ -11,16 +11,14 @@ from src.app.schema import MessageResponse
 from src.app.service.interfaces import IDocumentaryTopicService
 from src.app.service.dependencies import get_documentary_topic_service
 
-router = APIRouter(
-    prefix="/documentary-topic",
-    tags=["DocumentaryTopic"]
-)
+router = APIRouter(prefix="/documentary-topic", tags=["DocumentaryTopic"])
 
 documentary_topic_tags_metadata = {
     "name": "DocumentaryTopic",
     "description": "Manages documentary topics within the system. These operations allow creating, retrieving, "
-                   "updating, and deleting documentary topics, as well as searching and listing them with pagination.",
+    "updating, and deleting documentary topics, as well as searching and listing them with pagination.",
 }
+
 
 @router.post(
     "",
@@ -28,16 +26,24 @@ documentary_topic_tags_metadata = {
     summary="Create a new documentary topic in the system",
     status_code=201,
     responses={
-        201: {"model": DocumentaryTopicResponseDTO, "description": "Documentary topic created successfully"},
+        201: {
+            "model": DocumentaryTopicResponseDTO,
+            "description": "Documentary topic created successfully",
+        },
         400: {"model": BackRequestError, "description": "Bad request error"},
-        409: {"model": ConflictError, "description": "Documentary topic already exists"},
+        409: {
+            "model": ConflictError,
+            "description": "Documentary topic already exists",
+        },
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
     description="Creates a new documentary topic in the system. Provide the documentary topic details in the request body to create it successfully.",
 )
 async def create_documentary_topic(
     documentary_topic_request: DocumentaryTopicRequestDTO,
-    documentary_topic_service: IDocumentaryTopicService = Depends(get_documentary_topic_service),
+    documentary_topic_service: IDocumentaryTopicService = Depends(
+        get_documentary_topic_service
+    ),
 ) -> DocumentaryTopicResponseDTO:
     """
     Endpoint to create a new documentary topic.
@@ -50,7 +56,9 @@ async def create_documentary_topic(
     :param documentary_topic_service: Service to handle the documentary topic creation logic.
     :return: The created documentary topic data.
     """
-    return await documentary_topic_service.add_documentary_topic(documentary_topic_request)
+    return await documentary_topic_service.add_documentary_topic(
+        documentary_topic_request
+    )
 
 
 @router.get(
@@ -58,14 +66,19 @@ async def create_documentary_topic(
     response_model=list[DocumentaryTopicResponseDTO],
     summary="Get all documentary topics",
     responses={
-        200: {"model": list[DocumentaryTopicResponseDTO], "description": "List of documentary topics"},
+        200: {
+            "model": list[DocumentaryTopicResponseDTO],
+            "description": "List of documentary topics",
+        },
         400: {"model": BackRequestError, "description": "Bad request error"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
     description="Retrieves a list of all documentary topics in the system.",
 )
 async def get_all_documentary_topics(
-    documentary_topic_service: IDocumentaryTopicService = Depends(get_documentary_topic_service),
+    documentary_topic_service: IDocumentaryTopicService = Depends(
+        get_documentary_topic_service
+    ),
 ) -> list[DocumentaryTopicResponseDTO]:
     """
     Endpoint to retrieve all documentary topics.
@@ -84,7 +97,10 @@ async def get_all_documentary_topics(
     response_model=DocumentaryTopicPage,
     summary="Get documentary topics with pagination",
     responses={
-        200: {"model": DocumentaryTopicPage, "description": "Paginated list of documentary topics"},
+        200: {
+            "model": DocumentaryTopicPage,
+            "description": "Paginated list of documentary topics",
+        },
         400: {"model": BackRequestError, "description": "Bad request error"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -93,7 +109,9 @@ async def get_all_documentary_topics(
 async def get_paginated_documentary_topics(
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of documentary topics per page"),
-    documentary_topic_service: IDocumentaryTopicService = Depends(get_documentary_topic_service),
+    documentary_topic_service: IDocumentaryTopicService = Depends(
+        get_documentary_topic_service
+    ),
 ) -> DocumentaryTopicPage:
     """
     Endpoint to retrieve documentary topics in a paginated manner.
@@ -114,7 +132,10 @@ async def get_paginated_documentary_topics(
     response_model=DocumentaryTopicPage,
     summary="Search documentary topics based on a term",
     responses={
-        200: {"model": DocumentaryTopicPage, "description": "Paginated list of documentary topics"},
+        200: {
+            "model": DocumentaryTopicPage,
+            "description": "Paginated list of documentary topics",
+        },
         400: {"model": BackRequestError, "description": "Bad request error"},
         404: {"model": NotFoundError, "description": "Documentary topic not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
@@ -122,10 +143,14 @@ async def get_paginated_documentary_topics(
     description="Search documentary topics based on a keyword or phrase, with pagination for better management of search results.",
 )
 async def find_documentary_topics(
-    search_term: str | None = Query(None, description="Search term to filter documentary topics"),
+    search_term: str | None = Query(
+        None, description="Search term to filter documentary topics"
+    ),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of documentary topics per page"),
-    documentary_topic_service: IDocumentaryTopicService = Depends(get_documentary_topic_service),
+    documentary_topic_service: IDocumentaryTopicService = Depends(
+        get_documentary_topic_service
+    ),
 ) -> DocumentaryTopicPage:
     """
     Endpoint to search documentary topics using a search term.
@@ -147,7 +172,10 @@ async def find_documentary_topics(
     response_model=DocumentaryTopicResponseDTO,
     summary="Get a specific documentary topic by ID",
     responses={
-        200: {"model": DocumentaryTopicResponseDTO, "description": "Documentary topic found"},
+        200: {
+            "model": DocumentaryTopicResponseDTO,
+            "description": "Documentary topic found",
+        },
         400: {"model": BackRequestError, "description": "Bad request error"},
         404: {"model": NotFoundError, "description": "Documentary topic not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
@@ -156,7 +184,9 @@ async def find_documentary_topics(
 )
 async def get_documentary_topic_by_id(
     documentary_topic_id: int,
-    documentary_topic_service: IDocumentaryTopicService = Depends(get_documentary_topic_service),
+    documentary_topic_service: IDocumentaryTopicService = Depends(
+        get_documentary_topic_service
+    ),
 ) -> DocumentaryTopicResponseDTO:
     """
     Endpoint to retrieve a documentary topic by its ID.
@@ -168,7 +198,9 @@ async def get_documentary_topic_by_id(
     :param documentary_topic_service: Service to handle the query and retrieve the documentary topic.
     :return: The documentary topic details.
     """
-    return await documentary_topic_service.get_documentary_topic_by_id(documentary_topic_id)
+    return await documentary_topic_service.get_documentary_topic_by_id(
+        documentary_topic_id
+    )
 
 
 @router.put(
@@ -176,7 +208,10 @@ async def get_documentary_topic_by_id(
     response_model=DocumentaryTopicResponseDTO,
     summary="Update an existing documentary topic by ID",
     responses={
-        200: {"model": DocumentaryTopicResponseDTO, "description": "Documentary topic updated successfully"},
+        200: {
+            "model": DocumentaryTopicResponseDTO,
+            "description": "Documentary topic updated successfully",
+        },
         400: {"model": BackRequestError, "description": "Bad request error"},
         404: {"model": NotFoundError, "description": "Documentary topic not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
@@ -186,7 +221,9 @@ async def get_documentary_topic_by_id(
 async def update_documentary_topic(
     documentary_topic_id: int,
     documentary_topic_request: DocumentaryTopicRequestDTO,
-    documentary_topic_service: IDocumentaryTopicService = Depends(get_documentary_topic_service),
+    documentary_topic_service: IDocumentaryTopicService = Depends(
+        get_documentary_topic_service
+    ),
 ) -> DocumentaryTopicResponseDTO:
     """
     Endpoint to update an existing documentary topic.
@@ -200,7 +237,9 @@ async def update_documentary_topic(
     :param documentary_topic_service: Service to handle the update logic.
     :return: The updated documentary topic data.
     """
-    return await documentary_topic_service.update_documentary_topic(documentary_topic_id, documentary_topic_request)
+    return await documentary_topic_service.update_documentary_topic(
+        documentary_topic_id, documentary_topic_request
+    )
 
 
 @router.delete(
@@ -208,7 +247,10 @@ async def update_documentary_topic(
     response_model=MessageResponse,
     summary="Delete a documentary topic by ID",
     responses={
-        200: {"model": MessageResponse, "description": "Documentary topic deleted successfully"},
+        200: {
+            "model": MessageResponse,
+            "description": "Documentary topic deleted successfully",
+        },
         400: {"model": BackRequestError, "description": "Bad request error"},
         404: {"model": NotFoundError, "description": "Documentary topic not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
@@ -217,7 +259,9 @@ async def update_documentary_topic(
 )
 async def delete_documentary_topic(
     documentary_topic_id: int,
-    documentary_topic_service: IDocumentaryTopicService = Depends(get_documentary_topic_service),
+    documentary_topic_service: IDocumentaryTopicService = Depends(
+        get_documentary_topic_service
+    ),
 ) -> MessageResponse:
     """
     Endpoint to delete a documentary topic.
@@ -229,4 +273,6 @@ async def delete_documentary_topic(
     :param documentary_topic_service: Service to handle the delete logic.
     :return: A success message indicating that the documentary topic has been deleted.
     """
-    return await documentary_topic_service.delete_documentary_topic(documentary_topic_id)
+    return await documentary_topic_service.delete_documentary_topic(
+        documentary_topic_id
+    )

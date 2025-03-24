@@ -2,6 +2,7 @@ from abc import ABC, abstractmethod
 from src.app.model.entity import Ambito
 from src.app.schema import Page
 
+
 class IDocumentaryTopicRepository(ABC):
     """
     Interface for the Documentary Topic repository.

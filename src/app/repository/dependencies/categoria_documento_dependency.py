@@ -4,7 +4,10 @@ from src.app.db.dependencies import get_async_session
 from src.app.repository.interfaces import ICategoriaDocumentoRepository
 from src.app.repository.implementations import CategoriaRepositoryImpl
 
-async def get_categoria_documento_repository(session: AsyncSession = Depends(get_async_session)) -> ICategoriaDocumentoRepository:
+
+async def get_categoria_documento_repository(
+    session: AsyncSession = Depends(get_async_session),
+) -> ICategoriaDocumentoRepository:
     """
     Dependency function to get the document category repository implementation.
 

@@ -7,6 +7,7 @@ from src.app.model.entity import Area, area
 from src.app.exception.invalid_field_exception import InvalidFieldException
 from src.app.schema import Page, Pagination
 
+
 class AreaRepositoryImpl(IAreaRepository):
     """
     Repository implementation for handling Area entities.
@@ -162,7 +163,9 @@ class AreaRepositoryImpl(IAreaRepository):
 
             if field_name == "nombre":
                 normalized_search = search_value.lower()
-                conditions.append(func.lower(Area.nombre).like(f"%{normalized_search}%"))
+                conditions.append(
+                    func.lower(Area.nombre).like(f"%{normalized_search}%")
+                )
 
         stmt = select(Area)
 
@@ -219,7 +222,7 @@ class AreaRepositoryImpl(IAreaRepository):
             if key not in valid_fields:
                 raise InvalidFieldException(
                     message=f"Field '{key}' does not exist in the Area model",
-                    details=f"Valid fields are: {', '.join([f for f in valid_fields if not f.startswith('_')])}"
+                    details=f"Valid fields are: {', '.join([f for f in valid_fields if not f.startswith('_')])}",
                 )
 
         stmt = select(Area.id)

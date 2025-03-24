@@ -8,20 +8,16 @@ class NotFoundException(BaseHTTPException):
     """
 
     def __init__(
-            self,
-            message: str = "The requested resource was not found.",
-            details: str = None,
-            time: str = None,
-            type_: str = "Not Found Error",
-            code: int = 404
+        self,
+        message: str = "The requested resource was not found.",
+        details: str = None,
+        time: str = None,
+        type_: str = "Not Found Error",
+        code: int = 404,
     ):
         """
         Initialize a new NotFoundException.
         """
         super().__init__(
-            type_=type_,
-            code=code,
-            message=message,
-            details=details,
-            time=time
+            type_=type_, code=code, message=message, details=details, time=time
         )

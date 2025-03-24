@@ -73,10 +73,10 @@ class ICategoriaDocumentoRepository(ABC):
 
     @abstractmethod
     async def find(
-            self,
-            page: int,
-            size: int,
-            search_dict: dict[str, str],
+        self,
+        page: int,
+        size: int,
+        search_dict: dict[str, str],
     ) -> Page:
         """
         Find document categories by search criteria.

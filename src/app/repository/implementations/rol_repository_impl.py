@@ -128,7 +128,7 @@ class RolRepositoryImpl(IRolRepository):
             total=total_items,
             total_pages=total_pages,
             next_page=next_page,
-            previous_page=previous_page
+            previous_page=previous_page,
         )
 
         return Page(
@@ -195,10 +195,7 @@ class RolRepositoryImpl(IRolRepository):
             previous_page=previous_page,
         )
 
-        return Page(
-            data=roles,
-            meta=page_info
-        )
+        return Page(data=roles, meta=page_info)
 
     @transactional(readonly=True)
     async def exists_by(self, **kwargs) -> bool:
@@ -220,7 +217,7 @@ class RolRepositoryImpl(IRolRepository):
             if key not in valid_fields:
                 raise InvalidFieldException(
                     message=f"Field '{key}' does not exist in the Rol model",
-                    details=f"Valid fields are: {', '.join([f for f in valid_fields if not f.startswith('_')])}"
+                    details=f"Valid fields are: {', '.join([f for f in valid_fields if not f.startswith('_')])}",
                 )
 
         stmt = select(Rol.id)

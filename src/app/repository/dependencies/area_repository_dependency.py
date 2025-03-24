@@ -4,7 +4,10 @@ from src.app.db.dependencies import get_async_session
 from src.app.repository.interfaces import IAreaRepository
 from src.app.repository.implementations import AreaRepositoryImpl
 
-async def get_area_repository(session: AsyncSession = Depends(get_async_session)) -> IAreaRepository:
+
+async def get_area_repository(
+    session: AsyncSession = Depends(get_async_session),
+) -> IAreaRepository:
     """
     Dependency function to get the area repository implementation.
 

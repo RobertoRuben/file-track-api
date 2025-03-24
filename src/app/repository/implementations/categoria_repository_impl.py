@@ -114,7 +114,9 @@ class CategoriaRepositoryImpl(ICategoriaDocumentoRepository):
             DatabaseException: If an error occurs during retrieval
         """
         try:
-            stmt = select(CategoriaDocumento).where(CategoriaDocumento.id == category_document_id)
+            stmt = select(CategoriaDocumento).where(
+                CategoriaDocumento.id == category_document_id
+            )
             result = await self.session.exec(stmt)
             category_document = result.first()
             return category_document
@@ -163,10 +165,7 @@ class CategoriaRepositoryImpl(ICategoriaDocumentoRepository):
                 previous_page=previous_page,
             )
 
-            return Page(
-                data=categories_document,
-                meta=pagination_info
-            )
+            return Page(data=categories_document, meta=pagination_info)
         except SQLAlchemyError as e:
             await self.session.rollback()
             raise DatabaseException(
@@ -201,7 +200,11 @@ class CategoriaRepositoryImpl(ICategoriaDocumentoRepository):
 
                 if field_name == "nombre":
                     normalized_search = search_value.lower()
-                    conditions.append(func.lower(CategoriaDocumento.nombre).like(f"%{normalized_search}%"))
+                    conditions.append(
+                        func.lower(CategoriaDocumento.nombre).like(
+                            f"%{normalized_search}%"
+                        )
+                    )
 
             stmt = select(CategoriaDocumento)
 
@@ -233,10 +236,7 @@ class CategoriaRepositoryImpl(ICategoriaDocumentoRepository):
                 previous_page=previous_page,
             )
 
-            return Page(
-                data=categories_document,
-                meta=pagination_info
-            )
+            return Page(data=categories_document, meta=pagination_info)
         except SQLAlchemyError as e:
             await self.session.rollback()
             raise DatabaseException(
@@ -264,7 +264,7 @@ class CategoriaRepositoryImpl(ICategoriaDocumentoRepository):
                 if key not in valid_fields:
                     raise InvalidFieldException(
                         message=f"Field '{key}' does not exist in the CategoriaDocumento model",
-                        details=f"Valid fields are: {', '.join([f for f in valid_fields if not f.startswith('_')])}"
+                        details=f"Valid fields are: {', '.join([f for f in valid_fields if not f.startswith('_')])}",
                     )
 
             stmt = select(CategoriaDocumento.id)
@@ -278,8 +278,7 @@ class CategoriaRepositoryImpl(ICategoriaDocumentoRepository):
         except AttributeError as e:
             await self.session.rollback()
             raise InvalidFieldException(
-                message="Error in provided attributes",
-                details=str(e)
+                message="Error in provided attributes", details=str(e)
             )
         except SQLAlchemyError as e:
             await self.session.rollback()

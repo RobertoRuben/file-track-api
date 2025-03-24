@@ -3,7 +3,7 @@ from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
     InternalServerError,
-    NotFoundError
+    NotFoundError,
 )
 from src.app.dto.request import RoleRequestDTO
 from src.app.dto.response import RoleResponseDTO, RolePage
@@ -11,16 +11,14 @@ from src.app.schema import MessageResponse
 from src.app.service.interfaces import IRoleService
 from src.app.service.dependencies import get_role_service
 
-router = APIRouter(
-    prefix="/role",
-    tags=["Role"]
-)
+router = APIRouter(prefix="/role", tags=["Role"])
 
 role_tags_metadata = {
     "name": "Role",
     "description": "Manage roles within the system. These operations allow you to create, retrieve, update, and "
-                   "delete roles, as well as search and list them with pagination.",
+    "delete roles, as well as search and list them with pagination.",
 }
+
 
 @router.post(
     "",
@@ -36,8 +34,7 @@ role_tags_metadata = {
     description="Create a new role in the system. Provide the role's details in the request body to successfully create it.",
 )
 async def create_role(
-    role_request: RoleRequestDTO,
-    role_service: IRoleService = Depends(get_role_service)
+    role_request: RoleRequestDTO, role_service: IRoleService = Depends(get_role_service)
 ) -> RoleResponseDTO:
     """
     Endpoint to create a new role.

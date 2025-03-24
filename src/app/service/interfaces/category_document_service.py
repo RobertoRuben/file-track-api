@@ -3,6 +3,7 @@ from src.app.schema import MessageResponse
 from src.app.dto.request import CategoryDocumentRequestDTO
 from src.app.dto.response import CategoryDocumentResponseDTO, CategoryDocumentPage
 
+
 class ICategoryDocumentService(ABC):
     """
     Interface for document category service operations.
@@ -10,7 +11,9 @@ class ICategoryDocumentService(ABC):
     """
 
     @abstractmethod
-    async def add_category_document(self, category_document_request: CategoryDocumentRequestDTO) -> CategoryDocumentResponseDTO:
+    async def add_category_document(
+        self, category_document_request: CategoryDocumentRequestDTO
+    ) -> CategoryDocumentResponseDTO:
         """
         Add a new document category.
 
@@ -33,7 +36,11 @@ class ICategoryDocumentService(ABC):
         pass
 
     @abstractmethod
-    async def update_category_document(self, category_document_id: int, category_document_request: CategoryDocumentRequestDTO) -> CategoryDocumentResponseDTO:
+    async def update_category_document(
+        self,
+        category_document_id: int,
+        category_document_request: CategoryDocumentRequestDTO,
+    ) -> CategoryDocumentResponseDTO:
         """
         Update an existing document category.
 
@@ -47,7 +54,9 @@ class ICategoryDocumentService(ABC):
         pass
 
     @abstractmethod
-    async def delete_category_document(self, category_document_id: int) -> MessageResponse:
+    async def delete_category_document(
+        self, category_document_id: int
+    ) -> MessageResponse:
         """
         Delete a document category by its ID.
 
@@ -60,7 +69,9 @@ class ICategoryDocumentService(ABC):
         pass
 
     @abstractmethod
-    async def get_category_document_by_id(self, category_document_id: int) -> CategoryDocumentResponseDTO:
+    async def get_category_document_by_id(
+        self, category_document_id: int
+    ) -> CategoryDocumentResponseDTO:
         """
         Retrieve a document category by its ID.
 
@@ -73,7 +84,9 @@ class ICategoryDocumentService(ABC):
         pass
 
     @abstractmethod
-    async def get_paginated_category_documents(self, page: int, size: int) -> CategoryDocumentPage:
+    async def get_paginated_category_documents(
+        self, page: int, size: int
+    ) -> CategoryDocumentPage:
         """
         Retrieve a paginated list of document categories.
 
@@ -87,7 +100,9 @@ class ICategoryDocumentService(ABC):
         pass
 
     @abstractmethod
-    async def find(self, page: int, size: int, search_term: str) -> CategoryDocumentPage:
+    async def find(
+        self, page: int, size: int, search_term: str
+    ) -> CategoryDocumentPage:
         """
         Find document categories based on search criteria.
 

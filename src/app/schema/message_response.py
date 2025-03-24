@@ -1,5 +1,6 @@
 from pydantic import BaseModel, Field
 
+
 class MessageResponse(BaseModel):
     """
     Message response model for consistent response format.

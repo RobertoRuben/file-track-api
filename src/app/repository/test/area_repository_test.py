@@ -26,10 +26,7 @@ def area_repository(mock_session):
 @pytest.fixture
 def area_sample():
     return Area(
-        id=1,
-        nombre="Recursos Humanos",
-        created_at=datetime.now(),
-        updated_at=None
+        id=1, nombre="Recursos Humanos", created_at=datetime.now(), updated_at=None
     )
 
 
@@ -47,7 +44,9 @@ class TestAreaRepositoryImpl:
         print(f"✅ Area saved successfully: ID={result.id}, Name='{result.nombre}'")
 
     @pytest.mark.asyncio
-    async def test_save_integrity_error(self, area_repository, mock_session, area_sample):
+    async def test_save_integrity_error(
+        self, area_repository, mock_session, area_sample
+    ):
         """Test to verify that the save method correctly handles integrity errors."""
         print("🧪 Testing integrity error handling during save...")
 
@@ -55,7 +54,9 @@ class TestAreaRepositoryImpl:
         error_original.__str__.return_value = "Duplicate entry"
 
         mock_session.add = AsyncMock()
-        mock_session.commit.side_effect = IntegrityError("Duplicate entry", None, error_original)
+        mock_session.commit.side_effect = IntegrityError(
+            "Duplicate entry", None, error_original
+        )
 
         with pytest.raises(DatabaseException) as exc_info:
             await area_repository.save(area_sample)
@@ -70,10 +71,7 @@ class TestAreaRepositoryImpl:
         """Test to verify that get_all returns all areas."""
         print("🧪 Testing retrieval of all areas...")
 
-        areas = [
-            Area(id=1, nombre="Recursos Humanos"),
-            Area(id=2, nombre="Finanzas")
-        ]
+        areas = [Area(id=1, nombre="Recursos Humanos"), Area(id=2, nombre="Finanzas")]
 
         area_repository.get_all = AsyncMock(return_value=areas)
 
@@ -117,10 +115,7 @@ class TestAreaRepositoryImpl:
         """Test to verify that get_pageable returns a page of results."""
         print("🧪 Testing area pagination...")
 
-        areas = [
-            Area(id=1, nombre="Recursos Humanos"),
-            Area(id=2, nombre="Finanzas")
-        ]
+        areas = [Area(id=1, nombre="Recursos Humanos"), Area(id=2, nombre="Finanzas")]
 
         pagination_info = Pagination(
             current_page=1,
@@ -128,13 +123,10 @@ class TestAreaRepositoryImpl:
             total=2,
             total_pages=1,
             next_page=None,
-            previous_page=None
+            previous_page=None,
         )
 
-        pagina = Page(
-            data=areas,
-            meta=pagination_info
-        )
+        pagina = Page(data=areas, meta=pagination_info)
 
         area_repository.get_pageable = AsyncMock(return_value=pagina)
 
@@ -144,8 +136,10 @@ class TestAreaRepositoryImpl:
         assert len(result.data) == 2
         assert result.meta.total == 2
         assert result.meta.current_page == 1
-        print(f"✅ Areas paginated: Page {result.meta.current_page}/{result.meta.total_pages}, "
-              f"showing {len(result.data)} of {result.meta.total} areas")
+        print(
+            f"✅ Areas paginated: Page {result.meta.current_page}/{result.meta.total_pages}, "
+            f"showing {len(result.data)} of {result.meta.total} areas"
+        )
         for i, area in enumerate(result.data):
             print(f"   - Area {i+1}: ID={area.id}, Name='{area.nombre}'")
 
@@ -178,7 +172,9 @@ class TestAreaRepositoryImpl:
         """Test to verify that exists_by throws an exception with invalid field."""
         print("🧪 Testing invalid field handling...")
 
-        area_repository.exists_by = AsyncMock(side_effect=InvalidFieldException("Invalid field"))
+        area_repository.exists_by = AsyncMock(
+            side_effect=InvalidFieldException("Invalid field")
+        )
 
         with pytest.raises(InvalidFieldException) as exc_info:
             await area_repository.exists_by(campo_inexistente="valor")
@@ -198,13 +194,10 @@ class TestAreaRepositoryImpl:
             total=1,
             total_pages=1,
             next_page=None,
-            previous_page=None
+            previous_page=None,
         )
 
-        pagina = Page(
-            data=areas,
-            meta=pagination_info
-        )
+        pagina = Page(data=areas, meta=pagination_info)
 
         area_repository.find = AsyncMock(return_value=pagina)
 
@@ -215,6 +208,8 @@ class TestAreaRepositoryImpl:
         assert len(result.data) == 1
         assert result.data[0].nombre == "Recursos Humanos"
         assert result.meta.total == 1
-        print(f"✅ Search with filters successful: Found {result.meta.total} results for criteria {search_params}")
+        print(
+            f"✅ Search with filters successful: Found {result.meta.total} results for criteria {search_params}"
+        )
         for i, area in enumerate(result.data):
             print(f"   - Result {i+1}: ID={area.id}, Name='{area.nombre}'")

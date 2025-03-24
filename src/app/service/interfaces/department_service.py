@@ -3,6 +3,7 @@ from src.app.dto.request import DepartmentRequestDTO
 from src.app.dto.response import DepartmentResponseDTO, DepartmentPage
 from src.app.schema import MessageResponse
 
+
 class IDepartmentService(ABC):
     """
     Interface for department service operations.
@@ -10,7 +11,9 @@ class IDepartmentService(ABC):
     """
 
     @abstractmethod
-    async def add_department(self, department_request: DepartmentRequestDTO) -> DepartmentResponseDTO:
+    async def add_department(
+        self, department_request: DepartmentRequestDTO
+    ) -> DepartmentResponseDTO:
         """
         Add a new department.
 
@@ -33,7 +36,9 @@ class IDepartmentService(ABC):
         pass
 
     @abstractmethod
-    async def update_department(self, department_id: int, department_request: DepartmentRequestDTO) -> DepartmentResponseDTO:
+    async def update_department(
+        self, department_id: int, department_request: DepartmentRequestDTO
+    ) -> DepartmentResponseDTO:
         """
         Update an existing department.
 

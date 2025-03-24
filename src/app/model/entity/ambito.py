@@ -6,15 +6,14 @@ from sqlmodel import (
     Column,
     BIGINT,
     TEXT,
-    DateTime
+    DateTime,
 )
 from datetime import datetime
 
+
 class Ambito(SQLModel, table=True):
     __tablename__ = "ambitos"
-    __table_args__ = (
-        CheckConstraint("LENGTH(nombre) > 3", name="ck_ambito_name"),
-    )
+    __table_args__ = (CheckConstraint("LENGTH(nombre) > 3", name="ck_ambito_name"),)
 
     id: int | None = Field(default=None, sa_column=Column(BIGINT, primary_key=True))
     nombre: str = Field(sa_column=Column(TEXT, nullable=False, unique=True))

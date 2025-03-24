@@ -53,14 +53,13 @@ class TestRoleServiceImpl:
             A Rol instance with test data.
         """
         return Rol(
-            id=1,
-            nombre="Administrador",
-            created_at=datetime.now(),
-            updated_at=None
+            id=1, nombre="Administrador", created_at=datetime.now(), updated_at=None
         )
 
     @pytest.mark.asyncio
-    async def test_add_role_success(self, role_service, rol_repository, role_request_dto, role_entity):
+    async def test_add_role_success(
+        self, role_service, rol_repository, role_request_dto, role_entity
+    ):
         """
         Tests successful role creation.
         """
@@ -79,7 +78,9 @@ class TestRoleServiceImpl:
         print(f"✅ Role created successfully: ID={result.id}, Name='{result.nombre}'")
 
     @pytest.mark.asyncio
-    async def test_add_role_conflict(self, role_service, rol_repository, role_request_dto):
+    async def test_add_role_conflict(
+        self, role_service, rol_repository, role_request_dto
+    ):
         """
         Tests role creation with a name that already exists.
         """
@@ -90,7 +91,9 @@ class TestRoleServiceImpl:
         with pytest.raises(ConflictException) as exc_info:
             await role_service.add_role(role_request_dto)
 
-        assert f"Role with name {role_request_dto.nombre} already exists" in str(exc_info.value)
+        assert f"Role with name {role_request_dto.nombre} already exists" in str(
+            exc_info.value
+        )
         rol_repository.exists_by.assert_called_once_with(nombre=role_request_dto.nombre)
         rol_repository.save.assert_not_called()
         print(f"✅ Conflict exception correctly raised: {exc_info.value}")
@@ -129,7 +132,7 @@ class TestRoleServiceImpl:
             id=1,
             nombre="Nuevo Administrador",
             created_at=role_entity.created_at,
-            updated_at=datetime.now()
+            updated_at=datetime.now(),
         )
 
         rol_repository.exists_by = AsyncMock(side_effect=[True, False])
@@ -145,7 +148,9 @@ class TestRoleServiceImpl:
         rol_repository.exists_by.assert_any_call(id=1)
         rol_repository.exists_by.assert_any_call(nombre="Nuevo Administrador")
         rol_repository.save.assert_called_once()
-        print(f"✅ Role updated successfully: ID={result.id}, New Name='{result.nombre}'")
+        print(
+            f"✅ Role updated successfully: ID={result.id}, New Name='{result.nombre}'"
+        )
 
     @pytest.mark.asyncio
     async def test_update_role_not_found(self, role_service, rol_repository):
@@ -166,7 +171,9 @@ class TestRoleServiceImpl:
         print(f"✅ NotFoundException correctly raised: {exc_info.value}")
 
     @pytest.mark.asyncio
-    async def test_update_role_name_conflict(self, role_service, rol_repository, role_entity):
+    async def test_update_role_name_conflict(
+        self, role_service, rol_repository, role_entity
+    ):
         """
         Tests role update with a conflicting name.
         """
@@ -241,7 +248,9 @@ class TestRoleServiceImpl:
         print(f"✅ Failure response correctly returned: {result.message}")
 
     @pytest.mark.asyncio
-    async def test_get_role_by_id_success(self, role_service, rol_repository, role_entity):
+    async def test_get_role_by_id_success(
+        self, role_service, rol_repository, role_entity
+    ):
         """
         Tests retrieving a role by ID.
         """
@@ -277,7 +286,9 @@ class TestRoleServiceImpl:
         print(f"✅ NotFoundException correctly raised: {exc_info.value}")
 
     @pytest.mark.asyncio
-    async def test_get_paginated_roles_success(self, role_service, rol_repository, role_entity):
+    async def test_get_paginated_roles_success(
+        self, role_service, rol_repository, role_entity
+    ):
         """
         Tests retrieving paginated roles.
         """
@@ -290,7 +301,7 @@ class TestRoleServiceImpl:
             total=2,
             total_pages=1,
             next_page=None,
-            previous_page=None
+            previous_page=None,
         )
         page_result = Page(data=roles, meta=pagination)
 
@@ -303,10 +314,14 @@ class TestRoleServiceImpl:
         assert result.meta.total == 2
         assert result.meta.current_page == 1
         rol_repository.get_pageable.assert_called_once_with(page=1, size=10)
-        print(f"✅ Retrieved paginated roles successfully: {len(result.data)} roles in page {result.meta.current_page}")
+        print(
+            f"✅ Retrieved paginated roles successfully: {len(result.data)} roles in page {result.meta.current_page}"
+        )
 
     @pytest.mark.asyncio
-    async def test_get_paginated_roles_invalid_params(self, role_service, rol_repository):
+    async def test_get_paginated_roles_invalid_params(
+        self, role_service, rol_repository
+    ):
         """
         Tests retrieving paginated roles with invalid parameters.
         """
@@ -316,14 +331,17 @@ class TestRoleServiceImpl:
         with pytest.raises(BadRequestException) as exc_info:
             await role_service.get_paginated_roles(page=0, size=10)
         assert "Page number must be greater than 0" in str(exc_info.value)
-        print(f"✅ BadRequestException correctly raised for invalid page: {exc_info.value}")
+        print(
+            f"✅ BadRequestException correctly raised for invalid page: {exc_info.value}"
+        )
 
         # Test invalid size
         with pytest.raises(BadRequestException) as exc_info:
             await role_service.get_paginated_roles(page=1, size=0)
         assert "Size number must be greater than 0" in str(exc_info.value)
-        print(f"✅ BadRequestException correctly raised for invalid size: {exc_info.value}")
-
+        print(
+            f"✅ BadRequestException correctly raised for invalid size: {exc_info.value}"
+        )
 
     @pytest.mark.asyncio
     async def test_find_success(self, role_service, rol_repository, role_entity):
@@ -339,7 +357,7 @@ class TestRoleServiceImpl:
             total=1,
             total_pages=1,
             next_page=None,
-            previous_page=None
+            previous_page=None,
         )
         page_result = Page(data=roles, meta=pagination)
 

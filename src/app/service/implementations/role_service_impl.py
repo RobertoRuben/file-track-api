@@ -58,7 +58,7 @@ class RoleServiceImpl(IRoleService):
             id=created_role.id,
             nombre=created_role.nombre,
             created_at=created_role.created_at,
-            updated_at=created_role.updated_at
+            updated_at=created_role.updated_at,
         )
 
     @handle_exceptions
@@ -75,13 +75,15 @@ class RoleServiceImpl(IRoleService):
                 id=role.id,
                 nombre=role.nombre,
                 created_at=role.created_at,
-                updated_at=role.updated_at
+                updated_at=role.updated_at,
             )
             for role in roles
         ]
 
     @handle_exceptions
-    async def update_role(self, role_id: int, role_request: RoleRequestDTO) -> RoleResponseDTO:
+    async def update_role(
+        self, role_id: int, role_request: RoleRequestDTO
+    ) -> RoleResponseDTO:
         """
         Update an existing role.
 
@@ -121,7 +123,7 @@ class RoleServiceImpl(IRoleService):
             id=updated_role.id,
             nombre=updated_role.nombre,
             created_at=updated_role.created_at,
-            updated_at=updated_role.updated_at
+            updated_at=updated_role.updated_at,
         )
 
     @handle_exceptions
@@ -149,14 +151,14 @@ class RoleServiceImpl(IRoleService):
                 message="Role deleted successfully.",
                 success=True,
                 details=f"Role with ID {role_id} deleted successfully.",
-                status_code=200
+                status_code=200,
             )
         else:
             return MessageResponse(
                 message="Failed to delete role.",
                 success=False,
                 details=f"Role with ID {role_id} could not be deleted.",
-                status_code=500
+                status_code=500,
             )
 
     @handle_exceptions
@@ -183,7 +185,7 @@ class RoleServiceImpl(IRoleService):
             id=role.id,
             nombre=role.nombre,
             created_at=role.created_at,
-            updated_at=role.updated_at
+            updated_at=role.updated_at,
         )
 
     @handle_exceptions
@@ -248,9 +250,7 @@ class RoleServiceImpl(IRoleService):
                 details="Size number must be greater than 0.",
             )
 
-        search_dict = {
-            "nombre": search_term
-        }
+        search_dict = {"nombre": search_term}
 
         page_result = await self.repository.find(page, size, search_dict)
 

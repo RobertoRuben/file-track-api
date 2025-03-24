@@ -16,6 +16,7 @@ def event_loop():
         An asyncio event loop.
     """
     import asyncio
+
     loop = asyncio.get_event_loop_policy().new_event_loop()
     yield loop
     loop.close()
@@ -50,9 +51,7 @@ async def async_session_maker(async_engine):
     Returns:
         A session factory that creates AsyncSession instances.
     """
-    return sessionmaker(
-        async_engine, class_=AsyncSession, expire_on_commit=False
-    )
+    return sessionmaker(async_engine, class_=AsyncSession, expire_on_commit=False)
 
 
 @pytest.fixture

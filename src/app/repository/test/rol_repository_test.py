@@ -25,12 +25,7 @@ def rol_repository(mock_session):
 
 @pytest.fixture
 def rol_sample():
-    return Rol(
-        id=1,
-        nombre="Administrador",
-        created_at=datetime.now(),
-        updated_at=None
-    )
+    return Rol(id=1, nombre="Administrador", created_at=datetime.now(), updated_at=None)
 
 
 class TestRolRepositoryImpl:
@@ -57,7 +52,9 @@ class TestRolRepositoryImpl:
         error_original.__str__.return_value = "Duplicate entry"
 
         mock_session.add = AsyncMock()
-        mock_session.commit.side_effect = IntegrityError("Duplicate entry", None, error_original)
+        mock_session.commit.side_effect = IntegrityError(
+            "Duplicate entry", None, error_original
+        )
 
         with pytest.raises(DatabaseException) as exc_info:
             await rol_repository.save(rol_sample)
@@ -71,10 +68,7 @@ class TestRolRepositoryImpl:
         """Test to verify that get_all returns all roles."""
         print("🧪 Testing retrieval of all roles...")
 
-        roles = [
-            Rol(id=1, nombre="Administrador"),
-            Rol(id=2, nombre="Usuario")
-        ]
+        roles = [Rol(id=1, nombre="Administrador"), Rol(id=2, nombre="Usuario")]
 
         rol_repository.get_all = AsyncMock(return_value=roles)
 
@@ -119,10 +113,7 @@ class TestRolRepositoryImpl:
         """Test to verify that get_pageable returns a page of results."""
         print("🧪 Testing role pagination...")
 
-        roles = [
-            Rol(id=1, nombre="Administrador"),
-            Rol(id=2, nombre="Usuario")
-        ]
+        roles = [Rol(id=1, nombre="Administrador"), Rol(id=2, nombre="Usuario")]
 
         pagination_info = Pagination(
             current_page=1,
@@ -130,13 +121,10 @@ class TestRolRepositoryImpl:
             total=2,
             total_pages=1,
             next_page=None,
-            previous_page=None
+            previous_page=None,
         )
 
-        pagina = Page(
-            data=roles,
-            meta=pagination_info
-        )
+        pagina = Page(data=roles, meta=pagination_info)
 
         rol_repository.get_pageable = AsyncMock(return_value=pagina)
 
@@ -146,8 +134,10 @@ class TestRolRepositoryImpl:
         assert len(result.data) == 2
         assert result.meta.total == 2
         assert result.meta.current_page == 1
-        print(f"✅ Roles paginated: Page {result.meta.current_page}/{result.meta.total_pages}, "
-              f"showing {len(result.data)} of {result.meta.total} roles")
+        print(
+            f"✅ Roles paginated: Page {result.meta.current_page}/{result.meta.total_pages}, "
+            f"showing {len(result.data)} of {result.meta.total} roles"
+        )
         for i, rol in enumerate(result.data):
             print(f"   - Role {i + 1}: ID={rol.id}, Name='{rol.nombre}'")
 
@@ -180,7 +170,9 @@ class TestRolRepositoryImpl:
         """Test to verify that exists_by throws an exception with invalid field."""
         print("🧪 Testing invalid field handling...")
 
-        rol_repository.exists_by = AsyncMock(side_effect=InvalidFieldException("Invalid field"))
+        rol_repository.exists_by = AsyncMock(
+            side_effect=InvalidFieldException("Invalid field")
+        )
 
         with pytest.raises(InvalidFieldException) as exc_info:
             await rol_repository.exists_by(campo_inexistente="valor")
@@ -200,13 +192,10 @@ class TestRolRepositoryImpl:
             total=1,
             total_pages=1,
             next_page=None,
-            previous_page=None
+            previous_page=None,
         )
 
-        pagina = Page(
-            data=roles,
-            meta=pagination_info
-        )
+        pagina = Page(data=roles, meta=pagination_info)
 
         rol_repository.find = AsyncMock(return_value=pagina)
 
@@ -217,6 +206,8 @@ class TestRolRepositoryImpl:
         assert len(result.data) == 1
         assert result.data[0].nombre == "Administrador"
         assert result.meta.total == 1
-        print(f"✅ Search with filters successful: Found {result.meta.total} results for criteria {search_params}")
+        print(
+            f"✅ Search with filters successful: Found {result.meta.total} results for criteria {search_params}"
+        )
         for i, rol in enumerate(result.data):
             print(f"   - Result {i + 1}: ID={rol.id}, Name='{rol.nombre}'")

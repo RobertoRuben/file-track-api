@@ -25,7 +25,7 @@ async def get_async_session() -> AsyncGenerator[AsyncSession, None]:
         class_=AsyncSession,
         expire_on_commit=False,
         autocommit=False,
-        autoflush=False
+        autoflush=False,
     )
 
     async with async_session() as session:

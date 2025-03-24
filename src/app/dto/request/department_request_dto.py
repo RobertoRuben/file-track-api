@@ -8,7 +8,9 @@ class DepartmentRequestDTO(BaseModel):
     Validates department data according to business rules.
     """
 
-    nombre: str = Field(description="Nombre del departamento de la institucion", min_length=3)
+    nombre: str = Field(
+        description="Nombre del departamento de la institucion", min_length=3
+    )
 
     @field_validator("nombre", mode="before")
     def strip_and_validate_string(cls, v, info: ValidationInfo):

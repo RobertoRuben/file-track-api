@@ -1,6 +1,7 @@
 import re
 from pydantic import BaseModel, Field, field_validator, ValidationInfo
 
+
 class DocumentaryTopicRequestDTO(BaseModel):
     """
     DTO for creating or updating a documentary topic.

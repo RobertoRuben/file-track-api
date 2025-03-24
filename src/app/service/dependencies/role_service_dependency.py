@@ -5,7 +5,9 @@ from src.app.repository.interfaces import IRolRepository
 from src.app.repository.dependencies import get_rol_repository
 
 
-async def get_role_service(repository: IRolRepository = Depends(get_rol_repository)) -> IRoleService:
+async def get_role_service(
+    repository: IRolRepository = Depends(get_rol_repository),
+) -> IRoleService:
     """
     Dependency function to get the role service implementation.
 

@@ -47,6 +47,7 @@ class Settings(BaseSettings):
 
         Specifies the location of the environment file to load variables from.
         """
+
         env_file = ".env"
 
 

@@ -1,11 +1,15 @@
 import re
 from pydantic import BaseModel, Field, field_validator, ValidationInfo
 
+
 class CategoryDocumentRequestDTO(BaseModel):
     """
     DTO for creating or updating a document category.
     """
-    nombre: str = Field(..., description="Nombre de la categoría del documento", min_length=3)
+
+    nombre: str = Field(
+        ..., description="Nombre de la categoría del documento", min_length=3
+    )
 
     @field_validator("nombre", mode="before")
     def strip_and_validate_string(cls, v, info: ValidationInfo):
@@ -29,7 +33,9 @@ class CategoryDocumentRequestDTO(BaseModel):
 
         stripped_value = v.strip()
         if not stripped_value:
-            raise ValueError(f"{field_name} no puede estar vacío o contener solo espacios")
+            raise ValueError(
+                f"{field_name} no puede estar vacío o contener solo espacios"
+            )
 
         return stripped_value
 

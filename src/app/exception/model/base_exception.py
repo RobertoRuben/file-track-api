@@ -10,12 +10,7 @@ class BaseHTTPException(HTTPException):
     """
 
     def __init__(
-            self,
-            type_: str,
-            code: int,
-            message: str,
-            details: str = None,
-            time: str = None
+        self, type_: str, code: int, message: str, details: str = None, time: str = None
     ):
         """
         Initialize a new BaseHTTPException.
@@ -32,10 +27,7 @@ class BaseHTTPException(HTTPException):
             code=code,
             message=message,
             details=details,
-            time=time or datetime.now().isoformat()
+            time=time or datetime.now().isoformat(),
         )
 
-        super().__init__(
-            status_code=code,
-            detail=error.model_dump()
-        )
+        super().__init__(status_code=code, detail=error.model_dump())

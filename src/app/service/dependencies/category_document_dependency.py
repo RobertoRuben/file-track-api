@@ -4,7 +4,12 @@ from src.app.service.implementations import CategoryDocumentServiceImpl
 from src.app.repository.interfaces import ICategoriaDocumentoRepository
 from src.app.repository.dependencies import get_categoria_documento_repository
 
-async def get_category_document_service(repository: ICategoriaDocumentoRepository = Depends(get_categoria_documento_repository)) -> ICategoryDocumentService:
+
+async def get_category_document_service(
+    repository: ICategoriaDocumentoRepository = Depends(
+        get_categoria_documento_repository
+    ),
+) -> ICategoryDocumentService:
     """
     Dependency function to get the category document service implementation.
 

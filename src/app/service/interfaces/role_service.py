@@ -3,6 +3,7 @@ from src.app.dto.request import RoleRequestDTO
 from src.app.dto.response import RoleResponseDTO, RolePage
 from src.app.schema import MessageResponse
 
+
 class IRoleService(ABC):
     """
     Interface for role service operations.
@@ -33,7 +34,9 @@ class IRoleService(ABC):
         pass
 
     @abstractmethod
-    async def update_role(self, role_id: int, role_request: RoleRequestDTO) -> RoleResponseDTO:
+    async def update_role(
+        self, role_id: int, role_request: RoleRequestDTO
+    ) -> RoleResponseDTO:
         """
         Update an existing role.
 

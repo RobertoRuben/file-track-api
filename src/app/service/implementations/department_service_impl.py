@@ -8,21 +8,26 @@ from src.app.exception.decorator import handle_exceptions
 from src.app.repository.interfaces import IAreaRepository
 from src.app.service.interfaces import IDepartmentService
 
+
 class DepartmentServiceImpl(IDepartmentService):
 
     def __init__(self, repository: IAreaRepository):
         self.repository = repository
 
     @handle_exceptions
-    async def add_department(self, department_request: DepartmentRequestDTO) -> DepartmentResponseDTO:
-        existing_department = await self.repository.exists_by(nombre=department_request.nombre)
+    async def add_department(
+        self, department_request: DepartmentRequestDTO
+    ) -> DepartmentResponseDTO:
+        existing_department = await self.repository.exists_by(
+            nombre=department_request.nombre
+        )
         if existing_department:
             raise ConflictException(
                 details=f"Department with name {department_request.nombre} already exists",
             )
 
         new_department = Area(
-            nombre = department_request.nombre,
+            nombre=department_request.nombre,
         )
 
         created_department = await self.repository.save(new_department)
@@ -42,13 +47,15 @@ class DepartmentServiceImpl(IDepartmentService):
                 id=department.id,
                 nombre=department.nombre,
                 created_at=department.created_at,
-                updated_at=department.updated_at
+                updated_at=department.updated_at,
             )
             for department in departments
         ]
 
     @handle_exceptions
-    async def update_department(self, department_id: int, department_request: DepartmentRequestDTO) -> DepartmentResponseDTO:
+    async def update_department(
+        self, department_id: int, department_request: DepartmentRequestDTO
+    ) -> DepartmentResponseDTO:
         exists_department_id = await self.repository.exists_by(id=department_id)
         if not exists_department_id:
             raise NotFoundException(
@@ -57,7 +64,9 @@ class DepartmentServiceImpl(IDepartmentService):
         department = await self.repository.get_by_id(department_id)
 
         if department.nombre != department_request.nombre:
-            existing_department = await self.repository.exists_by(nombre=department_request.nombre)
+            existing_department = await self.repository.exists_by(
+                nombre=department_request.nombre
+            )
             if existing_department:
                 raise ConflictException(
                     details=f"Department with name {department_request.nombre} already exists",
@@ -88,14 +97,14 @@ class DepartmentServiceImpl(IDepartmentService):
                 message="Department deleted successfully.",
                 success=True,
                 details=f"Department with id {department_id} deleted successfully.",
-                status_code=200
+                status_code=200,
             )
         else:
             return MessageResponse(
                 message="Failed to delete department.",
                 success=False,
                 details=f"Department with id {department_id} could not be deleted.",
-                status_code=500
+                status_code=500,
             )
 
     @handle_exceptions
@@ -110,7 +119,7 @@ class DepartmentServiceImpl(IDepartmentService):
             id=department.id,
             nombre=department.nombre,
             created_at=department.created_at,
-            updated_at=department.updated_at
+            updated_at=department.updated_at,
         )
 
     @handle_exceptions
@@ -128,7 +137,8 @@ class DepartmentServiceImpl(IDepartmentService):
 
         page_result = await self.repository.get_pageable(page, size)
         department_response = [
-            DepartmentResponseDTO(**department.__dict__) for department in page_result.data
+            DepartmentResponseDTO(**department.__dict__)
+            for department in page_result.data
         ]
 
         return DepartmentPage(
@@ -149,9 +159,7 @@ class DepartmentServiceImpl(IDepartmentService):
                 details="Size number must be greater than 0",
             )
 
-        search_dict = {
-            "nombre": search_term
-        }
+        search_dict = {"nombre": search_term}
 
         page_result = await self.repository.find(page, size, search_dict)
 
@@ -160,7 +168,10 @@ class DepartmentServiceImpl(IDepartmentService):
                 details=f"No departments found with the search term {search_term}",
             )
 
-        department_response = [DepartmentResponseDTO(**department.__dict__) for department in page_result.data]
+        department_response = [
+            DepartmentResponseDTO(**department.__dict__)
+            for department in page_result.data
+        ]
 
         return DepartmentPage(
             data=department_response,
