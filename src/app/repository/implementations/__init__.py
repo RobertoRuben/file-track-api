@@ -3,6 +3,7 @@ from .rol_repository_impl import RolRepositoryImpl
 from .area_repository_impl import AreaRepositoryImpl
 from .documentary_topic_repository_impl import DocumentaryTopicRepositoryImpl
 from .settlement_repository_impl import SettlementRepositoryImpl
+from .submitter_repository_impl import SubmitterRepositoryImpl
 
 __all__ = [
     "CategoriaRepositoryImpl",
@@ -10,4 +11,5 @@ __all__ = [
     "AreaRepositoryImpl",
     "DocumentaryTopicRepositoryImpl",
     "SettlementRepositoryImpl",
+    "SubmitterRepositoryImpl",
 ]
