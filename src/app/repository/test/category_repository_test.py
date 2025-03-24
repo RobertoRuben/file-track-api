@@ -87,11 +87,11 @@ class TestCategoriaRepositoryImpl:
         result = await categoria_repository.get_all()
 
         assert len(result) == 2
-        assert result[0].nombre == "Documentos Financieros"
-        assert result[1].nombre == "Documentos Técnicos"
+        assert result[0].nombres == "Documentos Financieros"
+        assert result[1].nombres == "Documentos Técnicos"
         print(f"✅ All categories retrieved: {len(result)} categories found")
         for i, cat in enumerate(result):
-            print(f"   - Category {i+1}: ID={cat.id}, Name='{cat.nombre}'")
+            print(f"   - Category {i+1}: ID={cat.id}, Name='{cat.nombres}'")
 
     @pytest.mark.asyncio
     async def test_delete_success(
@@ -127,8 +127,8 @@ class TestCategoriaRepositoryImpl:
         result = await categoria_repository.get_by_id(1)
 
         assert result == categoria_documento_sample
-        assert result.nombre == "Documentos Financieros"
-        print(f"✅ Category retrieved by ID: ID={result.id}, Name='{result.nombre}'")
+        assert result.nombres == "Documentos Financieros"
+        print(f"✅ Category retrieved by ID: ID={result.id}, Name='{result.nombres}'")
 
     @pytest.mark.asyncio
     async def test_get_pageable_success(self, categoria_repository, mock_session):
@@ -164,7 +164,7 @@ class TestCategoriaRepositoryImpl:
             f"showing {len(result.data)} of {result.meta.total} categories"
         )
         for i, cat in enumerate(result.data):
-            print(f"   - Category {i+1}: ID={cat.id}, Name='{cat.nombre}'")
+            print(f"   - Category {i+1}: ID={cat.id}, Name='{cat.nombres}'")
 
     @pytest.mark.asyncio
     async def test_exists_by_success(self, categoria_repository, mock_session):
@@ -235,10 +235,10 @@ class TestCategoriaRepositoryImpl:
 
         assert isinstance(result, Page)
         assert len(result.data) == 1
-        assert result.data[0].nombre == "Documentos Financieros"
+        assert result.data[0].nombres == "Documentos Financieros"
         assert result.meta.total == 1
         print(
             f"✅ Search with filters successful: Found {result.meta.total} results for criteria {search_params}"
         )
         for i, cat in enumerate(result.data):
-            print(f"   - Result {i+1}: ID={cat.id}, Name='{cat.nombre}'")
+            print(f"   - Result {i+1}: ID={cat.id}, Name='{cat.nombres}'")

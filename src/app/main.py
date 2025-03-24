@@ -13,6 +13,8 @@ from src.app.controller import (
     documentary_topic_tags_metadata,
     settlement_router,
     settlement_tags_metadata,
+    submitter_router,
+    submitter_tags_metadata,
 )
 
 API_PREFIX = "/api/v1"
@@ -23,6 +25,7 @@ tags_metadata = [
     department_tags_metadata,
     documentary_topic_tags_metadata,
     settlement_tags_metadata,
+    submitter_tags_metadata,
 ]
 
 
@@ -62,3 +65,4 @@ app.include_router(role_router, prefix=API_PREFIX)
 app.include_router(department_router, prefix=API_PREFIX)
 app.include_router(documentary_topic_router, prefix=API_PREFIX)
 app.include_router(settlement_router, prefix=API_PREFIX)
+app.include_router(submitter_router, prefix=API_PREFIX)

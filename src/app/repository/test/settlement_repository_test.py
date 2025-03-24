@@ -91,12 +91,12 @@ class TestSettlementRepositoryImpl:
         result = await settlement_repository.get_all()
 
         assert len(result) == 2
-        assert result[0].nombre == "Centro Poblado 1"
-        assert result[1].nombre == "Centro Poblado 2"
+        assert result[0].nombres == "Centro Poblado 1"
+        assert result[1].nombres == "Centro Poblado 2"
         print(f"✅ All settlements retrieved: {len(result)} settlements found")
         for i, settlement in enumerate(result):
             print(
-                f"   - Settlement {i+1}: ID={settlement.id}, Name='{settlement.nombre}'"
+                f"   - Settlement {i+1}: ID={settlement.id}, Name='{settlement.nombres}'"
             )
 
     @pytest.mark.asyncio
@@ -128,8 +128,8 @@ class TestSettlementRepositoryImpl:
         result = await settlement_repository.get_by_id(1)
 
         assert result == settlement_sample
-        assert result.nombre == "Centro Poblado Test"
-        print(f"✅ Settlement retrieved by ID: ID={result.id}, Name='{result.nombre}'")
+        assert result.nombres == "Centro Poblado Test"
+        print(f"✅ Settlement retrieved by ID: ID={result.id}, Name='{result.nombres}'")
 
     @pytest.mark.asyncio
     async def test_get_pageable_success(self, settlement_repository, mock_session):
@@ -166,7 +166,7 @@ class TestSettlementRepositoryImpl:
         )
         for i, settlement in enumerate(result.data):
             print(
-                f"   - Settlement {i+1}: ID={settlement.id}, Name='{settlement.nombre}'"
+                f"   - Settlement {i+1}: ID={settlement.id}, Name='{settlement.nombres}'"
             )
 
     @pytest.mark.asyncio
@@ -240,13 +240,13 @@ class TestSettlementRepositoryImpl:
 
         assert isinstance(result, Page)
         assert len(result.data) == 1
-        assert result.data[0].nombre == "San Isidro"
+        assert result.data[0].nombres == "San Isidro"
         assert result.meta.total == 1
         print(
             f"✅ Search with filters successful: Found {result.meta.total} results for criteria {search_params}"
         )
         for i, settlement in enumerate(result.data):
-            print(f"   - Result {i+1}: ID={settlement.id}, Name='{settlement.nombre}'")
+            print(f"   - Result {i+1}: ID={settlement.id}, Name='{settlement.nombres}'")
 
     @pytest.mark.asyncio
     async def test_find_no_results(self, settlement_repository, mock_session):

@@ -78,11 +78,11 @@ class TestAreaRepositoryImpl:
         result = await area_repository.get_all()
 
         assert len(result) == 2
-        assert result[0].nombre == "Recursos Humanos"
-        assert result[1].nombre == "Finanzas"
+        assert result[0].nombres == "Recursos Humanos"
+        assert result[1].nombres == "Finanzas"
         print(f"✅ All areas retrieved: {len(result)} areas found")
         for i, area in enumerate(result):
-            print(f"   - Area {i+1}: ID={area.id}, Name='{area.nombre}'")
+            print(f"   - Area {i+1}: ID={area.id}, Name='{area.nombres}'")
 
     @pytest.mark.asyncio
     async def test_delete_success(self, area_repository, mock_session, area_sample):
@@ -107,8 +107,8 @@ class TestAreaRepositoryImpl:
         result = await area_repository.get_by_id(1)
 
         assert result == area_sample
-        assert result.nombre == "Recursos Humanos"
-        print(f"✅ Area retrieved by ID: ID={result.id}, Name='{result.nombre}'")
+        assert result.nombres == "Recursos Humanos"
+        print(f"✅ Area retrieved by ID: ID={result.id}, Name='{result.nombres}'")
 
     @pytest.mark.asyncio
     async def test_get_pageable_success(self, area_repository, mock_session):
@@ -141,7 +141,7 @@ class TestAreaRepositoryImpl:
             f"showing {len(result.data)} of {result.meta.total} areas"
         )
         for i, area in enumerate(result.data):
-            print(f"   - Area {i+1}: ID={area.id}, Name='{area.nombre}'")
+            print(f"   - Area {i+1}: ID={area.id}, Name='{area.nombres}'")
 
     @pytest.mark.asyncio
     async def test_exists_by_success(self, area_repository, mock_session):
@@ -206,10 +206,10 @@ class TestAreaRepositoryImpl:
 
         assert isinstance(result, Page)
         assert len(result.data) == 1
-        assert result.data[0].nombre == "Recursos Humanos"
+        assert result.data[0].nombres == "Recursos Humanos"
         assert result.meta.total == 1
         print(
             f"✅ Search with filters successful: Found {result.meta.total} results for criteria {search_params}"
         )
         for i, area in enumerate(result.data):
-            print(f"   - Result {i+1}: ID={area.id}, Name='{area.nombre}'")
+            print(f"   - Result {i+1}: ID={area.id}, Name='{area.nombres}'")

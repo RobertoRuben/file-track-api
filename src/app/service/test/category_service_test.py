@@ -4,7 +4,7 @@ from datetime import datetime
 import pytest_asyncio
 
 from src.app.model.entity import CategoriaDocumento
-from src.app.dto import CategoryDocumentRequestDTO
+from src.app.dto.request import CategoryDocumentRequestDTO
 from src.app.dto.response import CategoryDocumentResponseDTO, CategoryDocumentPage
 from src.app.schema import MessageResponse, Pagination, Page
 from src.app.exception import ConflictException, NotFoundException, BadRequestException
