@@ -10,7 +10,9 @@ from src.app.controller import (
     department_router,
     department_tags_metadata,
     documentary_topic_router,
-    documentary_topic_tags_metadata
+    documentary_topic_tags_metadata,
+    settlement_router,
+    settlement_tags_metadata,
 )
 
 API_PREFIX = "/api/v1"
@@ -20,7 +22,9 @@ tags_metadata = [
     role_tags_metadata,
     department_tags_metadata,
     documentary_topic_tags_metadata,
+    settlement_tags_metadata,
 ]
+
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
@@ -31,6 +35,8 @@ async def lifespan(app: FastAPI):
     await init_db()
     await register_exception_handlers(app)
     yield
+
+
 app = FastAPI(
     title="File Track API",
     description="API for File Track",
@@ -55,3 +61,4 @@ app.include_router(category_document_router, prefix=API_PREFIX)
 app.include_router(role_router, prefix=API_PREFIX)
 app.include_router(department_router, prefix=API_PREFIX)
 app.include_router(documentary_topic_router, prefix=API_PREFIX)
+app.include_router(settlement_router, prefix=API_PREFIX)
