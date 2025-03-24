@@ -10,6 +10,7 @@ from .documentary_topic_controller import (
 )
 from .settlement_controller import router as settlement_router, settlement_tags_metadata
 from .submitter_controller import router as submitter_router, submitter_tags_metadata
+from .position_controller import router as position_router, position_tags_metadata
 
 __all__ = [
     "category_document_router",
@@ -24,4 +25,6 @@ __all__ = [
     "settlement_tags_metadata",
     "submitter_router",
     "submitter_tags_metadata",
+    "position_router",
+    "position_tags_metadata",
 ]
