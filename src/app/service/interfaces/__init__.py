@@ -13,5 +13,5 @@ __all__ = [
     "IDocumentaryTopicService",
     "ISettlementService",
     "ISubmitterService",
-    "IPositionService"
+    "IPositionService",
 ]
