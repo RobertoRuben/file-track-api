@@ -13,4 +13,5 @@ __all__ = [
     "get_documentary_topic_repository",
     "get_settlement_repository",
     "get_submitter_repository",
+    "get_position_repository",
 ]
