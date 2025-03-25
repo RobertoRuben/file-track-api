@@ -7,8 +7,13 @@ from sqlmodel import (
     Field,
     SQLModel,
     text,
+    Relationship,
 )
 from datetime import datetime
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .trabajador import Trabajador
 
 
 class Cargo(SQLModel, table=True):
@@ -25,3 +30,5 @@ class Cargo(SQLModel, table=True):
     updated_at: datetime | None = Field(
         default=None, sa_column=Column(DateTime(timezone=True))
     )
+
+    trabajadores: list["Trabajador"] = Relationship(back_populates="cargo")
