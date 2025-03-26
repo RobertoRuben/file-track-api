@@ -1,39 +1,51 @@
 import re
-from pydantic import BaseModel, Field, ValidationInfo, field_validator
+from pydantic import BaseModel, Field, ValidationInfo, field_validator, model_validator
 from src.app.model.enum import GeneroEnum
 
 
 class EmployeeRequestDto(BaseModel):
     """
     DTO for employee creation and update requests.
-    Contains all the necessary fields to process employee information.
+    Contains all fields necessary to process employee information.
     """
 
     dni: int = Field(
         ...,
-        description="Employee's national ID number",
+        description="Employee's national identification number",
         ge=10000000,
         lt=100000000,
         examples=[12345678],
     )
     nombres: str = Field(
-        ..., description="Employee's first name", min_length=2, examples=["Juan Carlos"]
+        ...,
+        description="Employee's first names",
+        min_length=2,
+        examples=["Juan Carlos"],
     )
     apellido_paterno: str = Field(
-        ..., description="Employee's paternal surname", min_length=2, examples=["Pérez"]
+        ...,
+        description="Employee's paternal surname",
+        min_length=2,
+        examples=["Pérez"],
     )
     apellido_materno: str = Field(
-        ..., description="Employee's maternal surname", min_length=2, examples=["Gómez"]
+        ...,
+        description="Employee's maternal surname",
+        min_length=2,
+        examples=["Gómez"],
     )
     genero: GeneroEnum = Field(
         ..., description="Employee's gender", examples=["Masculino", "Femenino"]
     )
     cargo_id: int = Field(
-        ..., description="Position ID associated with the employee", gt=0, examples=[1]
+        ...,
+        description="ID of the position associated with the employee",
+        gt=0,
+        examples=[1],
     )
     area_id: int = Field(
         ...,
-        description="Department ID associated with the employee",
+        description="ID of the department associated with the employee",
         gt=0,
         examples=[1],
     )
@@ -41,14 +53,14 @@ class EmployeeRequestDto(BaseModel):
     @field_validator("nombres", "apellido_paterno", "apellido_materno", mode="before")
     def strip_and_validate_string(cls, v, info: ValidationInfo):
         """
-        Validates that the input is a string and removes whitespace.
+        Validates that the input is a string and strips whitespace.
 
         Args:
             v: The value to validate
             info: Validation information context
 
         Returns:
-            The string value without whitespace
+            The stripped string value
 
         Raises:
             ValueError: If the value is not a string or is empty after stripping
@@ -73,10 +85,10 @@ class EmployeeRequestDto(BaseModel):
             v: The value to validate
 
         Returns:
-            The numerical value of the DNI
+            The numeric value of the DNI
 
         Raises:
-            ValueError: If the value is not numeric or does not meet the expected format
+            ValueError: If the value is not numeric or doesn't meet the expected format
         """
         if isinstance(v, str):
             v = v.strip()
@@ -109,7 +121,7 @@ class EmployeeRequestDto(BaseModel):
 
         if not pattern.fullmatch(v):
             raise ValueError(
-                f"{field_name} must contain only alphabetic characters and simple spaces between words"
+                f"{field_name} must contain only alphabetic characters and single spaces between words"
             )
         return v
 
@@ -125,16 +137,44 @@ class EmployeeRequestDto(BaseModel):
             The validated DNI value
 
         Raises:
-            ValueError: If the DNI does not have exactly 8 digits
+            ValueError: If the DNI doesn't have exactly 8 digits
         """
         if len(str(v)) != 8:
             raise ValueError("DNI must have exactly 8 digits")
         return v
 
+    @field_validator("cargo_id", "area_id", mode="before")
+    def validate_ids_input(cls, v, info: ValidationInfo):
+        """
+        Validates that the input IDs are integers or can be converted to integers.
+
+        Args:
+            v: The ID value to validate
+            info: Validation information context
+
+        Returns:
+            The ID value converted to integer
+
+        Raises:
+            ValueError: If the ID cannot be converted to an integer
+        """
+        field_name = info.field_name.replace("_", " ").title()
+
+        if isinstance(v, str):
+            v = v.strip()
+            if not v.isdigit():
+                raise ValueError(f"{field_name} must contain only numeric digits")
+            v = int(v)
+
+        if not isinstance(v, int):
+            raise ValueError(f"{field_name} must be an integer")
+
+        return v
+
     @field_validator("cargo_id", "area_id", mode="after")
     def validate_ids(cls, v, info: ValidationInfo):
         """
-        Validates that the IDs are positive integers.
+        Validates that IDs are positive integers.
 
         Args:
             v: The ID value to validate
@@ -152,3 +192,38 @@ class EmployeeRequestDto(BaseModel):
             raise ValueError(f"{field_name} must be a positive integer")
 
         return v
+
+    @model_validator(mode='before')
+    def validate_numeric_fields(cls, data, info: ValidationInfo):
+        """
+        Validates numeric fields before Pydantic performs type validation.
+
+        Args:
+            data: Raw input data from the request
+            info: Validation information context
+
+        Returns:
+            The validated data
+
+        Raises:
+            ValueError: If numeric fields contain non-digit characters
+        """
+        if not isinstance(data, dict):
+            return data
+
+        numeric_fields = ["dni", "cargo_id", "area_id"]
+        error_fields = []
+
+        for field in numeric_fields:
+            if field in data and isinstance(data[field], str):
+                value = data[field].strip()
+                if not value.isdigit():
+                    field_name = field.replace("_", " ").title()
+                    error_fields.append(
+                        f"{field_name} must contain only numeric digits"
+                    )
+
+        if error_fields:
+            raise ValueError(", ".join(error_fields))
+
+        return data
