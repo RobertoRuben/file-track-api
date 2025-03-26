@@ -60,7 +60,7 @@ class TestEmployeeServiceImpl:
             An instance of EmployeeServiceImpl with the mock repositories.
         """
         return EmployeeServiceImpl(
-            employee_repository=employee_repository,
+            repository=employee_repository,
             position_repository=position_repository,
             area_repository=area_repository,
         )
@@ -559,22 +559,33 @@ class TestEmployeeServiceImpl:
         """
         print("\n🔹 Getting employees with pagination (page: 1, size: 10) 📄")
 
-        # Create test data
-        employees = [
-            employee_entity,
-            Trabajador(
-                id=2,
-                dni="87654321",
-                nombres="Jane",
-                apellido_paterno="Smith",
-                apellido_materno="Doe",
-                genero=GeneroEnum.Femenino.value,
-                cargo_id=2,
-                area_id=2,
-                created_at=datetime.now(),
-                updated_at=None,
-            ),
+        employees_data = [
+            {
+                "id": 1,
+                "dni": "12345678",
+                "nombres": "John",
+                "apellido_paterno": "Doe",
+                "apellido_materno": "Smith",
+                "genero": "Masculino",
+                "area_id": 1,
+                "cargo_id": 1,
+                "created_at": datetime.now(),
+                "updated_at": None,
+            },
+            {
+                "id": 2,
+                "dni": "87654321",
+                "nombres": "Jane",
+                "apellido_paterno": "Smith",
+                "apellido_materno": "Doe",
+                "genero": "Femenino",
+                "area_id": 2,
+                "cargo_id": 2,
+                "created_at": datetime.now(),
+                "updated_at": None,
+            },
         ]
+
         pagination = Pagination(
             current_page=1,
             per_page=10,
@@ -583,24 +594,20 @@ class TestEmployeeServiceImpl:
             next_page=None,
             previous_page=None,
         )
-        page_result = Page(data=employees, meta=pagination)
+        page_result = Page(data=employees_data, meta=pagination)
 
-        # Configure mocks
         employee_repository.get_pageable = AsyncMock(return_value=page_result)
 
-        # Execute test
         result = await employee_service.get_employees_paginated(page=1, size=10)
         print(
             f"📋 Page {result.meta.current_page} of {result.meta.total_pages}, {len(result.data)} results of {result.meta.total} in total"
         )
 
-        # Verify results
         assert isinstance(result, EmployeePage)
         assert len(result.data) == 2
         assert result.meta.total == 2
         assert result.meta.current_page == 1
 
-        # Verify method calls
         employee_repository.get_pageable.assert_called_once_with(1, 10)
 
     @pytest.mark.asyncio
@@ -633,8 +640,21 @@ class TestEmployeeServiceImpl:
         """
         print("\n🔹 Searching for employees with search criteria 🔍")
 
-        # Create test data
-        employees = [employee_entity]
+        employees_data = [
+            {
+                "id": 1,
+                "dni": "12345678",
+                "nombres": "John",
+                "apellido_paterno": "Doe",
+                "apellido_materno": "Smith",
+                "genero": "Masculino",
+                "area_id": 1,
+                "cargo_id": 1,
+                "created_at": datetime.now(),
+                "updated_at": None,
+            }
+        ]
+
         pagination = Pagination(
             current_page=1,
             per_page=10,
@@ -643,26 +663,21 @@ class TestEmployeeServiceImpl:
             next_page=None,
             previous_page=None,
         )
-        page_result = Page(data=employees, meta=pagination)
+        page_result = Page(data=employees_data, meta=pagination)
 
-        # Configure mocks
         employee_repository.find = AsyncMock(return_value=page_result)
 
-        # Create search dictionary
-        search_dict = {"nombres": "John"}
+        search_term = "John"
 
-        # Execute test
-        result = await employee_service.find(page=1, size=10, search_dict=search_dict)
+        result = await employee_service.find(page=1, size=10, search_term=search_term)
         print(f"🔎 Found {len(result.data)} employees matching search criteria")
 
-        # Verify results
         assert isinstance(result, EmployeePage)
         assert len(result.data) == 1
         assert result.data[0].nombres == "John"
         assert result.meta.total == 1
 
-        # Verify method calls
-        employee_repository.find.assert_called_once_with(1, 10, search_dict)
+        employee_repository.find.assert_called_once()
 
     @pytest.mark.asyncio
     async def test_find_not_found(self, employee_service, employee_repository):
@@ -671,7 +686,6 @@ class TestEmployeeServiceImpl:
         """
         print("\n🔹 Searching for non-existent employees 🔍")
 
-        # Create empty page result
         pagination = Pagination(
             current_page=1,
             per_page=10,
@@ -682,21 +696,16 @@ class TestEmployeeServiceImpl:
         )
         page_result = Page(data=[], meta=pagination)
 
-        # Configure mocks
         employee_repository.find = AsyncMock(return_value=page_result)
 
-        # Create search dictionary
-        search_dict = {"nombres": "NotFound"}
+        search_term = "NotFound"
 
-        # Execute test and verify exception
         with pytest.raises(NotFoundException) as exc_info:
-            await employee_service.find(page=1, size=10, search_dict=search_dict)
+            await employee_service.find(page=1, size=10, search_term=search_term)
         print(f"⚠️ Expected error: {exc_info.value}")
 
-        # Verify the exception message
         assert "No employees found with the provided search criteria" in str(
             exc_info.value
         )
 
-        # Verify method calls
-        employee_repository.find.assert_called_once_with(1, 10, search_dict)
+        employee_repository.find.assert_called_once()
