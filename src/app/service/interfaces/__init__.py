@@ -5,6 +5,7 @@ from .documentary_topic_service import IDocumentaryTopicService
 from .settlement_service import ISettlementService
 from .submitter_service import ISubmitterService
 from .position_service import IPositionService
+from .employee_service import IEmployeeService
 
 __all__ = [
     "ICategoryDocumentService",
@@ -14,4 +15,5 @@ __all__ = [
     "ISettlementService",
     "ISubmitterService",
     "IPositionService",
+    "IEmployeeService",
 ]
