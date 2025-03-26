@@ -19,7 +19,7 @@ class EmployeeServiceImpl(IEmployeeService):
 
     def __init__(
         self,
-        employee_repository: IEmployeeRepository,
+        repository: IEmployeeRepository,
         position_repository: IPositionRepository,
         area_repository: IAreaRepository,
     ):
@@ -27,11 +27,11 @@ class EmployeeServiceImpl(IEmployeeService):
         Initializes the Employee Service with required repositories.
 
         Args:
-            employee_repository: Repository for employee data access
+            repository: Repository for employee data access
             position_repository: Repository for position data access
             area_repository: Repository for area/department data access
         """
-        self.repository = employee_repository
+        self.repository = repository
         self.position_repository = position_repository
         self.area_repository = area_repository
 
@@ -77,7 +77,7 @@ class EmployeeServiceImpl(IEmployeeService):
             nombres=employee_request.nombres,
             apellido_paterno=employee_request.apellido_paterno,
             apellido_materno=employee_request.apellido_materno,
-            genero=employee_request.genero,
+            genero=employee_request.genero.value,
             cargo_id=employee_request.cargo_id,
             area_id=employee_request.area_id,
         )
@@ -297,26 +297,25 @@ class EmployeeServiceImpl(IEmployeeService):
             )
 
         page_result = await self.repository.get_pageable(page, size)
+        print("**************Page result**********")
+        print(page_result)
         employee_response = [
-            EmployeeResponseDTO(**employee.__dict__) for employee in page_result.data
+            EmployeeResponseDTO(**employe_dict) for employe_dict in page_result.data
         ]
-
         return EmployeePage(
             data=employee_response,
             meta=page_result.meta,
         )
 
     @handle_exceptions
-    async def find(
-        self, page: int, size: int, search_dict: dict[str, str]
-    ) -> EmployeePage:
+    async def find(self, page: int, size: int, search_term: str) -> EmployeePage:
         """
         Searches for employees matching the given search criteria.
 
         Args:
             page: Page number to retrieve
             size: Number of items per page
-            search_dict: Dictionary with field names and search terms
+            search_term: Dictionary with field names and search terms
 
         Returns:
             Paginated employees matching the search criteria
@@ -336,6 +335,13 @@ class EmployeeServiceImpl(IEmployeeService):
                 details="Size number must be greater than 0",
             )
 
+        search_dict = {
+            "nombres": search_term,
+            "apellido_paterno": search_term,
+            "apellido_materno": search_term,
+            "dni": search_term if search_term and search_term.isdigit() else None,
+        }
+
         page_result = await self.repository.find(page, size, search_dict)
 
         if not page_result.data:
@@ -344,7 +350,7 @@ class EmployeeServiceImpl(IEmployeeService):
             )
 
         employee_response = [
-            EmployeeResponseDTO(**employee.__dict__) for employee in page_result.data
+            EmployeeResponseDTO(**employe_dict) for employe_dict in page_result.data
         ]
 
         return EmployeePage(
