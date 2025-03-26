@@ -92,16 +92,14 @@ class IEmployeeService(ABC):
         pass
 
     @abstractmethod
-    async def find(
-        self, page: int, size: int, search_dict: dict[str, str]
-    ) -> EmployeePage:
+    async def find(self, page: int, size: int, search_term: str) -> EmployeePage:
         """
         Find employees based on search criteria.
 
         Args:
             page: The page number to retrieve.
             size: The number of employees per page.
-            search_dict: Dictionary of field-value pairs to search for.
+            search_term: Dictionary of field-value pairs to search for.
 
         Returns:
             An EmployeePage object containing the employees that match the search criteria.
