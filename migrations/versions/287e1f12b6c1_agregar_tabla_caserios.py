@@ -1,8 +1,8 @@
 """agregar_tabla_caserios
 
-Revision ID: 8177d278de3e
+Revision ID: 287e1f12b6c1
 Revises: aa4f777b6bb2
-Create Date: 2025-03-26 14:58:54.070485
+Create Date: 2025-03-26 15:27:49.686471
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '8177d278de3e'
+revision: str = '287e1f12b6c1'
 down_revision: Union[str, None] = 'aa4f777b6bb2'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
