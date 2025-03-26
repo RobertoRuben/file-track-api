@@ -4,6 +4,11 @@ from src.app.model.enum import GeneroEnum
 
 
 class EmployeeRequestDto(BaseModel):
+    """
+    DTO for employee creation and update requests.
+    Contains all the necessary fields to process employee information.
+    """
+
     dni: int = Field(
         ...,
         description="Employee's national ID number",
