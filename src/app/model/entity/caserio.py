@@ -12,7 +12,7 @@ from sqlmodel import (
     ForeignKey,
 )
 from datetime import datetime
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from .centro_poblado import CentroPoblado
@@ -33,7 +33,7 @@ class Caserio(SQLModel, table=True):
     updated_at: datetime | None = Field(
         default=None, sa_column=Column(DateTime(timezone=True))
     )
-    centro_poblado_id: int = Field(
+    centro_poblado_id: int | None = Field(
         sa_column=Column(
             BIGINT,
             ForeignKey(
@@ -41,7 +41,8 @@ class Caserio(SQLModel, table=True):
                 name="fk_caserios_centro_poblados",
                 ondelete="CASCADE",
             ),
+            nullable=True,
         )
     )
 
-    centro_poblado: "CentroPoblado" = Relationship(back_populates="caserios")
+    centro_poblado: Optional["CentroPoblado"] = Relationship(back_populates="caserios")
