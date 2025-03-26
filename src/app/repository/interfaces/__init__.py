@@ -5,6 +5,7 @@ from .documentary_topic_repository import IDocumentaryTopicRepository
 from .settlement_repository import ISettlementRepository
 from .submitter_repository import ISubmitterRepository
 from .position_repository import IPositionRepository
+from .employee_repository import IEmployeeRepository
 
 __all__ = [
     "ICategoriaDocumentoRepository",
@@ -14,4 +15,5 @@ __all__ = [
     "ISettlementRepository",
     "ISubmitterRepository",
     "IPositionRepository",
+    "IEmployeeRepository",
 ]

@@ -11,6 +11,7 @@ from .documentary_topic_controller import (
 from .settlement_controller import router as settlement_router, settlement_tags_metadata
 from .submitter_controller import router as submitter_router, submitter_tags_metadata
 from .position_controller import router as position_router, position_tags_metadata
+from .employee_controller import router as employee_router, employee_tags_metadata
 
 __all__ = [
     "category_document_router",
@@ -27,4 +28,6 @@ __all__ = [
     "submitter_tags_metadata",
     "position_router",
     "position_tags_metadata",
+    "employee_router",
+    "employee_tags_metadata",
 ]
