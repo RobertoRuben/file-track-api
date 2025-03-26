@@ -6,6 +6,7 @@ from .centro_poblado import CentroPoblado
 from .remitente import Remitente
 from .cargo import Cargo
 from .trabajador import Trabajador
+from .caserio import Caserio
 
 __all__ = [
     "CategoriaDocumento",
@@ -16,4 +17,5 @@ __all__ = [
     "Remitente",
     "Cargo",
     "Trabajador",
+    "Caserio",
 ]
