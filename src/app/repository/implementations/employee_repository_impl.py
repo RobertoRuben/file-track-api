@@ -111,14 +111,16 @@ class EmployeeRepositoryImpl(IEmployeeRepository):
         offset_value = (page - 1) * size
         stmt = (
             select(
-                Trabajador.id,
-                Trabajador.dni,
+                Trabajador.id.label("id"),
+                Trabajador.dni.label("dni"),
                 Trabajador.nombres,
                 Trabajador.apellido_paterno,
                 Trabajador.apellido_materno,
                 Trabajador.genero,
-                Area.nombre.label("area_nombre"),
+                Trabajador.cargo_id,
                 Cargo.nombre.label("cargo_nombre"),
+                Trabajador.area_id,
+                Area.nombre.label("area_nombre"),
                 Trabajador.created_at,
                 Trabajador.updated_at,
             )
@@ -128,7 +130,7 @@ class EmployeeRepositoryImpl(IEmployeeRepository):
 
         stmt = stmt.offset(offset_value).limit(size)
         results = await self.session.exec(stmt)
-        employees_data = [dict(row.__mapping__) for row in results]
+        employees_data = [dict(row._mapping) for row in results]
 
         count_stmt = select(func.count(Trabajador.id))
         count_result = await self.session.exec(count_stmt)
@@ -203,14 +205,16 @@ class EmployeeRepositoryImpl(IEmployeeRepository):
 
         stmt = (
             select(
-                Trabajador.id,
-                Trabajador.dni,
+                Trabajador.id.label("id"),
+                Trabajador.dni.label("dni"),
                 Trabajador.nombres,
                 Trabajador.apellido_paterno,
                 Trabajador.apellido_materno,
                 Trabajador.genero,
-                Area.nombre.label("area_nombre"),
+                Trabajador.cargo_id,
                 Cargo.nombre.label("cargo_nombre"),
+                Trabajador.area_id,
+                Area.nombre.label("area_nombre"),
                 Trabajador.created_at,
                 Trabajador.updated_at,
             )
@@ -223,7 +227,7 @@ class EmployeeRepositoryImpl(IEmployeeRepository):
 
         stmt = stmt.offset(offset_value).limit(size)
         results = await self.session.exec(stmt)
-        employees_data = [dict(row.__mapping__) for row in results]
+        employees_data = [dict(row._mapping) for row in results]
 
         count_stmt = select(func.count(Trabajador.id))
 
