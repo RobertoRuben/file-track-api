@@ -36,7 +36,7 @@ async def get_employee_service(
         Una implementación de IEmployeeService configurada con los repositorios proporcionados.
     """
     return EmployeeServiceImpl(
-        employee_repository=employee_repository,
+        repository=employee_repository,
         position_repository=position_repository,
         area_repository=area_repository,
     )
