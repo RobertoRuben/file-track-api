@@ -289,7 +289,7 @@ class SubmitterServiceImpl(ISubmitterService):
             "nombres": search_term,
             "apellido_paterno": search_term,
             "apellido_materno": search_term,
-            "dni": search_term if search_term.isdigit() else None,
+            "dni": search_term if search_term and search_term.isdigit() else None,
         }
 
         page_result = await self.repository.find(page, size, search_dict)
