@@ -70,7 +70,7 @@ class HamletRepositoryImpl(IHamletRepository):
             DatabaseException: If an error occurs during the deletion
         """
         hamlet = await self.get_by_id(caserio_id)
-        await hamlet.delete(hamlet)
+        await self.session.delete(hamlet)
         return True
 
     @transactional(readonly=True)
@@ -113,7 +113,7 @@ class HamletRepositoryImpl(IHamletRepository):
             CentroPoblado.nombre.label("centro_poblado_nombre"),
             Caserio.created_at,
             Caserio.updated_at,
-        ).join(Caserio, on=(Caserio.id == Caserio.id), isouter=True)
+        ).join(Caserio, Caserio.id == Caserio.id, isouter=True)
 
         stmt = stmt.offset(offset_value).limit(size)
         results = await self.session.exec(stmt)
@@ -180,7 +180,7 @@ class HamletRepositoryImpl(IHamletRepository):
             CentroPoblado.nombre.label("centro_poblado_nombre"),
             Caserio.created_at,
             Caserio.updated_at,
-        ).join(Caserio, on=(Caserio.id == Caserio.id), isouter=True)
+        ).join(Caserio, Caserio.id == Caserio.id, isouter=True)
 
         if conditions:
             stmt = stmt.where(or_(*conditions))
