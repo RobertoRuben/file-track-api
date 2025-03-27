@@ -6,6 +6,7 @@ from .settlement_request_dto import SettlementRequestDTO
 from .submitter_request_dto import SubmitterRequestDTO
 from .position_request_dto import PositionRequestDTO
 from .employe_request_dto import EmployeeRequestDto
+from .hamlet_request_dto import HamletRequestDTO
 
 __all__ = [
     "CategoryDocumentRequestDTO",
@@ -16,4 +17,5 @@ __all__ = [
     "SubmitterRequestDTO",
     "PositionRequestDTO",
     "EmployeeRequestDto",
+    "HamletRequestDTO",
 ]

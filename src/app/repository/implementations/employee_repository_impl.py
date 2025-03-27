@@ -70,7 +70,7 @@ class EmployeeRepositoryImpl(IEmployeeRepository):
             DatabaseException: If an error occurs during the deletion
         """
         employee = await self.get_by_id(trabajador_id)
-        await employee.delete(employee)
+        await self.session.delete(employee)
         return True
 
     @transactional(readonly=True)

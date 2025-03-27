@@ -6,6 +6,7 @@ from .settlement_repository_dependency import get_settlement_repository
 from .submitter_repository_dependency import get_submitter_repository
 from .position_repository_dependency import get_position_repository
 from .employee_repository_dependency import get_employee_repository
+from .hamlet_repository_dependency import get_hamlet_repository
 
 __all__ = [
     "get_categoria_documento_repository",
@@ -16,4 +17,5 @@ __all__ = [
     "get_submitter_repository",
     "get_position_repository",
     "get_employee_repository",
+    "get_hamlet_repository",
 ]

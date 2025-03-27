@@ -7,8 +7,13 @@ from sqlmodel import (
     Column,
     TEXT,
     DateTime,
+    Relationship,
 )
 from datetime import datetime
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .caserio import Caserio
 
 
 class CentroPoblado(SQLModel, table=True):
@@ -27,3 +32,5 @@ class CentroPoblado(SQLModel, table=True):
     updated_at: datetime | None = Field(
         default=None, sa_column=Column(DateTime(timezone=True))
     )
+
+    caserios: list["Caserio"] = Relationship(back_populates="centro_poblado")

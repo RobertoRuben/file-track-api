@@ -6,6 +6,7 @@ from .settlement_service_impl import SettlementServiceImpl
 from .submitter_service_impl import SubmitterServiceImpl
 from .position_service_impl import PositionServiceImpl
 from .employee_service_impl import EmployeeServiceImpl
+from .hamlet_service_impl import HamletServiceImpl
 
 __all__ = [
     "CategoryDocumentServiceImpl",
@@ -16,4 +17,5 @@ __all__ = [
     "SubmitterServiceImpl",
     "PositionServiceImpl",
     "EmployeeServiceImpl",
+    "HamletServiceImpl",
 ]
