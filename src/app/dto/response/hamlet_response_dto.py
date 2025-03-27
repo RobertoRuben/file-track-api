@@ -21,8 +21,8 @@ class HamletResponseDto(BaseModel):
         min_length=2,
         examples=["San Miguel", "El Paraíso"],
     )
-    centro_poblado_id: int = Field(
-        ...,
+    centro_poblado_id: int | None = Field(
+        default=None,
         description="ID of the population center associated with the hamlet",
         gt=0,
         examples=[1],
