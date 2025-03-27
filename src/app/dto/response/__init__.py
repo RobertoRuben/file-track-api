@@ -12,6 +12,7 @@ from .settlement_reponse_dto import SettlementReponseDTO, SettlementPage
 from .submitter_response_dto import SubmitterResponseDTO, SubmitterPage
 from .position_response_dto import PositionResponseDTO, PositionPage
 from .employee_response_dto import EmployeeResponseDTO, EmployeePage
+from .hamlet_response_dto import HamletResponseDto, HamletPage
 
 __all__ = [
     "CategoryDocumentResponseDTO",
@@ -30,4 +31,6 @@ __all__ = [
     "PositionPage",
     "EmployeeResponseDTO",
     "EmployeePage",
+    "HamletResponseDto",
+    "HamletPage",
 ]
