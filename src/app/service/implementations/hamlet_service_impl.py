@@ -250,7 +250,7 @@ class HamletServiceImpl(IHamletService):
 
         page_result = await self.repository.get_pageable(page, size)
         hamlet_response = [
-            HamletResponseDto(**hamlet.__dict__) for hamlet in page_result.data
+            HamletResponseDto(**hamlet_dict) for hamlet_dict in page_result.data
         ]
 
         return HamletPage(
@@ -296,7 +296,7 @@ class HamletServiceImpl(IHamletService):
             )
 
         hamlet_response = [
-            HamletResponseDto(**hamlet.__dict__) for hamlet in page_result.data
+            HamletResponseDto(**hamlet_dict) for hamlet_dict in page_result.data
         ]
 
         return HamletPage(
