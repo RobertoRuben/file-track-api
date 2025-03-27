@@ -297,8 +297,6 @@ class EmployeeServiceImpl(IEmployeeService):
             )
 
         page_result = await self.repository.get_pageable(page, size)
-        print("**************Page result**********")
-        print(page_result)
         employee_response = [
             EmployeeResponseDTO(**employe_dict) for employe_dict in page_result.data
         ]
