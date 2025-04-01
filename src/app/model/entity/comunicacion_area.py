@@ -59,9 +59,13 @@ class ComunicacionArea(SQLModel, table=True):
 
     area_origen: "Area" = Relationship(
         back_populates="comunicacion_areas_origen",
-        sa_relationship_kwargs={"foreign_keys": "[ComunicacionArea.area_origen_id]"},
+        sa_relationship_kwargs={
+            "primaryjoin": "Area.id == ComunicacionArea.area_origen_id",
+        },
     )
     area_destino: "Area" = Relationship(
         back_populates="comunicacion_areas_destino",
-        sa_relationship_kwargs={"foreign_keys": "[ComunicacionArea.area_destino_id]"},
+        sa_relationship_kwargs={
+            "primaryjoin": "Area.id == ComunicacionArea.area_destino_id",
+        },
     )

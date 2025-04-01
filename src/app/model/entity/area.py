@@ -35,8 +35,14 @@ class Area(SQLModel, table=True):
     trabajadores: list["Trabajador"] = Relationship(back_populates="area")
 
     comunicacion_areas_origen: list["ComunicacionArea"] = Relationship(
-        back_populates="area_origen"
+        back_populates="area_origen",
+        sa_relationship_kwargs={
+            "primaryjoin": "Area.id == ComunicacionArea.area_origen_id",
+        },
     )
     comunicacion_areas_destino: list["ComunicacionArea"] = Relationship(
-        back_populates="area_destino"
+        back_populates="area_destino",
+        sa_relationship_kwargs={
+            "primaryjoin": "Area.id == ComunicacionArea.area_destino_id",
+        },
     )
