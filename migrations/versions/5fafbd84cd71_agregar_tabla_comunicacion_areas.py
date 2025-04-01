@@ -1,8 +1,8 @@
 """agregar_tabla_comunicacion_areas
 
-Revision ID: 34cdd29f21de
+Revision ID: 5fafbd84cd71
 Revises: 287e1f12b6c1
-Create Date: 2025-03-31 16:18:10.762588
+Create Date: 2025-04-01 14:38:51.788393
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = '34cdd29f21de'
+revision: str = '5fafbd84cd71'
 down_revision: Union[str, None] = '287e1f12b6c1'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
