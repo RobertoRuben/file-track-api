@@ -7,6 +7,7 @@ from .submitter_service import ISubmitterService
 from .position_service import IPositionService
 from .employee_service import IEmployeeService
 from .hamlet_service import IHamletService
+from .area_connection_service import IAreaConnectionService
 
 __all__ = [
     "ICategoryDocumentService",
@@ -18,4 +19,5 @@ __all__ = [
     "IPositionService",
     "IEmployeeService",
     "IHamletService",
+    "IAreaConnectionService",
 ]
