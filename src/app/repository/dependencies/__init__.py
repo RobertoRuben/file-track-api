@@ -7,7 +7,7 @@ from .submitter_repository_dependency import get_submitter_repository
 from .position_repository_dependency import get_position_repository
 from .employee_repository_dependency import get_employee_repository
 from .hamlet_repository_dependency import get_hamlet_repository
-from .comunication_department_dependency import get_comunication_department_repository
+from .area_connection_repository_dependency import get_area_connection_repository
 
 __all__ = [
     "get_categoria_documento_repository",
@@ -19,5 +19,5 @@ __all__ = [
     "get_position_repository",
     "get_employee_repository",
     "get_hamlet_repository",
-    "get_comunication_department_repository",
+    "get_area_connection_repository",
 ]
