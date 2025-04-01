@@ -103,3 +103,18 @@ class IAreaConnectionRepository(ABC):
             True if a matching communication between areas exists, False otherwise
         """
         pass
+
+    @abstractmethod
+    async def get_connections_by_area_origen_id(
+        self, area_origen_id: int
+    ) -> list[ComunicacionArea]:
+        """
+        Gets all communications between areas by area origin ID.
+
+        Args:
+            area_origen_id: The ID of the area origin to filter communications
+
+        Returns:
+            A list with all communications between areas that match the area origin ID
+        """
+        pass

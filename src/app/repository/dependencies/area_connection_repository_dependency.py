@@ -5,7 +5,7 @@ from src.app.repository.interfaces import IAreaConnectionRepository
 from src.app.repository.implementations import AreaConnectionRepositoryImpl
 
 
-async def get_comunication_department_repository(
+async def get_area_connection_repository(
     session: AsyncSession = Depends(get_async_session),
 ) -> IAreaConnectionRepository:
     """

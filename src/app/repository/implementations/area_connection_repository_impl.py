@@ -161,7 +161,12 @@ class AreaConnectionRepositoryImpl(IAreaConnectionRepository):
         offset = (page - 1) * size
         conditions = []
 
-        allowed_fields = ["area_origen_id", "area_destino_id"]
+        allowed_fields = [
+            "area_origen_id",
+            "area_destino_id",
+            "area_origen_nombre",
+            "area_destino_nombre",
+        ]
 
         for field_name, search_value in search_dict.items():
             if not search_value or field_name not in allowed_fields:
@@ -176,6 +181,22 @@ class AreaConnectionRepositoryImpl(IAreaConnectionRepository):
                         conditions.append(ComunicacionArea.area_destino_id == area_id)
                 except ValueError:
                     continue
+            elif field_name == "area_origen_nombre" and search_value:
+                # Búsqueda por nombre del área de origen
+                origen_area = (
+                    select(Area.id)
+                    .where(Area.nombre.ilike(f"%{search_value}%"))
+                    .scalar_subquery()
+                )
+                conditions.append(ComunicacionArea.area_origen_id.in_(origen_area))
+            elif field_name == "area_destino_nombre" and search_value:
+                # Búsqueda por nombre del área de destino
+                destino_area = (
+                    select(Area.id)
+                    .where(Area.nombre.ilike(f"%{search_value}%"))
+                    .scalar_subquery()
+                )
+                conditions.append(ComunicacionArea.area_destino_id.in_(destino_area))
 
         stmt = (
             select(
@@ -253,3 +274,23 @@ class AreaConnectionRepositoryImpl(IAreaConnectionRepository):
 
         result = await self.session.exec(stmt)
         return result.first() is not None
+
+    @transactional(readonly=True)
+    async def get_connections_by_area_origen_id(
+        self, area_origen_id: int
+    ) -> list[ComunicacionArea]:
+        """
+        Gets all communications between areas by area origin ID.
+
+        Args:
+            area_origen_id: The ID of the area origin to filter communications
+
+        Returns:
+            A list with all communications between areas that match the area origin ID
+        """
+        stmt = select(ComunicacionArea).where(
+            ComunicacionArea.area_origen_id == area_origen_id
+        )
+        results = await self.session.exec(stmt)
+        connections = results.all()
+        return list(connections)
