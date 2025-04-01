@@ -7,6 +7,9 @@ from .submitter_repository_impl import SubmitterRepositoryImpl
 from .position_repository_impl import PositionRepositoryImpl
 from .employee_repository_impl import EmployeeRepositoryImpl
 from .hamlet_repository_impl import HamletRepositoryImpl
+from .comunication_department_repository_impl import (
+    ComunicationDepartmentRepositoryImpl,
+)
 
 __all__ = [
     "CategoriaRepositoryImpl",
@@ -18,4 +21,5 @@ __all__ = [
     "PositionRepositoryImpl",
     "EmployeeRepositoryImpl",
     "HamletRepositoryImpl",
+    "ComunicationDepartmentRepositoryImpl",
 ]
