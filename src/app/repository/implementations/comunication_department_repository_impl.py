@@ -2,13 +2,13 @@ import math
 from sqlmodel import select, func, or_
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.app.repository.decorator import transactional
-from src.app.repository.interfaces import IComunicacionAreaRepository
+from src.app.repository.interfaces import IAreaConnectionRepository
 from src.app.model.entity import ComunicacionArea, Area
 from src.app.exception.invalid_field_exception import InvalidFieldException
 from src.app.schema import Page, Pagination
 
 
-class ComunicationDepartmentRepositoryImpl(IComunicacionAreaRepository):
+class AreaConnectionRepositoryImpl(IAreaConnectionRepository):
     """
     Repository implementation for handling ComunicacionArea entities.
     Provides methods for CRUD operations and search functionality.

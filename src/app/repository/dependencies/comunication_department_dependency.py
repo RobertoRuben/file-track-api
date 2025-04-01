@@ -1,13 +1,13 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from src.app.db.dependencies import get_async_session
-from src.app.repository.interfaces import IComunicacionAreaRepository
-from src.app.repository.implementations import ComunicationDepartmentRepositoryImpl
+from src.app.repository.interfaces import IAreaConnectionRepository
+from src.app.repository.implementations import AreaConnectionRepositoryImpl
 
 
 async def get_comunication_department_repository(
     session: AsyncSession = Depends(get_async_session),
-) -> IComunicacionAreaRepository:
+) -> IAreaConnectionRepository:
     """
     Dependency function to get the communication between areas repository implementation.
 
@@ -17,4 +17,4 @@ async def get_comunication_department_repository(
     Returns:
         An implementation of IComunicacionAreaRepository bound to the provided session
     """
-    return ComunicationDepartmentRepositoryImpl(session=session)
+    return AreaConnectionRepositoryImpl(session=session)

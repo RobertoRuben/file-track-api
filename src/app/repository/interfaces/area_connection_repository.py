@@ -3,7 +3,7 @@ from src.app.model.entity import ComunicacionArea
 from src.app.schema import Page
 
 
-class IComunicacionAreaRepository(ABC):
+class IAreaConnectionRepository(ABC):
     """
     Interface for the ComunicacionArea repository.
     """

@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
 from sqlalchemy.exc import IntegrityError
-from src.app.repository.implementations import ComunicationDepartmentRepositoryImpl
+from src.app.repository.implementations import AreaConnectionRepositoryImpl
 from src.app.exception import DatabaseException, InvalidFieldException
 from src.app.schema import Page, Pagination
 
@@ -20,7 +20,7 @@ def mock_session():
 
 @pytest.fixture
 def comunicacion_area_repository(mock_session):
-    return ComunicationDepartmentRepositoryImpl(session=mock_session)
+    return AreaConnectionRepositoryImpl(session=mock_session)
 
 
 @pytest.fixture
@@ -34,7 +34,7 @@ def comunicacion_area_sample():
     return comunicacion
 
 
-class TestComunicacionAreaRepositoryImpl:
+class TestAreaConnectionRepositoryImpl:
 
     @pytest.mark.asyncio
     async def test_save_success(
