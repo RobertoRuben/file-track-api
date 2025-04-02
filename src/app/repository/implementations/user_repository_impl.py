@@ -164,7 +164,7 @@ class UserRepositoryImpl(IUserRepository):
         Args:
             page: The page number to retrieve.
             size: The number of users per page.
-            search_dict: Dictionary containing search criteria (role_name, user_name, employee_name).
+            search_dict: Dictionary containing search criteria (role_name, username, employee_name).
 
         Returns:
             A Page object containing the paginated users and pagination metadata.
@@ -172,13 +172,13 @@ class UserRepositoryImpl(IUserRepository):
         offset_value = (page - 1) * size
         conditions = []
 
-        allowed_fields = ["role_name", "user_name", "employee_name"]
+        allowed_fields = ["role_name", "username", "employee_name"]
 
         for field_name, search_value in search_dict.items():
             if not search_value or field_name not in allowed_fields:
                 continue
 
-            if field_name == "user_name":
+            if field_name == "username":
                 conditions.append(
                     func.lower(User.username).like(f"%{search_value.lower()}%")
                 )
