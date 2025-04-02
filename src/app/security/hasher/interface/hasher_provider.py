@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 
-class HasherProvider(ABC):
+class IHasherProvider(ABC):
     """
     Abstract interface for password encryption services.
     Provides methods for secure password hashing and verification.
@@ -21,7 +21,7 @@ class HasherProvider(ABC):
         pass
 
     @abstractmethod
-    async def decrypt(self, plain_text: str, hashed_text: str) -> bool:
+    async def verify(self, plain_text: str, hashed_text: str) -> bool:
         """
         Asynchronously verifies if a plain text password matches a hashed password.
         This method doesn't actually decrypt the hash (which is impossible) but rather

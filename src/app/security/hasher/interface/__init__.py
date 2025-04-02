@@ -1,3 +1,3 @@
-from .hasher_provider import HasherProvider
+from .hasher_provider import IHasherProvider
 
-__all__ = ["HasherProvider"]
+__all__ = ["IHasherProvider"]

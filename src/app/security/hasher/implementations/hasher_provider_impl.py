@@ -1,11 +1,11 @@
 import asyncio
 from src.app.config import settings
-from src.app.security.hasher.interface import HasherProvider
+from src.app.security.hasher.interface import IHasherProvider
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 
 
-class HasherProviderImpl(HasherProvider):
+class HasherProviderImpl(IHasherProvider):
     """
     Implementation of the HasherProvider interface using the Argon2 hashing algorithm.
     """
@@ -38,7 +38,7 @@ class HasherProviderImpl(HasherProvider):
         """
         return await asyncio.to_thread(self.encryptor.hash, plain_text)
 
-    async def decrypt(self, plain_text: str, hashed_text: str) -> bool:
+    async def verify(self, plain_text: str, hashed_text: str) -> bool:
         """
         Verify whether the given plain text matches the provided Argon2 hash.
 

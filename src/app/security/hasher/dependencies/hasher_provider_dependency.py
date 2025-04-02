@@ -1,10 +1,10 @@
-from src.app.security.hasher.interface import HasherProvider
+from src.app.security.hasher.interface import IHasherProvider
 from src.app.security.hasher.implementations.hasher_provider_impl import (
     HasherProviderImpl,
 )
 
 
-async def get_hasher_provider() -> HasherProvider:
+async def get_hasher_provider() -> IHasherProvider:
     """
     Dependency provider for the HasherProvider interface.
 
