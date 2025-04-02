@@ -7,6 +7,7 @@ from .remitente import Remitente
 from .cargo import Cargo
 from .trabajador import Trabajador
 from .caserio import Caserio
+from .comunicacion_area import ComunicacionArea
 
 __all__ = [
     "CategoriaDocumento",
@@ -18,4 +19,5 @@ __all__ = [
     "Cargo",
     "Trabajador",
     "Caserio",
+    "ComunicacionArea",
 ]
