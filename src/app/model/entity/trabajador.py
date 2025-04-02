@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .area import Area
     from .cargo import Cargo
+    from .user import User
 
 
 class Trabajador(SQLModel, table=True):
@@ -68,3 +69,4 @@ class Trabajador(SQLModel, table=True):
 
     cargo: "Cargo" = Relationship(back_populates="trabajadores")
     area: "Area" = Relationship(back_populates="trabajadores")
+    user: "User" = Relationship(back_populates="employee")
