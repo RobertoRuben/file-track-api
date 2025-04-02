@@ -128,46 +128,38 @@ class AreaConnectionServiceImpl(IAreaConnectionService):
                 details="Area connection ID must be greater than or equal to 0.",
             )
 
-        # Se obtiene la conexión existente. Esto evita dos consultas separadas.
-        existing_area_connection = await self.repository.get_by_id(area_connection_id)
-        if not existing_area_connection:
-            raise NotFoundException(
-                details=f"Area connection with ID {area_connection_id} not found.",
-            )
-
-        # Si los valores a actualizar son iguales a los existentes, se lanza una excepción.
-        if (
-            existing_area_connection.area_origen_id
-            == area_connection_request.area_origen_id
-            and existing_area_connection.area_destino_id
-            == area_connection_request.area_destino_id
-        ):
-            raise ConflictException(
-                details="Source and destination areas are the same as the existing connection.",
-            )
-
-        origin_exists = await self.area_repository.exists_by(
+        existing_origin_area_id = await self.area_repository.exists_by(
             id=area_connection_request.area_origen_id
         )
-        if not origin_exists:
+        if not existing_origin_area_id:
             raise NotFoundException(
                 details=f"Area with ID {area_connection_request.area_origen_id} not found.",
             )
-        destination_exists = await self.area_repository.exists_by(
+        existing_destination_area_id = await self.area_repository.exists_by(
             id=area_connection_request.area_destino_id
         )
-        if not destination_exists:
+        if not existing_destination_area_id:
             raise NotFoundException(
                 details=f"Area with ID {area_connection_request.area_destino_id} not found.",
             )
 
-        existing_area_connection.area_origen_id = area_connection_request.area_origen_id
-        existing_area_connection.area_destino_id = (
-            area_connection_request.area_destino_id
+        existing_area_connection = await self.repository.exists_by(
+            area_origen_id=area_connection_request.area_origen_id,
+            area_destino_id=area_connection_request.area_destino_id,
         )
-        existing_area_connection.updated_at = datetime.now()
+        if existing_area_connection:
+            raise ConflictException(
+                details=f"Area connection already exists between area {area_connection_request.area_origen_id} and "
+                f"area {area_connection_request.area_destino_id}.",
+            )
 
-        updated_area_connection = await self.repository.save(existing_area_connection)
+        area_connection = await self.repository.get_by_id(area_connection_id)
+
+        area_connection.area_origen_id = area_connection_request.area_origen_id
+        area_connection.area_destino_id = area_connection_request.area_destino_id
+        area_connection.updated_at = datetime.now()
+
+        updated_area_connection = await self.repository.save(area_connection)
 
         return AreaConnectionResponseDTO(
             id=updated_area_connection.id,
