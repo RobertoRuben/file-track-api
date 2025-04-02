@@ -1,4 +1,5 @@
 import math
+from sqlalchemy.orm import aliased
 from sqlmodel import select, func, or_
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.app.repository.decorator import transactional
@@ -96,6 +97,10 @@ class AreaConnectionRepositoryImpl(IAreaConnectionRepository):
             A Page object containing communications between areas and pagination information
         """
         offset = (page - 1) * size
+
+        AreaOrigen = aliased(Area, name="area_origen")
+        AreaDestino = aliased(Area, name="area_destino")
+
         stmt = (
             select(
                 ComunicacionArea.id,
@@ -103,15 +108,11 @@ class AreaConnectionRepositoryImpl(IAreaConnectionRepository):
                 ComunicacionArea.area_destino_id,
                 ComunicacionArea.created_at,
                 ComunicacionArea.updated_at,
-                Area.nombre.label("area_origen_nombre"),
+                AreaOrigen.nombre.label("area_origen_nombre"),
+                AreaDestino.nombre.label("area_destino_nombre"),
             )
-            .join(Area, Area.id == ComunicacionArea.area_origen_id)
-            .add_columns(
-                select(Area.nombre)
-                .where(Area.id == ComunicacionArea.area_destino_id)
-                .scalar_subquery()
-                .label("area_destino_nombre")
-            )
+            .join(AreaOrigen, AreaOrigen.id == ComunicacionArea.area_origen_id)
+            .join(AreaDestino, AreaDestino.id == ComunicacionArea.area_destino_id)
         )
 
         stmt = stmt.offset(offset).limit(size)
@@ -182,7 +183,6 @@ class AreaConnectionRepositoryImpl(IAreaConnectionRepository):
                 except ValueError:
                     continue
             elif field_name == "area_origen_nombre" and search_value:
-                # Búsqueda por nombre del área de origen
                 origen_area = (
                     select(Area.id)
                     .where(Area.nombre.ilike(f"%{search_value}%"))
@@ -190,13 +190,15 @@ class AreaConnectionRepositoryImpl(IAreaConnectionRepository):
                 )
                 conditions.append(ComunicacionArea.area_origen_id.in_(origen_area))
             elif field_name == "area_destino_nombre" and search_value:
-                # Búsqueda por nombre del área de destino
                 destino_area = (
                     select(Area.id)
                     .where(Area.nombre.ilike(f"%{search_value}%"))
                     .scalar_subquery()
                 )
                 conditions.append(ComunicacionArea.area_destino_id.in_(destino_area))
+
+        AreaOrigen = aliased(Area, name="area_origen")
+        AreaDestino = aliased(Area, name="area_destino")
 
         stmt = (
             select(
@@ -205,15 +207,11 @@ class AreaConnectionRepositoryImpl(IAreaConnectionRepository):
                 ComunicacionArea.area_destino_id,
                 ComunicacionArea.created_at,
                 ComunicacionArea.updated_at,
-                Area.nombre.label("area_origen_nombre"),
+                AreaOrigen.nombre.label("area_origen_nombre"),
+                AreaDestino.nombre.label("area_destino_nombre"),
             )
-            .join(Area, Area.id == ComunicacionArea.area_origen_id)
-            .add_columns(
-                select(Area.nombre)
-                .where(Area.id == ComunicacionArea.area_destino_id)
-                .scalar_subquery()
-                .label("area_destino_nombre")
-            )
+            .join(AreaOrigen, AreaOrigen.id == ComunicacionArea.area_origen_id)
+            .join(AreaDestino, AreaDestino.id == ComunicacionArea.area_destino_id)
         )
 
         if conditions:
