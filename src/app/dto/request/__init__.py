@@ -8,6 +8,7 @@ from .position_request_dto import PositionRequestDTO
 from .employe_request_dto import EmployeeRequestDto
 from .hamlet_request_dto import HamletRequestDTO
 from .area_connection_request_dto import AreaConnectionRequestDto
+from .user_request_dto import UserRequestDTO
 
 __all__ = [
     "CategoryDocumentRequestDTO",
@@ -20,4 +21,5 @@ __all__ = [
     "EmployeeRequestDto",
     "HamletRequestDTO",
     "AreaConnectionRequestDto",
+    "UserRequestDTO",
 ]
