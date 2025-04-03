@@ -21,14 +21,13 @@ class Department(SQLModel, table=True):
     """
     Represents a department or area within the organization.
 
-    Attributes:
-        id: The unique identifier for the department
-        name: The name of the department
-        created_at: The timestamp when the department was created
-        updated_at: The timestamp when the department was last updated
-        employees: List of employees who belong to this department
-        outgoing_connections: List of connections where this department is the source
-        incoming_connections: List of connections where this department is the destination
+    :ivar id: The unique identifier for the department
+    :ivar name: The name of the department
+    :ivar created_at: The timestamp when the department was created
+    :ivar updated_at: The timestamp when the department was last updated
+    :ivar employees: List of employees who belong to this department
+    :ivar outgoing_connections: List of connections where this department is the source
+    :ivar incoming_connections: List of connections where this department is the destination
     """
 
     __tablename__ = "departments"
