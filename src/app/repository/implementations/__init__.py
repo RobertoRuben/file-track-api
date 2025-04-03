@@ -1,4 +1,4 @@
-from .categoria_repository_impl import CategoriaRepositoryImpl
+from .document_category_repository_impl import DocumentCategoryRepositoryImpl
 from .rol_repository_impl import RolRepositoryImpl
 from .department_repository_impl import DepartmentRepositoryImpl
 from .documentary_topic_repository_impl import DocumentaryTopicRepositoryImpl
@@ -11,7 +11,7 @@ from .department_connection_repository_impl import DepartmentConnectionRepositor
 from .user_repository_impl import UserRepositoryImpl
 
 __all__ = [
-    "CategoriaRepositoryImpl",
+    "DocumentCategoryRepositoryImpl",
     "RolRepositoryImpl",
     "DepartmentRepositoryImpl",
     "DocumentaryTopicRepositoryImpl",

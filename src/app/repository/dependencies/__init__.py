@@ -1,4 +1,4 @@
-from .categoria_documento_dependency import get_categoria_documento_repository
+from .document_category_dependency import get_document_category_repository
 from .rol_repository_dependency import get_rol_repository
 from .department_repository_dependency import get_department_repository
 from .documentary_topic_repository_dependency import get_documentary_topic_repository
@@ -13,7 +13,7 @@ from .department_connection_repository_dependency import (
 from .user_repository_dependency import get_user_repository
 
 __all__ = [
-    "get_categoria_documento_repository",
+    "get_document_category_repository",
     "get_rol_repository",
     "get_department_repository",
     "get_documentary_topic_repository",
