@@ -14,6 +14,7 @@ from .position_controller import router as position_router, position_tags_metada
 from .employee_controller import router as employee_router, employee_tags_metadata
 from .hamlet_controller import router as hamlet_router, hamlet_tags_metadata
 from .area_controller import router as area_router, area_connection_tags_metadata
+from .user_controller import router as user_router, user_tags_metadata
 
 __all__ = [
     "category_document_router",
@@ -36,4 +37,6 @@ __all__ = [
     "hamlet_tags_metadata",
     "area_router",
     "area_connection_tags_metadata",
+    "user_router",
+    "user_tags_metadata",
 ]

@@ -8,6 +8,7 @@ from .position_service_impl import PositionServiceImpl
 from .employee_service_impl import EmployeeServiceImpl
 from .hamlet_service_impl import HamletServiceImpl
 from .area_connection_service_impl import AreaConnectionServiceImpl
+from .user_service_impl import UserServiceImpl
 
 __all__ = [
     "CategoryDocumentServiceImpl",
@@ -20,4 +21,5 @@ __all__ = [
     "EmployeeServiceImpl",
     "HamletServiceImpl",
     "AreaConnectionServiceImpl",
+    "UserServiceImpl",
 ]

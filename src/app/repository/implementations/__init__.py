@@ -8,6 +8,7 @@ from .position_repository_impl import PositionRepositoryImpl
 from .employee_repository_impl import EmployeeRepositoryImpl
 from .hamlet_repository_impl import HamletRepositoryImpl
 from .area_connection_repository_impl import AreaConnectionRepositoryImpl
+from .user_repository_impl import UserRepositoryImpl
 
 __all__ = [
     "CategoriaRepositoryImpl",
@@ -20,4 +21,5 @@ __all__ = [
     "EmployeeRepositoryImpl",
     "HamletRepositoryImpl",
     "AreaConnectionRepositoryImpl",
+    "UserRepositoryImpl",
 ]

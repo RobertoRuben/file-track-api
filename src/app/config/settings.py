@@ -26,6 +26,12 @@ class Settings(BaseSettings):
     DB_USER: str
     DB_PASSWORD: str
 
+    ARGON2_TIME_COST: int = 3
+    ARGON2_MEMORY_COST: int = 65536
+    ARGON2_PARALLELISM: int = 4
+    ARGON2_HASH_LEN: int = 32
+    ARGON2_SALT_LEN: int = 16
+
     @property
     def database_url(self) -> str:
         """
