@@ -13,7 +13,10 @@ from .submitter_response_dto import SubmitterResponseDTO, SubmitterPage
 from .position_response_dto import PositionResponseDTO, PositionPage
 from .employee_response_dto import EmployeeResponseDTO, EmployeePage
 from .hamlet_response_dto import HamletResponseDto, HamletPage
-from .area_connection_response_dto import AreaConnectionResponseDTO, AreaConnectionPage
+from .department_connection_response_dto import (
+    DepartmentConnectionResponseDTO,
+    AreaConnectionPage,
+)
 from .user_response_dto import UserResponseDTO, UserPage
 
 __all__ = [
@@ -35,7 +38,7 @@ __all__ = [
     "EmployeePage",
     "HamletResponseDto",
     "HamletPage",
-    "AreaConnectionResponseDTO",
+    "DepartmentConnectionResponseDTO",
     "AreaConnectionPage",
     "UserResponseDTO",
     "UserPage",

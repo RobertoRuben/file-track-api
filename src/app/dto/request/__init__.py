@@ -7,7 +7,7 @@ from .submitter_request_dto import SubmitterRequestDTO
 from .position_request_dto import PositionRequestDTO
 from .employe_request_dto import EmployeeRequestDto
 from .hamlet_request_dto import HamletRequestDTO
-from .area_connection_request_dto import AreaConnectionRequestDto
+from .department_connection_request_dto import DepartmentConnectionRequestDto
 from .user_request_dto import UserRequestDTO
 
 __all__ = [
@@ -20,6 +20,6 @@ __all__ = [
     "PositionRequestDTO",
     "EmployeeRequestDto",
     "HamletRequestDTO",
-    "AreaConnectionRequestDto",
+    "DepartmentConnectionRequestDto",
     "UserRequestDTO",
 ]
