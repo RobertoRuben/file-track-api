@@ -152,7 +152,7 @@ class TestDocumentCategoryRepositoryImpl:
 
         # Usamos MagicMock en lugar de AsyncMock
         mock_result = MagicMock()
-        mock_result.first.return_value = 1  # ID encontrado
+        mock_result.first.return_value = 1
         mock_session.exec.return_value = mock_result
 
         result = await document_category_repository.exists_by(
