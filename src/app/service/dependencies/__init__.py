@@ -7,7 +7,7 @@ from .submitter_service_dependency import get_submitter_service
 from .position_service_dependency import get_position_service
 from .employee_service_dependency import get_employee_service
 from .hamlet_service_dependency import get_hamlet_service
-from .area_connection_service_dependency import get_area_connection_service
+from .department_connection_service_dependency import get_department_connection_service
 from .user_service_dependency import get_user_service
 
 __all__ = [
@@ -20,6 +20,6 @@ __all__ = [
     "get_position_service",
     "get_employee_service",
     "get_hamlet_service",
-    "get_area_connection_service",
+    "get_department_connection_service",
     "get_user_service",
 ]

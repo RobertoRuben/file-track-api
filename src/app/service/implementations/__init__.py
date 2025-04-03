@@ -7,7 +7,7 @@ from .submitter_service_impl import SubmitterServiceImpl
 from .position_service_impl import PositionServiceImpl
 from .employee_service_impl import EmployeeServiceImpl
 from .hamlet_service_impl import HamletServiceImpl
-from .area_connection_service_impl import AreaConnectionServiceImpl
+from .department_connection_service_impl import DepartmentConnectionServiceImpl
 from .user_service_impl import UserServiceImpl
 
 __all__ = [
@@ -20,6 +20,6 @@ __all__ = [
     "PositionServiceImpl",
     "EmployeeServiceImpl",
     "HamletServiceImpl",
-    "AreaConnectionServiceImpl",
+    "DepartmentConnectionServiceImpl",
     "UserServiceImpl",
 ]
