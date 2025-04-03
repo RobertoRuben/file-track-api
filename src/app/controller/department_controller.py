@@ -15,15 +15,17 @@ router = APIRouter(prefix="/department", tags=["Department"])
 
 department_tags_metadata = {
     "name": "Department",
-    "description": "Manages departments within the system. These operations allow creating, retrieving, "
-    "updating, and deleting departments, as well as searching and listing them with pagination.",
+    "description": "Manages organizational departments within the system. "
+    "These departments represent the structural units of the organization "
+    "and are related to employees and interdepartmental connections. "
+    "Allows complete CRUD operations, advanced search, and paginated listing.",
 }
 
 
 @router.post(
     "",
     response_model=DepartmentResponseDTO,
-    summary="Create a new department in the system",
+    summary="Create a new department",
     status_code=201,
     responses={
         201: {
@@ -34,7 +36,7 @@ department_tags_metadata = {
         409: {"model": ConflictError, "description": "Department already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Creates a new department in the system. Provide the department details in the request body to create it successfully.",
+    description="Creates a new organizational department in the system. The name must be unique and contain only alphabetic characters.",
 )
 async def create_department(
     department_request: DepartmentRequestDTO,
@@ -44,12 +46,12 @@ async def create_department(
     Endpoint to create a new department.
 
     This endpoint allows the creation of a new department in the system. The department data
-    must be provided in the request body. If the department is created successfully, a status code 201
-    with the created department's details is returned.
+    must be provided in the request body. If the department is created successfully, a
+    status code 201 is returned with the details of the created department.
 
-    :param department_request: Request body containing department data.
-    :param department_service: Service to handle the department creation logic.
-    :return: The created department data.
+    :param department_request: Request body containing the department data.
+    :param department_service: Service that handles the department creation logic.
+    :return: The data of the created department.
     """
     return await department_service.add_department(department_request)
 
@@ -66,7 +68,7 @@ async def create_department(
         400: {"model": BackRequestError, "description": "Bad request error"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves a list of all departments in the system.",
+    description="Retrieves the complete list of all departments registered in the system, including their identifiers, names, and timestamps.",
 )
 async def get_all_departments(
     department_service: IDepartmentService = Depends(get_department_service),
@@ -92,7 +94,7 @@ async def get_all_departments(
         400: {"model": BackRequestError, "description": "Bad request error"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves departments in a paginated format to manage large data sets.",
+    description="Retrieves departments in a paginated format to manage large data sets, allowing navigation through pages and control over the number of records per page.",
 )
 async def get_paginated_departments(
     page: int = Query(default=1, description="Page number to retrieve"),
@@ -116,14 +118,14 @@ async def get_paginated_departments(
 @router.get(
     "/search",
     response_model=DepartmentPage,
-    summary="Search departments based on a term",
+    summary="Search departments by term",
     responses={
         200: {"model": DepartmentPage, "description": "Paginated list of departments"},
         400: {"model": BackRequestError, "description": "Bad request error"},
         404: {"model": NotFoundError, "description": "Department not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Search departments based on a keyword or phrase, with pagination for better management of search results.",
+    description="Performs department searches based on a keyword or phrase. Results are returned paginated for better management of search results.",
 )
 async def find_departments(
     search_term: str | None = Query(
@@ -151,14 +153,14 @@ async def find_departments(
 @router.get(
     "/{department_id}",
     response_model=DepartmentResponseDTO,
-    summary="Get a specific department by ID",
+    summary="Get department by ID",
     responses={
         200: {"model": DepartmentResponseDTO, "description": "Department found"},
         400: {"model": BackRequestError, "description": "Bad request error"},
         404: {"model": NotFoundError, "description": "Department not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieve details of a specific department using its ID.",
+    description="Retrieves the complete details of a specific department using its unique identifier.",
 )
 async def get_department_by_id(
     department_id: int,
@@ -180,7 +182,7 @@ async def get_department_by_id(
 @router.put(
     "/{department_id}",
     response_model=DepartmentResponseDTO,
-    summary="Update an existing department by ID",
+    summary="Update existing department",
     responses={
         200: {
             "model": DepartmentResponseDTO,
@@ -188,9 +190,10 @@ async def get_department_by_id(
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
         404: {"model": NotFoundError, "description": "Department not found"},
+        409: {"model": ConflictError, "description": "Department name already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Updates the details of an existing department by its ID.",
+    description="Updates the details of an existing department identified by its ID. Verifies that the new name is not already in use by another department.",
 )
 async def update_department(
     department_id: int,
@@ -215,7 +218,7 @@ async def update_department(
 @router.delete(
     "/{department_id}",
     response_model=MessageResponse,
-    summary="Delete a department by ID",
+    summary="Delete department",
     responses={
         200: {
             "model": MessageResponse,
@@ -225,7 +228,7 @@ async def update_department(
         404: {"model": NotFoundError, "description": "Department not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Deletes a specific department from the system using its ID.",
+    description="Deletes a specific department from the system using its ID. This operation is irreversible and may affect relationships with employees and other departments.",
 )
 async def delete_department(
     department_id: int,

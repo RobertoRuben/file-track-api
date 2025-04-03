@@ -13,7 +13,7 @@ from .submitter_controller import router as submitter_router, submitter_tags_met
 from .position_controller import router as position_router, position_tags_metadata
 from .employee_controller import router as employee_router, employee_tags_metadata
 from .hamlet_controller import router as hamlet_router, hamlet_tags_metadata
-from .area_controller import router as area_router, area_connection_tags_metadata
+from .department_connection_controller import router as area_router, area_connection_tags_metadata
 from .user_controller import router as user_router, user_tags_metadata
 
 __all__ = [
