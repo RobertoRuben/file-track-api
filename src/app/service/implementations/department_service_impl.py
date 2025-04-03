@@ -88,7 +88,9 @@ class DepartmentServiceImpl(IDepartmentService):
         :raises NotFoundException: If the department with the given ID does not exist
         :raises ConflictException: If another department with the same name already exists
         """
-        exists_department_id = await self.department_repository.exists_by(id=department_id)
+        exists_department_id = await self.department_repository.exists_by(
+            id=department_id
+        )
         if not exists_department_id:
             raise NotFoundException(
                 details=f"Department with id {department_id} not found",
@@ -125,7 +127,9 @@ class DepartmentServiceImpl(IDepartmentService):
         :return: A MessageResponse indicating the result of the deletion
         :raises NotFoundException: If the department with the given ID does not exist
         """
-        existing_department_id = await self.department_repository.exists_by(id=department_id)
+        existing_department_id = await self.department_repository.exists_by(
+            id=department_id
+        )
         if not existing_department_id:
             raise NotFoundException(
                 details=f"Department with id {department_id} not found",
@@ -155,7 +159,9 @@ class DepartmentServiceImpl(IDepartmentService):
         :return: The department as a DepartmentResponseDTO
         :raises NotFoundException: If the department with the given ID does not exist
         """
-        existing_department_id = await self.department_repository.exists_by(id=department_id)
+        existing_department_id = await self.department_repository.exists_by(
+            id=department_id
+        )
         if not existing_department_id:
             raise NotFoundException(
                 details=f"Department with id {department_id} not found",
