@@ -249,7 +249,7 @@ class UserServiceImpl(IUserService):
         return MessageResponse(
             message="Password updated successfully.",
             success=True,
-            details=f"Password updated successfully.",
+            details=f"Password for user with ID {user_id} updated successfully.",
             status_code=200,
         )
 
@@ -282,13 +282,28 @@ class UserServiceImpl(IUserService):
 
         user = await self.user_repository.get_by_id(user_id)
 
-        if status == StatusEnum.ACTIVATE.value:
+        status_value = status
+        if hasattr(status, 'value'):
+            status_value = status.value
+
+        if status_value == StatusEnum.ACTIVATE.value:
+            if user.is_active:
+                raise BadRequestException(
+                    message="Redundant status update",
+                    details=f"User with ID {user_id} is already active.",
+                )
             user.is_active = True
-        elif status == StatusEnum.DEACTIVATE.value:
+        elif status_value == StatusEnum.DEACTIVATE.value:
+            if not user.is_active:
+                raise BadRequestException(
+                    message="Redundant status update",
+                    details=f"User with ID {user_id} is already inactive.",
+                )
             user.is_active = False
         else:
             raise BadRequestException(
-                details=f"Invalid status value: {status}. Valid values are 'Activate' or 'Deactivate'."
+                message="Invalid status value",
+                details=f"Invalid status value: {status}. Valid values are 'Activate' or 'Deactivate'.",
             )
 
         user.updated_at = datetime.now()
@@ -434,9 +449,7 @@ class UserServiceImpl(IUserService):
             )
 
         page_result = await self.user_repository.get_pageable(page, size)
-        user_response = [
-            UserResponseDTO(**user_dict) for user_dict in page_result.items
-        ]
+        user_response = [UserResponseDTO(**user_dict) for user_dict in page_result.data]
 
         return UserPage(
             data=user_response,
