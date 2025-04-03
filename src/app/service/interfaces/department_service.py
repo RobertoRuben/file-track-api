@@ -17,11 +17,9 @@ class IDepartmentService(ABC):
         """
         Add a new department.
 
-        Args:
-            department_request: The data transfer object containing department details.
-
-        Returns:
-            The created department as a DepartmentResponseDTO.
+        :param department_request: The data transfer object containing department details
+        :return: The created department as a DepartmentResponseDTO
+        :raises ConflictException: If a department with the same name already exists
         """
         pass
 
@@ -30,8 +28,7 @@ class IDepartmentService(ABC):
         """
         Retrieve all departments.
 
-        Returns:
-            A list of DepartmentResponseDTO objects representing all departments.
+        :return: A list of DepartmentResponseDTO objects representing all departments
         """
         pass
 
@@ -42,12 +39,11 @@ class IDepartmentService(ABC):
         """
         Update an existing department.
 
-        Args:
-            department_id: The ID of the department to update.
-            department_request: The data transfer object containing updated department details.
-
-        Returns:
-            The updated department as a DepartmentResponseDTO.
+        :param department_id: The ID of the department to update
+        :param department_request: The data transfer object containing updated department details
+        :return: The updated department as a DepartmentResponseDTO
+        :raises NotFoundException: If the department with the given ID does not exist
+        :raises ConflictException: If another department with the same name already exists
         """
         pass
 
@@ -56,11 +52,9 @@ class IDepartmentService(ABC):
         """
         Delete a department by its ID.
 
-        Args:
-            department_id: The ID of the department to delete.
-
-        Returns:
-            A MessageResponse indicating the result of the deletion.
+        :param department_id: The ID of the department to delete
+        :return: A MessageResponse indicating the result of the deletion
+        :raises NotFoundException: If the department with the given ID does not exist
         """
         pass
 
@@ -69,11 +63,9 @@ class IDepartmentService(ABC):
         """
         Retrieve a department by its ID.
 
-        Args:
-            department_id: The ID of the department to retrieve.
-
-        Returns:
-            The department as a DepartmentResponseDTO.
+        :param department_id: The ID of the department to retrieve
+        :return: The department as a DepartmentResponseDTO
+        :raises NotFoundException: If the department with the given ID does not exist
         """
         pass
 
@@ -82,12 +74,10 @@ class IDepartmentService(ABC):
         """
         Retrieve a paginated list of departments.
 
-        Args:
-            page: The page number to retrieve.
-            size: The number of departments per page.
-
-        Returns:
-            A DepartmentPage object containing the paginated departments.
+        :param page: The page number to retrieve
+        :param size: The number of departments per page
+        :return: A DepartmentPage object containing the paginated departments
+        :raises BadRequestException: If page or size parameters are invalid
         """
         pass
 
@@ -96,12 +86,11 @@ class IDepartmentService(ABC):
         """
         Find departments based on search criteria.
 
-        Args:
-            page: The page number to retrieve.
-            size: The number of departments per page.
-            search_term: The term to search for in department names.
-
-        Returns:
-            A DepartmentPage object containing the departments that match the search criteria.
+        :param page: The page number to retrieve
+        :param size: The number of departments per page
+        :param search_term: The term to search for in department names
+        :return: A DepartmentPage object containing the departments that match the search criteria
+        :raises BadRequestException: If page or size parameters are invalid
+        :raises NotFoundException: If no departments match the search criteria
         """
         pass

@@ -1,51 +1,74 @@
 from datetime import datetime
-from src.app.model.entity import Area
+from src.app.model.entity import Department
 from src.app.dto.request import DepartmentRequestDTO
 from src.app.dto.response import DepartmentPage, DepartmentResponseDTO
 from src.app.schema import MessageResponse
 from src.app.exception import BadRequestException, ConflictException, NotFoundException
 from src.app.exception.decorator import handle_exceptions
-from src.app.repository.interfaces import IAreaRepository
+from src.app.repository.interfaces import IDepartmentRepository
 from src.app.service.interfaces import IDepartmentService
 
 
 class DepartmentServiceImpl(IDepartmentService):
+    """
+    Implementation of the department service interface.
+    Handles business logic for department operations.
 
-    def __init__(self, repository: IAreaRepository):
-        self.repository = repository
+    :ivar department_repository: Repository for department data operations
+    """
+
+    def __init__(self, department_repository: IDepartmentRepository):
+        """
+        Initialize the department service with a repository.
+
+        :param department_repository: Repository for department data operations
+        """
+        self.department_repository = department_repository
 
     @handle_exceptions
     async def add_department(
         self, department_request: DepartmentRequestDTO
     ) -> DepartmentResponseDTO:
-        existing_department = await self.repository.exists_by(
-            nombre=department_request.nombre
+        """
+        Add a new department.
+
+        :param department_request: The data transfer object containing department details
+        :return: The created department as a DepartmentResponseDTO
+        :raises ConflictException: If a department with the same name already exists
+        """
+        existing_department = await self.department_repository.exists_by(
+            name=department_request.name
         )
         if existing_department:
             raise ConflictException(
-                details=f"Department with name {department_request.nombre} already exists",
+                details=f"Department with name {department_request.name} already exists",
             )
 
-        new_department = Area(
-            nombre=department_request.nombre,
+        new_department = Department(
+            name=department_request.name,
         )
 
-        created_department = await self.repository.save(new_department)
+        created_department = await self.department_repository.save(new_department)
 
         return DepartmentResponseDTO(
             id=created_department.id,
-            nombre=created_department.nombre,
+            name=created_department.name,
             created_at=created_department.created_at,
             updated_at=created_department.updated_at,
         )
 
     @handle_exceptions
     async def get_all_departments(self) -> list[DepartmentResponseDTO]:
-        departments = await self.repository.get_all()
+        """
+        Retrieve all departments.
+
+        :return: A list of DepartmentResponseDTO objects representing all departments
+        """
+        departments = await self.department_repository.get_all()
         return [
             DepartmentResponseDTO(
                 id=department.id,
-                nombre=department.nombre,
+                name=department.name,
                 created_at=department.created_at,
                 updated_at=department.updated_at,
             )
@@ -56,42 +79,58 @@ class DepartmentServiceImpl(IDepartmentService):
     async def update_department(
         self, department_id: int, department_request: DepartmentRequestDTO
     ) -> DepartmentResponseDTO:
-        exists_department_id = await self.repository.exists_by(id=department_id)
+        """
+        Update an existing department.
+
+        :param department_id: The ID of the department to update
+        :param department_request: The data transfer object containing updated department details
+        :return: The updated department as a DepartmentResponseDTO
+        :raises NotFoundException: If the department with the given ID does not exist
+        :raises ConflictException: If another department with the same name already exists
+        """
+        exists_department_id = await self.department_repository.exists_by(id=department_id)
         if not exists_department_id:
             raise NotFoundException(
                 details=f"Department with id {department_id} not found",
             )
-        department = await self.repository.get_by_id(department_id)
+        department = await self.department_repository.get_by_id(department_id)
 
-        if department.nombre != department_request.nombre:
-            existing_department = await self.repository.exists_by(
-                nombre=department_request.nombre
+        if department.name != department_request.name:
+            existing_department = await self.department_repository.exists_by(
+                name=department_request.name
             )
             if existing_department:
                 raise ConflictException(
-                    details=f"Department with name {department_request.nombre} already exists",
+                    details=f"Department with name {department_request.name} already exists",
                 )
 
-        department.nombre = department_request.nombre
+        department.name = department_request.name
         department.updated_at = datetime.now()
 
-        updated_department = await self.repository.save(department)
+        updated_department = await self.department_repository.save(department)
 
         return DepartmentResponseDTO(
             id=updated_department.id,
-            nombre=updated_department.nombre,
+            name=updated_department.name,
             created_at=updated_department.created_at,
             updated_at=updated_department.updated_at,
         )
 
     @handle_exceptions
     async def delete_department(self, department_id: int) -> MessageResponse:
-        existing_department_id = await self.repository.exists_by(id=department_id)
+        """
+        Delete a department by its ID.
+
+        :param department_id: The ID of the department to delete
+        :return: A MessageResponse indicating the result of the deletion
+        :raises NotFoundException: If the department with the given ID does not exist
+        """
+        existing_department_id = await self.department_repository.exists_by(id=department_id)
         if not existing_department_id:
             raise NotFoundException(
                 details=f"Department with id {department_id} not found",
             )
-        response = await self.repository.delete(department_id)
+        response = await self.department_repository.delete(department_id)
         if response is True:
             return MessageResponse(
                 message="Department deleted successfully.",
@@ -109,21 +148,36 @@ class DepartmentServiceImpl(IDepartmentService):
 
     @handle_exceptions
     async def get_department_by_id(self, department_id: int) -> DepartmentResponseDTO:
-        existing_department_id = await self.repository.exists_by(id=department_id)
+        """
+        Retrieve a department by its ID.
+
+        :param department_id: The ID of the department to retrieve
+        :return: The department as a DepartmentResponseDTO
+        :raises NotFoundException: If the department with the given ID does not exist
+        """
+        existing_department_id = await self.department_repository.exists_by(id=department_id)
         if not existing_department_id:
             raise NotFoundException(
                 details=f"Department with id {department_id} not found",
             )
-        department = await self.repository.get_by_id(department_id)
+        department = await self.department_repository.get_by_id(department_id)
         return DepartmentResponseDTO(
             id=department.id,
-            nombre=department.nombre,
+            name=department.name,
             created_at=department.created_at,
             updated_at=department.updated_at,
         )
 
     @handle_exceptions
     async def get_departments_paginated(self, page: int, size: int) -> DepartmentPage:
+        """
+        Retrieve a paginated list of departments.
+
+        :param page: The page number to retrieve
+        :param size: The number of departments per page
+        :return: A DepartmentPage object containing the paginated departments
+        :raises BadRequestException: If page or size parameters are invalid
+        """
         if page < 1:
             raise BadRequestException(
                 message="Invalid page number",
@@ -135,9 +189,15 @@ class DepartmentServiceImpl(IDepartmentService):
                 details="Size number must be greater than 0",
             )
 
-        page_result = await self.repository.get_pageable(page, size)
+        page_result = await self.department_repository.get_pageable(page, size)
+
         department_response = [
-            DepartmentResponseDTO(**department.__dict__)
+            DepartmentResponseDTO(
+                id=department.id,
+                name=department.name,
+                created_at=department.created_at,
+                updated_at=department.updated_at,
+            )
             for department in page_result.data
         ]
 
@@ -148,6 +208,16 @@ class DepartmentServiceImpl(IDepartmentService):
 
     @handle_exceptions
     async def find(self, page: int, size: int, search_term: str) -> DepartmentPage:
+        """
+        Find departments based on search criteria.
+
+        :param page: The page number to retrieve
+        :param size: The number of departments per page
+        :param search_term: The term to search for in department names
+        :return: A DepartmentPage object containing the departments that match the search criteria
+        :raises BadRequestException: If page or size parameters are invalid
+        :raises NotFoundException: If no departments match the search criteria
+        """
         if page < 1:
             raise BadRequestException(
                 message="Invalid page number",
@@ -159,9 +229,9 @@ class DepartmentServiceImpl(IDepartmentService):
                 details="Size number must be greater than 0",
             )
 
-        search_dict = {"nombre": search_term}
+        search_dict = {"name": search_term}
 
-        page_result = await self.repository.find(page, size, search_dict)
+        page_result = await self.department_repository.find(page, size, search_dict)
 
         if not page_result.data:
             raise NotFoundException(
@@ -169,7 +239,12 @@ class DepartmentServiceImpl(IDepartmentService):
             )
 
         department_response = [
-            DepartmentResponseDTO(**department.__dict__)
+            DepartmentResponseDTO(
+                id=department.id,
+                name=department.name,
+                created_at=department.created_at,
+                updated_at=department.updated_at,
+            )
             for department in page_result.data
         ]
 
