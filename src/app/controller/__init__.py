@@ -14,8 +14,8 @@ from .position_controller import router as position_router, position_tags_metada
 from .employee_controller import router as employee_router, employee_tags_metadata
 from .hamlet_controller import router as hamlet_router, hamlet_tags_metadata
 from .department_connection_controller import (
-    router as area_router,
-    area_connection_tags_metadata,
+    router as department_connection_router,
+    department_connection_tags_metadata,
 )
 from .user_controller import router as user_router, user_tags_metadata
 
@@ -38,8 +38,8 @@ __all__ = [
     "employee_tags_metadata",
     "hamlet_router",
     "hamlet_tags_metadata",
-    "area_router",
-    "area_connection_tags_metadata",
+    "department_connection_router",
+    "department_connection_tags_metadata",
     "user_router",
     "user_tags_metadata",
 ]
