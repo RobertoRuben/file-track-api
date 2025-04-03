@@ -1,6 +1,6 @@
-from .category_document_response_dto import (
-    CategoryDocumentResponseDTO,
-    CategoryDocumentPage,
+from .document_category_response_dto import (
+    DocumentCategoryResponseDTO,
+    DocumentCategoryPage,
 )
 from .role_response_dto import RoleResponseDTO, RolePage
 from .department_response_dto import DepartmentResponseDTO, DepartmentPage
@@ -20,8 +20,8 @@ from .department_connection_response_dto import (
 from .user_response_dto import UserResponseDTO, UserPage
 
 __all__ = [
-    "CategoryDocumentResponseDTO",
-    "CategoryDocumentPage",
+    "DocumentCategoryResponseDTO",
+    "DocumentCategoryPage",
     "RoleResponseDTO",
     "RolePage",
     "DepartmentResponseDTO",

@@ -1,4 +1,4 @@
-from .category_document_request_dto import CategoryDocumentRequestDTO
+from .document_category_request_dto import DocumentCategoryRequestDTO
 from .role_request_dto import RoleRequestDTO
 from .department_request_dto import DepartmentRequestDTO
 from .documentary_topic_request_dto import DocumentaryTopicRequestDTO
@@ -11,7 +11,7 @@ from .department_connection_request_dto import DepartmentConnectionRequestDTO
 from .user_request_dto import UserRequestDTO
 
 __all__ = [
-    "CategoryDocumentRequestDTO",
+    "DocumentCategoryRequestDTO",
     "RoleRequestDTO",
     "DepartmentRequestDTO",
     "DocumentaryTopicRequestDTO",
