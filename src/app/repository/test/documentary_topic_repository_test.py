@@ -3,7 +3,7 @@ from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
 from sqlalchemy.exc import IntegrityError
 from src.app.repository.implementations import DocumentaryTopicRepositoryImpl
-from src.app.model.entity import Ambito
+from src.app.model.entity import DocumentaryTopic
 from src.app.exception import DatabaseException, InvalidFieldException
 from src.app.schema import Page, Pagination
 
@@ -25,7 +25,7 @@ def documentary_topic_repository(mock_session):
 
 @pytest.fixture
 def documentary_topic_sample():
-    return Ambito(
+    return DocumentaryTopic(
         id=1, nombre="Legal Documentation", created_at=datetime.now(), updated_at=None
     )
 
@@ -76,8 +76,8 @@ class TestDocumentaryTopicRepositoryImpl:
         print("🧪 Testing retrieval of all documentary topics...")
 
         topics = [
-            Ambito(id=1, nombre="Legal Documentation"),
-            Ambito(id=2, nombre="Technical Documentation"),
+            DocumentaryTopic(id=1, nombre="Legal Documentation"),
+            DocumentaryTopic(id=2, nombre="Technical Documentation"),
         ]
 
         documentary_topic_repository.get_all = AsyncMock(return_value=topics)
@@ -137,8 +137,8 @@ class TestDocumentaryTopicRepositoryImpl:
         print("🧪 Testing documentary topic pagination...")
 
         topics = [
-            Ambito(id=1, nombre="Legal Documentation"),
-            Ambito(id=2, nombre="Technical Documentation"),
+            DocumentaryTopic(id=1, nombre="Legal Documentation"),
+            DocumentaryTopic(id=2, nombre="Technical Documentation"),
         ]
 
         pagination_info = Pagination(
@@ -220,7 +220,7 @@ class TestDocumentaryTopicRepositoryImpl:
         """Test to verify that find correctly filters by search criteria."""
         print("🧪 Testing search with filters...")
 
-        topics = [Ambito(id=1, nombre="Legal Documentation")]
+        topics = [DocumentaryTopic(id=1, nombre="Legal Documentation")]
 
         pagination_info = Pagination(
             current_page=1,
