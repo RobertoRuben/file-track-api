@@ -15,7 +15,7 @@ from .employee_response_dto import EmployeeResponseDTO, EmployeePage
 from .hamlet_response_dto import HamletResponseDto, HamletPage
 from .department_connection_response_dto import (
     DepartmentConnectionResponseDTO,
-    AreaConnectionPage,
+    DepartmentConnectionPage,
 )
 from .user_response_dto import UserResponseDTO, UserPage
 
@@ -39,7 +39,7 @@ __all__ = [
     "HamletResponseDto",
     "HamletPage",
     "DepartmentConnectionResponseDTO",
-    "AreaConnectionPage",
+    "DepartmentConnectionPage",
     "UserResponseDTO",
     "UserPage",
 ]
