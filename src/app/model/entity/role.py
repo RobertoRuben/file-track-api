@@ -16,12 +16,23 @@ if TYPE_CHECKING:
     from .user import User
 
 
-class Rol(SQLModel, table=True):
+class Role(SQLModel, table=True):
+    """
+    Represents a user role within the system.
+
+    Attributes:
+        id: The unique identifier for the role
+        name: The name of the role
+        created_at: The timestamp when the role was created
+        updated_at: The timestamp when the role was last updated
+        users: List of users assigned to this role
+    """
+
     __tablename__ = "roles"
-    __table_args__ = (CheckConstraint("LENGTH(nombre) > 3", name="ck_rol_name"),)
+    __table_args__ = (CheckConstraint("LENGTH(name) > 3", name="ck_role_name"),)
 
     id: int | None = Field(default=None, sa_column=Column(BIGINT, primary_key=True))
-    nombre: str = Field(sa_column=Column(TEXT, nullable=False, unique=True))
+    name: str = Field(sa_column=Column(TEXT, nullable=False, unique=True))
     created_at: datetime | None = Field(
         sa_column=Column(
             DateTime(timezone=True), server_default=text("CURRENT_TIMESTAMP")
