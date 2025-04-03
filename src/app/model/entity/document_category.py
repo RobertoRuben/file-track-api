@@ -15,11 +15,10 @@ class DocumentCategory(SQLModel, table=True):
     """
     Represents a document category in the system.
 
-    Attributes:
-        id: The unique identifier for the document category
-        name: The name of the document category
-        created_at: The timestamp when the document category was created
-        updated_at: The timestamp when the document category was last updated
+    :ivar id: The unique identifier for the document category
+    :ivar name: The name of the document category
+    :ivar created_at: The timestamp when the document category was created
+    :ivar updated_at: The timestamp when the document category was last updated
     """
 
     __tablename__ = "document_categories"
