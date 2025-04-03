@@ -7,7 +7,9 @@ from .submitter_repository_dependency import get_submitter_repository
 from .position_repository_dependency import get_position_repository
 from .employee_repository_dependency import get_employee_repository
 from .hamlet_repository_dependency import get_hamlet_repository
-from .area_connection_repository_dependency import get_area_connection_repository
+from .department_connection_repository_dependency import (
+    get_department_connection_repository,
+)
 from .user_repository_dependency import get_user_repository
 
 __all__ = [
@@ -20,6 +22,6 @@ __all__ = [
     "get_position_repository",
     "get_employee_repository",
     "get_hamlet_repository",
-    "get_area_connection_repository",
+    "get_department_connection_repository",
     "get_user_repository",
 ]

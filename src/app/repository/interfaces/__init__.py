@@ -7,7 +7,7 @@ from .submitter_repository import ISubmitterRepository
 from .position_repository import IPositionRepository
 from .employee_repository import IEmployeeRepository
 from .hamlet_repository import IHamletRepository
-from .area_connection_repository import IAreaConnectionRepository
+from .department_connection_repository import IDepartmentConnectionRepository
 from .user_repository import IUserRepository
 
 __all__ = [
@@ -20,6 +20,6 @@ __all__ = [
     "IPositionRepository",
     "IEmployeeRepository",
     "IHamletRepository",
-    "IAreaConnectionRepository",
+    "IDepartmentConnectionRepository",
     "IUserRepository",
 ]
