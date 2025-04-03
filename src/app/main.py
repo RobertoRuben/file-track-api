@@ -21,8 +21,8 @@ from src.app.controller import (
     employee_tags_metadata,
     hamlet_router,
     hamlet_tags_metadata,
-    area_router,
-    area_connection_tags_metadata,
+    department_connection_router,
+    department_connection_tags_metadata,
     user_router,
     user_tags_metadata,
 )
@@ -39,7 +39,7 @@ tags_metadata = [
     position_tags_metadata,
     employee_tags_metadata,
     hamlet_tags_metadata,
-    area_connection_tags_metadata,
+    department_connection_tags_metadata,
     user_tags_metadata,
 ]
 
@@ -84,5 +84,5 @@ app.include_router(submitter_router, prefix=API_PREFIX)
 app.include_router(position_router, prefix=API_PREFIX)
 app.include_router(employee_router, prefix=API_PREFIX)
 app.include_router(hamlet_router, prefix=API_PREFIX)
-app.include_router(area_router, prefix=API_PREFIX)
+app.include_router(department_connection_router, prefix=API_PREFIX)
 app.include_router(user_router, prefix=API_PREFIX)
