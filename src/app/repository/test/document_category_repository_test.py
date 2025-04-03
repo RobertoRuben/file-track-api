@@ -33,7 +33,7 @@ class TestDocumentCategoryRepositoryImpl:
 
     @pytest.mark.asyncio
     async def test_save_success(
-            self, document_category_repository, mock_session, document_category_sample
+        self, document_category_repository, mock_session, document_category_sample
     ):
         """Test to verify that the save method correctly stores a category."""
         print("🧪 Testing successful category saving...")
@@ -72,7 +72,7 @@ class TestDocumentCategoryRepositoryImpl:
 
     @pytest.mark.asyncio
     async def test_delete_success(
-            self, document_category_repository, mock_session, document_category_sample
+        self, document_category_repository, mock_session, document_category_sample
     ):
         """Test to verify that delete correctly removes a category."""
         print("🧪 Testing category deletion...")
@@ -93,7 +93,7 @@ class TestDocumentCategoryRepositoryImpl:
 
     @pytest.mark.asyncio
     async def test_get_by_id_success(
-            self, document_category_repository, mock_session, document_category_sample
+        self, document_category_repository, mock_session, document_category_sample
     ):
         """Test to verify that get_by_id returns the correct category."""
         print("🧪 Testing category retrieval by ID...")
@@ -111,7 +111,7 @@ class TestDocumentCategoryRepositoryImpl:
 
     @pytest.mark.asyncio
     async def test_get_pageable_success(
-            self, document_category_repository, mock_session
+        self, document_category_repository, mock_session
     ):
         """Test to verify that get_pageable returns a page of results."""
         print("🧪 Testing category pagination...")
@@ -166,7 +166,7 @@ class TestDocumentCategoryRepositoryImpl:
 
     @pytest.mark.asyncio
     async def test_exists_by_not_found(
-            self, document_category_repository, mock_session
+        self, document_category_repository, mock_session
     ):
         """Test to verify that exists_by returns False when the category doesn't exist."""
         print("🧪 Testing non-existent category verification...")
