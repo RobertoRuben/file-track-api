@@ -1,4 +1,4 @@
-from .category_document_service_impl import CategoryDocumentServiceImpl
+from .document_category_service_impl import DocumentCategoryServiceImpl
 from .role_service_impl import RoleServiceImpl
 from .department_service_impl import DepartmentServiceImpl
 from .documentary_topic_service_impl import DocumentaryTopicServiceImpl
@@ -11,7 +11,7 @@ from .department_connection_service_impl import DepartmentConnectionServiceImpl
 from .user_service_impl import UserServiceImpl
 
 __all__ = [
-    "CategoryDocumentServiceImpl",
+    "DocumentCategoryServiceImpl",
     "RoleServiceImpl",
     "DepartmentServiceImpl",
     "DocumentaryTopicServiceImpl",
