@@ -18,16 +18,15 @@ if TYPE_CHECKING:
 
 class DepartmentConnection(SQLModel, table=True):
     """
-    Represents a connection between two departments.
+    Represents a connection between two departments in the organizational structure.
 
-    Attributes:
-        id: The unique identifier for the department connection
-        source_department_id: The ID of the source department
-        target_department_id: The ID of the target department
-        created_at: The timestamp when the connection was created
-        updated_at: The timestamp when the connection was last updated
-        source_department: The source department in the connection
-        target_department: The target department in the connection
+    :ivar id: The unique identifier for the department connection
+    :ivar source_department_id: The ID of the source department
+    :ivar target_department_id: The ID of the target department
+    :ivar created_at: The timestamp when the connection was created
+    :ivar updated_at: The timestamp when the connection was last updated
+    :ivar source_department: The source department in the connection
+    :ivar target_department: The target department in the connection
     """
 
     __tablename__ = "department_connections"
