@@ -1,9 +1,9 @@
 import pytest
 from datetime import datetime
 from unittest.mock import AsyncMock
-from src.app.model.entity import CentroPoblado
+from src.app.model.entity import Settlement
 from src.app.dto.request import SettlementRequestDTO
-from src.app.dto.response import SettlementReponseDTO, SettlementPage
+from src.app.dto.response import SettlementResponseDTO, SettlementPage
 from src.app.service.implementations import SettlementServiceImpl
 from src.app.exception import ConflictException, NotFoundException, BadRequestException
 from src.app.schema import Page, Pagination, MessageResponse
@@ -15,8 +15,7 @@ class TestSettlementServiceImpl:
         """
         Creates a mock repository for testing the settlement service.
 
-        Returns:
-            A mock settlement repository with predefined async methods.
+        :return: A mock settlement repository with predefined async methods
         """
         mock_repository = AsyncMock()
         return mock_repository
@@ -26,34 +25,29 @@ class TestSettlementServiceImpl:
         """
         Creates a settlement service instance for testing.
 
-        Args:
-            settlement_repository: The mock repository to inject.
-
-        Returns:
-            An instance of SettlementServiceImpl with the mock repository.
+        :param settlement_repository: The mock repository to inject
+        :return: An instance of SettlementServiceImpl with the mock repository
         """
-        return SettlementServiceImpl(repository=settlement_repository)
+        return SettlementServiceImpl(settlement_repository=settlement_repository)
 
     @pytest.fixture
     def settlement_request_dto(self):
         """
         Creates a sample settlement request DTO.
 
-        Returns:
-            A SettlementRequestDTO instance with test data.
+        :return: A SettlementRequestDTO instance with test data
         """
-        return SettlementRequestDTO(nombre="San Isidro")
+        return SettlementRequestDTO(name="San Isidro")
 
     @pytest.fixture
     def settlement_entity(self):
         """
         Creates a sample settlement entity.
 
-        Returns:
-            A CentroPoblado instance with test data.
+        :return: A Settlement instance with test data
         """
-        return CentroPoblado(
-            id=1, nombre="San Isidro", created_at=datetime.now(), updated_at=None
+        return Settlement(
+            id=1, name="San Isidro", created_at=datetime.now(), updated_at=None
         )
 
     @pytest.mark.asyncio
@@ -67,18 +61,18 @@ class TestSettlementServiceImpl:
         """
         Tests successful settlement creation.
         """
-        print(f"\n🔹 Creating new settlement: '{settlement_request_dto.nombre}' 🔹")
+        print(f"\n🔹 Creating new settlement: '{settlement_request_dto.name}' 🔹")
         settlement_repository.exists_by = AsyncMock(return_value=False)
         settlement_repository.save = AsyncMock(return_value=settlement_entity)
 
         result = await settlement_service.add_settlement(settlement_request_dto)
         print(f"✅ Settlement successfully created with ID: {result.id}")
 
-        assert isinstance(result, SettlementReponseDTO)
+        assert isinstance(result, SettlementResponseDTO)
         assert result.id == settlement_entity.id
-        assert result.nombre == settlement_entity.nombre
+        assert result.name == settlement_entity.name
         settlement_repository.exists_by.assert_called_once_with(
-            nombre=settlement_request_dto.nombre
+            name=settlement_request_dto.name
         )
         settlement_repository.save.assert_called_once()
 
@@ -90,7 +84,7 @@ class TestSettlementServiceImpl:
         Tests settlement creation with a name that already exists.
         """
         print(
-            f"\n🔹 Attempting to create duplicate settlement: '{settlement_request_dto.nombre}' 🔹"
+            f"\n🔹 Attempting to create duplicate settlement: '{settlement_request_dto.name}' 🔹"
         )
         settlement_repository.exists_by = AsyncMock(return_value=True)
 
@@ -99,11 +93,11 @@ class TestSettlementServiceImpl:
         print(f"⚠️ Conflict detected: {exc_info.value}")
 
         assert (
-            f"Settlement with name {settlement_request_dto.nombre} already exists"
+            f"Settlement with name {settlement_request_dto.name} already exists"
             in str(exc_info.value)
         )
         settlement_repository.exists_by.assert_called_once_with(
-            nombre=settlement_request_dto.nombre
+            name=settlement_request_dto.name
         )
         settlement_repository.save.assert_not_called()
 
@@ -117,7 +111,7 @@ class TestSettlementServiceImpl:
         print("\n🔹 Getting all settlements 🔍")
         settlements = [
             settlement_entity,
-            CentroPoblado(id=2, nombre="Miraflores", created_at=datetime.now()),
+            Settlement(id=2, name="Miraflores", created_at=datetime.now()),
         ]
         settlement_repository.get_all = AsyncMock(return_value=settlements)
 
@@ -127,12 +121,12 @@ class TestSettlementServiceImpl:
         assert isinstance(result, list)
         assert len(result) == 2
         assert all(
-            isinstance(settlement, SettlementReponseDTO) for settlement in result
+            isinstance(settlement, SettlementResponseDTO) for settlement in result
         )
         assert result[0].id == 1
-        assert result[0].nombre == "San Isidro"
+        assert result[0].name == "San Isidro"
         assert result[1].id == 2
-        assert result[1].nombre == "Miraflores"
+        assert result[1].name == "Miraflores"
         settlement_repository.get_all.assert_called_once()
 
     @pytest.mark.asyncio
@@ -143,10 +137,10 @@ class TestSettlementServiceImpl:
         Tests successful settlement update.
         """
         print(f"\n🔹 Updating settlement ID: 1 to name: 'San Isidro Labrador' 🔄")
-        updated_request = SettlementRequestDTO(nombre="San Isidro Labrador")
-        updated_entity = CentroPoblado(
+        updated_request = SettlementRequestDTO(name="San Isidro Labrador")
+        updated_entity = Settlement(
             id=1,
-            nombre="San Isidro Labrador",
+            name="San Isidro Labrador",
             created_at=settlement_entity.created_at,
             updated_at=datetime.now(),
         )
@@ -156,14 +150,14 @@ class TestSettlementServiceImpl:
         settlement_repository.save = AsyncMock(return_value=updated_entity)
 
         result = await settlement_service.update_settlement(1, updated_request)
-        print(f"✅ Settlement successfully updated: {result.nombre}")
+        print(f"✅ Settlement successfully updated: {result.name}")
 
-        assert isinstance(result, SettlementReponseDTO)
+        assert isinstance(result, SettlementResponseDTO)
         assert result.id == 1
-        assert result.nombre == "San Isidro Labrador"
+        assert result.name == "San Isidro Labrador"
         assert result.updated_at is not None
         settlement_repository.exists_by.assert_any_call(id=1)
-        settlement_repository.exists_by.assert_any_call(nombre="San Isidro Labrador")
+        settlement_repository.exists_by.assert_any_call(name="San Isidro Labrador")
         settlement_repository.save.assert_called_once()
 
     @pytest.mark.asyncio
@@ -174,7 +168,7 @@ class TestSettlementServiceImpl:
         Tests settlement update when the settlement doesn't exist.
         """
         print(f"\n🔹 Attempting to update non-existent settlement (ID: 999) 🔄")
-        updated_request = SettlementRequestDTO(nombre="San Isidro Labrador")
+        updated_request = SettlementRequestDTO(name="San Isidro Labrador")
         settlement_repository.exists_by = AsyncMock(return_value=False)
 
         with pytest.raises(NotFoundException) as exc_info:
@@ -193,7 +187,7 @@ class TestSettlementServiceImpl:
         Tests settlement update with a conflicting name.
         """
         print(f"\n🔹 Attempting to update to an existing name: 'Miraflores' 🔄")
-        updated_request = SettlementRequestDTO(nombre="Miraflores")
+        updated_request = SettlementRequestDTO(name="Miraflores")
         settlement_repository.exists_by = AsyncMock(side_effect=[True, True])
         settlement_repository.get_by_id = AsyncMock(return_value=settlement_entity)
 
@@ -203,7 +197,7 @@ class TestSettlementServiceImpl:
 
         assert "Settlement with name Miraflores already exists" in str(exc_info.value)
         settlement_repository.exists_by.assert_any_call(id=1)
-        settlement_repository.exists_by.assert_any_call(nombre="Miraflores")
+        settlement_repository.exists_by.assert_any_call(name="Miraflores")
         settlement_repository.save.assert_not_called()
 
     @pytest.mark.asyncio
@@ -276,11 +270,11 @@ class TestSettlementServiceImpl:
         settlement_repository.get_by_id = AsyncMock(return_value=settlement_entity)
 
         result = await settlement_service.get_settlement_by_id(1)
-        print(f"✅ Settlement found: '{result.nombre}'")
+        print(f"✅ Settlement found: '{result.name}'")
 
-        assert isinstance(result, SettlementReponseDTO)
+        assert isinstance(result, SettlementResponseDTO)
         assert result.id == 1
-        assert result.nombre == "San Isidro"
+        assert result.name == "San Isidro"
         settlement_repository.exists_by.assert_called_once_with(id=1)
         settlement_repository.get_by_id.assert_called_once_with(1)
 
@@ -312,7 +306,7 @@ class TestSettlementServiceImpl:
         print("\n🔹 Getting settlements with pagination (page: 1, size: 10) 📄")
         settlements = [
             settlement_entity,
-            CentroPoblado(id=2, nombre="Miraflores", created_at=datetime.now()),
+            Settlement(id=2, name="Miraflores", created_at=datetime.now()),
         ]
         pagination = Pagination(
             current_page=1,
@@ -380,13 +374,13 @@ class TestSettlementServiceImpl:
         result = await settlement_service.find(page=1, size=10, search_term="San")
         print(f"🔎 Found {len(result.data)} settlements with 'San'")
         for item in result.data:
-            print(f"  - {item.nombre} (ID: {item.id})")
+            print(f"  - {item.name} (ID: {item.id})")
 
         assert isinstance(result, SettlementPage)
         assert len(result.data) == 1
-        assert result.data[0].nombre == "San Isidro"
+        assert result.data[0].name == "San Isidro"
         assert result.meta.total == 1
-        settlement_repository.find.assert_called_once_with(1, 10, {"nombre": "San"})
+        settlement_repository.find.assert_called_once_with(1, 10, {"name": "San"})
 
     @pytest.mark.asyncio
     async def test_find_invalid_params(self, settlement_service):
@@ -431,6 +425,4 @@ class TestSettlementServiceImpl:
         assert "No settlements found with the search term NotFound" in str(
             exc_info.value
         )
-        settlement_repository.find.assert_called_once_with(
-            1, 10, {"nombre": "NotFound"}
-        )
+        settlement_repository.find.assert_called_once_with(1, 10, {"name": "NotFound"})
