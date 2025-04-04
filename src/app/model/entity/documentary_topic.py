@@ -15,11 +15,10 @@ class DocumentaryTopic(SQLModel, table=True):
     """
     Represents a documentary topic or scope in the system.
 
-    Attributes:
-        id: The unique identifier for the documentary topic
-        name: The name of the documentary topic
-        created_at: The timestamp when the topic was created
-        updated_at: The timestamp when the topic was last updated
+    :ivar id: The unique identifier for the documentary topic
+    :ivar name: The name of the documentary topic
+    :ivar created_at: The timestamp when the documentary topic was created
+    :ivar updated_at: The timestamp when the documentary topic was last updated
     """
 
     __tablename__ = "documentary_topics"
