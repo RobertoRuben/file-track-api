@@ -15,11 +15,8 @@ class IRoleService(ABC):
         """
         Add a new role.
 
-        Args:
-            role_request: The data transfer object containing role details.
-
-        Returns:
-            The created role as a RoleResponseDTO.
+        :param role_request: The data transfer object containing role details
+        :return: The created role as a RoleResponseDTO
         """
         pass
 
@@ -28,8 +25,7 @@ class IRoleService(ABC):
         """
         Retrieve all roles.
 
-        Returns:
-            A list of RoleResponseDTO objects representing all roles.
+        :return: A list of RoleResponseDTO objects representing all roles
         """
         pass
 
@@ -40,12 +36,9 @@ class IRoleService(ABC):
         """
         Update an existing role.
 
-        Args:
-            role_id: The ID of the role to update.
-            role_request: The data transfer object containing updated role details.
-
-        Returns:
-            The updated role as a RoleResponseDTO.
+        :param role_id: The ID of the role to update
+        :param role_request: The data transfer object containing updated role details
+        :return: The updated role as a RoleResponseDTO
         """
         pass
 
@@ -54,11 +47,8 @@ class IRoleService(ABC):
         """
         Delete a role by its ID.
 
-        Args:
-            role_id: The ID of the role to delete.
-
-        Returns:
-            A MessageResponse indicating the result of the deletion.
+        :param role_id: The ID of the role to delete
+        :return: A MessageResponse indicating the result of the deletion
         """
         pass
 
@@ -67,11 +57,8 @@ class IRoleService(ABC):
         """
         Retrieve a role by its ID.
 
-        Args:
-            role_id: The ID of the role to retrieve.
-
-        Returns:
-            The role as a RoleResponseDTO.
+        :param role_id: The ID of the role to retrieve
+        :return: The role as a RoleResponseDTO
         """
         pass
 
@@ -80,12 +67,9 @@ class IRoleService(ABC):
         """
         Retrieve a paginated list of roles.
 
-        Args:
-            page: The page number to retrieve.
-            size: The number of roles per page.
-
-        Returns:
-            A RolePage object containing the paginated roles.
+        :param page: The page number to retrieve
+        :param size: The number of roles per page
+        :return: A RolePage object containing the paginated roles
         """
         pass
 
@@ -94,12 +78,9 @@ class IRoleService(ABC):
         """
         Find roles based on search criteria.
 
-        Args:
-            page: The page number to retrieve.
-            size: The number of roles per page.
-            search_term: The term to search for in role names.
-
-        Returns:
-            A RolePage object containing the roles that match the search criteria.
+        :param page: The page number to retrieve
+        :param size: The number of roles per page
+        :param search_term: The term to search for in role names
+        :return: A RolePage object containing the roles that match the search criteria
         """
         pass

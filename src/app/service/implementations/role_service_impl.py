@@ -1,11 +1,11 @@
 from datetime import datetime
-from src.app.model.entity import Rol
+from src.app.model.entity import Role
 from src.app.dto.request import RoleRequestDTO
 from src.app.dto.response import RolePage, RoleResponseDTO
 from src.app.schema import MessageResponse
 from src.app.exception import BadRequestException, ConflictException, NotFoundException
 from src.app.exception.decorator import handle_exceptions
-from src.app.repository.interfaces import IRolRepository
+from src.app.repository.interfaces import IRoleRepository
 from src.app.service.interfaces import IRoleService
 
 
@@ -17,12 +17,11 @@ class RoleServiceImpl(IRoleService):
     updating, deleting, and querying roles.
     """
 
-    def __init__(self, repository: IRolRepository):
+    def __init__(self, repository: IRoleRepository):
         """
         Initialize the role service with a repository.
 
-        Args:
-            repository: The role repository implementation
+        :param repository: The role repository implementation
         """
         self.repository = repository
 
@@ -33,30 +32,25 @@ class RoleServiceImpl(IRoleService):
 
         Validates that the role name does not already exist before creating the new entry.
 
-        Args:
-            role_request: DTO containing the role data
-
-        Returns:
-            A DTO containing the created role details
-
-        Raises:
-            ConflictException: If a role with the same name already exists
+        :param role_request: DTO containing the role data
+        :return: A DTO containing the created role details
+        :raises ConflictException: If a role with the same name already exists
         """
-        exists_role = await self.repository.exists_by(nombre=role_request.nombre)
+        exists_role = await self.repository.exists_by(name=role_request.name)
         if exists_role:
             raise ConflictException(
-                details=f"Role with name {role_request.nombre} already exists.",
+                details=f"Role with name {role_request.name} already exists.",
             )
 
-        new_role = Rol(
-            nombre=role_request.nombre,
+        new_role = Role(
+            name=role_request.name,
         )
 
         created_role = await self.repository.save(new_role)
 
         return RoleResponseDTO(
             id=created_role.id,
-            nombre=created_role.nombre,
+            name=created_role.name,
             created_at=created_role.created_at,
             updated_at=created_role.updated_at,
         )
@@ -66,14 +60,13 @@ class RoleServiceImpl(IRoleService):
         """
         Retrieve all roles.
 
-        Returns:
-            A list of DTOs containing all roles
+        :return: A list of DTOs containing all roles
         """
         roles = await self.repository.get_all()
         return [
             RoleResponseDTO(
                 id=role.id,
-                nombre=role.nombre,
+                name=role.name,
                 created_at=role.created_at,
                 updated_at=role.updated_at,
             )
@@ -89,16 +82,11 @@ class RoleServiceImpl(IRoleService):
 
         Validates that the role exists and that the new name is not already taken.
 
-        Args:
-            role_id: ID of the role to update
-            role_request: DTO containing the updated data
-
-        Returns:
-            A DTO containing the updated role details
-
-        Raises:
-            NotFoundException: If the role with the given ID does not exist
-            ConflictException: If another role with the new name already exists
+        :param role_id: ID of the role to update
+        :param role_request: DTO containing the updated data
+        :return: A DTO containing the updated role details
+        :raises NotFoundException: If the role with the given ID does not exist
+        :raises ConflictException: If another role with the new name already exists
         """
         exists_role_id = await self.repository.exists_by(id=role_id)
         if not exists_role_id:
@@ -107,21 +95,21 @@ class RoleServiceImpl(IRoleService):
             )
         role = await self.repository.get_by_id(role_id)
 
-        if role.nombre != role_request.nombre:
-            name_exists = await self.repository.exists_by(nombre=role_request.nombre)
+        if role.name != role_request.name:
+            name_exists = await self.repository.exists_by(name=role_request.name)
             if name_exists:
                 raise ConflictException(
-                    details=f"Role with name {role_request.nombre} already exists.",
+                    details=f"Role with name {role_request.name} already exists.",
                 )
 
-        role.nombre = role_request.nombre
+        role.name = role_request.name
         role.updated_at = datetime.now()
 
         updated_role = await self.repository.save(role)
 
         return RoleResponseDTO(
             id=updated_role.id,
-            nombre=updated_role.nombre,
+            name=updated_role.name,
             created_at=updated_role.created_at,
             updated_at=updated_role.updated_at,
         )
@@ -131,14 +119,9 @@ class RoleServiceImpl(IRoleService):
         """
         Delete a role by its ID.
 
-        Args:
-            role_id: ID of the role to delete
-
-        Returns:
-            A message response indicating success or failure
-
-        Raises:
-            NotFoundException: If the role with the given ID does not exist
+        :param role_id: ID of the role to delete
+        :return: A message response indicating success or failure
+        :raises NotFoundException: If the role with the given ID does not exist
         """
         exists_role_id = await self.repository.exists_by(id=role_id)
         if not exists_role_id:
@@ -166,14 +149,9 @@ class RoleServiceImpl(IRoleService):
         """
         Retrieve a role by its ID.
 
-        Args:
-            role_id: ID of the role to retrieve
-
-        Returns:
-            A DTO containing the role details
-
-        Raises:
-            NotFoundException: If the role with the given ID does not exist
+        :param role_id: ID of the role to retrieve
+        :return: A DTO containing the role details
+        :raises NotFoundException: If the role with the given ID does not exist
         """
         exists_role_id = await self.repository.exists_by(id=role_id)
         if not exists_role_id:
@@ -183,7 +161,7 @@ class RoleServiceImpl(IRoleService):
         role = await self.repository.get_by_id(role_id)
         return RoleResponseDTO(
             id=role.id,
-            nombre=role.nombre,
+            name=role.name,
             created_at=role.created_at,
             updated_at=role.updated_at,
         )
@@ -193,15 +171,10 @@ class RoleServiceImpl(IRoleService):
         """
         Retrieve a paginated list of roles.
 
-        Args:
-            page: Page number (1-based indexing)
-            size: Number of items per page
-
-        Returns:
-            A page object containing roles and pagination metadata
-
-        Raises:
-            BadRequestException: If page or size values are invalid
+        :param page: Page number (1-based indexing)
+        :param size: Number of items per page
+        :return: A page object containing roles and pagination metadata
+        :raises BadRequestException: If page or size values are invalid
         """
         if page < 1:
             raise BadRequestException(
@@ -227,17 +200,12 @@ class RoleServiceImpl(IRoleService):
         """
         Search for roles with name filtering and pagination.
 
-        Args:
-            page: Page number (1-based indexing)
-            size: Number of items per page
-            search_term: Term to search for in role names
-
-        Returns:
-            A page object containing the filtered roles and pagination metadata
-
-        Raises:
-            BadRequestException: If page or size values are invalid
-            NotFoundException: If no roles match the search criteria
+        :param page: Page number (1-based indexing)
+        :param size: Number of items per page
+        :param search_term: Term to search for in role names
+        :return: A page object containing the filtered roles and pagination metadata
+        :raises BadRequestException: If page or size values are invalid
+        :raises NotFoundException: If no roles match the search criteria
         """
         if page < 1:
             raise BadRequestException(
@@ -250,7 +218,7 @@ class RoleServiceImpl(IRoleService):
                 details="Size number must be greater than 0.",
             )
 
-        search_dict = {"nombre": search_term}
+        search_dict = {"name": search_term}
 
         page_result = await self.repository.find(page, size, search_dict)
 
