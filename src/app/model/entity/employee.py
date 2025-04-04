@@ -23,20 +23,19 @@ class Employee(SQLModel, table=True):
     """
     Represents an employee in the organization.
 
-    Attributes:
-        id: The unique identifier for the employee
-        dni: The national identification number of the employee
-        paternal_surname: The paternal last name of the employee
-        maternal_surname: The maternal last name of the employee
-        names: The name(s) of the employee
-        gender: The gender of the employee ('Male' or 'Female')
-        created_at: The timestamp when the employee record was created
-        updated_at: The timestamp when the employee record was last updated
-        position_id: The ID of the employee's position
-        department_id: The ID of the employee's department
-        position: The position of the employee
-        department: The department the employee belongs to
-        user: The user account associated with the employee
+    :ivar id: The unique identifier for the employee
+    :ivar dni: The national identification number of the employee (8 digits)
+    :ivar paternal_surname: The paternal last name of the employee
+    :ivar maternal_surname: The maternal last name of the employee
+    :ivar names: The name(s) of the employee
+    :ivar gender: The gender of the employee ('Male' or 'Female')
+    :ivar created_at: The timestamp when the employee record was created
+    :ivar updated_at: The timestamp when the employee record was last updated
+    :ivar position_id: The ID of the employee's position
+    :ivar department_id: The ID of the employee's department
+    :ivar position: The position of the employee
+    :ivar department: The department the employee belongs to
+    :ivar user: The user account associated with the employee
     """
 
     __tablename__ = "employees"
