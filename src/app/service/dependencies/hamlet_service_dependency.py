@@ -18,16 +18,13 @@ async def get_hamlet_service(
     This function creates and provides an instance of the hamlet service
     implementation with the necessary repository dependencies injected.
 
-    Args:
-        hamlet_repository: The hamlet repository implementation provided by
+    :param hamlet_repository: The hamlet repository implementation provided by
                           the FastAPI dependency injection system.
-        settlement_repository: The settlement repository implementation provided by
+    :param settlement_repository: The settlement repository implementation provided by
                               the FastAPI dependency injection system.
-
-    Returns:
-        An implementation of IHamletService configured with the provided repositories.
+    :return: An implementation of IHamletService configured with the provided repositories.
     """
     return HamletServiceImpl(
-        repository=hamlet_repository,
+        hamlet_repository=hamlet_repository,
         settlement_repository=settlement_repository,
     )
