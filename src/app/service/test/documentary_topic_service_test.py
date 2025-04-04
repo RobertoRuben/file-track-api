@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime
 from unittest.mock import AsyncMock
-from src.app.model.entity import Ambito
+from src.app.model.entity import DocumentaryTopic
 from src.app.dto.request import DocumentaryTopicRequestDTO
 from src.app.dto.response import DocumentaryTopicResponseDTO, DocumentaryTopicPage
 from src.app.service.implementations import DocumentaryTopicServiceImpl
@@ -26,35 +26,32 @@ class TestDocumentaryTopicServiceImpl:
         """
         Creates a documentary topic service instance for testing.
 
-        Args:
-            documentary_topic_repository: The mock repository to inject.
-
-        Returns:
-            An instance of DocumentaryTopicServiceImpl with the mock repository.
+        :param documentary_topic_repository: The mock repository to inject
+        :return: An instance of DocumentaryTopicServiceImpl with the mock repository
         """
-        return DocumentaryTopicServiceImpl(repository=documentary_topic_repository)
+        return DocumentaryTopicServiceImpl(
+            documentary_topic_repository=documentary_topic_repository
+        )
 
     @pytest.fixture
     def documentary_topic_request_dto(self):
         """
         Creates a sample documentary topic request DTO.
 
-        Returns:
-            A DocumentaryTopicRequestDTO instance with test data.
+        :return: A DocumentaryTopicRequestDTO instance with test data
         """
-        return DocumentaryTopicRequestDTO(nombre="Documentos Internos")
+        return DocumentaryTopicRequestDTO(name="Internal Documents")
 
     @pytest.fixture
     def documentary_topic_entity(self):
         """
         Creates a sample documentary topic entity.
 
-        Returns:
-            An Ambito instance with test data.
+        :return: A DocumentaryTopic instance with test data
         """
-        return Ambito(
+        return DocumentaryTopic(
             id=1,
-            nombre="Documentos Internos",
+            name="Internal Documents",
             created_at=datetime.now(),
             updated_at=None,
         )
@@ -71,7 +68,7 @@ class TestDocumentaryTopicServiceImpl:
         Tests successful documentary topic creation.
         """
         print(
-            f"\n🔹 Creating new documentary topic: '{documentary_topic_request_dto.nombre}' 🔹"
+            f"\n🔹 Creating new documentary topic: '{documentary_topic_request_dto.name}' 🔹"
         )
         documentary_topic_repository.exists_by = AsyncMock(return_value=False)
         documentary_topic_repository.save = AsyncMock(
@@ -85,9 +82,9 @@ class TestDocumentaryTopicServiceImpl:
 
         assert isinstance(result, DocumentaryTopicResponseDTO)
         assert result.id == documentary_topic_entity.id
-        assert result.nombre == documentary_topic_entity.nombre
+        assert result.name == documentary_topic_entity.name
         documentary_topic_repository.exists_by.assert_called_once_with(
-            nombre=documentary_topic_request_dto.nombre
+            name=documentary_topic_request_dto.name
         )
         documentary_topic_repository.save.assert_called_once()
 
@@ -102,7 +99,7 @@ class TestDocumentaryTopicServiceImpl:
         Tests documentary topic creation with a name that already exists.
         """
         print(
-            f"\n🔹 Attempting to create duplicate documentary topic: '{documentary_topic_request_dto.nombre}' 🔹"
+            f"\n🔹 Attempting to create duplicate documentary topic: '{documentary_topic_request_dto.name}' 🔹"
         )
         documentary_topic_repository.exists_by = AsyncMock(return_value=True)
 
@@ -113,11 +110,11 @@ class TestDocumentaryTopicServiceImpl:
         print(f"⚠️ Conflict detected: {exc_info.value}")
 
         assert (
-            f"Documentary topic with name {documentary_topic_request_dto.nombre} already exists"
+            f"Documentary topic with name '{documentary_topic_request_dto.name}' already exists"
             in str(exc_info.value)
         )
         documentary_topic_repository.exists_by.assert_called_once_with(
-            nombre=documentary_topic_request_dto.nombre
+            name=documentary_topic_request_dto.name
         )
         documentary_topic_repository.save.assert_not_called()
 
@@ -134,7 +131,9 @@ class TestDocumentaryTopicServiceImpl:
         print("\n🔹 Getting all documentary topics 🔍")
         topics = [
             documentary_topic_entity,
-            Ambito(id=2, nombre="Documentos Externos", created_at=datetime.now()),
+            DocumentaryTopic(
+                id=2, name="External Documents", created_at=datetime.now()
+            ),
         ]
         documentary_topic_repository.get_all = AsyncMock(return_value=topics)
 
@@ -145,9 +144,9 @@ class TestDocumentaryTopicServiceImpl:
         assert len(result) == 2
         assert all(isinstance(topic, DocumentaryTopicResponseDTO) for topic in result)
         assert result[0].id == 1
-        assert result[0].nombre == "Documentos Internos"
+        assert result[0].name == "Internal Documents"
         assert result[1].id == 2
-        assert result[1].nombre == "Documentos Externos"
+        assert result[1].name == "External Documents"
         documentary_topic_repository.get_all.assert_called_once()
 
     @pytest.mark.asyncio
@@ -161,12 +160,12 @@ class TestDocumentaryTopicServiceImpl:
         Tests successful documentary topic update.
         """
         print(
-            f"\n🔹 Updating documentary topic ID: 1 to name: 'Documentos Corporativos' 🔄"
+            f"\n🔹 Updating documentary topic ID: 1 to name: 'Corporate Documents' 🔄"
         )
-        updated_request = DocumentaryTopicRequestDTO(nombre="Documentos Corporativos")
-        updated_entity = Ambito(
+        updated_request = DocumentaryTopicRequestDTO(name="Corporate Documents")
+        updated_entity = DocumentaryTopic(
             id=1,
-            nombre="Documentos Corporativos",
+            name="Corporate Documents",
             created_at=documentary_topic_entity.created_at,
             updated_at=datetime.now(),
         )
@@ -180,15 +179,15 @@ class TestDocumentaryTopicServiceImpl:
         result = await documentary_topic_service.update_documentary_topic(
             1, updated_request
         )
-        print(f"✅ Documentary topic successfully updated: {result.nombre}")
+        print(f"✅ Documentary topic successfully updated: {result.name}")
 
         assert isinstance(result, DocumentaryTopicResponseDTO)
         assert result.id == 1
-        assert result.nombre == "Documentos Corporativos"
+        assert result.name == "Corporate Documents"
         assert result.updated_at is not None
         documentary_topic_repository.exists_by.assert_any_call(id=1)
         documentary_topic_repository.exists_by.assert_any_call(
-            nombre="Documentos Corporativos"
+            name="Corporate Documents"
         )
         documentary_topic_repository.save.assert_called_once()
 
@@ -200,7 +199,7 @@ class TestDocumentaryTopicServiceImpl:
         Tests documentary topic update when the topic doesn't exist.
         """
         print(f"\n🔹 Attempting to update non-existent documentary topic (ID: 999) 🔄")
-        updated_request = DocumentaryTopicRequestDTO(nombre="Documentos Corporativos")
+        updated_request = DocumentaryTopicRequestDTO(name="Corporate Documents")
         documentary_topic_repository.exists_by = AsyncMock(return_value=False)
 
         with pytest.raises(NotFoundException) as exc_info:
@@ -209,7 +208,7 @@ class TestDocumentaryTopicServiceImpl:
             )
         print(f"⚠️ Error: {exc_info.value}")
 
-        assert "Documentary topic with id 999 not found" in str(exc_info.value)
+        assert "Documentary topic with ID 999 not found" in str(exc_info.value)
         documentary_topic_repository.exists_by.assert_called_once_with(id=999)
         documentary_topic_repository.save.assert_not_called()
 
@@ -223,10 +222,8 @@ class TestDocumentaryTopicServiceImpl:
         """
         Tests documentary topic update with a conflicting name.
         """
-        print(
-            f"\n🔹 Attempting to update to an existing name: 'Documentos Externos' 🔄"
-        )
-        updated_request = DocumentaryTopicRequestDTO(nombre="Documentos Externos")
+        print(f"\n🔹 Attempting to update to an existing name: 'External Documents' 🔄")
+        updated_request = DocumentaryTopicRequestDTO(name="External Documents")
         documentary_topic_repository.exists_by = AsyncMock(side_effect=[True, True])
         documentary_topic_repository.get_by_id = AsyncMock(
             return_value=documentary_topic_entity
@@ -236,12 +233,12 @@ class TestDocumentaryTopicServiceImpl:
             await documentary_topic_service.update_documentary_topic(1, updated_request)
         print(f"⚠️ Conflict detected: {exc_info.value}")
 
-        assert "Documentary topic with name Documentos Externos already exists" in str(
+        assert "Documentary topic with name 'External Documents' already exists" in str(
             exc_info.value
         )
         documentary_topic_repository.exists_by.assert_any_call(id=1)
         documentary_topic_repository.exists_by.assert_any_call(
-            nombre="Documentos Externos"
+            name="External Documents"
         )
         documentary_topic_repository.save.assert_not_called()
 
@@ -279,7 +276,7 @@ class TestDocumentaryTopicServiceImpl:
             await documentary_topic_service.delete_documentary_topic(999)
         print(f"⚠️ Error: {exc_info.value}")
 
-        assert "Documentary topic with id 999 not found" in str(exc_info.value)
+        assert "Documentary topic with ID 999 not found" in str(exc_info.value)
         documentary_topic_repository.exists_by.assert_called_once_with(id=999)
         documentary_topic_repository.delete.assert_not_called()
 
@@ -320,11 +317,11 @@ class TestDocumentaryTopicServiceImpl:
         )
 
         result = await documentary_topic_service.get_documentary_topic_by_id(1)
-        print(f"✅ Documentary topic found: '{result.nombre}'")
+        print(f"✅ Documentary topic found: '{result.name}'")
 
         assert isinstance(result, DocumentaryTopicResponseDTO)
         assert result.id == 1
-        assert result.nombre == "Documentos Internos"
+        assert result.name == "Internal Documents"
         documentary_topic_repository.exists_by.assert_called_once_with(id=1)
         documentary_topic_repository.get_by_id.assert_called_once_with(1)
 
@@ -342,7 +339,7 @@ class TestDocumentaryTopicServiceImpl:
             await documentary_topic_service.get_documentary_topic_by_id(999)
         print(f"⚠️ Error: {exc_info.value}")
 
-        assert "Documentary topic with id 999 not found" in str(exc_info.value)
+        assert "Documentary topic with ID 999 not found" in str(exc_info.value)
         documentary_topic_repository.exists_by.assert_called_once_with(id=999)
         documentary_topic_repository.get_by_id.assert_not_called()
 
@@ -359,7 +356,9 @@ class TestDocumentaryTopicServiceImpl:
         print("\n🔹 Getting documentary topics with pagination (page: 1, size: 10) 📄")
         topics = [
             documentary_topic_entity,
-            Ambito(id=2, nombre="Documentos Externos", created_at=datetime.now()),
+            DocumentaryTopic(
+                id=2, name="External Documents", created_at=datetime.now()
+            ),
         ]
         pagination = Pagination(
             current_page=1,
@@ -421,7 +420,7 @@ class TestDocumentaryTopicServiceImpl:
         """
         Tests searching for documentary topics with filter criteria.
         """
-        print("\n🔹 Searching for documentary topics containing 'Documentos' 🔍")
+        print("\n🔹 Searching for documentary topics containing 'Internal' 🔍")
         topics = [documentary_topic_entity]
         pagination = Pagination(
             current_page=1,
@@ -436,18 +435,18 @@ class TestDocumentaryTopicServiceImpl:
         documentary_topic_repository.find = AsyncMock(return_value=page_result)
 
         result = await documentary_topic_service.find(
-            page=1, size=10, search_term="Documentos"
+            page=1, size=10, search_term="Internal"
         )
-        print(f"🔎 Found {len(result.data)} documentary topics with 'Documentos'")
+        print(f"🔎 Found {len(result.data)} documentary topics with 'Internal'")
         for item in result.data:
-            print(f"  - {item.nombre} (ID: {item.id})")
+            print(f"  - {item.name} (ID: {item.id})")
 
         assert isinstance(result, DocumentaryTopicPage)
         assert len(result.data) == 1
-        assert result.data[0].nombre == "Documentos Internos"
+        assert result.data[0].name == "Internal Documents"
         assert result.meta.total == 1
         documentary_topic_repository.find.assert_called_once_with(
-            1, 10, {"nombre": "Documentos"}
+            1, 10, {"name": "Internal"}
         )
 
     @pytest.mark.asyncio
@@ -460,16 +459,14 @@ class TestDocumentaryTopicServiceImpl:
         print("  - Testing with page = 0")
         with pytest.raises(BadRequestException) as exc_info:
             await documentary_topic_service.find(
-                page=0, size=10, search_term="Documentos"
+                page=0, size=10, search_term="Internal"
             )
         print(f"  ❌ Error correctly validated: {exc_info.value}")
         assert "Page number must be greater than 0" in str(exc_info.value)
 
         print("  - Testing with size = 0")
         with pytest.raises(BadRequestException) as exc_info:
-            await documentary_topic_service.find(
-                page=1, size=0, search_term="Documentos"
-            )
+            await documentary_topic_service.find(page=1, size=0, search_term="Internal")
         print(f"  ❌ Error correctly validated: {exc_info.value}")
         assert "Size number must be greater than 0" in str(exc_info.value)
 
@@ -498,9 +495,9 @@ class TestDocumentaryTopicServiceImpl:
             )
         print(f"⚠️ Expected error: {exc_info.value}")
 
-        assert "No documentary topics found with the search term NotFound" in str(
+        assert "No documentary topics found with search term: NotFound" in str(
             exc_info.value
         )
         documentary_topic_repository.find.assert_called_once_with(
-            1, 10, {"nombre": "NotFound"}
+            1, 10, {"name": "NotFound"}
         )
