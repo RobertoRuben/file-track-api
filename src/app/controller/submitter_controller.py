@@ -11,10 +11,10 @@ from src.app.schema import MessageResponse
 from src.app.service.interfaces import ISubmitterService
 from src.app.service.dependencies import get_submitter_service
 
-router = APIRouter(prefix="/submitter", tags=["Submitter"])
+router = APIRouter(prefix="/submitter", tags=["Submitters"])
 
 submitter_tags_metadata = {
-    "name": "Submitter",
+    "name": "Submitters",
     "description": "Manages submitters within the system. These operations allow creating, retrieving, "
     "updating, and deleting submitters, as well as searching and listing them with pagination.",
 }
@@ -23,7 +23,7 @@ submitter_tags_metadata = {
 @router.post(
     "",
     response_model=SubmitterResponseDTO,
-    summary="Create a new submitter in the system",
+    summary="Create a new submitter",
     status_code=201,
     responses={
         201: {
@@ -34,7 +34,7 @@ submitter_tags_metadata = {
         409: {"model": ConflictError, "description": "Submitter already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Creates a new submitter in the system. Provide the submitter details in the request body to create it successfully.",
+    description="Creates a new submitter in the system. The DNI must be unique.",
 )
 async def create_submitter(
     submitter_request: SubmitterRequestDTO,
@@ -44,12 +44,12 @@ async def create_submitter(
     Endpoint to create a new submitter.
 
     This endpoint allows the creation of a new submitter in the system. The submitter data
-    must be provided in the request body. If the submitter is created successfully, a status code 201
-    with the created submitter's details is returned.
+    must be provided in the request body. If the submitter is created successfully, a
+    status code 201 is returned with the details of the created submitter.
 
-    :param submitter_request: Request body containing submitter data.
-    :param submitter_service: Service to handle the submitter creation logic.
-    :return: The created submitter data.
+    :param submitter_request: Request body containing the submitter data
+    :param submitter_service: Service that handles the submitter creation logic
+    :return: The data of the created submitter
     """
     return await submitter_service.add_submitter(submitter_request)
 
@@ -66,7 +66,7 @@ async def create_submitter(
         400: {"model": BackRequestError, "description": "Bad request error"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves a list of all submitters in the system.",
+    description="Retrieves the complete list of all submitters registered in the system, including their identifiers, personal data, and timestamps.",
 )
 async def get_all_submitters(
     submitter_service: ISubmitterService = Depends(get_submitter_service),
@@ -77,8 +77,8 @@ async def get_all_submitters(
     This endpoint returns a list of all available submitters in the system. The response will include
     all submitters stored in the database.
 
-    :param submitter_service: Service to handle the query and retrieve all submitters.
-    :return: A list of submitters in the system.
+    :param submitter_service: Service to handle the query and retrieve all submitters
+    :return: A list of submitters in the system
     """
     return await submitter_service.get_all_submitters()
 
@@ -92,7 +92,7 @@ async def get_all_submitters(
         400: {"model": BackRequestError, "description": "Bad request error"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves submitters in a paginated format to manage large data sets.",
+    description="Retrieves submitters in a paginated format to manage large data sets, allowing navigation through pages and control over the number of records per page.",
 )
 async def get_paginated_submitters(
     page: int = Query(default=1, description="Page number to retrieve"),
@@ -105,10 +105,10 @@ async def get_paginated_submitters(
     This endpoint allows retrieving submitters in a paginated format. The user can specify the page number
     and the number of submitters per page to optimize the query and reduce data overload.
 
-    :param page: The page number to retrieve.
-    :param size: The number of submitters to return per page.
-    :param submitter_service: Service to handle the query and return paginated submitters.
-    :return: A paginated list of submitters.
+    :param page: The page number to retrieve
+    :param size: The number of submitters to return per page
+    :param submitter_service: Service to handle the query and return paginated submitters
+    :return: A paginated list of submitters
     """
     return await submitter_service.get_submitters_paginated(page, size)
 
@@ -116,14 +116,14 @@ async def get_paginated_submitters(
 @router.get(
     "/search",
     response_model=SubmitterPage,
-    summary="Search submitters based on a term",
+    summary="Search submitters by term",
     responses={
         200: {"model": SubmitterPage, "description": "Paginated list of submitters"},
         400: {"model": BackRequestError, "description": "Bad request error"},
         404: {"model": NotFoundError, "description": "Submitter not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Search submitters based on a keyword or phrase, with pagination for better management of search results.",
+    description="Performs submitter searches based on a keyword or phrase. Results are returned paginated for better management of search results.",
 )
 async def find_submitters(
     search_term: str | None = Query(
@@ -139,11 +139,11 @@ async def find_submitters(
     This endpoint allows searching for submitters based on a given search term. The results are returned
     in a paginated format, where the user can specify the page number and the number of results per page.
 
-    :param search_term: A term to search within submitter names, surnames or DNI.
-    :param page: The page number to retrieve.
-    :param size: The number of results per page.
-    :param submitter_service: Service to handle the search logic and return results.
-    :return: A paginated list of submitters that match the search term.
+    :param search_term: A term to search within submitter names, surnames or DNI
+    :param page: The page number to retrieve
+    :param size: The number of results per page
+    :param submitter_service: Service to handle the search logic and return results
+    :return: A paginated list of submitters that match the search term
     """
     return await submitter_service.find(page, size, search_term)
 
@@ -151,14 +151,14 @@ async def find_submitters(
 @router.get(
     "/{submitter_id}",
     response_model=SubmitterResponseDTO,
-    summary="Get a specific submitter by ID",
+    summary="Get submitter by ID",
     responses={
         200: {"model": SubmitterResponseDTO, "description": "Submitter found"},
         400: {"model": BackRequestError, "description": "Bad request error"},
         404: {"model": NotFoundError, "description": "Submitter not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieve details of a specific submitter using its ID.",
+    description="Retrieves the complete details of a specific submitter using its unique identifier.",
 )
 async def get_submitter_by_id(
     submitter_id: int,
@@ -170,9 +170,9 @@ async def get_submitter_by_id(
     This endpoint retrieves the details of a specific submitter identified by its ID. If the submitter is found,
     the submitter's data is returned. If not, a 404 error is returned.
 
-    :param submitter_id: The ID of the submitter to retrieve.
-    :param submitter_service: Service to handle the query and retrieve the submitter.
-    :return: The submitter details.
+    :param submitter_id: The ID of the submitter to retrieve
+    :param submitter_service: Service to handle the query and retrieve the submitter
+    :return:  details
     """
     return await submitter_service.get_submitter_by_id(submitter_id)
 
@@ -180,7 +180,7 @@ async def get_submitter_by_id(
 @router.put(
     "/{submitter_id}",
     response_model=SubmitterResponseDTO,
-    summary="Update an existing submitter by ID",
+    summary="Update existing submitter",
     responses={
         200: {
             "model": SubmitterResponseDTO,
@@ -188,9 +188,10 @@ async def get_submitter_by_id(
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
         404: {"model": NotFoundError, "description": "Submitter not found"},
+        409: {"model": ConflictError, "description": "Submitter DNI already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Updates the details of an existing submitter by its ID.",
+    description="Updates the details of an existing submitter identified by its ID. Verifies that the new DNI is not already in use by another submitter.",
 )
 async def update_submitter(
     submitter_id: int,
@@ -204,10 +205,10 @@ async def update_submitter(
     is updated successfully, the updated submitter data is returned. If the submitter is not found,
     a 404 error is returned.
 
-    :param submitter_id: The ID of the submitter to update.
-    :param submitter_request: The new data for the submitter.
-    :param submitter_service: Service to handle the update logic.
-    :return: The updated submitter data.
+    :param submitter_id: The ID of the submitter to update
+    :param submitter_request: The new data for the submitter
+    :param submitter_service: Service to handle the update logic
+    :return: The updated submitter data
     """
     return await submitter_service.update_submitter(submitter_id, submitter_request)
 
@@ -215,7 +216,7 @@ async def update_submitter(
 @router.delete(
     "/{submitter_id}",
     response_model=MessageResponse,
-    summary="Delete a submitter by ID",
+    summary="Delete submitter",
     responses={
         200: {
             "model": MessageResponse,
@@ -225,7 +226,7 @@ async def update_submitter(
         404: {"model": NotFoundError, "description": "Submitter not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Deletes a specific submitter from the system using its ID.",
+    description="Deletes a specific submitter from the system using its ID. This operation is irreversible.",
 )
 async def delete_submitter(
     submitter_id: int,
@@ -237,8 +238,8 @@ async def delete_submitter(
     This endpoint allows deleting a specific submitter identified by its ID. If the submitter is deleted
     successfully, a success message is returned. If the submitter is not found, a 404 error is returned.
 
-    :param submitter_id: The ID of the submitter to delete.
-    :param submitter_service: Service to handle the delete logic.
-    :return: A success message indicating that the submitter has been deleted.
+    :param submitter_id: The ID of the submitter to delete
+    :param submitter_service: Service to handle the delete logic
+    :return: A success message indicating that the submitter has been deleted
     """
     return await submitter_service.delete_submitter(submitter_id)
