@@ -1,5 +1,5 @@
 from .document_category_repository import IDocumentCategoryRepository
-from .rol_repository import IRolRepository
+from .role_repository import IRoleRepository
 from .department_repository import IDepartmentRepository
 from .documentary_topic_repository import IDocumentaryTopicRepository
 from .settlement_repository import ISettlementRepository
@@ -12,7 +12,7 @@ from .user_repository import IUserRepository
 
 __all__ = [
     "IDocumentCategoryRepository",
-    "IRolRepository",
+    "IRoleRepository",
     "IDepartmentRepository",
     "IDocumentaryTopicRepository",
     "ISettlementRepository",
