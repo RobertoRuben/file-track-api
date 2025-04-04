@@ -88,7 +88,9 @@ class SettlementServiceImpl(ISettlementService):
         :raises NotFoundException: If the settlement with the given ID doesn't exist
         :raises ConflictException: If another settlement with the same name already exists
         """
-        exists_settlement_id = await self.settlement_repository.exists_by(id=settlement_id)
+        exists_settlement_id = await self.settlement_repository.exists_by(
+            id=settlement_id
+        )
         if not exists_settlement_id:
             raise NotFoundException(
                 details=f"Settlement with id {settlement_id} not found",
@@ -125,7 +127,9 @@ class SettlementServiceImpl(ISettlementService):
         :return: Message response indicating success or failure
         :raises NotFoundException: If the settlement with the given ID doesn't exist
         """
-        existing_settlement_id = await self.settlement_repository.exists_by(id=settlement_id)
+        existing_settlement_id = await self.settlement_repository.exists_by(
+            id=settlement_id
+        )
         if not existing_settlement_id:
             raise NotFoundException(
                 details=f"Settlement with id {settlement_id} not found",
@@ -155,7 +159,9 @@ class SettlementServiceImpl(ISettlementService):
         :return: DTO with the settlement data
         :raises NotFoundException: If the settlement with the given ID doesn't exist
         """
-        existing_settlement_id = await self.settlement_repository.exists_by(id=settlement_id)
+        existing_settlement_id = await self.settlement_repository.exists_by(
+            id=settlement_id
+        )
         if not existing_settlement_id:
             raise NotFoundException(
                 details=f"Settlement with id {settlement_id} not found",
