@@ -1,4 +1,4 @@
-from .category_document_controller import (
+from .document_category_controller import (
     router as category_document_router,
     category_document_tags_metadata,
 )
