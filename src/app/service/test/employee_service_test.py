@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime
 from unittest.mock import AsyncMock
-from src.app.model.entity import Trabajador
+from src.app.model.entity import Employee
 from src.app.dto.request import EmployeeRequestDto
 from src.app.dto.response import EmployeeResponseDTO, EmployeePage
 from src.app.service.implementations import EmployeeServiceImpl
@@ -91,7 +91,7 @@ class TestEmployeeServiceImpl:
         Returns:
             A Trabajador instance with test data.
         """
-        return Trabajador(
+        return Employee(
             id=1,
             dni=12345678,
             nombres="John",
@@ -274,7 +274,7 @@ class TestEmployeeServiceImpl:
         # Create test data
         employees = [
             employee_entity,
-            Trabajador(
+            Employee(
                 id=2,
                 dni="87654321",
                 nombres="Jane",
@@ -333,7 +333,7 @@ class TestEmployeeServiceImpl:
         )
 
         # Create updated entity
-        updated_entity = Trabajador(
+        updated_entity = Employee(
             id=1,
             dni="12345678",
             nombres="John Updated",
