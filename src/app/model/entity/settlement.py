@@ -20,12 +20,11 @@ class Settlement(SQLModel, table=True):
     """
     Represents a settlement or populated center.
 
-    Attributes:
-        id: The unique identifier for the settlement
-        name: The name of the settlement
-        created_at: The timestamp when the settlement was created
-        updated_at: The timestamp when the settlement was last updated
-        hamlets: List of hamlets that belong to this settlement
+    :ivar id: The unique identifier for the settlement
+    :ivar name: The name of the settlement
+    :ivar created_at: The timestamp when the settlement was created
+    :ivar updated_at: The timestamp when the settlement was last updated
+    :ivar hamlets: List of hamlets that belong to this settlement
     """
 
     __tablename__ = "settlements"
