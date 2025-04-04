@@ -7,39 +7,52 @@ class EmployeeResponseDTO(BaseModel):
     """
     DTO for employee response.
     Represents the data structure returned when querying employee information.
+
+    :ivar id: The employee's unique identifier
+    :ivar dni: The employee's national ID number (8 digits)
+    :ivar names: The employee's first name(s)
+    :ivar paternal_surname: The employee's paternal surname
+    :ivar maternal_surname: The employee's maternal surname
+    :ivar gender: The employee's gender (Male/Female)
+    :ivar position_id: The ID of the employee's position
+    :ivar position_name: The name of the employee's position
+    :ivar department_id: The ID of the employee's department
+    :ivar department_name: The name of the employee's department
+    :ivar created_at: Timestamp when the employee record was created
+    :ivar updated_at: Timestamp when the employee record was last updated
     """
 
     id: int = Field(..., description="Employee's unique identifier", examples=[1])
     dni: int = Field(
         ..., description="Employee's national ID number (8 digits)", examples=[12345678]
     )
-    nombres: str = Field(
+    names: str = Field(
         ..., description="Employee's first name(s)", examples=["Juan Carlos"]
     )
-    apellido_paterno: str = Field(
+    paternal_surname: str = Field(
         ..., description="Employee's paternal surname", examples=["Pérez"]
     )
-    apellido_materno: str = Field(
+    maternal_surname: str = Field(
         ..., description="Employee's maternal surname", examples=["Gómez"]
     )
-    genero: str = Field(
+    gender: str = Field(
         ...,
-        description="Employee's gender (Masculino/Femenino)",
-        examples=["Masculino"],
+        description="Employee's gender (Male/Female)",
+        examples=["Male"],
     )
-    cargo_id: int = Field(
+    position_id: int = Field(
         ..., description="ID of the employee's position", examples=[1]
     )
-    cargo_nombre: str | None = Field(
+    position_name: str | None = Field(
         None,
         description="Name of the employee's position",
-        examples=["Desarrollador Senior"],
+        examples=["Senior Developer"],
     )
-    area_id: int = Field(
+    department_id: int = Field(
         ..., description="ID of the employee's department", examples=[1]
     )
-    area_nombre: str | None = Field(
-        None, description="Name of the employee's department", examples=["Desarrollo"]
+    department_name: str | None = Field(
+        None, description="Name of the employee's department", examples=["Development"]
     )
     created_at: datetime = Field(
         ...,
@@ -57,6 +70,8 @@ class EmployeePage(Page):
     """
     DTO for paginated response of employees.
     Represents a paginated collection of employee data for listing purposes.
+
+    :ivar data: List of employee records in the current page
     """
 
     data: list[EmployeeResponseDTO] = Field(

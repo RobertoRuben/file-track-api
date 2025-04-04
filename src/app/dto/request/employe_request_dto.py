@@ -7,6 +7,14 @@ class EmployeeRequestDto(BaseModel):
     """
     DTO for employee creation and update requests.
     Contains all fields necessary to process employee information.
+
+    :ivar dni: The national identification number of the employee (8 digits)
+    :ivar names: The employee's first names
+    :ivar paternal_surname: The paternal surname of the employee
+    :ivar maternal_surname: The maternal surname of the employee
+    :ivar gender: The gender of the employee
+    :ivar position_id: The ID of the position associated with the employee
+    :ivar department_id: The ID of the department associated with the employee
     """
 
     dni: int = Field(
@@ -16,54 +24,49 @@ class EmployeeRequestDto(BaseModel):
         lt=100000000,
         examples=[12345678],
     )
-    nombres: str = Field(
+    names: str = Field(
         ...,
         description="Employee's first names",
         min_length=2,
         examples=["Juan Carlos"],
     )
-    apellido_paterno: str = Field(
+    paternal_surname: str = Field(
         ...,
         description="Employee's paternal surname",
         min_length=2,
         examples=["Pérez"],
     )
-    apellido_materno: str = Field(
+    maternal_surname: str = Field(
         ...,
         description="Employee's maternal surname",
         min_length=2,
         examples=["Gómez"],
     )
-    genero: GeneroEnum = Field(
-        ..., description="Employee's gender", examples=["Masculino", "Femenino"]
+    gender: GeneroEnum = Field(
+        ..., description="Employee's gender", examples=["Male", "Female"]
     )
-    cargo_id: int = Field(
+    position_id: int = Field(
         ...,
         description="ID of the position associated with the employee",
         gt=0,
         examples=[1],
     )
-    area_id: int = Field(
+    department_id: int = Field(
         ...,
         description="ID of the department associated with the employee",
         gt=0,
         examples=[1],
     )
 
-    @field_validator("nombres", "apellido_paterno", "apellido_materno", mode="before")
+    @field_validator("names", "paternal_surname", "maternal_surname", mode="before")
     def strip_and_validate_string(cls, v, info: ValidationInfo):
         """
         Validates that the input is a string and strips whitespace.
 
-        Args:
-            v: The value to validate
-            info: Validation information context
-
-        Returns:
-            The stripped string value
-
-        Raises:
-            ValueError: If the value is not a string or is empty after stripping
+        :param v: The value to validate
+        :param info: Validation information context
+        :return: The stripped string value
+        :raises ValueError: If the value is not a string or is empty after stripping
         """
         field_name = info.field_name.replace("_", " ").title()
 
@@ -81,14 +84,9 @@ class EmployeeRequestDto(BaseModel):
         """
         Validates that the DNI is a number.
 
-        Args:
-            v: The value to validate
-
-        Returns:
-            The numeric value of the DNI
-
-        Raises:
-            ValueError: If the value is not numeric or doesn't meet the expected format
+        :param v: The value to validate
+        :return: The numeric value of the DNI
+        :raises ValueError: If the value is not numeric or doesn't meet the expected format
         """
         if isinstance(v, str):
             v = v.strip()
@@ -101,20 +99,15 @@ class EmployeeRequestDto(BaseModel):
 
         return v
 
-    @field_validator("nombres", "apellido_paterno", "apellido_materno", mode="after")
+    @field_validator("names", "paternal_surname", "maternal_surname", mode="after")
     def validate_name_format(cls, v, info: ValidationInfo):
         """
         Validates that the name/surname contains only alphabetic characters and spaces.
 
-        Args:
-            v: The string value to validate
-            info: Validation information context
-
-        Returns:
-            The validated string value
-
-        Raises:
-            ValueError: If the name/surname contains invalid characters
+        :param v: The string value to validate
+        :param info: Validation information context
+        :return: The validated string value
+        :raises ValueError: If the name/surname contains invalid characters
         """
         field_name = info.field_name.replace("_", " ").title()
         pattern = re.compile(r"^[A-Za-zÁÉÍÓÚáéíóúÑñ][A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$")
@@ -130,33 +123,23 @@ class EmployeeRequestDto(BaseModel):
         """
         Validates that the DNI has exactly 8 digits.
 
-        Args:
-            v: The numeric value of the DNI
-
-        Returns:
-            The validated DNI value
-
-        Raises:
-            ValueError: If the DNI doesn't have exactly 8 digits
+        :param v: The numeric value of the DNI
+        :return: The validated DNI value
+        :raises ValueError: If the DNI doesn't have exactly 8 digits
         """
         if len(str(v)) != 8:
             raise ValueError("DNI must have exactly 8 digits")
         return v
 
-    @field_validator("cargo_id", "area_id", mode="before")
+    @field_validator("position_id", "department_id", mode="before")
     def validate_ids_input(cls, v, info: ValidationInfo):
         """
         Validates that the input IDs are integers or can be converted to integers.
 
-        Args:
-            v: The ID value to validate
-            info: Validation information context
-
-        Returns:
-            The ID value converted to integer
-
-        Raises:
-            ValueError: If the ID cannot be converted to an integer
+        :param v: The ID value to validate
+        :param info: Validation information context
+        :return: The ID value converted to integer
+        :raises ValueError: If the ID cannot be converted to an integer
         """
         field_name = info.field_name.replace("_", " ").title()
 
@@ -171,20 +154,15 @@ class EmployeeRequestDto(BaseModel):
 
         return v
 
-    @field_validator("cargo_id", "area_id", mode="after")
+    @field_validator("position_id", "department_id", mode="after")
     def validate_ids(cls, v, info: ValidationInfo):
         """
         Validates that IDs are positive integers.
 
-        Args:
-            v: The ID value to validate
-            info: Validation information context
-
-        Returns:
-            The validated ID value
-
-        Raises:
-            ValueError: If the ID is not a positive integer
+        :param v: The ID value to validate
+        :param info: Validation information context
+        :return: The validated ID value
+        :raises ValueError: If the ID is not a positive integer
         """
         field_name = info.field_name.replace("_", " ").title()
 
@@ -198,20 +176,15 @@ class EmployeeRequestDto(BaseModel):
         """
         Validates numeric fields before Pydantic performs type validation.
 
-        Args:
-            data: Raw input data from the request
-            info: Validation information context
-
-        Returns:
-            The validated data
-
-        Raises:
-            ValueError: If numeric fields contain non-digit characters
+        :param data: Raw input data from the request
+        :param info: Validation information context
+        :return: The validated data
+        :raises ValueError: If numeric fields contain non-digit characters
         """
         if not isinstance(data, dict):
             return data
 
-        numeric_fields = ["dni", "cargo_id", "area_id"]
+        numeric_fields = ["dni", "position_id", "department_id"]
         error_fields = []
 
         for field in numeric_fields:
