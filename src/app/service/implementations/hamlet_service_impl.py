@@ -40,7 +40,9 @@ class HamletServiceImpl(IHamletService):
         :raises ConflictException: If a hamlet with the same name already exists
         :raises NotFoundException: If the specified settlement does not exist
         """
-        existing_hamlet = await self.hamlet_repository.exists_by(name=hamlet_request.name)
+        existing_hamlet = await self.hamlet_repository.exists_by(
+            name=hamlet_request.name
+        )
         if existing_hamlet:
             raise ConflictException(
                 details=f"Hamlet with name {hamlet_request.name} already exists",
