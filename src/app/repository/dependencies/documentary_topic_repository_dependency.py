@@ -11,10 +11,7 @@ async def get_documentary_topic_repository(
     """
     Dependency function to get the documentary topic repository implementation.
 
-    Args:
-        session: The async database session provided by the FastAPI dependency injection system
-
-    Returns:
-        An implementation of IDocumentaryTopicRepository bound to the provided session
+    :param session: The async database session provided by the FastAPI dependency injection system
+    :return: An implementation of IDocumentaryTopicRepository bound to the provided session
     """
     return DocumentaryTopicRepositoryImpl(session=session)

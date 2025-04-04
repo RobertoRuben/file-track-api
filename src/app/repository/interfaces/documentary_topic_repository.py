@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from src.app.model.entity import Ambito
+from src.app.model.entity import DocumentaryTopic
 from src.app.schema import Page
 
 
@@ -9,51 +9,41 @@ class IDocumentaryTopicRepository(ABC):
     """
 
     @abstractmethod
-    async def save(self, ambito: Ambito) -> Ambito:
+    async def save(self, documentary_topic: DocumentaryTopic) -> DocumentaryTopic:
         """
         Save a documentary topic.
 
-        Args:
-            ambito: The documentary topic to save
-
-        Returns:
-            The saved documentary topic with updated data
+        :param documentary_topic: The documentary topic to save
+        :return: The saved documentary topic with updated data
         """
         pass
 
     @abstractmethod
-    async def get_all(self) -> list[Ambito]:
+    async def get_all(self) -> list[DocumentaryTopic]:
         """
         Get all documentary topics.
 
-        Returns:
-            A list containing all documentary topics
+        :return: A list containing all documentary topics
         """
         pass
 
     @abstractmethod
-    async def delete(self, ambito_id: int) -> bool:
+    async def delete(self, documentary_topic_id: int) -> bool:
         """
         Delete a documentary topic by its ID.
 
-        Args:
-            ambito_id: The ID of the documentary topic to delete
-
-        Returns:
-            True if the topic was successfully deleted, False otherwise
+        :param documentary_topic_id: The ID of the documentary topic to delete
+        :return: True if the topic was successfully deleted, False otherwise
         """
         pass
 
     @abstractmethod
-    async def get_by_id(self, ambito_id: int) -> Ambito:
+    async def get_by_id(self, documentary_topic_id: int) -> DocumentaryTopic:
         """
         Get a documentary topic by its ID.
 
-        Args:
-            ambito_id: The ID of the documentary topic to retrieve
-
-        Returns:
-            The found documentary topic
+        :param documentary_topic_id: The ID of the documentary topic to retrieve
+        :return: The found documentary topic
         """
         pass
 
@@ -62,12 +52,9 @@ class IDocumentaryTopicRepository(ABC):
         """
         Get a paginated list of documentary topics.
 
-        Args:
-            page: The page number (starts at 1)
-            size: The size of each page
-
-        Returns:
-            A Page object containing documentary topics and pagination information
+        :param page: The page number (starts at 1)
+        :param size: The size of each page
+        :return: A Page object containing documentary topics and pagination information
         """
         pass
 
@@ -81,13 +68,10 @@ class IDocumentaryTopicRepository(ABC):
         """
         Find documentary topics by search criteria.
 
-        Args:
-            page: The page number (starts at 1)
-            size: The size of each page
-            search_dict: Dictionary containing search parameters
-
-        Returns:
-            A Page object with documentary topics matching the search criteria
+        :param page: The page number (starts at 1)
+        :param size: The size of each page
+        :param search_dict: Dictionary containing search parameters
+        :return: A Page object with documentary topics matching the search criteria
         """
         pass
 
@@ -96,10 +80,7 @@ class IDocumentaryTopicRepository(ABC):
         """
         Check if a documentary topic exists based on the given criteria.
 
-        Args:
-            **kwargs: Key-value pairs representing the search criteria
-
-        Returns:
-            True if a matching documentary topic exists, False otherwise
+        :param kwargs: Key-value pairs representing the search criteria
+        :return: True if a matching documentary topic exists, False otherwise
         """
         pass
