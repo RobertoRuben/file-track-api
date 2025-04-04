@@ -11,7 +11,9 @@ class DepartmentRequestDTO(BaseModel):
     """
 
     name: str = Field(
-        description="Name of the department in the institution", min_length=3
+        description="Name of the department in the institution",
+        min_length=3,
+        examples=["Department of Human Resources", "Department of Finance"],
     )
 
     @field_validator("name", mode="before")
