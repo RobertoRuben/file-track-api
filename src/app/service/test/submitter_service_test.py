@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime
 from unittest.mock import AsyncMock
-from src.app.model.entity import Remitente
+from src.app.model.entity import Submitter
 from src.app.dto.request import SubmitterRequestDTO
 from src.app.dto.response import SubmitterResponseDTO, SubmitterPage
 from src.app.service.implementations import SubmitterServiceImpl
@@ -16,8 +16,7 @@ class TestSubmitterServiceImpl:
         """
         Creates a mock repository for testing the submitter service.
 
-        Returns:
-            A mock of the submitter repository with predefined asynchronous methods.
+        :return: A mock of the submitter repository with predefined asynchronous methods
         """
         mock_repository = AsyncMock()
         return mock_repository
@@ -27,28 +26,24 @@ class TestSubmitterServiceImpl:
         """
         Creates an instance of the submitter service for testing.
 
-        Args:
-            submitter_repository: The mock repository to inject.
-
-        Returns:
-            An instance of SubmitterServiceImpl with the mock repository.
+        :param submitter_repository: The mock repository to inject
+        :return: An instance of SubmitterServiceImpl with the mock repository
         """
-        return SubmitterServiceImpl(repository=submitter_repository)
+        return SubmitterServiceImpl(submitter_repository=submitter_repository)
 
     @pytest.fixture
     def submitter_request_dto(self):
         """
         Creates a sample submitter request DTO.
 
-        Returns:
-            An instance of SubmitterRequestDTO with test data.
+        :return: An instance of SubmitterRequestDTO with test data
         """
         return SubmitterRequestDTO(
             dni="12345678",
-            nombres="Juan",
-            apellido_paterno="Pérez",
-            apellido_materno="García",
-            genero=GeneroEnum.Masculino,
+            names="Juan",
+            paternal_surname="Pérez",
+            maternal_surname="García",
+            gender=GeneroEnum.Masculino,
         )
 
     @pytest.fixture
@@ -56,16 +51,15 @@ class TestSubmitterServiceImpl:
         """
         Creates a sample submitter entity.
 
-        Returns:
-            An instance of Remitente with test data.
+        :return: An instance of Submitter with test data
         """
-        return Remitente(
+        return Submitter(
             id=1,
             dni=12345678,  # Must be a number, not a string
-            nombres="Juan",  # This is correct, both use "nombres"
-            apellido_paterno="Pérez",
-            apellido_materno="García",
-            genero="Masculino",  # Must match the allowed values in the check constraint
+            names="Juan",
+            paternal_surname="Pérez",
+            maternal_surname="García",
+            gender="Masculino",  # Must match the allowed values in the check constraint
             created_at=datetime(2025, 3, 24, 14, 36, 59, 588144),
             updated_at=None,
         )
@@ -82,7 +76,7 @@ class TestSubmitterServiceImpl:
         Tests the successful creation of a submitter.
         """
         print(
-            f"\n🔹 Creating new submitter: '{submitter_request_dto.nombres} {submitter_request_dto.apellido_paterno}' 🔹"
+            f"\n🔹 Creating new submitter: '{submitter_request_dto.names} {submitter_request_dto.paternal_surname}' 🔹"
         )
         submitter_repository.exists_by = AsyncMock(return_value=False)
         submitter_repository.save = AsyncMock(return_value=submitter_entity)
@@ -93,10 +87,10 @@ class TestSubmitterServiceImpl:
         assert isinstance(result, SubmitterResponseDTO)
         assert result.id == submitter_entity.id
         assert result.dni == submitter_entity.dni
-        assert result.nombres == submitter_entity.nombres
-        assert result.apellido_paterno == submitter_entity.apellido_paterno
-        assert result.apellido_materno == submitter_entity.apellido_materno
-        assert result.genero == submitter_entity.genero
+        assert result.names == submitter_entity.names
+        assert result.paternal_surname == submitter_entity.paternal_surname
+        assert result.maternal_surname == submitter_entity.maternal_surname
+        assert result.gender == submitter_entity.gender
         submitter_repository.exists_by.assert_called_once_with(
             dni=submitter_request_dto.dni
         )
@@ -136,13 +130,13 @@ class TestSubmitterServiceImpl:
         print("\n🔹 Getting all submitters 🔍")
         submitters = [
             submitter_entity,
-            Remitente(
+            Submitter(
                 id=2,
                 dni=87654321,
-                nombres="María",
-                apellido_paterno="López",
-                apellido_materno="Rodríguez",
-                genero="Femenino",  # Allowed value according to constraint
+                names="María",
+                paternal_surname="López",
+                maternal_surname="Rodríguez",
+                gender="Femenino",  # Allowed value according to constraint
                 created_at=datetime.now(),
             ),
         ]
@@ -155,9 +149,9 @@ class TestSubmitterServiceImpl:
         assert len(result) == 2
         assert all(isinstance(submitter, SubmitterResponseDTO) for submitter in result)
         assert result[0].id == 1
-        assert result[0].nombres == "Juan"
+        assert result[0].names == "Juan"
         assert result[1].id == 2
-        assert result[1].nombres == "María"
+        assert result[1].names == "María"
         submitter_repository.get_all.assert_called_once()
 
     @pytest.mark.asyncio
@@ -170,18 +164,18 @@ class TestSubmitterServiceImpl:
         print(f"\n🔹 Updating submitter ID: 1 to name: 'Pedro' 🔄")
         updated_request = SubmitterRequestDTO(
             dni=12345678,
-            nombres="Pedro",
-            apellido_paterno="Pérez",
-            apellido_materno="García",
-            genero=GeneroEnum.Masculino,
+            names="Pedro",
+            paternal_surname="Pérez",
+            maternal_surname="García",
+            gender=GeneroEnum.Masculino,
         )
-        updated_entity = Remitente(
+        updated_entity = Submitter(
             id=1,
             dni=12345678,
-            nombres="Pedro",
-            apellido_paterno="Pérez",
-            apellido_materno="García",
-            genero="Masculino",  # Allowed value according to constraint
+            names="Pedro",
+            paternal_surname="Pérez",
+            maternal_surname="García",
+            gender="Masculino",  # Allowed value according to constraint
             created_at=submitter_entity.created_at,
             updated_at=datetime.now(),
         )
@@ -191,11 +185,11 @@ class TestSubmitterServiceImpl:
         submitter_repository.save = AsyncMock(return_value=updated_entity)
 
         result = await submitter_service.update_submitter(1, updated_request)
-        print(f"✅ Submitter successfully updated: {result.nombres}")
+        print(f"✅ Submitter successfully updated: {result.names}")
 
         assert isinstance(result, SubmitterResponseDTO)
         assert result.id == 1
-        assert result.nombres == "Pedro"
+        assert result.names == "Pedro"
         assert result.updated_at is not None
         submitter_repository.exists_by.assert_any_call(id=1)
         submitter_repository.save.assert_called_once()
@@ -210,10 +204,10 @@ class TestSubmitterServiceImpl:
         print(f"\n🔹 Attempting to update a non-existent submitter (ID: 999) 🔄")
         updated_request = SubmitterRequestDTO(
             dni=12345678,
-            nombres="Pedro",
-            apellido_paterno="Pérez",
-            apellido_materno="García",
-            genero=GeneroEnum.Masculino,
+            names="Pedro",
+            paternal_surname="Pérez",
+            maternal_surname="García",
+            gender=GeneroEnum.Masculino,
         )
         submitter_repository.exists_by = AsyncMock(return_value=False)
 
@@ -235,10 +229,10 @@ class TestSubmitterServiceImpl:
         print(f"\n🔹 Attempting to update to an existing DNI: '87654321' 🔄")
         updated_request = SubmitterRequestDTO(
             dni=87654321,
-            nombres="Juan",
-            apellido_paterno="Pérez",
-            apellido_materno="García",
-            genero=GeneroEnum.Masculino,
+            names="Juan",
+            paternal_surname="Pérez",
+            maternal_surname="García",
+            gender=GeneroEnum.Masculino,
         )
         submitter_repository.exists_by = AsyncMock(side_effect=[True, True])
         submitter_repository.get_by_id = AsyncMock(return_value=submitter_entity)
@@ -322,12 +316,12 @@ class TestSubmitterServiceImpl:
         submitter_repository.get_by_id = AsyncMock(return_value=submitter_entity)
 
         result = await submitter_service.get_submitter_by_id(1)
-        print(f"✅ Submitter found: '{result.nombres} {result.apellido_paterno}'")
+        print(f"✅ Submitter found: '{result.names} {result.paternal_surname}'")
 
         assert isinstance(result, SubmitterResponseDTO)
         assert result.id == 1
-        assert result.nombres == "Juan"
-        assert result.apellido_paterno == "Pérez"
+        assert result.names == "Juan"
+        assert result.paternal_surname == "Pérez"
         submitter_repository.exists_by.assert_called_once_with(id=1)
         submitter_repository.get_by_id.assert_called_once_with(1)
 
@@ -359,13 +353,13 @@ class TestSubmitterServiceImpl:
         print("\n🔹 Getting submitters with pagination (page: 1, size: 10) 📄")
         submitters = [
             submitter_entity,
-            Remitente(
+            Submitter(
                 id=2,
                 dni=87654321,
-                nombres="María",
-                apellido_paterno="López",
-                apellido_materno="Rodríguez",
-                genero="FEMENINO",
+                names="María",
+                paternal_surname="López",
+                maternal_surname="Rodríguez",
+                gender="FEMENINO",
                 created_at=datetime.now(),
             ),
         ]
@@ -435,26 +429,26 @@ class TestSubmitterServiceImpl:
         result = await submitter_service.find(page=1, size=10, search_term="Juan")
         print(f"🔎 Found {len(result.data)} submitters with 'Juan'")
         for item in result.data:
-            print(f"  - {item.nombres} {item.apellido_paterno} (ID: {item.id})")
+            print(f"  - {item.names} {item.paternal_surname} (ID: {item.id})")
 
         assert isinstance(result, SubmitterPage)
         assert len(result.data) == 1
-        assert result.data[0].nombres == "Juan"
+        assert result.data[0].names == "Juan"
         assert result.meta.total == 1
 
         # Verify that it was called correctly with the search dictionary
         search_dict = {
-            "nombres": "Juan",
-            "apellido_paterno": "Juan",
-            "apellido_materno": "Juan",
+            "names": "Juan",
+            "paternal_surname": "Juan",
+            "maternal_surname": "Juan",
             "dni": None,  # None because "Juan" is not a number
         }
         submitter_repository.find.assert_called_once()
         call_args = submitter_repository.find.call_args[0]
         assert call_args[0] == 1
         assert call_args[1] == 10
-        assert "nombres" in call_args[2]
-        assert call_args[2]["nombres"] == "Juan"
+        assert "names" in call_args[2]
+        assert call_args[2]["names"] == "Juan"
 
     @pytest.mark.asyncio
     async def test_find_with_numeric_search(
