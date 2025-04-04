@@ -3,7 +3,7 @@ from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
 from sqlalchemy.exc import IntegrityError
 from src.app.repository.implementations import SubmitterRepositoryImpl
-from src.app.model.entity import Remitente
+from src.app.model.entity import Submitter
 from src.app.exception import DatabaseException, InvalidFieldException
 from src.app.schema import Page, Pagination
 
@@ -26,9 +26,13 @@ def submitter_repository(mock_session):
 
 @pytest.fixture
 def submitter_sample():
-    return Remitente(
+    return Submitter(
         id=1,
-        nombres="Remitente Test",
+        dni=12345678,
+        names="John",
+        paternal_surname="Doe",
+        maternal_surname="Smith",
+        gender="Male",
         created_at=datetime.now(),
         updated_at=None,
     )
@@ -41,14 +45,14 @@ class TestSubmitterRepositoryImpl:
         self, submitter_repository, mock_session, submitter_sample
     ):
         """Test to verify that the save method correctly stores a submitter."""
-        print("🧪 Probando guardado exitoso de remitente...")
+        print("🧪 Testing successful submitter save...")
 
         result = await submitter_repository.save(submitter_sample)
 
         mock_session.add.assert_called_once_with(submitter_sample)
         assert result == submitter_sample
         print(
-            f"✅ Remitente guardado exitosamente: ID={result.id}, Nombre='{result.nombres}'"
+            f"✅ Submitter saved successfully: ID={result.id}, Name='{result.names} {result.paternal_surname}'"
         )
 
     @pytest.mark.asyncio
@@ -56,32 +60,47 @@ class TestSubmitterRepositoryImpl:
         self, submitter_repository, mock_session, submitter_sample
     ):
         """Test to verify that the save method correctly handles integrity errors."""
-        print("🧪 Probando manejo de error de integridad durante guardado...")
+        print("🧪 Testing integrity error handling during save...")
 
         error_original = MagicMock()
-        error_original.__str__.return_value = "Entrada duplicada"
+        error_original.__str__.return_value = "Duplicate entry"
 
         mock_session.add = AsyncMock()
         mock_session.commit.side_effect = IntegrityError(
-            "Entrada duplicada", None, error_original
+            "Duplicate entry", None, error_original
         )
 
         with pytest.raises(DatabaseException) as exc_info:
             await submitter_repository.save(submitter_sample)
 
         assert isinstance(exc_info.value, DatabaseException)
-        assert "Error de integridad de datos" in str(exc_info.value)
+        assert "integridad de datos" in str(exc_info.value.detail["message"])
+        assert "Duplicate entry" in str(exc_info.value.detail["details"])
         mock_session.rollback.assert_called_once()
-        print(f"✅ Error de integridad manejado correctamente: {exc_info.value}")
+        print(f"✅ Integrity error handled correctly: {exc_info.value}")
 
     @pytest.mark.asyncio
     async def test_get_all_success(self, submitter_repository, mock_session):
         """Test to verify that get_all returns all submitters."""
-        print("🧪 Probando obtención de todos los remitentes...")
+        print("🧪 Testing retrieval of all submitters...")
 
         submitters = [
-            Remitente(id=1, nombres="Remitente 1"),
-            Remitente(id=2, nombres="Remitente 2"),
+            Submitter(
+                id=1,
+                names="John",
+                paternal_surname="Doe",
+                maternal_surname="Smith",
+                dni=12345678,
+                gender="Male",
+            ),
+            Submitter(
+                id=2,
+                names="Jane",
+                paternal_surname="Doe",
+                maternal_surname="Johnson",
+                dni=87654321,
+                gender="Female",
+            ),
         ]
 
         submitter_repository.get_all = AsyncMock(return_value=submitters)
@@ -89,14 +108,12 @@ class TestSubmitterRepositoryImpl:
         result = await submitter_repository.get_all()
 
         assert len(result) == 2
-        assert result[0].nombres == "Remitente 1"
-        assert result[1].nombres == "Remitente 2"
-        print(
-            f"✅ Todos los remitentes obtenidos: {len(result)} remitentes encontrados"
-        )
+        assert result[0].names == "John"
+        assert result[1].names == "Jane"
+        print(f"✅ All submitters retrieved: {len(result)} submitters found")
         for i, submitter in enumerate(result):
             print(
-                f"   - Remitente {i+1}: ID={submitter.id}, Nombre='{submitter.nombres}'"
+                f"   - Submitter {i+1}: ID={submitter.id}, Name='{submitter.names} {submitter.paternal_surname}'"
             )
 
     @pytest.mark.asyncio
@@ -104,7 +121,7 @@ class TestSubmitterRepositoryImpl:
         self, submitter_repository, mock_session, submitter_sample
     ):
         """Test to verify that delete correctly removes a submitter."""
-        print("🧪 Probando eliminación de remitente...")
+        print("🧪 Testing submitter deletion...")
 
         submitter_repository.get_by_id = AsyncMock(return_value=submitter_sample)
 
@@ -113,7 +130,7 @@ class TestSubmitterRepositoryImpl:
         assert result is True
         mock_session.delete.assert_called_once_with(submitter_sample)
         print(
-            f"✅ Remitente eliminado exitosamente: ID=1, Nombre='{submitter_sample.nombres}'"
+            f"✅ Submitter deleted successfully: ID=1, Name='{submitter_sample.names} {submitter_sample.paternal_surname}'"
         )
 
     @pytest.mark.asyncio
@@ -121,26 +138,40 @@ class TestSubmitterRepositoryImpl:
         self, submitter_repository, mock_session, submitter_sample
     ):
         """Test to verify that get_by_id returns the correct submitter."""
-        print("🧪 Probando obtención de remitente por ID...")
+        print("🧪 Testing submitter retrieval by ID...")
 
         submitter_repository.get_by_id = AsyncMock(return_value=submitter_sample)
 
         result = await submitter_repository.get_by_id(1)
 
         assert result == submitter_sample
-        assert result.nombres == "Remitente Test"
+        assert result.names == "John"
         print(
-            f"✅ Remitente obtenido por ID: ID={result.id}, Nombre='{result.nombres}'"
+            f"✅ Submitter retrieved by ID: ID={result.id}, Name='{result.names} {result.paternal_surname}'"
         )
 
     @pytest.mark.asyncio
     async def test_get_pageable_success(self, submitter_repository, mock_session):
         """Test to verify that get_pageable returns a page of results."""
-        print("🧪 Probando paginación de remitentes...")
+        print("🧪 Testing submitter pagination...")
 
         submitters = [
-            Remitente(id=1, nombres="Remitente 1"),
-            Remitente(id=2, nombres="Remitente 2"),
+            Submitter(
+                id=1,
+                names="John",
+                paternal_surname="Doe",
+                maternal_surname="Smith",
+                dni=12345678,
+                gender="Male",
+            ),
+            Submitter(
+                id=2,
+                names="Jane",
+                paternal_surname="Doe",
+                maternal_surname="Johnson",
+                dni=87654321,
+                gender="Female",
+            ),
         ]
 
         pagination_info = Pagination(
@@ -152,9 +183,9 @@ class TestSubmitterRepositoryImpl:
             previous_page=None,
         )
 
-        pagina = Page(data=submitters, meta=pagination_info)
+        page_result = Page(data=submitters, meta=pagination_info)
 
-        submitter_repository.get_pageable = AsyncMock(return_value=pagina)
+        submitter_repository.get_pageable = AsyncMock(return_value=page_result)
 
         result = await submitter_repository.get_pageable(page=1, size=10)
 
@@ -163,62 +194,67 @@ class TestSubmitterRepositoryImpl:
         assert result.meta.total == 2
         assert result.meta.current_page == 1
         print(
-            f"✅ Remitentes paginados: Página {result.meta.current_page}/{result.meta.total_pages}, "
-            f"mostrando {len(result.data)} de {result.meta.total} remitentes"
+            f"✅ Submitters paginated: Page {result.meta.current_page}/{result.meta.total_pages}, "
+            f"showing {len(result.data)} of {result.meta.total} submitters"
         )
         for i, submitter in enumerate(result.data):
             print(
-                f"   - Remitente {i+1}: ID={submitter.id}, Nombre='{submitter.nombres}'"
+                f"   - Submitter {i+1}: ID={submitter.id}, Name='{submitter.names} {submitter.paternal_surname}'"
             )
 
     @pytest.mark.asyncio
     async def test_exists_by_success(self, submitter_repository, mock_session):
         """Test to verify that exists_by returns True when the submitter exists."""
-        print("🧪 Probando verificación de existencia de remitente...")
+        print("🧪 Testing submitter existence verification...")
 
         submitter_repository.exists_by = AsyncMock(return_value=True)
 
-        result = await submitter_repository.exists_by(nombres="Remitente Test")
+        result = await submitter_repository.exists_by(names="John")
 
         assert result is True
-        print(
-            f"✅ Existencia de remitente verificada: 'Remitente Test' existe = {result}"
-        )
+        print(f"✅ Submitter existence verified: 'John' exists = {result}")
 
     @pytest.mark.asyncio
     async def test_exists_by_not_found(self, submitter_repository, mock_session):
         """Test to verify that exists_by returns False when the submitter does not exist."""
-        print("🧪 Probando verificación de remitente inexistente...")
+        print("🧪 Testing non-existent submitter verification...")
 
         submitter_repository.exists_by = AsyncMock(return_value=False)
 
-        result = await submitter_repository.exists_by(nombres="Remitente Inexistente")
+        result = await submitter_repository.exists_by(names="NonExistent")
 
         assert result is False
-        print(
-            f"✅ Verificación de inexistencia de remitente: 'Remitente Inexistente' existe = {result}"
-        )
+        print(f"✅ Non-existence verification: 'NonExistent' exists = {result}")
 
     @pytest.mark.asyncio
     async def test_exists_by_invalid_field(self, submitter_repository):
         """Test to verify that exists_by handles invalid field correctly."""
-        print("🧪 Probando manejo de campo inválido...")
+        print("🧪 Testing invalid field handling...")
 
         submitter_repository.exists_by = AsyncMock(
-            side_effect=InvalidFieldException("Campo inválido")
+            side_effect=InvalidFieldException("Invalid field")
         )
 
         with pytest.raises(InvalidFieldException) as exc_info:
-            await submitter_repository.exists_by(campo_inexistente="valor")
+            await submitter_repository.exists_by(nonexistent_field="value")
 
-        print(f"✅ Campo inválido manejado correctamente: {exc_info.value}")
+        print(f"✅ Invalid field handled correctly: {exc_info.value}")
 
     @pytest.mark.asyncio
     async def test_find_with_filters(self, submitter_repository, mock_session):
         """Test to verify that find correctly filters by search criteria."""
-        print("🧪 Probando búsqueda con filtros...")
+        print("🧪 Testing search with filters...")
 
-        submitters = [Remitente(id=1, nombres="Empresa Constructora")]
+        submitters = [
+            Submitter(
+                id=1,
+                names="John",
+                paternal_surname="Doe",
+                maternal_surname="Smith",
+                dni=12345678,
+                gender="Male",
+            )
+        ]
 
         pagination_info = Pagination(
             current_page=1,
@@ -229,31 +265,31 @@ class TestSubmitterRepositoryImpl:
             previous_page=None,
         )
 
-        pagina = Page(data=submitters, meta=pagination_info)
+        page_result = Page(data=submitters, meta=pagination_info)
 
-        submitter_repository.find = AsyncMock(return_value=pagina)
+        submitter_repository.find = AsyncMock(return_value=page_result)
 
-        search_params = {"nombres": "Empresa"}
+        search_params = {"names": "John"}
         result = await submitter_repository.find(
             page=1, size=10, search_dict=search_params
         )
 
         assert isinstance(result, Page)
         assert len(result.data) == 1
-        assert result.data[0].nombres == "Empresa Constructora"
+        assert result.data[0].names == "John"
         assert result.meta.total == 1
         print(
-            f"✅ Búsqueda con filtros exitosa: Se encontraron {result.meta.total} resultados para criterios {search_params}"
+            f"✅ Search with filters successful: Found {result.meta.total} results for criteria {search_params}"
         )
         for i, submitter in enumerate(result.data):
             print(
-                f"   - Resultado {i+1}: ID={submitter.id}, Nombre='{submitter.nombres}'"
+                f"   - Result {i+1}: ID={submitter.id}, Name='{submitter.names} {submitter.paternal_surname}'"
             )
 
     @pytest.mark.asyncio
     async def test_find_no_results(self, submitter_repository, mock_session):
         """Test to verify that find returns no results when there are none."""
-        print("🧪 Probando búsqueda con filtros (sin resultados)...")
+        print("🧪 Testing search with filters (no results)...")
 
         pagination_info = Pagination(
             current_page=1,
@@ -264,11 +300,11 @@ class TestSubmitterRepositoryImpl:
             previous_page=None,
         )
 
-        pagina = Page(data=[], meta=pagination_info)
+        page_result = Page(data=[], meta=pagination_info)
 
-        submitter_repository.find = AsyncMock(return_value=pagina)
+        submitter_repository.find = AsyncMock(return_value=page_result)
 
-        search_params = {"nombres": "inexistente"}
+        search_params = {"names": "nonexistent"}
         result = await submitter_repository.find(
             page=1, size=10, search_dict=search_params
         )
@@ -277,5 +313,5 @@ class TestSubmitterRepositoryImpl:
         assert len(result.data) == 0
         assert result.meta.total == 0
         print(
-            f"✅ Búsqueda con filtros (sin resultados) exitosa: Se encontraron {result.meta.total} resultados para criterios {search_params}"
+            f"✅ Search with filters (no results) successful: Found {result.meta.total} results for criteria {search_params}"
         )
