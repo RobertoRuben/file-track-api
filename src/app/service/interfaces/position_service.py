@@ -17,11 +17,8 @@ class IPositionService(ABC):
         """
         Add a new position.
 
-        Args:
-            position_request: The data transfer object containing position details.
-
-        Returns:
-            The created position as a PositionResponseDTO.
+        :param position_request: The data transfer object containing position details
+        :return: The created position as a PositionResponseDTO
         """
         pass
 
@@ -30,8 +27,7 @@ class IPositionService(ABC):
         """
         Retrieve all positions.
 
-        Returns:
-            A list of PositionResponseDTO objects representing all positions.
+        :return: A list of PositionResponseDTO objects representing all positions
         """
         pass
 
@@ -42,12 +38,9 @@ class IPositionService(ABC):
         """
         Update an existing position.
 
-        Args:
-            position_id: The ID of the position to update.
-            position_request: The data transfer object containing updated position details.
-
-        Returns:
-            The updated position as a PositionResponseDTO.
+        :param position_id: The ID of the position to update
+        :param position_request: The data transfer object containing updated position details
+        :return: The updated position as a PositionResponseDTO
         """
         pass
 
@@ -56,11 +49,8 @@ class IPositionService(ABC):
         """
         Delete a position by its ID.
 
-        Args:
-            position_id: The ID of the position to delete.
-
-        Returns:
-            A MessageResponse indicating the result of the deletion.
+        :param position_id: The ID of the position to delete
+        :return: A MessageResponse indicating the result of the deletion
         """
         pass
 
@@ -69,11 +59,8 @@ class IPositionService(ABC):
         """
         Retrieve a position by its ID.
 
-        Args:
-            position_id: The ID of the position to retrieve.
-
-        Returns:
-            The position as a PositionResponseDTO.
+        :param position_id: The ID of the position to retrieve
+        :return: The position as a PositionResponseDTO
         """
         pass
 
@@ -82,12 +69,9 @@ class IPositionService(ABC):
         """
         Retrieve a paginated list of positions.
 
-        Args:
-            page: The page number to retrieve.
-            size: The number of positions per page.
-
-        Returns:
-            A PositionPage object containing the paginated positions.
+        :param page: The page number to retrieve
+        :param size: The number of positions per page
+        :return: A PositionPage object containing the paginated positions
         """
         pass
 
@@ -96,12 +80,9 @@ class IPositionService(ABC):
         """
         Find positions based on search criteria.
 
-        Args:
-            page: The page number to retrieve.
-            size: The number of positions per page.
-            search_term: The term to search for in position names.
-
-        Returns:
-            A PositionPage object containing the positions that match the search criteria.
+        :param page: The page number to retrieve
+        :param size: The number of positions per page
+        :param search_term: The term to search for in position names
+        :return: A PositionPage object containing the positions that match the search criteria
         """
         pass
