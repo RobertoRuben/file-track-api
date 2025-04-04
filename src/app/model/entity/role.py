@@ -20,12 +20,11 @@ class Role(SQLModel, table=True):
     """
     Represents a user role within the system.
 
-    Attributes:
-        id: The unique identifier for the role
-        name: The name of the role
-        created_at: The timestamp when the role was created
-        updated_at: The timestamp when the role was last updated
-        users: List of users assigned to this role
+    :ivar id: The unique identifier for the role
+    :ivar name: The name of the role
+    :ivar created_at: The timestamp when the role was created
+    :ivar updated_at: The timestamp when the role was last updated
+    :ivar users: List of users assigned to this role
     """
 
     __tablename__ = "roles"
