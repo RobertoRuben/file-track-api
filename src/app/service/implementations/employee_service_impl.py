@@ -1,5 +1,5 @@
 from datetime import datetime
-from src.app.model.entity import Trabajador
+from src.app.model.entity import Employee
 from src.app.dto.request import EmployeeRequestDto
 from src.app.dto.response import EmployeeResponseDTO, EmployeePage
 from src.app.schema import MessageResponse
@@ -7,7 +7,7 @@ from src.app.exception import BadRequestException, ConflictException, NotFoundEx
 from src.app.exception.decorator import handle_exceptions
 from src.app.repository.interfaces import IEmployeeRepository
 from src.app.repository.interfaces import IPositionRepository
-from src.app.repository.interfaces import IAreaRepository
+from src.app.repository.interfaces import IDepartmentRepository
 from src.app.service.interfaces import IEmployeeService
 
 
@@ -19,21 +19,20 @@ class EmployeeServiceImpl(IEmployeeService):
 
     def __init__(
         self,
-        repository: IEmployeeRepository,
+        employee_repository: IEmployeeRepository,
         position_repository: IPositionRepository,
-        area_repository: IAreaRepository,
+        department_repository: IDepartmentRepository,
     ):
         """
         Initializes the Employee Service with required repositories.
 
-        Args:
-            repository: Repository for employee data access
-            position_repository: Repository for position data access
-            area_repository: Repository for area/department data access
+        :param employee_repository: Repository for employee data access
+        :param position_repository: Repository for position data access
+        :param department_repository: Repository for department data access
         """
-        self.repository = repository
+        self.employee_repository = employee_repository
         self.position_repository = position_repository
-        self.area_repository = area_repository
+        self.department_repository = department_repository
 
     @handle_exceptions
     async def add_employee(
@@ -42,57 +41,54 @@ class EmployeeServiceImpl(IEmployeeService):
         """
         Adds a new employee to the system.
 
-        Args:
-            employee_request: DTO containing the employee details
-
-        Returns:
-            DTO with the created employee data
-
-        Raises:
-            ConflictException: If an employee with the same DNI already exists
-            NotFoundException: If the position or area does not exist
+        :param employee_request: DTO containing the employee details
+        :return: DTO with the created employee data
+        :raises ConflictException: If an employee with the same DNI already exists
+        :raises NotFoundException: If the position or department does not exist
         """
-        existing_employee = await self.repository.exists_by(dni=employee_request.dni)
+        existing_employee = await self.employee_repository.exists_by(
+            dni=employee_request.dni
+        )
         if existing_employee:
             raise ConflictException(
                 details=f"Employee with DNI {employee_request.dni} already exists",
             )
         existing_position = await self.position_repository.exists_by(
-            id=employee_request.cargo_id
+            id=employee_request.position_id
         )
         if not existing_position:
             raise NotFoundException(
-                details=f"Position with ID {employee_request.cargo_id} does not exist",
+                details=f"Position with ID {employee_request.position_id} does not exist",
             )
-        existing_area = await self.area_repository.exists_by(
-            id=employee_request.area_id
+        existing_department = await self.department_repository.exists_by(
+            id=employee_request.department_id
         )
-        if not existing_area:
+        if not existing_department:
             raise NotFoundException(
-                details=f"Area with ID {employee_request.area_id} does not exist",
+                details=f"Department with ID {employee_request.department_id} does not exist",
             )
 
-        new_employee = Trabajador(
+        new_employee = Employee(
             dni=employee_request.dni,
-            nombres=employee_request.nombres,
-            apellido_paterno=employee_request.apellido_paterno,
-            apellido_materno=employee_request.apellido_materno,
-            genero=employee_request.genero.value,
-            cargo_id=employee_request.cargo_id,
-            area_id=employee_request.area_id,
+            names=employee_request.names,
+            paternal_surname=employee_request.paternal_surname,
+            maternal_surname=employee_request.maternal_surname,
+            gender=employee_request.gender.value,
+            position_id=employee_request.position_id,
+            department_id=employee_request.department_id,
         )
 
-        created_employee = await self.repository.save(new_employee)
+        created_employee = await self.employee_repository.save(new_employee)
 
         return EmployeeResponseDTO(
             id=created_employee.id,
             dni=created_employee.dni,
-            nombres=created_employee.nombres,
-            apellido_paterno=created_employee.apellido_paterno,
-            apellido_materno=created_employee.apellido_materno,
-            genero=created_employee.genero,
-            area_id=created_employee.area_id,
-            cargo_id=created_employee.cargo_id,
+            names=created_employee.names,
+            paternal_surname=created_employee.paternal_surname,
+            maternal_surname=created_employee.maternal_surname,
+            gender=created_employee.gender,
+            department_id=created_employee.department_id,
+            position_id=created_employee.position_id,
             created_at=created_employee.created_at,
             updated_at=created_employee.updated_at,
         )
@@ -102,20 +98,19 @@ class EmployeeServiceImpl(IEmployeeService):
         """
         Retrieves all employees from the database.
 
-        Returns:
-            List of DTOs containing all employees
+        :return: List of DTOs containing all employees
         """
-        employees = await self.repository.get_all()
+        employees = await self.employee_repository.get_all()
         return [
             EmployeeResponseDTO(
                 id=employee.id,
                 dni=employee.dni,
-                nombres=employee.nombres,
-                apellido_paterno=employee.apellido_paterno,
-                apellido_materno=employee.apellido_materno,
-                genero=employee.genero,
-                area_id=employee.area_id,
-                cargo_id=employee.cargo_id,
+                names=employee.names,
+                paternal_surname=employee.paternal_surname,
+                maternal_surname=employee.maternal_surname,
+                gender=employee.gender,
+                department_id=employee.department_id,
+                position_id=employee.position_id,
                 created_at=employee.created_at,
                 updated_at=employee.updated_at,
             )
@@ -129,28 +124,23 @@ class EmployeeServiceImpl(IEmployeeService):
         """
         Updates an existing employee.
 
-        Args:
-            employee_id: ID of the employee to update
-            employee_request: DTO containing the updated employee details
-
-        Returns:
-            DTO with the updated employee data
-
-        Raises:
-            NotFoundException: If the employee with the given ID doesn't exist
-            ConflictException: If another employee with the same DNI already exists
-            NotFoundException: If the position or area does not exist
+        :param employee_id: ID of the employee to update
+        :param employee_request: DTO containing the updated employee details
+        :return: DTO with the updated employee data
+        :raises NotFoundException: If the employee with the given ID doesn't exist
+        :raises ConflictException: If another employee with the same DNI already exists
+        :raises NotFoundException: If the position or department does not exist
         """
-        exists_employee_id = await self.repository.exists_by(id=employee_id)
+        exists_employee_id = await self.employee_repository.exists_by(id=employee_id)
         if not exists_employee_id:
             raise NotFoundException(
                 details=f"Employee with id {employee_id} not found",
             )
 
-        employee = await self.repository.get_by_id(employee_id)
+        employee = await self.employee_repository.get_by_id(employee_id)
 
         if employee.dni != employee_request.dni:
-            existing_employee = await self.repository.exists_by(
+            existing_employee = await self.employee_repository.exists_by(
                 dni=employee_request.dni
             )
             if existing_employee:
@@ -159,41 +149,41 @@ class EmployeeServiceImpl(IEmployeeService):
                 )
 
         existing_position = await self.position_repository.exists_by(
-            id=employee_request.cargo_id
+            id=employee_request.position_id
         )
         if not existing_position:
             raise NotFoundException(
-                details=f"Position with ID {employee_request.cargo_id} does not exist",
+                details=f"Position with ID {employee_request.position_id} does not exist",
             )
 
-        existing_area = await self.area_repository.exists_by(
-            id=employee_request.area_id
+        existing_department = await self.department_repository.exists_by(
+            id=employee_request.department_id
         )
-        if not existing_area:
+        if not existing_department:
             raise NotFoundException(
-                details=f"Area with ID {employee_request.area_id} does not exist",
+                details=f"Department with ID {employee_request.department_id} does not exist",
             )
 
         employee.dni = employee_request.dni
-        employee.nombres = employee_request.nombres
-        employee.apellido_paterno = employee_request.apellido_paterno
-        employee.apellido_materno = employee_request.apellido_materno
-        employee.genero = employee_request.genero.value
-        employee.cargo_id = employee_request.cargo_id
-        employee.area_id = employee_request.area_id
+        employee.names = employee_request.names
+        employee.paternal_surname = employee_request.paternal_surname
+        employee.maternal_surname = employee_request.maternal_surname
+        employee.gender = employee_request.gender.value
+        employee.position_id = employee_request.position_id
+        employee.department_id = employee_request.department_id
         employee.updated_at = datetime.now()
 
-        updated_employee = await self.repository.save(employee)
+        updated_employee = await self.employee_repository.save(employee)
 
         return EmployeeResponseDTO(
             id=updated_employee.id,
             dni=updated_employee.dni,
-            nombres=updated_employee.nombres,
-            apellido_paterno=updated_employee.apellido_paterno,
-            apellido_materno=updated_employee.apellido_materno,
-            genero=updated_employee.genero,
-            area_id=updated_employee.area_id,
-            cargo_id=updated_employee.cargo_id,
+            names=updated_employee.names,
+            paternal_surname=updated_employee.paternal_surname,
+            maternal_surname=updated_employee.maternal_surname,
+            gender=updated_employee.gender,
+            department_id=updated_employee.department_id,
+            position_id=updated_employee.position_id,
             created_at=updated_employee.created_at,
             updated_at=updated_employee.updated_at,
         )
@@ -203,22 +193,17 @@ class EmployeeServiceImpl(IEmployeeService):
         """
         Deletes an employee by their ID.
 
-        Args:
-            employee_id: ID of the employee to delete
-
-        Returns:
-            Message response indicating success or failure
-
-        Raises:
-            NotFoundException: If the employee with the given ID doesn't exist
+        :param employee_id: ID of the employee to delete
+        :return: Message response indicating success or failure
+        :raises NotFoundException: If the employee with the given ID doesn't exist
         """
-        existing_employee_id = await self.repository.exists_by(id=employee_id)
+        existing_employee_id = await self.employee_repository.exists_by(id=employee_id)
         if not existing_employee_id:
             raise NotFoundException(
                 details=f"Employee with id {employee_id} not found",
             )
 
-        response = await self.repository.delete(employee_id)
+        response = await self.employee_repository.delete(employee_id)
 
         if response is True:
             return MessageResponse(
@@ -240,32 +225,27 @@ class EmployeeServiceImpl(IEmployeeService):
         """
         Retrieves an employee by their ID.
 
-        Args:
-            employee_id: ID of the employee to retrieve
-
-        Returns:
-            DTO with the employee data
-
-        Raises:
-            NotFoundException: If the employee with the given ID doesn't exist
+        :param employee_id: ID of the employee to retrieve
+        :return: DTO with the employee data
+        :raises NotFoundException: If the employee with the given ID doesn't exist
         """
-        existing_employee_id = await self.repository.exists_by(id=employee_id)
+        existing_employee_id = await self.employee_repository.exists_by(id=employee_id)
         if not existing_employee_id:
             raise NotFoundException(
                 details=f"Employee with id {employee_id} not found",
             )
 
-        employee = await self.repository.get_by_id(employee_id)
+        employee = await self.employee_repository.get_by_id(employee_id)
 
         return EmployeeResponseDTO(
             id=employee.id,
             dni=employee.dni,
-            nombres=employee.nombres,
-            apellido_paterno=employee.apellido_paterno,
-            apellido_materno=employee.apellido_materno,
-            genero=employee.genero,
-            area_id=employee.area_id,
-            cargo_id=employee.cargo_id,
+            names=employee.names,
+            paternal_surname=employee.paternal_surname,
+            maternal_surname=employee.maternal_surname,
+            gender=employee.gender,
+            department_id=employee.department_id,
+            position_id=employee.position_id,
             created_at=employee.created_at,
             updated_at=employee.updated_at,
         )
@@ -275,15 +255,10 @@ class EmployeeServiceImpl(IEmployeeService):
         """
         Retrieves a paginated list of employees.
 
-        Args:
-            page: Page number to retrieve
-            size: Number of items per page
-
-        Returns:
-            Paginated employees with metadata
-
-        Raises:
-            BadRequestException: If page or size parameters are invalid
+        :param page: Page number to retrieve
+        :param size: Number of items per page
+        :return: Paginated employees with metadata
+        :raises BadRequestException: If page or size parameters are invalid
         """
         if page < 1:
             raise BadRequestException(
@@ -296,9 +271,9 @@ class EmployeeServiceImpl(IEmployeeService):
                 details="Size number must be greater than 0",
             )
 
-        page_result = await self.repository.get_pageable(page, size)
+        page_result = await self.employee_repository.get_pageable(page, size)
         employee_response = [
-            EmployeeResponseDTO(**employe_dict) for employe_dict in page_result.data
+            EmployeeResponseDTO(**employee_dict) for employee_dict in page_result.data
         ]
         return EmployeePage(
             data=employee_response,
@@ -310,17 +285,12 @@ class EmployeeServiceImpl(IEmployeeService):
         """
         Searches for employees matching the given search criteria.
 
-        Args:
-            page: Page number to retrieve
-            size: Number of items per page
-            search_term: Dictionary with field names and search terms
-
-        Returns:
-            Paginated employees matching the search criteria
-
-        Raises:
-            BadRequestException: If page or size parameters are invalid
-            NotFoundException: If no employees match the search criteria
+        :param page: Page number to retrieve
+        :param size: Number of items per page
+        :param search_term: Dictionary with field names and search terms
+        :return: Paginated employees matching the search criteria
+        :raises BadRequestException: If page or size parameters are invalid
+        :raises NotFoundException: If no employees match the search criteria
         """
         if page < 1:
             raise BadRequestException(
@@ -334,13 +304,13 @@ class EmployeeServiceImpl(IEmployeeService):
             )
 
         search_dict = {
-            "nombres": search_term,
-            "apellido_paterno": search_term,
-            "apellido_materno": search_term,
+            "names": search_term,
+            "paternal_surname": search_term,
+            "maternal_surname": search_term,
             "dni": search_term if search_term and search_term.isdigit() else None,
         }
 
-        page_result = await self.repository.find(page, size, search_dict)
+        page_result = await self.employee_repository.find(page, size, search_dict)
 
         if not page_result.data:
             raise NotFoundException(
@@ -348,7 +318,7 @@ class EmployeeServiceImpl(IEmployeeService):
             )
 
         employee_response = [
-            EmployeeResponseDTO(**employe_dict) for employe_dict in page_result.data
+            EmployeeResponseDTO(**employee_dict) for employee_dict in page_result.data
         ]
 
         return EmployeePage(
