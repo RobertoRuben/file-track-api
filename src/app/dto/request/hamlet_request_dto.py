@@ -6,35 +6,33 @@ class HamletRequestDTO(BaseModel):
     """
     DTO for Hamlet request.
     Contains all fields necessary to process hamlet information for creation and update.
+
+    :ivar name: Name of the hamlet
+    :ivar settlement_id: ID of the settlement associated with the hamlet
     """
 
-    nombre: str = Field(
+    name: str = Field(
         ...,
         description="Name of the hamlet",
         min_length=2,
         examples=["San Miguel", "El Paraíso"],
     )
-    centro_poblado_id: int | None = Field(
-        None,
-        description="ID of the population center associated with the hamlet",
+    settlement_id: int | None = Field(
+        default=None,
+        description="ID of the settlement associated with the hamlet",
         gt=0,
         examples=[1],
     )
 
-    @field_validator("nombre", mode="before")
+    @field_validator("name", mode="before")
     def strip_and_validate_string(cls, v, info: ValidationInfo):
         """
         Validates that the input is a string and strips whitespace.
 
-        Args:
-            v: The value to validate
-            info: Validation information context
-
-        Returns:
-            The stripped string value
-
-        Raises:
-            ValueError: If the value is not a string or is empty after stripping
+        :param v: The value to validate
+        :param info: Validation information context
+        :return: The stripped string value
+        :raises ValueError: If the value is not a string or is empty after stripping
         """
         field_name = info.field_name.replace("_", " ").title()
 
@@ -47,19 +45,14 @@ class HamletRequestDTO(BaseModel):
 
         return stripped_value
 
-    @field_validator("nombre", mode="after")
+    @field_validator("name", mode="after")
     def validate_name_format(cls, v):
         """
         Validates that the hamlet name contains only alphabetic characters and spaces.
 
-        Args:
-            v: The string value to validate
-
-        Returns:
-            The validated string value
-
-        Raises:
-            ValueError: If the name contains invalid characters
+        :param v: The string value to validate
+        :return: The validated string value
+        :raises ValueError: If the name contains invalid characters
         """
         pattern = re.compile(r"^[A-Za-zÁÉÍÓÚáéíóúÑñ][A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$")
         if not pattern.fullmatch(v):
@@ -68,21 +61,16 @@ class HamletRequestDTO(BaseModel):
             )
         return v
 
-    @field_validator("centro_poblado_id", mode="before")
+    @field_validator("settlement_id", mode="before")
     def validate_id_input(cls, v, info: ValidationInfo):
         """
-        Validates that the center ID is an integer or can be converted to integer.
+        Validates that the settlement ID is an integer or can be converted to integer.
         Skips validation if the value is None.
 
-        Args:
-            v: The ID value to validate
-            info: Validation information context
-
-        Returns:
-            The ID value converted to integer or None
-
-        Raises:
-            ValueError: If the ID cannot be converted to an integer
+        :param v: The ID value to validate
+        :param info: Validation information context
+        :return: The ID value converted to integer or None
+        :raises ValueError: If the ID cannot be converted to an integer
         """
         if v is None:
             return None
@@ -100,21 +88,16 @@ class HamletRequestDTO(BaseModel):
 
         return v
 
-    @field_validator("centro_poblado_id", mode="after")
+    @field_validator("settlement_id", mode="after")
     def validate_id(cls, v, info: ValidationInfo):
         """
-        Validates that the center ID is a positive integer.
+        Validates that the settlement ID is a positive integer.
         Skips validation if the value is None.
 
-        Args:
-            v: The ID value to validate
-            info: Validation information context
-
-        Returns:
-            The validated ID value or None
-
-        Raises:
-            ValueError: If the ID is not a positive integer
+        :param v: The ID value to validate
+        :param info: Validation information context
+        :return: The validated ID value or None
+        :raises ValueError: If the ID is not a positive integer
         """
         if v is None:
             return None
