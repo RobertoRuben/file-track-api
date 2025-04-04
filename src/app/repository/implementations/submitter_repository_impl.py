@@ -3,14 +3,14 @@ from sqlmodel import select, func, or_
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.app.repository.decorator import transactional
 from src.app.repository.interfaces import ISubmitterRepository
-from src.app.model.entity import Remitente
+from src.app.model.entity import Submitter
 from src.app.exception import InvalidFieldException
 from src.app.schema import Page, Pagination
 
 
 class SubmitterRepositoryImpl(ISubmitterRepository):
     """
-    Repository implementation for handling Remitente entities.
+    Repository implementation for handling Submitter entities.
     Provides methods for CRUD operations and search functionality.
     """
 
@@ -18,103 +18,79 @@ class SubmitterRepositoryImpl(ISubmitterRepository):
         """
         Initialize the repository with a database session.
 
-        Args:
-            session: The SQLAlchemy AsyncSession instance for database operations
+        :param session: The SQLAlchemy AsyncSession instance for database operations
         """
         self.session = session
 
     @transactional(readonly=False)
-    async def save(self, remitente: Remitente) -> Remitente:
+    async def save(self, submitter: Submitter) -> Submitter:
         """
-        Save a sender to the database.
+        Save a submitter to the database.
 
-        Args:
-            remitente: The Remitente entity to save
-
-        Returns:
-            The persisted Remitente with updated attributes
-
-        Raises:
-            DatabaseException: If an error occurs during the save operation
+        :param submitter: The Submitter entity to save
+        :return: The persisted Submitter with updated attributes
+        :raises: DatabaseException if an error occurs during the save operation
         """
-        self.session.add(remitente)
-        return remitente
+        self.session.add(submitter)
+        return submitter
 
     @transactional(readonly=True)
-    async def get_all(self) -> list[Remitente]:
+    async def get_all(self) -> list[Submitter]:
         """
-        Retrieve all senders from the database.
+        Retrieve all submitters from the database.
 
-        Returns:
-            A list of all Remitente entities
-
-        Raises:
-            DatabaseException: If an error occurs while retrieving senders
+        :return: A list of all Submitter entities
+        :raises: DatabaseException if an error occurs while retrieving submitters
         """
-        stmt = select(Remitente)
+        stmt = select(Submitter)
         results = await self.session.exec(stmt)
-        remitentes = results.all()
-        return list(remitentes)
+        submitters = results.all()
+        return list(submitters)
 
     @transactional(readonly=False)
-    async def delete(self, remitente_id: int) -> bool:
+    async def delete(self, submitter_id: int) -> bool:
         """
-        Delete a sender by its ID.
+        Delete a submitter by its ID.
 
-        Args:
-            remitente_id: The ID of the sender to delete
-
-        Returns:
-            True if the deletion was successful
-
-        Raises:
-            DatabaseException: If an error occurs during deletion
+        :param submitter_id: The ID of the submitter to delete
+        :return: True if the deletion was successful
+        :raises: DatabaseException if an error occurs during deletion
         """
-        remitente = await self.get_by_id(remitente_id)
-        await self.session.delete(remitente)
+        submitter = await self.get_by_id(submitter_id)
+        await self.session.delete(submitter)
         return True
 
     @transactional(readonly=True)
-    async def get_by_id(self, remitente_id: int) -> Remitente:
+    async def get_by_id(self, submitter_id: int) -> Submitter:
         """
-        Retrieve a sender by its ID.
+        Retrieve a submitter by its ID.
 
-        Args:
-            remitente_id: The ID of the sender to retrieve
-
-        Returns:
-            The Remitente entity with the given ID
-
-        Raises:
-            DatabaseException: If an error occurs during retrieval
+        :param submitter_id: The ID of the submitter to retrieve
+        :return: The Submitter entity with the given ID
+        :raises: DatabaseException if an error occurs during retrieval
         """
-        stmt = select(Remitente).where(Remitente.id == remitente_id)
+        stmt = select(Submitter).where(Submitter.id == submitter_id)
         results = await self.session.exec(stmt)
-        remitente = results.first()
-        return remitente
+        submitter = results.first()
+        return submitter
 
     @transactional(readonly=True)
     async def get_pageable(self, page: int = 1, size: int = 10) -> Page:
         """
-        Retrieve senders with pagination.
+        Retrieve submitters with pagination.
 
-        Args:
-            page: The page number (1-based indexing)
-            size: The number of items per page
-
-        Returns:
-            A Page object containing the senders and pagination metadata
-
-        Raises:
-            DatabaseException: If an error occurs during the paginated query
+        :param page: The page number (1-based indexing)
+        :param size: The number of items per page
+        :return: A Page object containing the submitters and pagination metadata
+        :raises: DatabaseException if an error occurs during the paginated query
         """
         offset_value = (page - 1) * size
-        stmt = select(Remitente)
+        stmt = select(Submitter)
         stmt = stmt.offset(offset_value).limit(size)
         results = await self.session.exec(stmt)
-        remitentes = list(results.all())
+        submitters = list(results.all())
 
-        count_stmt = select(func.count(Remitente.id))
+        count_stmt = select(func.count(Submitter.id))
         count_result = await self.session.exec(count_stmt)
         total_items = count_result.first()
         total_pages = math.ceil(total_items / size) if total_items > 0 else 1
@@ -131,28 +107,23 @@ class SubmitterRepositoryImpl(ISubmitterRepository):
             previous_page=previous_page,
         )
 
-        return Page(data=remitentes, meta=pagination_info)
+        return Page(data=submitters, meta=pagination_info)
 
     @transactional(readonly=True)
     async def find(self, page: int, size: int, search_dict: dict[str, str]) -> Page:
         """
         Search submitters with filtering and pagination, case-insensitive.
 
-        Args:
-            page: Page number (1-based indexing)
-            size: Number of items per page
-            search_dict: Dictionary of field-value pairs to search for
-
-        Returns:
-            A Page object containing the filtered submitters and pagination metadata
-
-        Raises:
-            DatabaseException: If an error occurs during the search operation
+        :param page: Page number (1-based indexing)
+        :param size: Number of items per page
+        :param search_dict: Dictionary of field-value pairs to search for
+        :return: A Page object containing the filtered submitters and pagination metadata
+        :raises: DatabaseException if an error occurs during the search operation
         """
         offset_value = (page - 1) * size
         conditions = []
 
-        allowed_fields = ["nombres", "dni", "apellido_paterno", "apellido_materno"]
+        allowed_fields = ["names", "dni", "paternal_surname", "maternal_surname"]
 
         for field_name, search_value in search_dict.items():
             if not search_value or field_name not in allowed_fields:
@@ -161,22 +132,22 @@ class SubmitterRepositoryImpl(ISubmitterRepository):
             if field_name == "dni":
                 try:
                     dni_value = int(search_value)
-                    conditions.append(Remitente.dni == dni_value)
+                    conditions.append(Submitter.dni == dni_value)
                 except ValueError:
                     conditions.append(
-                        func.cast(Remitente.dni, func.text('text')).like(
+                        func.cast(Submitter.dni, func.text('text')).like(
                             f"{search_value}%"
                         )
                     )
             else:
                 normalized_search = search_value.lower()
 
-                if field_name == "nombres":
-                    field = Remitente.nombres
-                elif field_name == "apellido_paterno":
-                    field = Remitente.apellido_paterno
-                elif field_name == "apellido_materno":
-                    field = Remitente.apellido_materno
+                if field_name == "names":
+                    field = Submitter.names
+                elif field_name == "paternal_surname":
+                    field = Submitter.paternal_surname
+                elif field_name == "maternal_surname":
+                    field = Submitter.maternal_surname
 
                 conditions.append(func.lower(field) == normalized_search)
                 conditions.append(func.lower(field).like(f"{normalized_search}%"))
@@ -184,16 +155,16 @@ class SubmitterRepositoryImpl(ISubmitterRepository):
                     func.lower(field).like(f"%{normalized_search}%")
                 )  # Contains
 
-        stmt = select(Remitente)
+        stmt = select(Submitter)
 
         if conditions:
             stmt = stmt.where(or_(*conditions))
 
         stmt = stmt.offset(offset_value).limit(size)
         results = await self.session.exec(stmt)
-        remitentes = list(results.all())
+        submitters = list(results.all())
 
-        count_stmt = select(func.count(Remitente.id))
+        count_stmt = select(func.count(Submitter.id))
 
         if conditions:
             count_stmt = count_stmt.where(or_(*conditions))
@@ -214,34 +185,29 @@ class SubmitterRepositoryImpl(ISubmitterRepository):
             previous_page=previous_page,
         )
 
-        return Page(data=remitentes, meta=pagination_info)
+        return Page(data=submitters, meta=pagination_info)
 
     @transactional(readonly=True)
     async def exists_by(self, **kwargs) -> bool:
         """
-        Check if a sender exists based on the provided criteria.
+        Check if a submitter exists based on the provided criteria.
 
-        Args:
-            **kwargs: Field-value pairs to check against
-
-        Returns:
-            True if a matching sender exists, False otherwise
-
-        Raises:
-            InvalidFieldException: If an invalid field name is provided
-            DatabaseException: If an error occurs during the query
+        :param kwargs: Field-value pairs to check against
+        :return: True if a matching submitter exists, False otherwise
+        :raises: InvalidFieldException if an invalid field name is provided
+        :raises: DatabaseException if an error occurs during the query
         """
-        valid_fields = Remitente.__dict__.keys()
+        valid_fields = Submitter.__dict__.keys()
         for key in kwargs.keys():
             if key not in valid_fields:
                 raise InvalidFieldException(
-                    message=f"Field '{key}' does not exist in the Remitente model",
+                    message=f"Field '{key}' does not exist in the Submitter model",
                     details=f"Valid fields are: {', '.join([f for f in valid_fields if not f.startswith('_')])}",
                 )
 
-        stmt = select(Remitente.id)
+        stmt = select(Submitter.id)
         for key, value in kwargs.items():
-            stmt = stmt.where(getattr(Remitente, key) == value)
+            stmt = stmt.where(getattr(Submitter, key) == value)
 
         result = await self.session.exec(stmt)
         return result.first() is not None

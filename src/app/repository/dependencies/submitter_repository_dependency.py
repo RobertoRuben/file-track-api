@@ -9,12 +9,9 @@ async def get_submitter_repository(
     session: AsyncSession = Depends(get_async_session),
 ) -> ISubmitterRepository:
     """
-    Dependency function to get the remitente (sender) repository implementation.
+    Dependency function to get the submitter repository implementation.
 
-    Args:
-        session: The async database session provided by the FastAPI dependency injection system
-
-    Returns:
-        An implementation of IRemitenteRepository bound to the provided session
+    :param session: The async database session provided by the FastAPI dependency injection system
+    :return: An implementation of ISubmitterRepository bound to the provided session
     """
     return SubmitterRepositoryImpl(session=session)
