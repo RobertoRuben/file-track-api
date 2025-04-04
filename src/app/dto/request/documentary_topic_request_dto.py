@@ -5,24 +5,25 @@ from pydantic import BaseModel, Field, field_validator, ValidationInfo
 class DocumentaryTopicRequestDTO(BaseModel):
     """
     DTO for creating or updating a documentary topic.
+
+    :ivar name: The name of the documentary topic
     """
 
-    nombre: str = Field(description="Nombre del ambito documental", min_length=3)
+    name: str = Field(
+        description="Name of the documentary topic",
+        min_length=3,
+        examples=["Legal Documentation", "Technical Reports", "Academic Research"],
+    )
 
-    @field_validator("nombre", mode="before")
+    @field_validator("name", mode="before")
     def strip_and_validate_string(cls, v, info: ValidationInfo):
         """
         Validates that the input is a string and strips whitespace.
 
-        Args:
-            v: The value to validate
-            info: Validation information context
-
-        Returns:
-            The stripped string value
-
-        Raises:
-            ValueError: If the value is not a string or is empty after stripping
+        :param v: The value to validate
+        :param info: Validation information context
+        :return: The stripped string value
+        :raises ValueError: If the value is not a string or is empty after stripping
         """
         field_name = info.field_name.replace("_", " ").title()
 
@@ -35,23 +36,18 @@ class DocumentaryTopicRequestDTO(BaseModel):
 
         return stripped_value
 
-    @field_validator("nombre", mode="after")
+    @field_validator("name", mode="after")
     def validate_name_format(cls, v):
         """
         Validates that the name contains only alphabetic characters and spaces.
 
-        Args:
-            v: The string value to validate
-
-        Returns:
-            The validated string value
-
-        Raises:
-            ValueError: If the name contains invalid characters
+        :param v: The string value to validate
+        :return: The validated string value
+        :raises ValueError: If the name contains invalid characters
         """
         pattern = re.compile(r"^[A-Za-zÁÉÍÓÚáéíóúÑñ][A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$")
         if not pattern.fullmatch(v):
             raise ValueError(
-                "Department name must contain only alphabetic characters and single spaces between words"
+                "Documentary topic name must contain only alphabetic characters and single spaces between words"
             )
         return v
