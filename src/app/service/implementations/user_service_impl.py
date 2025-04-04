@@ -8,7 +8,7 @@ from src.app.exception import BadRequestException, ConflictException, NotFoundEx
 from src.app.exception.decorator import handle_exceptions
 from src.app.repository.interfaces import (
     IUserRepository,
-    IRolRepository,
+    IRoleRepository,
     IEmployeeRepository,
 )
 from src.app.service.interfaces import IUserService
@@ -18,17 +18,30 @@ from src.app.security.hasher.interface import IHasherProvider
 class UserServiceImpl(IUserService):
     """
     Implementation of the IUserService interface for managing user-related operations.
+
+    :ivar user_repository: Repository to manage user data
+    :ivar role_repository: Repository to manage role data
+    :ivar employee_repository: Repository to manage employee data
+    :ivar hasher_provider: Provider for password hashing operations
     """
 
     def __init__(
         self,
         user_repository: IUserRepository,
-        rol_repository: IRolRepository,
+        role_repository: IRoleRepository,
         employee_repository: IEmployeeRepository,
         hasher_provider: IHasherProvider,
     ):
+        """
+        Initialize the user service with required repositories and providers.
+
+        :param user_repository: Repository for user data operations
+        :param role_repository: Repository for role data operations
+        :param employee_repository: Repository for employee data operations
+        :param hasher_provider: Provider for password hashing operations
+        """
         self.user_repository = user_repository
-        self.rol_repository = rol_repository
+        self.role_repository = role_repository
         self.employee_repository = employee_repository
         self.hasher_provider = hasher_provider
 
@@ -40,14 +53,10 @@ class UserServiceImpl(IUserService):
         This method checks if the username, role, and employee are valid, and if the employee does not already have an associated user account.
         If all validations pass, a new user is created, and the password is hashed before being stored.
 
-        :param user_request: DTO containing the details of the user to be added.
-        :type user_request: UserRequestDTO
-
-        :return: DTO with the details of the newly created user.
-        :rtype: UserResponseDTO
-
-        :raises ConflictException: If the username already exists or if the employee already has an account.
-        :raises NotFoundException: If the role or employee does not exist.
+        :param user_request: DTO containing the details of the user to be added
+        :return: DTO with the details of the newly created user
+        :raises ConflictException: If the username already exists or if the employee already has an account
+        :raises NotFoundException: If the role or employee does not exist
         """
         existing_username = await self.user_repository.exists_by(
             username=user_request.username
@@ -57,10 +66,10 @@ class UserServiceImpl(IUserService):
                 details=f"Username {user_request.username} already exists",
             )
 
-        existing_role = await self.rol_repository.exists_by(id=user_request.rol_id)
+        existing_role = await self.role_repository.exists_by(id=user_request.role_id)
         if not existing_role:
             raise NotFoundException(
-                details=f"Role with ID {user_request.rol_id} not found",
+                details=f"Role with ID {user_request.role_id} not found",
             )
 
         existing_employee = await self.employee_repository.exists_by(
@@ -84,7 +93,7 @@ class UserServiceImpl(IUserService):
         new_user = User(
             username=user_request.username,
             password=hashed_password,
-            rol_id=user_request.rol_id,
+            role_id=user_request.role_id,
             employee_id=user_request.employee_id,
         )
 
@@ -94,7 +103,7 @@ class UserServiceImpl(IUserService):
             id=created_user.id,
             username=created_user.username,
             is_active=created_user.is_active,
-            rol_id=created_user.rol_id,
+            role_id=created_user.role_id,
             employee_id=created_user.employee_id,
             created_at=created_user.created_at,
             updated_at=created_user.updated_at,
@@ -107,8 +116,7 @@ class UserServiceImpl(IUserService):
 
         This method returns a list of all users with their details, including their username, role, employee ID, and creation/update timestamps.
 
-        :return: A list of DTOs with the details of all users.
-        :rtype: list[UserResponseDTO]
+        :return: A list of DTOs with the details of all users
         """
         users = await self.user_repository.get_all()
         return [
@@ -116,7 +124,7 @@ class UserServiceImpl(IUserService):
                 id=user.id,
                 username=user.username,
                 is_active=user.is_active,
-                rol_id=user.rol_id,
+                role_id=user.role_id,
                 employee_id=user.employee_id,
                 created_at=user.created_at,
                 updated_at=user.updated_at,
@@ -134,17 +142,11 @@ class UserServiceImpl(IUserService):
         This method allows updating a user's details, including username, role, employee association, and password (if a new password is provided).
         If any provided username, role, or employee does not exist, or if the username already exists, an exception is raised.
 
-        :param user_id: ID of the user to be updated.
-        :type user_id: int
-
-        :param user_request: DTO containing the updated user details.
-        :type user_request: UserRequestDTO
-
-        :return: DTO with the updated user details.
-        :rtype: UserResponseDTO
-
-        :raises NotFoundException: If the user with the given ID does not exist, or if the role or employee does not exist.
-        :raises ConflictException: If the username already exists for another user.
+        :param user_id: ID of the user to be updated
+        :param user_request: DTO containing the updated user details
+        :return: DTO with the updated user details
+        :raises NotFoundException: If the user with the given ID does not exist, or if the role or employee does not exist
+        :raises ConflictException: If the username already exists for another user
         """
         existing_user_id = await self.user_repository.exists_by(id=user_id)
         if not existing_user_id:
@@ -163,10 +165,10 @@ class UserServiceImpl(IUserService):
                     details=f"Username {user_request.username} already exists",
                 )
 
-        existing_role = await self.rol_repository.exists_by(id=user_request.rol_id)
+        existing_role = await self.role_repository.exists_by(id=user_request.role_id)
         if not existing_role:
             raise NotFoundException(
-                details=f"Role with ID {user_request.rol_id} not found",
+                details=f"Role with ID {user_request.role_id} not found",
             )
 
         existing_employee = await self.employee_repository.exists_by(
@@ -182,7 +184,7 @@ class UserServiceImpl(IUserService):
             user.password = hashed_password
 
         user.username = user_request.username
-        user.rol_id = user_request.rol_id
+        user.role_id = user_request.role_id
         user.employee_id = user_request.employee_id
         user.updated_at = datetime.now()
 
@@ -192,7 +194,7 @@ class UserServiceImpl(IUserService):
             id=updated_user.id,
             username=updated_user.username,
             is_active=updated_user.is_active,
-            rol_id=updated_user.rol_id,
+            role_id=updated_user.role_id,
             employee_id=updated_user.employee_id,
             created_at=updated_user.created_at,
             updated_at=updated_user.updated_at,
@@ -208,20 +210,12 @@ class UserServiceImpl(IUserService):
         This method verifies that the old password is correct and then updates it with the new password.
         If the old password does not match, an exception is raised.
 
-        :param user_id: ID of the user whose password is to be updated.
-        :type user_id: int
-
-        :param old_password: The current password of the user.
-        :type old_password: str
-
-        :param new_password: The new password to update.
-        :type new_password: str
-
-        :return: A response message indicating the result of the password update.
-        :rtype: MessageResponse
-
-        :raises NotFoundException: If the user with the given ID does not exist.
-        :raises BadRequestException: If the old password does not match the current password.
+        :param user_id: ID of the user whose password is to be updated
+        :param old_password: The current password of the user
+        :param new_password: The new password to update
+        :return: A response message indicating the result of the password update
+        :raises NotFoundException: If the user with the given ID does not exist
+        :raises BadRequestException: If the old password does not match the current password
         """
         existing_user_id = await self.user_repository.exists_by(id=user_id)
         if not existing_user_id:
@@ -262,17 +256,11 @@ class UserServiceImpl(IUserService):
         The status is converted from a string value (either "Activate" or "Deactivate") to a boolean value.
         If the status is invalid, a BadRequestException is raised.
 
-        :param user_id: ID of the user whose status is to be updated.
-        :type user_id: int
-
-        :param status: The status to update the user to. Should be either "Activate" or "Deactivate".
-        :type status: str
-
-        :return: A response message indicating the result of the status update.
-        :rtype: MessageResponse
-
-        :raises NotFoundException: If the user with the given ID does not exist.
-        :raises BadRequestException: If the provided status is not valid.
+        :param user_id: ID of the user whose status is to be updated
+        :param status: The status to update the user to. Should be either "Activate" or "Deactivate"
+        :return: A response message indicating the result of the status update
+        :raises NotFoundException: If the user with the given ID does not exist
+        :raises BadRequestException: If the provided status is not valid
         """
         existing_user_id = await self.user_repository.exists_by(id=user_id)
         if not existing_user_id:
@@ -325,13 +313,9 @@ class UserServiceImpl(IUserService):
         This method checks if the user exists. If the user is found, the user is deleted from the database.
         If the deletion is successful, a success message is returned. Otherwise, a failure message is returned.
 
-        :param user_id: The ID of the user to delete.
-        :type user_id: int
-
-        :return: A response message indicating the result of the deletion process.
-        :rtype: MessageResponse
-
-        :raises NotFoundException: If the user with the given ID does not exist.
+        :param user_id: The ID of the user to delete
+        :return: A response message indicating the result of the deletion process
+        :raises NotFoundException: If the user with the given ID does not exist
         """
         existing_user_id = await self.user_repository.exists_by(id=user_id)
         if not existing_user_id:
@@ -362,13 +346,9 @@ class UserServiceImpl(IUserService):
         This method checks if the user exists. If the user is found, their details are returned in a DTO format.
         If the user does not exist, an exception is raised.
 
-        :param user_id: The ID of the user to retrieve.
-        :type user_id: int
-
-        :return: A DTO containing the user's details.
-        :rtype: UserResponseDTO
-
-        :raises NotFoundException: If the user with the given ID does not exist.
+        :param user_id: The ID of the user to retrieve
+        :return: A DTO containing the user's details
+        :raises NotFoundException: If the user with the given ID does not exist
         """
         existing_user_id = await self.user_repository.exists_by(id=user_id)
         if not existing_user_id:
@@ -380,7 +360,7 @@ class UserServiceImpl(IUserService):
             id=user.id,
             username=user.username,
             is_active=user.is_active,
-            rol_id=user.rol_id,
+            role_id=user.role_id,
             employee_id=user.employee_id,
             created_at=user.created_at,
             updated_at=user.updated_at,
@@ -394,13 +374,9 @@ class UserServiceImpl(IUserService):
         This method checks if the user exists. If the user is found, their details are returned in a DTO format.
         If the user does not exist, an exception is raised.
 
-        :param username: The username of the user to retrieve.
-        :type username: str
-
-        :return: A DTO containing the user's details.
-        :rtype: UserResponseDTO
-
-        :raises NotFoundException: If the user with the given username does not exist.
+        :param username: The username of the user to retrieve
+        :return: A DTO containing the user's details
+        :raises NotFoundException: If the user with the given username does not exist
         """
         existing_username = await self.user_repository.exists_by(username=username)
         if not existing_username:
@@ -412,7 +388,7 @@ class UserServiceImpl(IUserService):
             id=user.id,
             username=user.username,
             is_active=user.is_active,
-            rol_id=user.rol_id,
+            role_id=user.role_id,
             employee_id=user.employee_id,
             created_at=user.created_at,
             updated_at=user.updated_at,
@@ -426,16 +402,10 @@ class UserServiceImpl(IUserService):
         This method validates the provided page and size values. If they are valid, it retrieves a paginated result
         of users from the repository. If the page or size is invalid (less than 1), a BadRequestException is raised.
 
-        :param page: The page number to retrieve.
-        :type page: int
-
-        :param size: The number of items per page.
-        :type size: int
-
-        :return: A paginated response containing the user data and metadata.
-        :rtype: UserPage
-
-        :raises BadRequestException: If the page number or size is less than 1.
+        :param page: The page number to retrieve
+        :param size: The number of items per page
+        :return: A paginated response containing the user data and metadata
+        :raises BadRequestException: If the page number or size is less than 1
         """
         if page < 1:
             raise BadRequestException(
@@ -465,20 +435,12 @@ class UserServiceImpl(IUserService):
         username, role name, or employee name matches the provided search term. If no users match the search criteria,
         a NotFoundException is raised. If the page or size is invalid (less than 1), a BadRequestException is raised.
 
-        :param page: The page number to retrieve.
-        :type page: int
-
-        :param size: The number of items per page.
-        :type size: int
-
-        :param search_term: The search term to filter users by username, role name, or employee name.
-        :type search_term: str
-
-        :return: A paginated response containing the user data and metadata.
-        :rtype: UserPage
-
-        :raises BadRequestException: If the page number or size is less than 1.
-        :raises NotFoundException: If no users match the search criteria.
+        :param page: The page number to retrieve
+        :param size: The number of items per page
+        :param search_term: The search term to filter users by username, role name, or employee name
+        :return: A paginated response containing the user data and metadata
+        :raises BadRequestException: If the page number or size is less than 1
+        :raises NotFoundException: If no users match the search criteria
         """
         if page < 1:
             raise BadRequestException(

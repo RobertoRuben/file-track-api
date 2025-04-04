@@ -15,11 +15,8 @@ class IUserService(ABC):
         """
         Add a new user.
 
-        Args:
-            user_request: The data transfer object containing user details.
-
-        Returns:
-            The created user as a UserResponseDTO.
+        :param user_request: The data transfer object containing user details
+        :return: The created user as a UserResponseDTO
         """
         pass
 
@@ -28,8 +25,7 @@ class IUserService(ABC):
         """
         Retrieve all users.
 
-        Returns:
-            A list of UserResponseDTO objects representing all users.
+        :return: A list of UserResponseDTO objects representing all users
         """
         pass
 
@@ -40,12 +36,9 @@ class IUserService(ABC):
         """
         Update an existing user.
 
-        Args:
-            user_id: The ID of the user to update.
-            user_request: The data transfer object containing updated user details.
-
-        Returns:
-            The updated user as a UserResponseDTO.
+        :param user_id: The ID of the user to update
+        :param user_request: The data transfer object containing updated user details
+        :return: The updated user as a UserResponseDTO
         """
         pass
 
@@ -56,13 +49,10 @@ class IUserService(ABC):
         """
         Update the password for a user.
 
-        Args:
-            user_id: The ID of the user whose password is to be updated.
-            old_password: The current password of the user.
-            new_password: The new password to set.
-
-        Returns:
-            A MessageResponse indicating the result of the update.
+        :param user_id: The ID of the user whose password is to be updated
+        :param old_password: The current password of the user
+        :param new_password: The new password to set
+        :return: A MessageResponse indicating the result of the update
         """
         pass
 
@@ -71,12 +61,9 @@ class IUserService(ABC):
         """
         Update the status of a user.
 
-        Args:
-            user_id: The ID of the user whose status is to be updated.
-            status: The new status to set for the user.
-
-        Returns:
-            A MessageResponse indicating the result of the update.
+        :param user_id: The ID of the user whose status is to be updated
+        :param status: The new status to set for the user
+        :return: A MessageResponse indicating the result of the update
         """
         pass
 
@@ -85,11 +72,8 @@ class IUserService(ABC):
         """
         Delete a user by their ID.
 
-        Args:
-            user_id: The ID of the user to delete.
-
-        Returns:
-            A MessageResponse indicating the result of the deletion.
+        :param user_id: The ID of the user to delete
+        :return: A MessageResponse indicating the result of the deletion
         """
         pass
 
@@ -98,11 +82,8 @@ class IUserService(ABC):
         """
         Retrieve a user by their ID.
 
-        Args:
-            user_id: The ID of the user to retrieve.
-
-        Returns:
-            The user as a UserResponseDTO.
+        :param user_id: The ID of the user to retrieve
+        :return: The user as a UserResponseDTO
         """
         pass
 
@@ -111,11 +92,8 @@ class IUserService(ABC):
         """
         Retrieve a user by their username.
 
-        Args:
-            username: The username of the user to retrieve.
-
-        Returns:
-            The user as a UserResponseDTO.
+        :param username: The username of the user to retrieve
+        :return: The user as a UserResponseDTO
         """
         pass
 
@@ -124,12 +102,9 @@ class IUserService(ABC):
         """
         Retrieve a paginated list of users.
 
-        Args:
-            page: The page number to retrieve.
-            size: The number of users per page.
-
-        Returns:
-            A UserPage object containing the paginated users.
+        :param page: The page number to retrieve
+        :param size: The number of users per page
+        :return: A UserPage object containing the paginated users
         """
         pass
 
@@ -138,12 +113,9 @@ class IUserService(ABC):
         """
         Find users based on search criteria.
 
-        Args:
-            page: The page number to retrieve.
-            size: The number of users per page.
-            search_term: The term to search for in usernames.
-
-        Returns:
-            A UserPage object containing the users that match the search criteria.
+        :param page: The page number to retrieve
+        :param size: The number of users per page
+        :param search_term: The term to search for in usernames
+        :return: A UserPage object containing the users that match the search criteria
         """
         pass
