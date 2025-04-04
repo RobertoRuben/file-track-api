@@ -20,12 +20,11 @@ class Position(SQLModel, table=True):
     """
     Represents a job position within the organization.
 
-    Attributes:
-        id: The unique identifier for the position
-        name: The name of the position
-        created_at: The timestamp when the position was created
-        updated_at: The timestamp when the position was last updated
-        employees: List of employees who hold this position
+    :ivar id: The unique identifier for the position
+    :ivar name: The name of the position
+    :ivar created_at: The timestamp when the position was created
+    :ivar updated_at: The timestamp when the position was last updated
+    :ivar employees: List of employees who hold this position
     """
 
     __tablename__ = "positions"
