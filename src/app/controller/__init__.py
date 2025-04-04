@@ -1,6 +1,6 @@
 from .document_category_controller import (
-    router as category_document_router,
-    category_document_tags_metadata,
+    router as document_category_router,
+    document_category_tags_metadata,
 )
 from .role_controller import router as role_router, role_tags_metadata
 from .department_controller import router as department_router, department_tags_metadata
@@ -20,8 +20,8 @@ from .department_connection_controller import (
 from .user_controller import router as user_router, user_tags_metadata
 
 __all__ = [
-    "category_document_router",
-    "category_document_tags_metadata",
+    "document_category_router",
+    "document_category_tags_metadata",
     "role_router",
     "role_tags_metadata",
     "department_router",

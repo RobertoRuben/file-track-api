@@ -3,8 +3,8 @@ from contextlib import asynccontextmanager
 from src.app.db import init_db
 from src.app.exception.globals import register_exception_handlers
 from src.app.controller import (
-    category_document_router,
-    category_document_tags_metadata,
+    document_category_router,
+    document_category_tags_metadata,
     role_router,
     role_tags_metadata,
     department_router,
@@ -30,7 +30,7 @@ from src.app.controller import (
 API_PREFIX = "/api/v1"
 
 tags_metadata = [
-    category_document_tags_metadata,
+    document_category_router,
     role_tags_metadata,
     department_tags_metadata,
     documentary_topic_tags_metadata,
@@ -75,7 +75,7 @@ app = FastAPI(
     terms_of_service="https://opensource.org/licenses/MIT",
 )
 
-app.include_router(category_document_router, prefix=API_PREFIX)
+app.include_router(document_category_router, prefix=API_PREFIX)
 app.include_router(role_router, prefix=API_PREFIX)
 app.include_router(department_router, prefix=API_PREFIX)
 app.include_router(documentary_topic_router, prefix=API_PREFIX)
