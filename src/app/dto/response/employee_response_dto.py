@@ -22,18 +22,30 @@ class EmployeeResponseDTO(BaseModel):
     :ivar updated_at: Timestamp when the employee record was last updated
     """
 
-    id: int = Field(..., description="Employee's unique identifier", examples=[1])
+    id: int = Field(
+        ...,
+        description="Employee's unique identifier",
+        examples=[1]
+    )
     dni: int = Field(
-        ..., description="Employee's national ID number (8 digits)", examples=[12345678]
+        ...,
+        description="Employee's national ID number (8 digits)",
+        examples=[12345678]
     )
     names: str = Field(
-        ..., description="Employee's first name(s)", examples=["Juan Carlos"]
+        ...,
+        description="Employee's first name(s)",
+        examples=["Juan Carlos"]
     )
     paternal_surname: str = Field(
-        ..., description="Employee's paternal surname", examples=["Pérez"]
+        ...,
+        description="Employee's paternal surname",
+        examples=["Pérez"]
     )
     maternal_surname: str = Field(
-        ..., description="Employee's maternal surname", examples=["Gómez"]
+        ...,
+        description="Employee's maternal surname",
+        examples=["Gómez"]
     )
     gender: str = Field(
         ...,
@@ -41,18 +53,24 @@ class EmployeeResponseDTO(BaseModel):
         examples=["Male"],
     )
     position_id: int = Field(
-        ..., description="ID of the employee's position", examples=[1]
+        ...,
+        description="ID of the employee's position",
+        examples=[1]
     )
     position_name: str | None = Field(
-        None,
+        default=None,
         description="Name of the employee's position",
         examples=["Senior Developer"],
     )
     department_id: int = Field(
-        ..., description="ID of the employee's department", examples=[1]
+        ...,
+        description="ID of the employee's department",
+        examples=[1]
     )
     department_name: str | None = Field(
-        None, description="Name of the employee's department", examples=["Development"]
+        default=None,
+        description="Name of the employee's department",
+        examples=["Development"]
     )
     created_at: datetime = Field(
         ...,
@@ -60,7 +78,7 @@ class EmployeeResponseDTO(BaseModel):
         examples=["2025-03-25T10:30:00"],
     )
     updated_at: datetime | None = Field(
-        None,
+        default=None,
         description="Timestamp when the employee record was last updated",
         examples=["2025-03-26T15:45:00"],
     )
