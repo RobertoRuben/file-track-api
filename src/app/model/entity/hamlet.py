@@ -22,13 +22,12 @@ class Hamlet(SQLModel, table=True):
     """
     Represents a hamlet or small village.
 
-    Attributes:
-        id: The unique identifier for the hamlet
-        name: The name of the hamlet
-        created_at: The timestamp when the hamlet was created
-        updated_at: The timestamp when the hamlet was last updated
-        settlement_id: The ID of the settlement this hamlet belongs to
-        settlement: The settlement this hamlet belongs to
+    :ivar id: The unique identifier for the hamlet
+    :ivar name: The name of the hamlet
+    :ivar created_at: The timestamp when the hamlet was created
+    :ivar updated_at: The timestamp when the hamlet was last updated
+    :ivar settlement_id: The ID of the settlement this hamlet belongs to
+    :ivar settlement: The settlement this hamlet belongs to
     """
 
     __tablename__ = "hamlets"
