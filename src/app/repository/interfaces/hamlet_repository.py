@@ -1,59 +1,50 @@
 from abc import ABC, abstractmethod
-from src.app.model.entity import Caserio
+from src.app.model.entity import Hamlet
 from src.app.schema import Page
 
 
 class IHamletRepository(ABC):
     """
     Interface for the Hamlet repository.
+    Defines the contract for hamlet data access operations.
     """
 
     @abstractmethod
-    async def save(self, caserio: Caserio) -> Caserio:
+    async def save(self, hamlet: Hamlet) -> Hamlet:
         """
         Save a hamlet entity to the database.
 
-        Args:
-            caserio: The hamlet entity to save
-
-        Returns:
-            The saved hamlet with updated data
+        :param hamlet: The hamlet entity to save
+        :return: The saved hamlet with updated data
         """
         pass
 
     @abstractmethod
-    async def get_all(self) -> list[Caserio]:
+    async def get_all(self) -> list[Hamlet]:
         """
         Retrieve all hamlet entities from the database.
 
-        Returns:
-            A list containing all hamlets
+        :return: A list containing all hamlets
         """
         pass
 
     @abstractmethod
-    async def delete(self, caserio_id: int) -> bool:
+    async def delete(self, hamlet_id: int) -> bool:
         """
         Delete a hamlet entity from the database by its ID.
 
-        Args:
-            caserio_id: The ID of the hamlet to delete
-
-        Returns:
-            True if the hamlet was successfully deleted, False otherwise
+        :param hamlet_id: The ID of the hamlet to delete
+        :return: True if the hamlet was successfully deleted, False otherwise
         """
         pass
 
     @abstractmethod
-    async def get_by_id(self, caserio_id: int) -> Caserio:
+    async def get_by_id(self, hamlet_id: int) -> Hamlet:
         """
         Retrieve a hamlet entity from the database by its ID.
 
-        Args:
-            caserio_id: The ID of the hamlet to retrieve
-
-        Returns:
-            The found hamlet entity
+        :param hamlet_id: The ID of the hamlet to retrieve
+        :return: The found hamlet entity
         """
         pass
 
@@ -62,12 +53,9 @@ class IHamletRepository(ABC):
         """
         Retrieve a paginated list of hamlet entities from the database.
 
-        Args:
-            page: The page number (starts at 1)
-            size: The size of each page
-
-        Returns:
-            A Page object containing hamlets and pagination information
+        :param page: The page number (starts at 1)
+        :param size: The size of each page
+        :return: A Page object containing hamlets and pagination information
         """
         pass
 
@@ -81,13 +69,10 @@ class IHamletRepository(ABC):
         """
         Retrieve a paginated list of hamlet entities based on search criteria.
 
-        Args:
-            page: The page number (starts at 1)
-            size: The size of each page
-            search_dict: Dictionary containing search parameters
-
-        Returns:
-            A Page object with hamlets matching the search criteria
+        :param page: The page number (starts at 1)
+        :param size: The size of each page
+        :param search_dict: Dictionary containing search parameters
+        :return: A Page object with hamlets matching the search criteria
         """
         pass
 
@@ -96,10 +81,7 @@ class IHamletRepository(ABC):
         """
         Check if a hamlet entity exists in the database based on specific criteria.
 
-        Args:
-            **kwargs: Key-value pairs representing the search criteria
-
-        Returns:
-            True if a matching hamlet exists, False otherwise
+        :param kwargs: Key-value pairs representing the search criteria
+        :return: True if a matching hamlet exists, False otherwise
         """
         pass
