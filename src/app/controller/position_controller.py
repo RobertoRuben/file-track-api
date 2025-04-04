@@ -11,19 +11,20 @@ from src.app.schema import MessageResponse
 from src.app.service.interfaces import IPositionService
 from src.app.service.dependencies import get_position_service
 
-router = APIRouter(prefix="/position", tags=["Position"])
+router = APIRouter(prefix="/position", tags=["Positions"])
 
 position_tags_metadata = {
-    "name": "Position",
-    "description": "Manages positions within the system. These operations allow creating, retrieving, "
-    "updating, and deleting positions, as well as searching and listing them with pagination.",
+    "name": "Positions",
+    "description": "Manages positions within the system. "
+    "These positions represent job roles that employees can hold. "
+    "Allows complete CRUD operations, advanced search, and paginated listing.",
 }
 
 
 @router.post(
     "",
     response_model=PositionResponseDTO,
-    summary="Create a new position in the system",
+    summary="Create a new position",
     status_code=201,
     responses={
         201: {
@@ -31,13 +32,10 @@ position_tags_metadata = {
             "description": "Position created successfully",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
-        409: {
-            "model": ConflictError,
-            "description": "Position already exists",
-        },
+        409: {"model": ConflictError, "description": "Position already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Creates a new position in the system. Provide the position details in the request body to create it successfully.",
+    description="Creates a new position in the system. The name must be unique.",
 )
 async def create_position(
     position_request: PositionRequestDTO,
@@ -47,12 +45,12 @@ async def create_position(
     Endpoint to create a new position.
 
     This endpoint allows the creation of a new position in the system. The position data
-    must be provided in the request body. If the position is created successfully, a status code 201
-    with the created position's details is returned.
+    must be provided in the request body. If the position is created successfully, a
+    status code 201 is returned with the details of the created position.
 
-    :param position_request: Request body containing position data.
-    :param position_service: Service to handle the position creation logic.
-    :return: The created position data.
+    :param position_request: Request body containing the position data.
+    :param position_service: Service that handles the position creation logic.
+    :return: The data of the created position.
     """
     return await position_service.add_position(position_request)
 
@@ -69,7 +67,7 @@ async def create_position(
         400: {"model": BackRequestError, "description": "Bad request error"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves a list of all positions in the system.",
+    description="Retrieves the complete list of all positions registered in the system, including their identifiers, names, and timestamps.",
 )
 async def get_all_positions(
     position_service: IPositionService = Depends(get_position_service),
@@ -91,14 +89,11 @@ async def get_all_positions(
     response_model=PositionPage,
     summary="Get positions with pagination",
     responses={
-        200: {
-            "model": PositionPage,
-            "description": "Paginated list of positions",
-        },
+        200: {"model": PositionPage, "description": "Paginated list of positions"},
         400: {"model": BackRequestError, "description": "Bad request error"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves positions in a paginated format to manage large data sets.",
+    description="Retrieves positions in a paginated format to manage large data sets, allowing navigation through pages and control over the number of records per page.",
 )
 async def get_paginated_positions(
     page: int = Query(default=1, description="Page number to retrieve"),
@@ -122,17 +117,14 @@ async def get_paginated_positions(
 @router.get(
     "/search",
     response_model=PositionPage,
-    summary="Search positions based on a term",
+    summary="Search positions by term",
     responses={
-        200: {
-            "model": PositionPage,
-            "description": "Paginated list of positions",
-        },
+        200: {"model": PositionPage, "description": "Paginated list of positions"},
         400: {"model": BackRequestError, "description": "Bad request error"},
         404: {"model": NotFoundError, "description": "Position not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Search positions based on a keyword or phrase, with pagination for better management of search results.",
+    description="Performs position searches based on a keyword or phrase. Results are returned paginated for better management of search results.",
 )
 async def find_positions(
     search_term: str | None = Query(
@@ -160,17 +152,14 @@ async def find_positions(
 @router.get(
     "/{position_id}",
     response_model=PositionResponseDTO,
-    summary="Get a specific position by ID",
+    summary="Get position by ID",
     responses={
-        200: {
-            "model": PositionResponseDTO,
-            "description": "Position found",
-        },
+        200: {"model": PositionResponseDTO, "description": "Position found"},
         400: {"model": BackRequestError, "description": "Bad request error"},
         404: {"model": NotFoundError, "description": "Position not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieve details of a specific position using its ID.",
+    description="Retrieves the complete details of a specific position using its unique identifier.",
 )
 async def get_position_by_id(
     position_id: int,
@@ -192,7 +181,7 @@ async def get_position_by_id(
 @router.put(
     "/{position_id}",
     response_model=PositionResponseDTO,
-    summary="Update an existing position by ID",
+    summary="Update existing position",
     responses={
         200: {
             "model": PositionResponseDTO,
@@ -200,9 +189,10 @@ async def get_position_by_id(
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
         404: {"model": NotFoundError, "description": "Position not found"},
+        409: {"model": ConflictError, "description": "Position name already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Updates the details of an existing position by its ID.",
+    description="Updates the details of an existing position identified by its ID. Verifies that the new name is not already in use by another position.",
 )
 async def update_position(
     position_id: int,
@@ -227,7 +217,7 @@ async def update_position(
 @router.delete(
     "/{position_id}",
     response_model=MessageResponse,
-    summary="Delete a position by ID",
+    summary="Delete position",
     responses={
         200: {
             "model": MessageResponse,
@@ -237,7 +227,7 @@ async def update_position(
         404: {"model": NotFoundError, "description": "Position not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Deletes a specific position from the system using its ID.",
+    description="Deletes a specific position from the system using its ID. This operation is irreversible and may affect relationships with other entities.",
 )
 async def delete_position(
     position_id: int,
