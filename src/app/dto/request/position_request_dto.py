@@ -11,9 +11,9 @@ class PositionRequestDTO(BaseModel):
     """
 
     name: str = Field(
-        description="Name of the position", 
+        description="Name of the position",
         min_length=3,
-        examples=["Project Manager", "Developer", "Designer"]
+        examples=["Project Manager", "Developer", "Designer"],
     )
 
     @field_validator("name", mode="before")
