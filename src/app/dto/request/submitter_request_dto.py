@@ -5,35 +5,51 @@ from pydantic import BaseModel, Field, ValidationInfo, field_validator
 
 class SubmitterRequestDTO(BaseModel):
     """
-    DTO para crear o actualizar un remitente.
+    DTO for creating or updating a submitter.
+
+    :ivar dni: National identification number (8 digits)
+    :ivar names: First and middle names of the submitter
+    :ivar paternal_surname: Paternal last name
+    :ivar maternal_surname: Maternal last name
+    :ivar gender: Gender of the submitter (Male/Female)
     """
 
     dni: int = Field(
-        ..., description="Submitter's national ID number", ge=10000000, lt=100000000
+        ...,
+        description="Submitter's national ID number",
+        ge=10000000,
+        lt=100000000,
+        examples=[48756321],
     )
-    nombres: str = Field(..., description="Submitter's first name", min_length=2)
-    apellido_paterno: str = Field(
-        ..., description="Submitter's paternal surname", min_length=2
+    names: str = Field(
+        ...,
+        description="Submitter's first name",
+        min_length=2,
+        examples=["Juan Carlos"],
     )
-    apellido_materno: str = Field(
-        ..., description="Submitter's maternal surname", min_length=2
+    paternal_surname: str = Field(
+        ...,
+        description="Submitter's paternal surname",
+        min_length=2,
+        examples=["García"],
     )
-    genero: GeneroEnum = Field(..., description="Submitter's gender")
+    maternal_surname: str = Field(
+        ...,
+        description="Submitter's maternal surname",
+        min_length=2,
+        examples=["Rodríguez"],
+    )
+    gender: GeneroEnum = Field(..., description="Submitter's gender", examples=["Male"])
 
-    @field_validator("nombres", "apellido_paterno", "apellido_materno", mode="before")
+    @field_validator("names", "paternal_surname", "maternal_surname", mode="before")
     def strip_and_validate_string(cls, v, info: ValidationInfo):
         """
-        Valida que la entrada sea una cadena y elimina espacios en blanco.
+        Validates that the input is a string and strips whitespace.
 
-        Args:
-            v: El valor a validar
-            info: Contexto de información de validación
-
-        Returns:
-            El valor de cadena sin espacios en blanco
-
-        Raises:
-            ValueError: Si el valor no es una cadena o está vacío después de eliminar espacios
+        :param v: Value to validate
+        :param info: Validation context information
+        :return: Stripped string value
+        :raises ValueError: If value is not a string or is empty after stripping
         """
         field_name = info.field_name.replace("_", " ").title()
 
@@ -49,16 +65,11 @@ class SubmitterRequestDTO(BaseModel):
     @field_validator("dni", mode="before")
     def validate_dni_is_numeric(cls, v):
         """
-        Valida que el DNI sea un número.
+        Validates that DNI is a numeric value.
 
-        Args:
-            v: El valor a validar
-
-        Returns:
-            El valor numérico del DNI
-
-        Raises:
-            ValueError: Si el valor no es numérico o no cumple con el formato esperado
+        :param v: Value to validate
+        :return: Numeric value of DNI
+        :raises ValueError: If value is not numeric or doesn't meet expected format
         """
         if isinstance(v, str):
             v = v.strip()
@@ -71,43 +82,33 @@ class SubmitterRequestDTO(BaseModel):
 
         return v
 
-    @field_validator("nombres", "apellido_paterno", "apellido_materno", mode="after")
+    @field_validator("names", "paternal_surname", "maternal_surname", mode="after")
     def validate_name_format(cls, v, info: ValidationInfo):
         """
-        Valida que el nombre/apellido contenga solo caracteres alfabéticos y espacios.
+        Validates that name/surname contains only alphabetic characters and spaces.
 
-        Args:
-            v: El valor de cadena a validar
-            info: Contexto de información de validación
-
-        Returns:
-            El valor de cadena validado
-
-        Raises:
-            ValueError: Si el nombre/apellido contiene caracteres no válidos
+        :param v: String value to validate
+        :param info: Validation context information
+        :return: Validated string value
+        :raises ValueError: If name/surname contains invalid characters
         """
         field_name = info.field_name.replace("_", " ").title()
         pattern = re.compile(r"^[A-Za-zÁÉÍÓÚáéíóúÑñ][A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$")
 
         if not pattern.fullmatch(v):
             raise ValueError(
-                f"{field_name} debe contener solo caracteres alfabéticos y espacios simples entre palabras"
+                f"{field_name} must contain only alphabetic characters and spaces between words"
             )
         return v
 
     @field_validator("dni", mode="after")
     def validate_dni_length(cls, v):
         """
-        Valida que el DNI tenga exactamente 8 dígitos.
+        Validates that DNI has exactly 8 digits.
 
-        Args:
-            v: El valor numérico del DNI
-
-        Returns:
-            El valor del DNI validado
-
-        Raises:
-            ValueError: Si el DNI no tiene exactamente 8 dígitos
+        :param v: Numeric DNI value
+        :return: Validated DNI value
+        :raises ValueError: If DNI doesn't have exactly 8 digits
         """
         if len(str(v)) != 8:
             raise ValueError("DNI must have exactly 8 digits")
