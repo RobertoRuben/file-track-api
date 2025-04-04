@@ -15,15 +15,17 @@ class RoleServiceImpl(IRoleService):
 
     Provides business logic for role operations including creating,
     updating, deleting, and querying roles.
+
+    :ivar role_repository: Repository for role data access operations
     """
 
-    def __init__(self, repository: IRoleRepository):
+    def __init__(self, role_repository: IRoleRepository):
         """
         Initialize the role service with a repository.
 
-        :param repository: The role repository implementation
+        :param role_repository: The role repository implementation
         """
-        self.repository = repository
+        self.role_repository = role_repository
 
     @handle_exceptions
     async def add_role(self, role_request: RoleRequestDTO) -> RoleResponseDTO:
@@ -36,7 +38,7 @@ class RoleServiceImpl(IRoleService):
         :return: A DTO containing the created role details
         :raises ConflictException: If a role with the same name already exists
         """
-        exists_role = await self.repository.exists_by(name=role_request.name)
+        exists_role = await self.role_repository.exists_by(name=role_request.name)
         if exists_role:
             raise ConflictException(
                 details=f"Role with name {role_request.name} already exists.",
@@ -46,7 +48,7 @@ class RoleServiceImpl(IRoleService):
             name=role_request.name,
         )
 
-        created_role = await self.repository.save(new_role)
+        created_role = await self.role_repository.save(new_role)
 
         return RoleResponseDTO(
             id=created_role.id,
@@ -62,7 +64,7 @@ class RoleServiceImpl(IRoleService):
 
         :return: A list of DTOs containing all roles
         """
-        roles = await self.repository.get_all()
+        roles = await self.role_repository.get_all()
         return [
             RoleResponseDTO(
                 id=role.id,
@@ -88,15 +90,15 @@ class RoleServiceImpl(IRoleService):
         :raises NotFoundException: If the role with the given ID does not exist
         :raises ConflictException: If another role with the new name already exists
         """
-        exists_role_id = await self.repository.exists_by(id=role_id)
+        exists_role_id = await self.role_repository.exists_by(id=role_id)
         if not exists_role_id:
             raise NotFoundException(
                 details=f"Role with id {role_id} not found.",
             )
-        role = await self.repository.get_by_id(role_id)
+        role = await self.role_repository.get_by_id(role_id)
 
         if role.name != role_request.name:
-            name_exists = await self.repository.exists_by(name=role_request.name)
+            name_exists = await self.role_repository.exists_by(name=role_request.name)
             if name_exists:
                 raise ConflictException(
                     details=f"Role with name {role_request.name} already exists.",
@@ -105,7 +107,7 @@ class RoleServiceImpl(IRoleService):
         role.name = role_request.name
         role.updated_at = datetime.now()
 
-        updated_role = await self.repository.save(role)
+        updated_role = await self.role_repository.save(role)
 
         return RoleResponseDTO(
             id=updated_role.id,
@@ -123,12 +125,12 @@ class RoleServiceImpl(IRoleService):
         :return: A message response indicating success or failure
         :raises NotFoundException: If the role with the given ID does not exist
         """
-        exists_role_id = await self.repository.exists_by(id=role_id)
+        exists_role_id = await self.role_repository.exists_by(id=role_id)
         if not exists_role_id:
             raise NotFoundException(
                 details=f"Role with ID {role_id} not found.",
             )
-        response = await self.repository.delete(role_id)
+        response = await self.role_repository.delete(role_id)
         if response is True:
             return MessageResponse(
                 message="Role deleted successfully.",
@@ -153,12 +155,12 @@ class RoleServiceImpl(IRoleService):
         :return: A DTO containing the role details
         :raises NotFoundException: If the role with the given ID does not exist
         """
-        exists_role_id = await self.repository.exists_by(id=role_id)
+        exists_role_id = await self.role_repository.exists_by(id=role_id)
         if not exists_role_id:
             raise NotFoundException(
                 details=f"Role with ID {role_id} not found.",
             )
-        role = await self.repository.get_by_id(role_id)
+        role = await self.role_repository.get_by_id(role_id)
         return RoleResponseDTO(
             id=role.id,
             name=role.name,
@@ -187,7 +189,7 @@ class RoleServiceImpl(IRoleService):
                 details="Size number must be greater than 0.",
             )
 
-        page_result = await self.repository.get_pageable(page=page, size=size)
+        page_result = await self.role_repository.get_pageable(page=page, size=size)
         role_response = [RoleResponseDTO(**role.__dict__) for role in page_result.data]
 
         return RolePage(
@@ -220,7 +222,7 @@ class RoleServiceImpl(IRoleService):
 
         search_dict = {"name": search_term}
 
-        page_result = await self.repository.find(page, size, search_dict)
+        page_result = await self.role_repository.find(page, size, search_dict)
 
         if page_result.data is None:
             raise NotFoundException(
