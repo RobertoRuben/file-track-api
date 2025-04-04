@@ -3,11 +3,9 @@ from sqlmodel import select, func, or_
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.app.repository.decorator import transactional
 from src.app.repository.interfaces import IEmployeeRepository
-from src.app.model.entity import Trabajador, Cargo, Area
+from src.app.model.entity import Employee, Position, Department
 from src.app.exception import InvalidFieldException
 from src.app.schema import Page, Pagination
-
-from src.app.schema import Page
 
 
 class EmployeeRepositoryImpl(IEmployeeRepository):
@@ -16,79 +14,64 @@ class EmployeeRepositoryImpl(IEmployeeRepository):
         """
         Initialize the repository with a database session.
 
-        Args:
-            session: The SQLAlchemy AsyncSession instance for database operations
+        :param session: The SQLAlchemy AsyncSession instance for database operations
         """
         self.session = session
 
     @transactional(readonly=False)
-    async def save(self, trabajador: Trabajador) -> Trabajador:
+    async def save(self, employee: Employee) -> Employee:
         """
         Save an employee entity to the database.
 
-        Args:
-            trabajador: The employee entity to save
+        :param employee: The employee entity to save
+        :return: The persisted employee with updated attributes
 
-        Returns:
-            The persisted employee with updated attributes
-
-        Raises:
-            DatabaseException: If an error occurs during the save operation
+        :raises DatabaseException: If an error occurs during the save operation
         """
-        self.session.add(trabajador)
-        return trabajador
+        self.session.add(employee)
+        return employee
 
     @transactional(readonly=True)
-    async def get_all(self) -> list[Trabajador]:
+    async def get_all(self) -> list[Employee]:
         """
         Retrieve all employees from the database.
 
-        Returns:
-            A list containing all employees
+        :return: A list containing all employees
 
-        Raises:
-            DatabaseException: If an error occurs during the retrieval
+        :raises DatabaseException: If an error occurs during the retrieval
         """
-        stmt = select(Trabajador)
+        stmt = select(Employee)
         results = await self.session.exec(stmt)
         employees = results.all()
         return list(employees)
 
     @transactional(readonly=False)
-    async def delete(self, trabajador_id: int) -> bool:
+    async def delete(self, employee_id: int) -> bool:
         """
         Delete an employee from the database by ID.
 
-        Args:
-            trabajador_id: The ID of the employee to delete
+        :param employee_id: The ID of the employee to delete
+        :return: True if the employee was successfully deleted, False otherwise
 
-        Returns:
-            True if the employee was successfully deleted, False otherwise
-
-        Raises:
-            EntityNotFoundException: If the employee does not exist
-            DatabaseException: If an error occurs during the deletion
+        :raises EntityNotFoundException: If the employee does not exist
+        :raises DatabaseException: If an error occurs during the deletion
         """
-        employee = await self.get_by_id(trabajador_id)
+        employee = await self.get_by_id(employee_id)
         await self.session.delete(employee)
         return True
 
     @transactional(readonly=True)
-    async def get_by_id(self, trabajador_id: int) -> Trabajador:
+    async def get_by_id(self, employee_id: int) -> Employee:
         """
         Retrieve an employee from the database by ID.
 
-        Args:
-            trabajador_id: The ID of the employee to retrieve
+        :param employee_id: The ID of the employee to retrieve
+        :return: The employee entity if found
 
-        Returns:
-            The employee entity if found
-
-        Raises:
-            EntityNotFoundException: If the employee does not exist
-            DatabaseException: If an error occurs during the retrieval
+        :raises EntityNotFoundException: If the employee does not exist
+        :raises DatabaseException: If an error occurs during the retrieval
         """
-        stmt = select(Trabajador).where(Trabajador.id == trabajador_id)
+        stmt = select(Employee).where(Employee.id == employee_id)
         results = await self.session.exec(stmt)
         employee = results.first()
         return employee
@@ -98,47 +81,43 @@ class EmployeeRepositoryImpl(IEmployeeRepository):
         """
         Retrieve a paginated list of employees.
 
-        Args:
-            page: Page number (1-based indexing)
-            size: Number of items per page
+        :param page: Page number (1-based indexing)
+        :param size: Number of items per page
+        :return: A Page object containing employees and pagination metadata
 
-        Returns:
-            A Page object containing employees and pagination metadata
-
-        Raises:
-            DatabaseException: If an error occurs during the retrieval
+        :raises DatabaseException: If an error occurs during the retrieval
         """
         offset_value = (page - 1) * size
         stmt = (
             select(
-                Trabajador.id.label("id"),
-                Trabajador.dni.label("dni"),
-                Trabajador.nombres,
-                Trabajador.apellido_paterno,
-                Trabajador.apellido_materno,
-                Trabajador.genero,
-                Trabajador.cargo_id,
-                Cargo.nombre.label("cargo_nombre"),
-                Trabajador.area_id,
-                Area.nombre.label("area_nombre"),
-                Trabajador.created_at,
-                Trabajador.updated_at,
+                Employee.id.label("id"),
+                Employee.dni.label("dni"),
+                Employee.names.label("names"),
+                Employee.paternal_surname.label("paternal_surname"),
+                Employee.maternal_surname.label("maternal_surname"),
+                Employee.gender.label("gender"),
+                Employee.position_id.label("position_id"),
+                Position.name.label("position_name"),
+                Employee.department_id.label("department_id"),
+                Department.name.label("department_name"),
+                Employee.created_at,
+                Employee.updated_at,
             )
-            .join(Area, Area.id == Trabajador.area_id)
-            .join(Cargo, Cargo.id == Trabajador.cargo_id)
+            .join(Department, Department.id == Employee.department_id)
+            .join(Position, Position.id == Employee.position_id)
         )
 
         stmt = stmt.offset(offset_value).limit(size)
         results = await self.session.exec(stmt)
         employees_data = [dict(row._mapping) for row in results]
 
-        count_stmt = select(func.count(Trabajador.id))
+        count_stmt = select(func.count(Employee.id))
         count_result = await self.session.exec(count_stmt)
         total_items = count_result.first()
         total_pages = math.ceil(total_items / size) if total_items > 0 else 1
 
         next_page = page + 1 if page < total_pages else None
-        previous_page = page - 1 if page > 0 else None
+        previous_page = page - 1 if page > 1 else None
 
         page_info = Pagination(
             current_page=page,
@@ -159,21 +138,17 @@ class EmployeeRepositoryImpl(IEmployeeRepository):
         """
         Search employees with filtering and pagination, case-insensitive.
 
-        Args:
-            page: Page number (1-based indexing)
-            size: Number of items per page
-            search_dict: Dictionary of field-value pairs to search for
+        :param page: Page number (1-based indexing)
+        :param size: Number of items per page
+        :param search_dict: Dictionary of field-value pairs to search for
+        :return: A Page object containing the filtered employees and pagination metadata
 
-        Returns:
-            A Page object containing the filtered employees and pagination metadata
-
-        Raises:
-            DatabaseException: If an error occurs during the search operation
+        :raises DatabaseException: If an error occurs during the search operation
         """
         offset_value = (page - 1) * size
         conditions = []
 
-        allowed_fields = ["nombres", "dni", "apellido_paterno", "apellido_materno"]
+        allowed_fields = ["names", "dni", "paternal_surname", "maternal_surname"]
 
         for field_name, search_value in search_dict.items():
             if not search_value or field_name not in allowed_fields:
@@ -182,22 +157,22 @@ class EmployeeRepositoryImpl(IEmployeeRepository):
             if field_name == "dni":
                 try:
                     dni_value = int(search_value)
-                    conditions.append(Trabajador.dni == dni_value)
+                    conditions.append(Employee.dni == dni_value)
                 except ValueError:
                     conditions.append(
-                        func.cast(Trabajador.dni, func.text('text')).like(
+                        func.cast(Employee.dni, func.text('text')).like(
                             f"{search_value}%"
                         )
                     )
             else:
                 normalized_search = search_value.lower()
 
-                if field_name == "nombres":
-                    field = Trabajador.nombres
-                elif field_name == "apellido_paterno":
-                    field = Trabajador.apellido_paterno
-                elif field_name == "apellido_materno":
-                    field = Trabajador.apellido_materno
+                if field_name == "names":
+                    field = Employee.names
+                elif field_name == "paternal_surname":
+                    field = Employee.paternal_surname
+                elif field_name == "maternal_surname":
+                    field = Employee.maternal_surname
 
                 conditions.append(func.lower(field) == normalized_search)
                 conditions.append(func.lower(field).like(f"{normalized_search}%"))
@@ -205,21 +180,21 @@ class EmployeeRepositoryImpl(IEmployeeRepository):
 
         stmt = (
             select(
-                Trabajador.id.label("id"),
-                Trabajador.dni.label("dni"),
-                Trabajador.nombres,
-                Trabajador.apellido_paterno,
-                Trabajador.apellido_materno,
-                Trabajador.genero,
-                Trabajador.cargo_id,
-                Cargo.nombre.label("cargo_nombre"),
-                Trabajador.area_id,
-                Area.nombre.label("area_nombre"),
-                Trabajador.created_at,
-                Trabajador.updated_at,
+                Employee.id.label("id"),
+                Employee.dni.label("dni"),
+                Employee.names.label("names"),
+                Employee.paternal_surname.label("paternal_surname"),
+                Employee.maternal_surname.label("maternal_surname"),
+                Employee.gender.label("gender"),
+                Employee.position_id.label("position_id"),
+                Position.name.label("position_name"),
+                Employee.department_id.label("department_id"),
+                Department.name.label("department_name"),
+                Employee.created_at,
+                Employee.updated_at,
             )
-            .join(Area, Area.id == Trabajador.area_id)
-            .join(Cargo, Cargo.id == Trabajador.cargo_id)
+            .join(Department, Department.id == Employee.department_id)
+            .join(Position, Position.id == Employee.position_id)
         )
 
         if conditions:
@@ -229,7 +204,7 @@ class EmployeeRepositoryImpl(IEmployeeRepository):
         results = await self.session.exec(stmt)
         employees_data = [dict(row._mapping) for row in results]
 
-        count_stmt = select(func.count(Trabajador.id))
+        count_stmt = select(func.count(Employee.id))
 
         if conditions:
             count_stmt = count_stmt.where(or_(*conditions))
@@ -260,27 +235,23 @@ class EmployeeRepositoryImpl(IEmployeeRepository):
         """
         Check if an employee exists based on the provided criteria.
 
-        Args:
-            **kwargs: Field-value pairs to check against
+        :param kwargs: Field-value pairs to check against
+        :return: True if a matching employee exists, False otherwise
 
-        Returns:
-            True if a matching employee exists, False otherwise
-
-        Raises:
-            InvalidFieldException: If an invalid field name is provided
-            DatabaseException: If an error occurs during the query
+        :raises InvalidFieldException: If an invalid field name is provided
+        :raises DatabaseException: If an error occurs during the query
         """
-        valid_fields = Trabajador.__dict__.keys()
+        valid_fields = Employee.__dict__.keys()
         for key in kwargs.keys():
             if key not in valid_fields:
                 raise InvalidFieldException(
-                    message=f"Field '{key}' does not exist in the Trabajador model",
+                    message=f"Field '{key}' does not exist in the Employee model",
                     details=f"Valid fields are: {', '.join([f for f in valid_fields if not f.startswith('_')])}",
                 )
 
-        stmt = select(Trabajador.id)
+        stmt = select(Employee.id)
         for key, value in kwargs.items():
-            stmt = stmt.where(getattr(Trabajador, key) == value)
+            stmt = stmt.where(getattr(Employee, key) == value)
 
         result = await self.session.exec(stmt)
         return result.first() is not None

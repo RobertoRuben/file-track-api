@@ -11,10 +11,7 @@ async def get_employee_repository(
     """
     Dependency function to get the employee repository implementation.
 
-    Args:
-        session: The async database session provided by the FastAPI dependency injection system
-
-    Returns:
-        An implementation of IEmployeeRepository bound to the provided session
+    :param session: The async database session provided by the FastAPI dependency injection system
+    :return: An implementation of IEmployeeRepository bound to the provided session
     """
     return EmployeeRepositoryImpl(session=session)
