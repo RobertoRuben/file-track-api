@@ -6,24 +6,26 @@ class PositionRequestDTO(BaseModel):
     """
     DTO for position creation and update requests.
     Validates position data according to business rules.
+
+    :ivar name: The name of the position
     """
 
-    nombre: str = Field(description="Name of the position", min_length=3)
+    name: str = Field(
+        description="Name of the position", 
+        min_length=3,
+        examples=["Project Manager", "Developer", "Designer"]
+    )
 
-    @field_validator("nombre", mode="before")
+    @field_validator("name", mode="before")
     def strip_and_validate_string(cls, v, info: ValidationInfo):
         """
         Validates that the input is a string and strips whitespace.
 
-        Args:
-            v: The value to validate
-            info: Validation information context
+        :param v: The value to validate
+        :param info: Validation information context
+        :return: The stripped string value
 
-        Returns:
-            The stripped string value
-
-        Raises:
-            ValueError: If the value is not a string or is empty after stripping
+        :raises ValueError: If the value is not a string or is empty after stripping
         """
         field_name = info.field_name.replace("_", " ").title()
 
@@ -36,19 +38,15 @@ class PositionRequestDTO(BaseModel):
 
         return stripped_value
 
-    @field_validator("nombre", mode="after")
+    @field_validator("name", mode="after")
     def validate_name_format(cls, v):
         """
         Validates that the name contains only alphabetic characters and spaces.
 
-        Args:
-            v: The string value to validate
+        :param v: The string value to validate
+        :return: The validated string value
 
-        Returns:
-            The validated string value
-
-        Raises:
-            ValueError: If the name contains invalid characters
+        :raises ValueError: If the name contains invalid characters
         """
         pattern = re.compile(r"^[A-Za-zÁÉÍÓÚáéíóúÑñ][A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$")
         if not pattern.fullmatch(v):
