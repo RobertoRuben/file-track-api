@@ -11,10 +11,10 @@ from src.app.schema import MessageResponse
 from src.app.service.interfaces import ISettlementService
 from src.app.service.dependencies import get_settlement_service
 
-router = APIRouter(prefix="/settlement", tags=["Settlement"])
+router = APIRouter(prefix="/settlement", tags=["Settlements"])
 
 settlement_tags_metadata = {
-    "name": "Settlement",
+    "name": "Settlements",
     "description": "Manages settlements within the system. These operations allow creating, retrieving, "
     "updating, and deleting settlements, as well as searching and listing them with pagination.",
 }

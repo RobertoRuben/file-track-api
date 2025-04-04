@@ -12,10 +12,10 @@ from src.app.schema import MessageResponse
 from src.app.service.interfaces import IUserService
 from src.app.service.dependencies import get_user_service
 
-router = APIRouter(prefix="/user", tags=["User"])
+router = APIRouter(prefix="/user", tags=["Users"])
 
 user_tags_metadata = {
-    "name": "User",
+    "name": "Users",
     "description": "Manages users within the system. These operations allow creating, retrieving, "
     "updating, and deleting users, as well as searching and listing them with pagination.",
 }

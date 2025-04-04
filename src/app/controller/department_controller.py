@@ -11,10 +11,10 @@ from src.app.schema import MessageResponse
 from src.app.service.interfaces import IDepartmentService
 from src.app.service.dependencies import get_department_service
 
-router = APIRouter(prefix="/department", tags=["Department"])
+router = APIRouter(prefix="/department", tags=["Departments"])
 
 department_tags_metadata = {
-    "name": "Department",
+    "name": "Departments",
     "description": "Manages organizational departments within the system. "
     "These departments represent the structural units of the organization "
     "and are related to employees and interdepartmental connections. "
