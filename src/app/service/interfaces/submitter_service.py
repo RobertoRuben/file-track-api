@@ -17,11 +17,8 @@ class ISubmitterService(ABC):
         """
         Adds a new submitter.
 
-        Args:
-            submitter_request: The DTO containing submitter details.
-
-        Returns:
-            The created submitter as SubmitterResponseDTO.
+        :param submitter_request: The DTO containing submitter details
+        :return: The created submitter as SubmitterResponseDTO
         """
         pass
 
@@ -30,8 +27,7 @@ class ISubmitterService(ABC):
         """
         Retrieves all submitters.
 
-        Returns:
-            A list of SubmitterResponseDTO objects representing all submitters.
+        :return: A list of SubmitterResponseDTO objects representing all submitters
         """
         pass
 
@@ -42,12 +38,9 @@ class ISubmitterService(ABC):
         """
         Updates an existing submitter.
 
-        Args:
-            submitter_id: The ID of the submitter to update.
-            submitter_request: The DTO containing updated submitter details.
-
-        Returns:
-            The updated submitter as SubmitterResponseDTO.
+        :param submitter_id: The ID of the submitter to update
+        :param submitter_request: The DTO containing updated submitter details
+        :return: The updated submitter as SubmitterResponseDTO
         """
         pass
 
@@ -56,11 +49,8 @@ class ISubmitterService(ABC):
         """
         Deletes a submitter by its ID.
 
-        Args:
-            submitter_id: The ID of the submitter to delete.
-
-        Returns:
-            A MessageResponse indicating the result of the deletion.
+        :param submitter_id: The ID of the submitter to delete
+        :return: A MessageResponse indicating the result of the deletion
         """
         pass
 
@@ -69,11 +59,8 @@ class ISubmitterService(ABC):
         """
         Retrieves a submitter by its ID.
 
-        Args:
-            submitter_id: The ID of the submitter to retrieve.
-
-        Returns:
-            The submitter as SubmitterResponseDTO.
+        :param submitter_id: The ID of the submitter to retrieve
+        :return: The submitter as SubmitterResponseDTO
         """
         pass
 
@@ -82,12 +69,9 @@ class ISubmitterService(ABC):
         """
         Retrieves a paginated list of submitters.
 
-        Args:
-            page: The page number to retrieve.
-            size: The number of submitters per page.
-
-        Returns:
-            A SubmitterPage object containing the paginated submitters.
+        :param page: The page number to retrieve
+        :param size: The number of submitters per page
+        :return: A SubmitterPage object containing the paginated submitters
         """
         pass
 
@@ -96,12 +80,9 @@ class ISubmitterService(ABC):
         """
         Searches for submitters based on search criteria.
 
-        Args:
-            page: The page number to retrieve.
-            size: The number of submitters per page.
-            search_term: The term to search for in submitter names or other fields.
-
-        Returns:
-            A SubmitterPage object containing submitters that match the search criteria.
+        :param page: The page number to retrieve
+        :param size: The number of submitters per page
+        :param search_term: The term to search for in submitter names or other fields
+        :return: A SubmitterPage object containing submitters that match the search criteria
         """
         pass

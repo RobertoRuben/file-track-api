@@ -1,5 +1,5 @@
 from datetime import datetime
-from src.app.model.entity import Remitente
+from src.app.model.entity import Submitter
 from src.app.dto.request import SubmitterRequestDTO
 from src.app.dto.response import SubmitterResponseDTO, SubmitterPage
 from src.app.schema import MessageResponse
@@ -15,14 +15,13 @@ class SubmitterServiceImpl(ISubmitterService):
     Handles business logic for submitter operations.
     """
 
-    def __init__(self, repository: ISubmitterRepository):
+    def __init__(self, submitter_repository: ISubmitterRepository):
         """
         Initializes the Submitter Service with a repository.
 
-        Args:
-            repository: The repository for submitter data access
+        :param submitter_repository: The repository for submitter data access
         """
-        self.repository = repository
+        self.submitter_repository = submitter_repository
 
     @handle_exceptions
     async def add_submitter(
@@ -31,38 +30,35 @@ class SubmitterServiceImpl(ISubmitterService):
         """
         Adds a new submitter to the system.
 
-        Args:
-            submitter_request: DTO containing the submitter details
-
-        Returns:
-            DTO with the created submitter data
-
-        Raises:
-            ConflictException: If a submitter with the same DNI already exists
+        :param submitter_request: DTO containing the submitter details
+        :return: DTO with the created submitter data
+        :raises ConflictException: If a submitter with the same DNI already exists
         """
-        existing_submitter = await self.repository.exists_by(dni=submitter_request.dni)
+        existing_submitter = await self.submitter_repository.exists_by(
+            dni=submitter_request.dni
+        )
         if existing_submitter:
             raise ConflictException(
                 details=f"Submitter with DNI {submitter_request.dni} already exists",
             )
 
-        new_submitter = Remitente(
+        new_submitter = Submitter(
             dni=submitter_request.dni,
-            nombres=submitter_request.nombres,
-            apellido_paterno=submitter_request.apellido_paterno,
-            apellido_materno=submitter_request.apellido_materno,
-            genero=submitter_request.genero.value,
+            names=submitter_request.names,
+            paternal_surname=submitter_request.paternal_surname,
+            maternal_surname=submitter_request.maternal_surname,
+            gender=submitter_request.gender.value,
         )
 
-        created_submitter = await self.repository.save(new_submitter)
+        created_submitter = await self.submitter_repository.save(new_submitter)
 
         return SubmitterResponseDTO(
             id=created_submitter.id,
             dni=created_submitter.dni,
-            nombres=created_submitter.nombres,
-            apellido_paterno=created_submitter.apellido_paterno,
-            apellido_materno=created_submitter.apellido_materno,
-            genero=created_submitter.genero,
+            names=created_submitter.names,
+            paternal_surname=created_submitter.paternal_surname,
+            maternal_surname=created_submitter.maternal_surname,
+            gender=created_submitter.gender,
             created_at=created_submitter.created_at,
             updated_at=created_submitter.updated_at,
         )
@@ -72,18 +68,17 @@ class SubmitterServiceImpl(ISubmitterService):
         """
         Retrieves all submitters from the database.
 
-        Returns:
-            List of DTOs containing all submitters
+        :return: List of DTOs containing all submitters
         """
-        submitters = await self.repository.get_all()
+        submitters = await self.submitter_repository.get_all()
         return [
             SubmitterResponseDTO(
                 id=submitter.id,
                 dni=submitter.dni,
-                nombres=submitter.nombres,
-                apellido_paterno=submitter.apellido_paterno,
-                apellido_materno=submitter.apellido_materno,
-                genero=submitter.genero,
+                names=submitter.names,
+                paternal_surname=submitter.paternal_surname,
+                maternal_surname=submitter.maternal_surname,
+                gender=submitter.gender,
                 created_at=submitter.created_at,
                 updated_at=submitter.updated_at,
             )
@@ -97,26 +92,21 @@ class SubmitterServiceImpl(ISubmitterService):
         """
         Updates an existing submitter.
 
-        Args:
-            submitter_id: ID of the submitter to update
-            submitter_request: DTO containing the updated submitter details
-
-        Returns:
-            DTO with the updated submitter data
-
-        Raises:
-            NotFoundException: If the submitter with the given ID doesn't exist
-            ConflictException: If another submitter with the same DNI already exists
+        :param submitter_id: ID of the submitter to update
+        :param submitter_request: DTO containing the updated submitter details
+        :return: DTO with the updated submitter data
+        :raises NotFoundException: If the submitter with the given ID doesn't exist
+        :raises ConflictException: If another submitter with the same DNI already exists
         """
-        exists_submitter_id = await self.repository.exists_by(id=submitter_id)
+        exists_submitter_id = await self.submitter_repository.exists_by(id=submitter_id)
         if not exists_submitter_id:
             raise NotFoundException(
                 details=f"Submitter with id {submitter_id} not found",
             )
-        submitter = await self.repository.get_by_id(submitter_id)
+        submitter = await self.submitter_repository.get_by_id(submitter_id)
 
         if submitter.dni != submitter_request.dni:
-            existing_submitter = await self.repository.exists_by(
+            existing_submitter = await self.submitter_repository.exists_by(
                 dni=submitter_request.dni
             )
             if existing_submitter:
@@ -125,21 +115,21 @@ class SubmitterServiceImpl(ISubmitterService):
                 )
 
         submitter.dni = submitter_request.dni
-        submitter.nombres = submitter_request.nombres
-        submitter.apellido_paterno = submitter_request.apellido_paterno
-        submitter.apellido_materno = submitter_request.apellido_materno
-        submitter.genero = submitter_request.genero.value
+        submitter.names = submitter_request.names
+        submitter.paternal_surname = submitter_request.paternal_surname
+        submitter.maternal_surname = submitter_request.maternal_surname
+        submitter.gender = submitter_request.gender.value
         submitter.updated_at = datetime.now()
 
-        updated_submitter = await self.repository.save(submitter)
+        updated_submitter = await self.submitter_repository.save(submitter)
 
         return SubmitterResponseDTO(
             id=updated_submitter.id,
             dni=updated_submitter.dni,
-            nombres=updated_submitter.nombres,
-            apellido_paterno=updated_submitter.apellido_paterno,
-            apellido_materno=updated_submitter.apellido_materno,
-            genero=updated_submitter.genero,
+            names=updated_submitter.names,
+            paternal_surname=updated_submitter.paternal_surname,
+            maternal_surname=updated_submitter.maternal_surname,
+            gender=updated_submitter.gender,
             created_at=updated_submitter.created_at,
             updated_at=updated_submitter.updated_at,
         )
@@ -149,21 +139,18 @@ class SubmitterServiceImpl(ISubmitterService):
         """
         Deletes a submitter by its ID.
 
-        Args:
-            submitter_id: ID of the submitter to delete
-
-        Returns:
-            Message response indicating success or failure
-
-        Raises:
-            NotFoundException: If the submitter with the given ID doesn't exist
+        :param submitter_id: ID of the submitter to delete
+        :return: Message response indicating success or failure
+        :raises NotFoundException: If the submitter with the given ID doesn't exist
         """
-        existing_submitter_id = await self.repository.exists_by(id=submitter_id)
+        existing_submitter_id = await self.submitter_repository.exists_by(
+            id=submitter_id
+        )
         if not existing_submitter_id:
             raise NotFoundException(
                 details=f"Submitter with id {submitter_id} not found",
             )
-        response = await self.repository.delete(submitter_id)
+        response = await self.submitter_repository.delete(submitter_id)
         if response is True:
             return MessageResponse(
                 message="Submitter deleted successfully.",
@@ -184,28 +171,25 @@ class SubmitterServiceImpl(ISubmitterService):
         """
         Retrieves a submitter by its ID.
 
-        Args:
-            submitter_id: ID of the submitter to retrieve
-
-        Returns:
-            DTO with the submitter data
-
-        Raises:
-            NotFoundException: If the submitter with the given ID doesn't exist
+        :param submitter_id: ID of the submitter to retrieve
+        :return: DTO with the submitter data
+        :raises NotFoundException: If the submitter with the given ID doesn't exist
         """
-        existing_submitter_id = await self.repository.exists_by(id=submitter_id)
+        existing_submitter_id = await self.submitter_repository.exists_by(
+            id=submitter_id
+        )
         if not existing_submitter_id:
             raise NotFoundException(
                 details=f"Submitter with id {submitter_id} not found",
             )
-        submitter = await self.repository.get_by_id(submitter_id)
+        submitter = await self.submitter_repository.get_by_id(submitter_id)
         return SubmitterResponseDTO(
             id=submitter.id,
             dni=submitter.dni,
-            nombres=submitter.nombres,
-            apellido_paterno=submitter.apellido_paterno,
-            apellido_materno=submitter.apellido_materno,
-            genero=submitter.genero,
+            names=submitter.names,
+            paternal_surname=submitter.paternal_surname,
+            maternal_surname=submitter.maternal_surname,
+            gender=submitter.gender,
             created_at=submitter.created_at,
             updated_at=submitter.updated_at,
         )
@@ -215,15 +199,10 @@ class SubmitterServiceImpl(ISubmitterService):
         """
         Retrieves a paginated list of submitters.
 
-        Args:
-            page: Page number to retrieve
-            size: Number of items per page
-
-        Returns:
-            Paginated submitters with metadata
-
-        Raises:
-            BadRequestException: If page or size parameters are invalid
+        :param page: Page number to retrieve
+        :param size: Number of items per page
+        :return: Paginated submitters with metadata
+        :raises BadRequestException: If page or size parameters are invalid
         """
         if page < 1:
             raise BadRequestException(
@@ -236,15 +215,15 @@ class SubmitterServiceImpl(ISubmitterService):
                 details="Size number must be greater than 0",
             )
 
-        page_result = await self.repository.get_pageable(page, size)
+        page_result = await self.submitter_repository.get_pageable(page, size)
         submitter_response = [
             SubmitterResponseDTO(
                 id=submitter.id,
                 dni=submitter.dni,
-                nombres=submitter.nombres,
-                apellido_paterno=submitter.apellido_paterno,
-                apellido_materno=submitter.apellido_materno,
-                genero=submitter.genero,
+                names=submitter.names,
+                paternal_surname=submitter.paternal_surname,
+                maternal_surname=submitter.maternal_surname,
+                gender=submitter.gender,
                 created_at=submitter.created_at,
                 updated_at=submitter.updated_at,
             )
@@ -261,17 +240,12 @@ class SubmitterServiceImpl(ISubmitterService):
         """
         Searches for submitters matching the given search term.
 
-        Args:
-            page: Page number to retrieve
-            size: Number of items per page
-            search_term: Term to search for in submitter names or DNI
-
-        Returns:
-            Paginated submitters matching the search criteria
-
-        Raises:
-            BadRequestException: If page or size parameters are invalid
-            NotFoundException: If no submitters match the search criteria
+        :param page: Page number to retrieve
+        :param size: Number of items per page
+        :param search_term: Term to search for in submitter names or DNI
+        :return: Paginated submitters matching the search criteria
+        :raises BadRequestException: If page or size parameters are invalid
+        :raises NotFoundException: If no submitters match the search criteria
         """
         if page < 1:
             raise BadRequestException(
@@ -284,15 +258,15 @@ class SubmitterServiceImpl(ISubmitterService):
                 details="Size number must be greater than 0",
             )
 
-        # Se busca en nombres, apellidos y DNI
+        # Search in names, surnames and DNI
         search_dict = {
-            "nombres": search_term,
-            "apellido_paterno": search_term,
-            "apellido_materno": search_term,
+            "names": search_term,
+            "paternal_surname": search_term,
+            "maternal_surname": search_term,
             "dni": search_term if search_term and search_term.isdigit() else None,
         }
 
-        page_result = await self.repository.find(page, size, search_dict)
+        page_result = await self.submitter_repository.find(page, size, search_dict)
 
         if not page_result.data:
             raise NotFoundException(
@@ -303,10 +277,10 @@ class SubmitterServiceImpl(ISubmitterService):
             SubmitterResponseDTO(
                 id=submitter.id,
                 dni=submitter.dni,
-                nombres=submitter.nombres,
-                apellido_paterno=submitter.apellido_paterno,
-                apellido_materno=submitter.apellido_materno,
-                genero=submitter.genero,
+                names=submitter.names,
+                paternal_surname=submitter.paternal_surname,
+                maternal_surname=submitter.maternal_surname,
+                gender=submitter.gender,
                 created_at=submitter.created_at,
                 updated_at=submitter.updated_at,
             )
