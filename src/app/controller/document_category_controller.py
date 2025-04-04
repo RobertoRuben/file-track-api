@@ -33,10 +33,14 @@ document_category_tags_metadata = {
             "description": "Document category created successfully",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
-        409: {"model": ConflictError, "description": "Document category already exists"},
+        409: {
+            "model": ConflictError,
+            "description": "Document category already exists",
+        },
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Creates a new document category in the system. The category name must be unique and contain only alphabetic characters.",
+    description="Creates a new document category in the system. The category name must be unique and contain only "
+    "alphabetic characters.",
 )
 async def create_document_category(
     document_category_request: DocumentCategoryRequestDTO,
@@ -55,7 +59,9 @@ async def create_document_category(
     :param document_category_service: Service that handles the document category creation logic
     :return: The data of the created document category
     """
-    return await document_category_service.add_document_category(document_category_request)
+    return await document_category_service.add_document_category(
+        document_category_request
+    )
 
 
 @router.get(
@@ -70,7 +76,8 @@ async def create_document_category(
         400: {"model": BackRequestError, "description": "Bad request error"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete list of all document categories registered in the system, including their identifiers, names, and timestamps.",
+    description="Retrieves the complete list of all document categories registered in the system, including their "
+    "identifiers, names, and timestamps.",
 )
 async def get_all_document_categories(
     document_category_service: IDocumentCategoryService = Depends(
@@ -101,7 +108,8 @@ async def get_all_document_categories(
         400: {"model": BackRequestError, "description": "Bad request error"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves document categories in a paginated format to manage large data sets, allowing navigation through pages and control over the number of records per page.",
+    description="Retrieves document categories in a paginated format to manage large data sets, allowing navigation "
+    "through pages and control over the number of records per page.",
 )
 async def get_paginated_document_categories(
     page: int = Query(default=1, description="Page number to retrieve"),
@@ -137,7 +145,8 @@ async def get_paginated_document_categories(
         404: {"model": NotFoundError, "description": "Document category not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Performs document category searches based on a keyword or phrase. Results are returned paginated for better management of search results.",
+    description="Performs document category searches based on a keyword or phrase. Results are returned paginated for "
+    "better management of search results.",
 )
 async def find_document_categories(
     search_term: str | None = Query(
@@ -195,7 +204,9 @@ async def get_document_category_by_id(
     :param document_category_service: Service to handle the query and retrieve the document category
     :return: The document category details
     """
-    return await document_category_service.get_document_category_by_id(document_category_id)
+    return await document_category_service.get_document_category_by_id(
+        document_category_id
+    )
 
 
 @router.put(
@@ -209,10 +220,14 @@ async def get_document_category_by_id(
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
         404: {"model": NotFoundError, "description": "Document category not found"},
-        409: {"model": ConflictError, "description": "Document category name already exists"},
+        409: {
+            "model": ConflictError,
+            "description": "Document category name already exists",
+        },
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Updates the details of an existing document category identified by its ID. Verifies that the new name is not already in use by another category.",
+    description="Updates the details of an existing document category identified by its ID. Verifies that the new name "
+    "is not already in use by another category.",
 )
 async def update_document_category(
     document_category_id: int,
@@ -251,7 +266,8 @@ async def update_document_category(
         404: {"model": NotFoundError, "description": "Document category not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Deletes a specific document category from the system using its ID. This operation is irreversible and may affect document classifications.",
+    description="Deletes a specific document category from the system using its ID. This operation is irreversible and "
+    "may affect document classifications.",
 )
 async def delete_document_category(
     document_category_id: int,
@@ -269,4 +285,6 @@ async def delete_document_category(
     :param document_category_service: Service to handle the delete logic
     :return: A success message indicating that the document category has been deleted
     """
-    return await document_category_service.delete_document_category(document_category_id)
+    return await document_category_service.delete_document_category(
+        document_category_id
+    )
