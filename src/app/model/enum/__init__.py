@@ -1,4 +1,4 @@
-from .genero_enum import GeneroEnum
+from .gender_enum import GeneroEnum
 from .status_enum import StatusEnum
 
 __all__ = [

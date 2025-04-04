@@ -9,9 +9,9 @@ class GeneroEnum(Enum):
     It is used by entities such as Remitente that require gender specification.
 
     Attributes:
-        Masculino: Represents male gender.
-        Femenino: Represents female gender.
+        MALE: Represents male gender.
+        FEMALE: Represents female gender.
     """
 
-    Masculino = "Masculino"
-    Femenino = "Femenino"
+    MALE = "Male"
+    FEMALE = "Female"
