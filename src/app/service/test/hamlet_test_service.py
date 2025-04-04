@@ -1,9 +1,9 @@
 import pytest
 from datetime import datetime
 from unittest.mock import AsyncMock
-from src.app.model.entity import Caserio
+from src.app.model.entity import Hamlet
 from src.app.dto.request import HamletRequestDTO
-from src.app.dto.response import HamletResponseDto, HamletPage
+from src.app.dto.response import HamletResponseDTO, HamletPage
 from src.app.service.implementations import HamletServiceImpl
 from src.app.exception import ConflictException, NotFoundException, BadRequestException
 from src.app.schema import Page, Pagination, MessageResponse
@@ -15,8 +15,7 @@ class TestHamletServiceImpl:
         """
         Creates a mock repository for testing the hamlet service.
 
-        Returns:
-            A mock hamlet repository with predefined async methods.
+        :return: A mock hamlet repository with predefined async methods
         """
         mock_repository = AsyncMock()
         return mock_repository
@@ -26,8 +25,7 @@ class TestHamletServiceImpl:
         """
         Creates a mock settlement repository for testing the hamlet service.
 
-        Returns:
-            A mock settlement repository with predefined async methods.
+        :return: A mock settlement repository with predefined async methods
         """
         mock_repository = AsyncMock()
         return mock_repository
@@ -37,15 +35,12 @@ class TestHamletServiceImpl:
         """
         Creates a hamlet service instance for testing.
 
-        Args:
-            hamlet_repository: The mock hamlet repository to inject.
-            settlement_repository: The mock settlement repository to inject.
-
-        Returns:
-            An instance of HamletServiceImpl with the mock repositories.
+        :param hamlet_repository: The mock hamlet repository to inject
+        :param settlement_repository: The mock settlement repository to inject
+        :return: An instance of HamletServiceImpl with the mock repositories
         """
         return HamletServiceImpl(
-            repository=hamlet_repository,
+            hamlet_repository=hamlet_repository,
             settlement_repository=settlement_repository,
         )
 
@@ -54,12 +49,11 @@ class TestHamletServiceImpl:
         """
         Creates a sample hamlet request DTO.
 
-        Returns:
-            A HamletRequestDTO instance with test data.
+        :return: A HamletRequestDTO instance with test data
         """
         return HamletRequestDTO(
-            nombre="San Miguel",
-            centro_poblado_id=1,
+            name="San Miguel",
+            settlement_id=1,
         )
 
     @pytest.fixture
@@ -67,13 +61,12 @@ class TestHamletServiceImpl:
         """
         Creates a sample hamlet entity.
 
-        Returns:
-            A Caserio instance with test data.
+        :return: A Hamlet instance with test data
         """
-        return Caserio(
+        return Hamlet(
             id=1,
-            nombre="San Miguel",
-            centro_poblado_id=1,
+            name="San Miguel",
+            settlement_id=1,
             created_at=datetime.now(),
             updated_at=None,
         )
@@ -90,7 +83,7 @@ class TestHamletServiceImpl:
         """
         Tests successful hamlet creation.
         """
-        print(f"\n🔹 Creating new hamlet: '{hamlet_request_dto.nombre}' 🔹")
+        print(f"\n🔹 Creating new hamlet: '{hamlet_request_dto.name}' 🔹")
 
         # Configure mocks
         hamlet_repository.exists_by = AsyncMock(return_value=False)
@@ -102,17 +95,17 @@ class TestHamletServiceImpl:
         print(f"✅ Hamlet successfully created with ID: {result.id}")
 
         # Verify results
-        assert isinstance(result, HamletResponseDto)
+        assert isinstance(result, HamletResponseDTO)
         assert result.id == hamlet_entity.id
-        assert result.nombre == hamlet_entity.nombre
-        assert result.centro_poblado_id == hamlet_entity.centro_poblado_id
+        assert result.name == hamlet_entity.name
+        assert result.settlement_id == hamlet_entity.settlement_id
 
         # Verify method calls
         hamlet_repository.exists_by.assert_called_once_with(
-            nombre=hamlet_request_dto.nombre
+            name=hamlet_request_dto.name
         )
         settlement_repository.exists_by.assert_called_once_with(
-            id=hamlet_request_dto.centro_poblado_id
+            id=hamlet_request_dto.settlement_id
         )
         hamlet_repository.save.assert_called_once()
 
@@ -124,7 +117,7 @@ class TestHamletServiceImpl:
         Tests hamlet creation with a name that already exists.
         """
         print(
-            f"\n🔹 Attempting to create hamlet with existing name: '{hamlet_request_dto.nombre}' 🔹"
+            f"\n🔹 Attempting to create hamlet with existing name: '{hamlet_request_dto.name}' 🔹"
         )
 
         # Configure mocks
@@ -136,13 +129,13 @@ class TestHamletServiceImpl:
         print(f"⚠️ Conflict detected: {exc_info.value}")
 
         # Verify the exception message
-        assert f"Hamlet with name {hamlet_request_dto.nombre} already exists" in str(
+        assert f"Hamlet with name {hamlet_request_dto.name} already exists" in str(
             exc_info.value
         )
 
         # Verify method calls
         hamlet_repository.exists_by.assert_called_once_with(
-            nombre=hamlet_request_dto.nombre
+            name=hamlet_request_dto.name
         )
         hamlet_repository.save.assert_not_called()
 
@@ -158,7 +151,7 @@ class TestHamletServiceImpl:
         Tests hamlet creation with a non-existent settlement ID.
         """
         print(
-            f"\n🔹 Attempting to create hamlet with non-existent settlement ID: {hamlet_request_dto.centro_poblado_id} 🔹"
+            f"\n🔹 Attempting to create hamlet with non-existent settlement ID: {hamlet_request_dto.settlement_id} 🔹"
         )
 
         # Configure mocks
@@ -172,16 +165,16 @@ class TestHamletServiceImpl:
 
         # Verify the exception message
         assert (
-            f"Population center with ID {hamlet_request_dto.centro_poblado_id} does not exist"
+            f"Settlement with ID {hamlet_request_dto.settlement_id} does not exist"
             in str(exc_info.value)
         )
 
         # Verify method calls
         hamlet_repository.exists_by.assert_called_once_with(
-            nombre=hamlet_request_dto.nombre
+            name=hamlet_request_dto.name
         )
         settlement_repository.exists_by.assert_called_once_with(
-            id=hamlet_request_dto.centro_poblado_id
+            id=hamlet_request_dto.settlement_id
         )
         hamlet_repository.save.assert_not_called()
 
@@ -197,10 +190,10 @@ class TestHamletServiceImpl:
         # Create test data
         hamlets = [
             hamlet_entity,
-            Caserio(
+            Hamlet(
                 id=2,
-                nombre="El Paraíso",
-                centro_poblado_id=2,
+                name="El Paraíso",
+                settlement_id=2,
                 created_at=datetime.now(),
                 updated_at=None,
             ),
@@ -216,11 +209,11 @@ class TestHamletServiceImpl:
         # Verify results
         assert isinstance(result, list)
         assert len(result) == 2
-        assert all(isinstance(hamlet, HamletResponseDto) for hamlet in result)
+        assert all(isinstance(hamlet, HamletResponseDTO) for hamlet in result)
         assert result[0].id == 1
-        assert result[0].nombre == "San Miguel"
+        assert result[0].name == "San Miguel"
         assert result[1].id == 2
-        assert result[1].nombre == "El Paraíso"
+        assert result[1].name == "El Paraíso"
 
         # Verify method calls
         hamlet_repository.get_all.assert_called_once()
@@ -240,15 +233,15 @@ class TestHamletServiceImpl:
 
         # Create updated request
         updated_request = HamletRequestDTO(
-            nombre="San Miguel Actualizado",
-            centro_poblado_id=1,
+            name="San Miguel Actualizado",
+            settlement_id=1,
         )
 
         # Create updated entity
-        updated_entity = Caserio(
+        updated_entity = Hamlet(
             id=1,
-            nombre="San Miguel Actualizado",
-            centro_poblado_id=1,
+            name="San Miguel Actualizado",
+            settlement_id=1,
             created_at=hamlet_entity.created_at,
             updated_at=datetime.now(),
         )
@@ -263,19 +256,19 @@ class TestHamletServiceImpl:
 
         # Execute test
         result = await hamlet_service.update_hamlet(1, updated_request)
-        print(f"✅ Hamlet successfully updated: {result.nombre}")
+        print(f"✅ Hamlet successfully updated: {result.name}")
 
         # Verify results
-        assert isinstance(result, HamletResponseDto)
+        assert isinstance(result, HamletResponseDTO)
         assert result.id == 1
-        assert result.nombre == "San Miguel Actualizado"
+        assert result.name == "San Miguel Actualizado"
         assert result.updated_at is not None
 
         # Verify method calls
         hamlet_repository.exists_by.assert_any_call(id=1)
         hamlet_repository.get_by_id.assert_called_once_with(1)
         settlement_repository.exists_by.assert_called_once_with(
-            id=updated_request.centro_poblado_id
+            id=updated_request.settlement_id
         )
         hamlet_repository.save.assert_called_once()
 
@@ -288,8 +281,8 @@ class TestHamletServiceImpl:
 
         # Create update request
         updated_request = HamletRequestDTO(
-            nombre="San Miguel Actualizado",
-            centro_poblado_id=1,
+            name="San Miguel Actualizado",
+            settlement_id=1,
         )
 
         # Configure mocks
@@ -318,8 +311,8 @@ class TestHamletServiceImpl:
 
         # Create update request with new name
         updated_request = HamletRequestDTO(
-            nombre="El Paraíso",  # Different from current name
-            centro_poblado_id=1,
+            name="El Paraíso",  # Different from current name
+            settlement_id=1,
         )
 
         # Configure mocks
@@ -334,13 +327,13 @@ class TestHamletServiceImpl:
         print(f"⚠️ Conflict detected: {exc_info.value}")
 
         # Verify the exception message
-        assert f"Hamlet with name {updated_request.nombre} already exists" in str(
+        assert f"Hamlet with name {updated_request.name} already exists" in str(
             exc_info.value
         )
 
         # Verify method calls
         hamlet_repository.exists_by.assert_any_call(id=1)
-        hamlet_repository.exists_by.assert_any_call(nombre=updated_request.nombre)
+        hamlet_repository.exists_by.assert_any_call(name=updated_request.name)
         hamlet_repository.save.assert_not_called()
 
     @pytest.mark.asyncio
@@ -404,12 +397,12 @@ class TestHamletServiceImpl:
 
         # Execute test
         result = await hamlet_service.get_hamlet_by_id(1)
-        print(f"✅ Hamlet found: '{result.nombre}'")
+        print(f"✅ Hamlet found: '{result.name}'")
 
         # Verify results
-        assert isinstance(result, HamletResponseDto)
+        assert isinstance(result, HamletResponseDTO)
         assert result.id == 1
-        assert result.nombre == "San Miguel"
+        assert result.name == "San Miguel"
 
         # Verify method calls
         hamlet_repository.exists_by.assert_called_once_with(id=1)
@@ -447,20 +440,22 @@ class TestHamletServiceImpl:
         print("\n🔹 Getting hamlets with pagination (page: 1, size: 10) 📄")
 
         hamlets_data = [
-            Caserio(
-                id=1,
-                nombre="San Miguel",
-                centro_poblado_id=1,
-                created_at=datetime.now(),
-                updated_at=None,
-            ),
-            Caserio(
-                id=2,
-                nombre="El Paraíso",
-                centro_poblado_id=2,
-                created_at=datetime.now(),
-                updated_at=None,
-            ),
+            {
+                "id": 1,
+                "name": "San Miguel",
+                "settlement_id": 1,
+                "settlement_name": "Central Settlement",
+                "created_at": datetime.now(),
+                "updated_at": None,
+            },
+            {
+                "id": 2,
+                "name": "El Paraíso",
+                "settlement_id": 2,
+                "settlement_name": "Northern Settlement",
+                "created_at": datetime.now(),
+                "updated_at": None,
+            },
         ]
 
         pagination = Pagination(
@@ -516,13 +511,14 @@ class TestHamletServiceImpl:
         print("\n🔹 Searching for hamlets with search criteria 🔍")
 
         hamlets_data = [
-            Caserio(
-                id=1,
-                nombre="San Miguel",
-                centro_poblado_id=1,
-                created_at=datetime.now(),
-                updated_at=None,
-            )
+            {
+                "id": 1,
+                "name": "San Miguel",
+                "settlement_id": 1,
+                "settlement_name": "Central Settlement",
+                "created_at": datetime.now(),
+                "updated_at": None,
+            }
         ]
 
         pagination = Pagination(
@@ -544,7 +540,7 @@ class TestHamletServiceImpl:
 
         assert isinstance(result, HamletPage)
         assert len(result.data) == 1
-        assert result.data[0].nombre == "San Miguel"
+        assert result.data[0].name == "San Miguel"
         assert result.meta.total == 1
 
         hamlet_repository.find.assert_called_once()
