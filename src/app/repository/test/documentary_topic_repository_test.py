@@ -26,7 +26,7 @@ def documentary_topic_repository(mock_session):
 @pytest.fixture
 def documentary_topic_sample():
     return DocumentaryTopic(
-        id=1, nombre="Legal Documentation", created_at=datetime.now(), updated_at=None
+        id=1, name="Legal Documentation", created_at=datetime.now(), updated_at=None
     )
 
 
@@ -44,7 +44,7 @@ class TestDocumentaryTopicRepositoryImpl:
         mock_session.add.assert_called_once_with(documentary_topic_sample)
         assert result == documentary_topic_sample
         print(
-            f"✅ Documentary topic saved successfully: ID={result.id}, Name='{result.nombre}'"
+            f"✅ Documentary topic saved successfully: ID={result.id}, Name='{result.name}'"
         )
 
     @pytest.mark.asyncio
@@ -76,8 +76,8 @@ class TestDocumentaryTopicRepositoryImpl:
         print("🧪 Testing retrieval of all documentary topics...")
 
         topics = [
-            DocumentaryTopic(id=1, nombre="Legal Documentation"),
-            DocumentaryTopic(id=2, nombre="Technical Documentation"),
+            DocumentaryTopic(id=1, name="Legal Documentation"),
+            DocumentaryTopic(id=2, name="Technical Documentation"),
         ]
 
         documentary_topic_repository.get_all = AsyncMock(return_value=topics)
@@ -85,11 +85,11 @@ class TestDocumentaryTopicRepositoryImpl:
         result = await documentary_topic_repository.get_all()
 
         assert len(result) == 2
-        assert result[0].nombres == "Legal Documentation"
-        assert result[1].nombres == "Technical Documentation"
+        assert result[0].name == "Legal Documentation"
+        assert result[1].name == "Technical Documentation"
         print(f"✅ All documentary topics retrieved: {len(result)} topics found")
         for i, topic in enumerate(result):
-            print(f"   - Topic {i+1}: ID={topic.id}, Name='{topic.nombres}'")
+            print(f"   - Topic {i+1}: ID={topic.id}, Name='{topic.name}'")
 
     @pytest.mark.asyncio
     async def test_delete_success(
@@ -107,7 +107,7 @@ class TestDocumentaryTopicRepositoryImpl:
         assert result is True
         mock_session.delete.assert_called_once_with(documentary_topic_sample)
         print(
-            f"✅ Documentary topic deleted successfully: ID=1, Name='{documentary_topic_sample.nombre}'"
+            f"✅ Documentary topic deleted successfully: ID=1, Name='{documentary_topic_sample.name}'"
         )
 
     @pytest.mark.asyncio
@@ -124,9 +124,9 @@ class TestDocumentaryTopicRepositoryImpl:
         result = await documentary_topic_repository.get_by_id(1)
 
         assert result == documentary_topic_sample
-        assert result.nombres == "Legal Documentation"
+        assert result.name == "Legal Documentation"
         print(
-            f"✅ Documentary topic retrieved by ID: ID={result.id}, Name='{result.nombres}'"
+            f"✅ Documentary topic retrieved by ID: ID={result.id}, Name='{result.name}'"
         )
 
     @pytest.mark.asyncio
@@ -137,8 +137,8 @@ class TestDocumentaryTopicRepositoryImpl:
         print("🧪 Testing documentary topic pagination...")
 
         topics = [
-            DocumentaryTopic(id=1, nombre="Legal Documentation"),
-            DocumentaryTopic(id=2, nombre="Technical Documentation"),
+            DocumentaryTopic(id=1, name="Legal Documentation"),
+            DocumentaryTopic(id=2, name="Technical Documentation"),
         ]
 
         pagination_info = Pagination(
@@ -165,7 +165,7 @@ class TestDocumentaryTopicRepositoryImpl:
             f"showing {len(result.data)} of {result.meta.total} topics"
         )
         for i, topic in enumerate(result.data):
-            print(f"   - Topic {i+1}: ID={topic.id}, Name='{topic.nombres}'")
+            print(f"   - Topic {i+1}: ID={topic.id}, Name='{topic.name}'")
 
     @pytest.mark.asyncio
     async def test_exists_by_success(self, documentary_topic_repository, mock_session):
@@ -175,7 +175,7 @@ class TestDocumentaryTopicRepositoryImpl:
         documentary_topic_repository.exists_by = AsyncMock(return_value=True)
 
         result = await documentary_topic_repository.exists_by(
-            nombre="Legal Documentation"
+            name="Legal Documentation"
         )
 
         assert result is True
@@ -192,9 +192,7 @@ class TestDocumentaryTopicRepositoryImpl:
 
         documentary_topic_repository.exists_by = AsyncMock(return_value=False)
 
-        result = await documentary_topic_repository.exists_by(
-            nombre="Non-existent Topic"
-        )
+        result = await documentary_topic_repository.exists_by(name="Non-existent Topic")
 
         assert result is False
         print(
@@ -220,7 +218,7 @@ class TestDocumentaryTopicRepositoryImpl:
         """Test to verify that find correctly filters by search criteria."""
         print("🧪 Testing search with filters...")
 
-        topics = [DocumentaryTopic(id=1, nombre="Legal Documentation")]
+        topics = [DocumentaryTopic(id=1, name="Legal Documentation")]
 
         pagination_info = Pagination(
             current_page=1,
@@ -235,20 +233,20 @@ class TestDocumentaryTopicRepositoryImpl:
 
         documentary_topic_repository.find = AsyncMock(return_value=page)
 
-        search_params = {"nombre": "legal"}
+        search_params = {"name": "legal"}
         result = await documentary_topic_repository.find(
             page=1, size=10, search_dict=search_params
         )
 
         assert isinstance(result, Page)
         assert len(result.data) == 1
-        assert result.data[0].nombres == "Legal Documentation"
+        assert result.data[0].name == "Legal Documentation"
         assert result.meta.total == 1
         print(
             f"✅ Search with filters successful: Found {result.meta.total} results for criteria {search_params}"
         )
         for i, topic in enumerate(result.data):
-            print(f"   - Result {i+1}: ID={topic.id}, Name='{topic.nombres}'")
+            print(f"   - Result {i+1}: ID={topic.id}, Name='{topic.name}'")
 
     @pytest.mark.asyncio
     async def test_find_no_results(self, documentary_topic_repository, mock_session):
@@ -268,7 +266,7 @@ class TestDocumentaryTopicRepositoryImpl:
 
         documentary_topic_repository.find = AsyncMock(return_value=page)
 
-        search_params = {"nombre": "nonexistent"}
+        search_params = {"name": "nonexistent"}
         result = await documentary_topic_repository.find(
             page=1, size=10, search_dict=search_params
         )
