@@ -43,7 +43,7 @@ class TestSubmitterServiceImpl:
             names="Juan",
             paternal_surname="Pérez",
             maternal_surname="García",
-            gender=GeneroEnum.Masculino,
+            gender=GeneroEnum.MALE,
         )
 
     @pytest.fixture
@@ -167,7 +167,7 @@ class TestSubmitterServiceImpl:
             names="Pedro",
             paternal_surname="Pérez",
             maternal_surname="García",
-            gender=GeneroEnum.Masculino,
+            gender=GeneroEnum.MALE,
         )
         updated_entity = Submitter(
             id=1,
@@ -207,7 +207,7 @@ class TestSubmitterServiceImpl:
             names="Pedro",
             paternal_surname="Pérez",
             maternal_surname="García",
-            gender=GeneroEnum.Masculino,
+            gender=GeneroEnum.MALE,
         )
         submitter_repository.exists_by = AsyncMock(return_value=False)
 
@@ -232,7 +232,7 @@ class TestSubmitterServiceImpl:
             names="Juan",
             paternal_surname="Pérez",
             maternal_surname="García",
-            gender=GeneroEnum.Masculino,
+            gender=GeneroEnum.MALE,
         )
         submitter_repository.exists_by = AsyncMock(side_effect=[True, True])
         submitter_repository.get_by_id = AsyncMock(return_value=submitter_entity)

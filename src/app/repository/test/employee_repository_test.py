@@ -7,7 +7,7 @@ from src.app.dto.response import EmployeeResponseDTO, EmployeePage
 from src.app.service.implementations import EmployeeServiceImpl
 from src.app.exception import ConflictException, NotFoundException, BadRequestException
 from src.app.schema import Page, Pagination, MessageResponse
-from src.app.model.enum.genero_enum import GeneroEnum
+from src.app.model.enum.gender_enum import GeneroEnum
 
 
 class TestEmployeeServiceImpl:
@@ -71,7 +71,7 @@ class TestEmployeeServiceImpl:
             names="John",
             paternal_surname="Doe",
             maternal_surname="Smith",
-            gender=GeneroEnum.Masculino,
+            gender=GeneroEnum.MALE,
             position_id=1,
             department_id=1,
         )
@@ -89,7 +89,7 @@ class TestEmployeeServiceImpl:
             names="John",
             paternal_surname="Doe",
             maternal_surname="Smith",
-            gender=GeneroEnum.Masculino.value,
+            gender=GeneroEnum.MALE.value,
             position_id=1,
             department_id=1,
             created_at=datetime.now(),
@@ -273,7 +273,7 @@ class TestEmployeeServiceImpl:
                 names="Jane",
                 paternal_surname="Smith",
                 maternal_surname="Doe",
-                gender=GeneroEnum.Femenino.value,
+                gender=GeneroEnum.FEMALE.value,
                 position_id=2,
                 department_id=2,
                 created_at=datetime.now(),
@@ -320,7 +320,7 @@ class TestEmployeeServiceImpl:
             names="John Updated",
             paternal_surname="Doe Updated",
             maternal_surname="Smith Updated",
-            gender=GeneroEnum.Masculino,
+            gender=GeneroEnum.MALE,
             position_id=1,
             department_id=1,
         )
@@ -332,7 +332,7 @@ class TestEmployeeServiceImpl:
             names="John Updated",
             paternal_surname="Doe Updated",
             maternal_surname="Smith Updated",
-            gender=GeneroEnum.Masculino.value,
+            gender=GeneroEnum.MALE.value,
             position_id=1,
             department_id=1,
             created_at=employee_entity.created_at,
@@ -385,7 +385,7 @@ class TestEmployeeServiceImpl:
             names="John Updated",
             paternal_surname="Doe Updated",
             maternal_surname="Smith Updated",
-            gender=GeneroEnum.Masculino,
+            gender=GeneroEnum.MALE,
             position_id=1,
             department_id=1,
         )
@@ -420,7 +420,7 @@ class TestEmployeeServiceImpl:
             names="John Updated",
             paternal_surname="Doe Updated",
             maternal_surname="Smith Updated",
-            gender=GeneroEnum.Masculino,
+            gender=GeneroEnum.MALE,
             position_id=1,
             department_id=1,
         )

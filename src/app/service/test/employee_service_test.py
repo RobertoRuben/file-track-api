@@ -7,7 +7,7 @@ from src.app.dto.response import EmployeeResponseDTO, EmployeePage
 from src.app.service.implementations import EmployeeServiceImpl
 from src.app.exception import ConflictException, NotFoundException, BadRequestException
 from src.app.schema import Page, Pagination, MessageResponse
-from src.app.model.enum.genero_enum import GeneroEnum
+from src.app.model.enum.gender_enum import GeneroEnum
 
 
 class TestEmployeeServiceImpl:
@@ -78,7 +78,7 @@ class TestEmployeeServiceImpl:
             nombres="John",
             apellido_paterno="Doe",
             apellido_materno="Smith",
-            genero=GeneroEnum.Masculino,
+            genero=GeneroEnum.MALE,
             cargo_id=1,
             area_id=1,
         )
@@ -97,7 +97,7 @@ class TestEmployeeServiceImpl:
             nombres="John",
             apellido_paterno="Doe",
             apellido_materno="Smith",
-            genero=GeneroEnum.Masculino.value,
+            genero=GeneroEnum.MALE.value,
             cargo_id=1,
             area_id=1,
             created_at=datetime.now(),
@@ -280,7 +280,7 @@ class TestEmployeeServiceImpl:
                 nombres="Jane",
                 apellido_paterno="Smith",
                 apellido_materno="Doe",
-                genero=GeneroEnum.Femenino.value,
+                genero=GeneroEnum.FEMALE.value,
                 cargo_id=2,
                 area_id=2,
                 created_at=datetime.now(),
@@ -327,7 +327,7 @@ class TestEmployeeServiceImpl:
             nombres="John Updated",
             apellido_paterno="Doe Updated",
             apellido_materno="Smith Updated",
-            genero=GeneroEnum.Masculino,
+            genero=GeneroEnum.MALE,
             cargo_id=1,
             area_id=1,
         )
@@ -339,7 +339,7 @@ class TestEmployeeServiceImpl:
             nombres="John Updated",
             apellido_paterno="Doe Updated",
             apellido_materno="Smith Updated",
-            genero=GeneroEnum.Masculino.value,
+            genero=GeneroEnum.MALE.value,
             cargo_id=1,
             area_id=1,
             created_at=employee_entity.created_at,
@@ -390,7 +390,7 @@ class TestEmployeeServiceImpl:
             nombres="John Updated",
             apellido_paterno="Doe Updated",
             apellido_materno="Smith Updated",
-            genero=GeneroEnum.Masculino,
+            genero=GeneroEnum.MALE,
             cargo_id=1,
             area_id=1,
         )
@@ -425,7 +425,7 @@ class TestEmployeeServiceImpl:
             nombres="John Updated",
             apellido_paterno="Doe Updated",
             apellido_materno="Smith Updated",
-            genero=GeneroEnum.Masculino,
+            genero=GeneroEnum.MALE,
             cargo_id=1,
             area_id=1,
         )
