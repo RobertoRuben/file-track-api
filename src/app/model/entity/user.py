@@ -23,17 +23,16 @@ class User(SQLModel, table=True):
     """
     Represents a user of the system.
 
-    Attributes:
-        id: The unique identifier for the user
-        username: The username used for login
-        password: The hashed password for the user
-        is_active: Whether the user account is active or not
-        role_id: The ID of the role assigned to the user
-        employee_id: The ID of the employee associated with the user
-        created_at: The timestamp when the user was created
-        updated_at: The timestamp when the user was last updated
-        role: The role assigned to the user
-        employee: The employee associated with the user
+    :ivar id: The unique identifier for the user
+    :ivar username: The username used for login, must be longer than 3 characters
+    :ivar password: The hashed password for the user, must be at least 8 characters
+    :ivar is_active: Whether the user account is active or not
+    :ivar role_id: The ID of the role assigned to the user
+    :ivar employee_id: The ID of the employee associated with the user
+    :ivar created_at: The timestamp when the user was created
+    :ivar updated_at: The timestamp when the user was last updated
+    :ivar role: The role assigned to the user, relationship to Role entity
+    :ivar employee: The employee associated with the user, relationship to Employee entity
     """
 
     __tablename__ = "users"
