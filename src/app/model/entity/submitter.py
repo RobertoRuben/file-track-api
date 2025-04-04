@@ -15,15 +15,14 @@ class Submitter(SQLModel, table=True):
     """
     Represents a person who submits documents or requests.
 
-    Attributes:
-        id: The unique identifier for the submitter
-        dni: The national identification number of the submitter
-        paternal_surname: The paternal last name of the submitter
-        maternal_surname: The maternal last name of the submitter
-        names: The name(s) of the submitter
-        gender: The gender of the submitter ('Male' or 'Female')
-        created_at: The timestamp when the submitter record was created
-        updated_at: The timestamp when the submitter record was last updated
+    :ivar id: The unique identifier for the submitter
+    :ivar dni: The national identification number of the submitter
+    :ivar paternal_surname: The paternal last name of the submitter
+    :ivar maternal_surname: The maternal last name of the submitter
+    :ivar names: The name(s) of the submitter
+    :ivar gender: The gender of the submitter ('Male' or 'Female')
+    :ivar created_at: The timestamp when the submitter record was created
+    :ivar updated_at: The timestamp when the submitter record was last updated
     """
 
     __tablename__ = "submitters"
