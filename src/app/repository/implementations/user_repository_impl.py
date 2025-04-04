@@ -3,23 +3,24 @@ from sqlmodel import select, func, or_
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.app.repository.decorator import transactional
 from src.app.repository.interfaces import IUserRepository
-from src.app.model.entity import User, Trabajador, Rol
+from src.app.model.entity import User, Employee, Role
 from src.app.exception import invalid_field_exception
 from src.app.schema import Page, Pagination
 
 
 class UserRepositoryImpl(IUserRepository):
     """
-    Repository  implementation for User entity.
+    Repository implementation for User entity.
     Provides methods for CRUD operations, pagination, and searching.
+
+    :ivar session: The database session used for all operations
     """
 
     def __init__(self, session: AsyncSession):
         """
         Initializes the UserRepositoryImpl with an AsyncSession.
 
-        Args:
-            session (AsyncSession): The SQLAlchemy AsyncSession for database operations.
+        :param session: The SQLAlchemy AsyncSession for database operations
         """
         self.session = session
 
@@ -28,11 +29,8 @@ class UserRepositoryImpl(IUserRepository):
         """
         Saves a new user to the database.
 
-        Args:
-            user (User): The User entity to be saved.
-
-        Returns:
-            The saved user.
+        :param user: The User entity to be saved
+        :return: The saved user with updated information
         """
         self.session.add(user)
         return user
@@ -42,8 +40,7 @@ class UserRepositoryImpl(IUserRepository):
         """
         Retrieves all users from the database.
 
-        Returns:
-            A list of User.
+        :return: A list of User entities
         """
         stmt = select(User)
         results = await self.session.exec(stmt)
@@ -55,11 +52,8 @@ class UserRepositoryImpl(IUserRepository):
         """
         Delete a user by ID.
 
-        Args:
-            user_id: The ID of the user to be deleted.
-
-        Returns:
-            True if the user was deleted.
+        :param user_id: The ID of the user to be deleted
+        :return: True if the user was deleted successfully
         """
         user = await self.get_by_id(user_id)
         await self.session.delete(user)
@@ -70,11 +64,8 @@ class UserRepositoryImpl(IUserRepository):
         """
         Retrieve a user by ID.
 
-        Args:
-            user_id: The ID of the user to be retrieved.
-
-        Returns:
-            The User entity with the specified ID.
+        :param user_id: The ID of the user to be retrieved
+        :return: The User entity with the specified ID
         """
         stmt = select(User).where(User.id == user_id)
         result = await self.session.exec(stmt)
@@ -86,11 +77,8 @@ class UserRepositoryImpl(IUserRepository):
         """
         Retrieves a user by username.
 
-        Args:
-            username: The username of the user to retrieve.
-
-        Returns:
-            The User entity with the specified username.
+        :param username: The username of the user to retrieve
+        :return: The User entity with the specified username
         """
         stmt = select(User).where(User.username == username)
         result = await self.session.exec(stmt)
@@ -102,12 +90,9 @@ class UserRepositoryImpl(IUserRepository):
         """
         Retrieves a paginated list of users.
 
-        Args:
-            page: The page number to retrieve.
-            size: The number of users per page.
-
-        Returns:
-            A Page object containing the paginated users.
+        :param page: The page number to retrieve
+        :param size: The number of users per page
+        :return: A Page object containing the paginated users
         """
         offset = (page - 1) * size
         stmt = (
@@ -116,20 +101,20 @@ class UserRepositoryImpl(IUserRepository):
                 User.username,
                 User.employee_id,
                 func.concat(
-                    Trabajador.apellido_paterno,
+                    Employee.paternal_surname,
                     ' ',
-                    Trabajador.apellido_materno,
+                    Employee.maternal_surname,
                     ' ',
-                    Trabajador.nombres,
+                    Employee.names,
                 ).label('employee_name'),
                 User.is_active,
-                User.rol_id,
-                Rol.nombre.label("role_name"),
+                User.role_id,
+                Role.name.label("role_name"),
                 User.created_at,
                 User.updated_at,
             )
-            .join(Trabajador, Trabajador.id == User.employee_id)
-            .join(Rol, Rol.id == User.rol_id)
+            .join(Employee, Employee.id == User.employee_id)
+            .join(Role, Role.id == User.role_id)
         )
         stmt = stmt.offset(offset).limit(size)
         results = await self.session.exec(stmt)
@@ -162,13 +147,10 @@ class UserRepositoryImpl(IUserRepository):
         """
         Retrieves a paginated list of users based on search criteria.
 
-        Args:
-            page: The page number to retrieve.
-            size: The number of users per page.
-            search_dict: Dictionary containing search criteria (role_name, username, employee_name).
-
-        Returns:
-            A Page object containing the paginated users and pagination metadata.
+        :param page: The page number to retrieve
+        :param size: The number of users per page
+        :param search_dict: Dictionary containing search criteria (role_name, username, employee_name)
+        :return: A Page object containing the paginated users and pagination metadata
         """
         offset_value = (page - 1) * size
         conditions = []
@@ -180,26 +162,18 @@ class UserRepositoryImpl(IUserRepository):
                 continue
 
             if field_name == "username":
-                conditions.append(
-                    func.lower(User.username).like(f"%{search_value.lower()}%")
-                )
+                conditions.append(User.username.ilike(f"%{search_value}%"))
 
             if field_name == "role_name":
-                conditions.append(
-                    func.lower(Rol.nombre).like(f"%{search_value.lower()}%")
-                )
+                conditions.append(Role.name.ilike(f"%{search_value}%"))
 
             if field_name == "employee_name":
                 conditions.append(
-                    func.lower(
-                        func.concat(
-                            Trabajador.apellido_paterno,
-                            ' ',
-                            Trabajador.apellido_materno,
-                            ' ',
-                            Trabajador.nombres,
-                        )
-                    ).like(f"%{search_value.lower()}%")
+                    or_(
+                        Employee.names.ilike(f"%{search_value}%"),
+                        Employee.paternal_surname.ilike(f"%{search_value}%"),
+                        Employee.maternal_surname.ilike(f"%{search_value}%"),
+                    )
                 )
 
         stmt = (
@@ -208,20 +182,20 @@ class UserRepositoryImpl(IUserRepository):
                 User.username,
                 User.employee_id,
                 func.concat(
-                    Trabajador.apellido_paterno,
+                    Employee.paternal_surname,
                     ' ',
-                    Trabajador.apellido_materno,
+                    Employee.maternal_surname,
                     ' ',
-                    Trabajador.nombres,
+                    Employee.names,
                 ).label('employee_name'),
                 User.is_active,
-                User.rol_id,
-                Rol.nombre.label("role_name"),
+                User.role_id,
+                Role.name.label("role_name"),
                 User.created_at,
                 User.updated_at,
             )
-            .join(Trabajador, Trabajador.id == User.employee_id)
-            .join(Rol, Rol.id == User.rol_id)
+            .join(Employee, Employee.id == User.employee_id)
+            .join(Role, Role.id == User.role_id)
         )
 
         if conditions:
