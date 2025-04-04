@@ -11,10 +11,7 @@ async def get_position_repository(
     """
     Dependency function to get the position repository implementation.
 
-    Args:
-        session: The async database session provided by the FastAPI dependency injection system
-
-    Returns:
-        An implementation of IPositionRepository bound to the provided session
+    :param session: The async database session provided by the FastAPI dependency injection system
+    :return: An implementation of IPositionRepository bound to the provided session
     """
     return PositionRepositoryImpl(session=session)

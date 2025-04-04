@@ -3,14 +3,14 @@ from sqlmodel import select, func, or_
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.app.repository.decorator import transactional
 from src.app.repository.interfaces import IPositionRepository
-from src.app.model.entity import Cargo
+from src.app.model.entity import Position
 from src.app.exception.invalid_field_exception import InvalidFieldException
 from src.app.schema import Page, Pagination
 
 
 class PositionRepositoryImpl(IPositionRepository):
     """
-    Repository implementation for handling Cargo (Position) entities.
+    Repository implementation for handling Position entities.
     Provides methods for CRUD operations and search functionality.
     """
 
@@ -18,103 +18,84 @@ class PositionRepositoryImpl(IPositionRepository):
         """
         Initialize the repository with a database session.
 
-        Args:
-            session: The SQLAlchemy AsyncSession instance for database operations
+        :param session: The SQLAlchemy AsyncSession instance for database operations
         """
         self.session = session
 
     @transactional(readonly=False)
-    async def save(self, cargo: Cargo) -> Cargo:
+    async def save(self, position: Position) -> Position:
         """
         Save a position entity to the database.
 
-        Args:
-            cargo: The position entity to save
+        :param position: The position entity to save
+        :return: The saved position with updated data
 
-        Returns:
-            The saved position with updated data
-
-        Raises:
-            DatabaseException: If an error occurs during the save operation
+        :raises DatabaseException: If an error occurs during the save operation
         """
-        self.session.add(cargo)
-        return cargo
+        self.session.add(position)
+        return position
 
     @transactional(readonly=True)
-    async def get_all(self) -> list[Cargo]:
+    async def get_all(self) -> list[Position]:
         """
         Retrieve all position entities from the database.
 
-        Returns:
-            A list containing all positions
+        :return: A list containing all positions
 
-        Raises:
-            DatabaseException: If an error occurs while retrieving positions
+        :raises DatabaseException: If an error occurs while retrieving positions
         """
-        stmt = select(Cargo)
+        stmt = select(Position)
         results = await self.session.exec(stmt)
-        cargos = results.all()
-        return list(cargos)
+        positions = results.all()
+        return list(positions)
 
     @transactional(readonly=False)
-    async def delete(self, cargo_id: int) -> bool:
+    async def delete(self, position_id: int) -> bool:
         """
         Delete a position entity from the database by its ID.
 
-        Args:
-            cargo_id: The ID of the position to delete
+        :param position_id: The ID of the position to delete
+        :return: True if the position was successfully deleted, False otherwise
 
-        Returns:
-            True if the position was successfully deleted, False otherwise
-
-        Raises:
-            DatabaseException: If an error occurs during deletion
+        :raises DatabaseException: If an error occurs during deletion
         """
-        cargo = await self.get_by_id(cargo_id)
-        await self.session.delete(cargo)
+        position = await self.get_by_id(position_id)
+        await self.session.delete(position)
         return True
 
     @transactional(readonly=True)
-    async def get_by_id(self, cargo_id: int) -> Cargo:
+    async def get_by_id(self, position_id: int) -> Position:
         """
         Retrieve a position entity from the database by its ID.
 
-        Args:
-            cargo_id: The ID of the position to retrieve
+        :param position_id: The ID of the position to retrieve
+        :return: The found position entity
 
-        Returns:
-            The found position entity
-
-        Raises:
-            DatabaseException: If an error occurs during retrieval
+        :raises DatabaseException: If an error occurs during retrieval
         """
-        stmt = select(Cargo).where(Cargo.id == cargo_id)
+        stmt = select(Position).where(Position.id == position_id)
         results = await self.session.exec(stmt)
-        cargo = results.first()
-        return cargo
+        position = results.first()
+        return position
 
     @transactional(readonly=True)
     async def get_pageable(self, page: int, size: int) -> Page:
         """
         Retrieve a paginated list of position entities from the database.
 
-        Args:
-            page: The page number (starts at 1)
-            size: The size of each page
+        :param page: The page number (starts at 1)
+        :param size: The size of each page
+        :return: A Page object containing positions and pagination information
 
-        Returns:
-            A Page object containing positions and pagination information
-
-        Raises:
-            DatabaseException: If an error occurs during the paginated query
+        :raises DatabaseException: If an error occurs during the paginated query
         """
         offset = (page - 1) * size
-        stmt = select(Cargo)
+        stmt = select(Position)
         stmt = stmt.offset(offset).limit(size)
         results = await self.session.exec(stmt)
-        cargos = list(results.all())
+        positions = list(results.all())
 
-        count_stmt = select(func.count(Cargo.id))
+        count_stmt = select(func.count(Position.id))
         count_results = await self.session.exec(count_stmt)
         total_items = count_results.first()
         total_pages = math.ceil(total_items / size) if total_items > 0 else 1
@@ -132,7 +113,7 @@ class PositionRepositoryImpl(IPositionRepository):
         )
 
         return Page(
-            data=cargos,
+            data=positions,
             meta=page_info,
         )
 
@@ -141,42 +122,38 @@ class PositionRepositoryImpl(IPositionRepository):
         """
         Retrieve a paginated list of position entities based on search criteria.
 
-        Args:
-            page: The page number (starts at 1)
-            size: The size of each page
-            search_dict: Dictionary containing search parameters
+        :param page: The page number (starts at 1)
+        :param size: The size of each page
+        :param search_dict: Dictionary containing search parameters
+        :return: A Page object with positions matching the search criteria
 
-        Returns:
-            A Page object with positions matching the search criteria
-
-        Raises:
-            DatabaseException: If an error occurs during the search operation
+        :raises DatabaseException: If an error occurs during the search operation
         """
         offset = (page - 1) * size
         conditions = []
 
-        allowed_fields = ["nombre"]
+        allowed_fields = ["name"]
 
         for field_name, search_value in search_dict.items():
             if not search_value or field_name not in allowed_fields:
                 continue
 
-            if field_name == "nombre":
+            if field_name == "name":
                 normalized_search = search_value.lower()
                 conditions.append(
-                    func.lower(Cargo.nombre).like(f"%{normalized_search}%")
+                    func.lower(Position.name).like(f"%{normalized_search}%")
                 )
 
-        stmt = select(Cargo)
+        stmt = select(Position)
 
         if conditions:
             stmt = stmt.where(or_(*conditions))
 
         stmt = stmt.offset(offset).limit(size)
         results = await self.session.exec(stmt)
-        cargos = list(results.all())
+        positions = list(results.all())
 
-        count_stmt = select(func.count(Cargo.id))
+        count_stmt = select(func.count(Position.id))
 
         if conditions:
             count_stmt = count_stmt.where(or_(*conditions))
@@ -198,7 +175,7 @@ class PositionRepositoryImpl(IPositionRepository):
         )
 
         return Page(
-            data=cargos,
+            data=positions,
             meta=page_info,
         )
 
@@ -207,27 +184,23 @@ class PositionRepositoryImpl(IPositionRepository):
         """
         Check if a position entity exists in the database based on specific criteria.
 
-        Args:
-            **kwargs: Key-value pairs representing the search criteria
+        :param kwargs: Key-value pairs representing the search criteria
+        :return: True if a matching position exists, False otherwise
 
-        Returns:
-            True if a matching position exists, False otherwise
-
-        Raises:
-            InvalidFieldException: If an invalid field name is provided
-            DatabaseException: If an error occurs during the query
+        :raises InvalidFieldException: If an invalid field name is provided
+        :raises DatabaseException: If an error occurs during the query
         """
-        valid_fields = Cargo.__dict__.keys()
+        valid_fields = Position.__dict__.keys()
         for key in kwargs.keys():
             if key not in valid_fields:
                 raise InvalidFieldException(
-                    message=f"Field '{key}' does not exist in the Cargo model",
+                    message=f"Field '{key}' does not exist in the Position model",
                     details=f"Valid fields are: {', '.join([f for f in valid_fields if not f.startswith('_')])}",
                 )
 
-        stmt = select(Cargo.id)
+        stmt = select(Position.id)
         for key, value in kwargs.items():
-            stmt = stmt.where(getattr(Cargo, key) == value)
+            stmt = stmt.where(getattr(Position, key) == value)
 
         result = await self.session.exec(stmt)
         return result.first() is not None
