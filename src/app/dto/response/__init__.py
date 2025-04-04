@@ -12,7 +12,7 @@ from .settlement_reponse_dto import SettlementReponseDTO, SettlementPage
 from .submitter_response_dto import SubmitterResponseDTO, SubmitterPage
 from .position_response_dto import PositionResponseDTO, PositionPage
 from .employee_response_dto import EmployeeResponseDTO, EmployeePage
-from .hamlet_response_dto import HamletResponseDto, HamletPage
+from .hamlet_response_dto import HamletResponseDTO, HamletPage
 from .department_connection_response_dto import (
     DepartmentConnectionResponseDTO,
     DepartmentConnectionPage,
@@ -36,7 +36,7 @@ __all__ = [
     "PositionPage",
     "EmployeeResponseDTO",
     "EmployeePage",
-    "HamletResponseDto",
+    "HamletResponseDTO",
     "HamletPage",
     "DepartmentConnectionResponseDTO",
     "DepartmentConnectionPage",
