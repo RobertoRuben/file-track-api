@@ -6,7 +6,7 @@ from src.app.repository.dependencies import get_settlement_repository
 
 
 async def get_settlement_service(
-    repository: ISettlementRepository = Depends(get_settlement_repository),
+    settlement_repository: ISettlementRepository = Depends(get_settlement_repository),
 ) -> ISettlementService:
     """
     Dependency function to get the settlement service implementation.
@@ -14,11 +14,8 @@ async def get_settlement_service(
     This function creates and provides an instance of the settlement service
     implementation with the necessary repository dependency injected.
 
-    Args:
-        repository: The settlement repository implementation provided by
-                    the FastAPI dependency injection system.
-
-    Returns:
-        An implementation of ISettlementService configured with the provided repository.
+    :param settlement_repository: The settlement repository implementation provided by
+                       the FastAPI dependency injection system
+    :return: An implementation of ISettlementService configured with the provided repository
     """
-    return SettlementServiceImpl(repository=repository)
+    return SettlementServiceImpl(settlement_repository=settlement_repository)

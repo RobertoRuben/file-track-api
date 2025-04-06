@@ -1,7 +1,7 @@
 from datetime import datetime
-from src.app.model.entity import Caserio
+from src.app.model.entity import Hamlet
 from src.app.dto.request import HamletRequestDTO
-from src.app.dto.response import HamletResponseDto, HamletPage
+from src.app.dto.response import HamletResponseDTO, HamletPage
 from src.app.schema import MessageResponse
 from src.app.exception import BadRequestException, ConflictException, NotFoundException
 from src.app.exception.decorator import handle_exceptions
@@ -18,78 +18,75 @@ class HamletServiceImpl(IHamletService):
 
     def __init__(
         self,
-        repository: IHamletRepository,
+        hamlet_repository: IHamletRepository,
         settlement_repository: ISettlementRepository,
     ):
         """
         Initializes the Hamlet Service with required repositories.
 
-        Args:
-            repository: Repository for hamlet data access
-            settlement_repository: Repository for settlement/population center data access
+        :param hamlet_repository: Repository for hamlet data access
+        :param settlement_repository: Repository for settlement data access
         """
-        self.repository = repository
+        self.hamlet_repository = hamlet_repository
         self.settlement_repository = settlement_repository
 
     @handle_exceptions
-    async def add_hamlet(self, hamlet_request: HamletRequestDTO) -> HamletResponseDto:
+    async def add_hamlet(self, hamlet_request: HamletRequestDTO) -> HamletResponseDTO:
         """
         Adds a new hamlet to the system.
 
-        Args:
-            hamlet_request: DTO containing the hamlet details
-
-        Returns:
-            DTO with the created hamlet data
-
-        Raises:
-            ConflictException: If a hamlet with the same name already exists
-            NotFoundException: If the specified population center does not exist
+        :param hamlet_request: DTO containing the hamlet details
+        :return: DTO with the created hamlet data
+        :raises ConflictException: If a hamlet with the same name already exists
+        :raises NotFoundException: If the specified settlement does not exist
         """
-        existing_hamlet = await self.repository.exists_by(nombre=hamlet_request.nombre)
+        existing_hamlet = await self.hamlet_repository.exists_by(
+            name=hamlet_request.name
+        )
         if existing_hamlet:
             raise ConflictException(
-                details=f"Hamlet with name {hamlet_request.nombre} already exists",
+                details=f"Hamlet with name {hamlet_request.name} already exists",
             )
 
-        if hamlet_request.centro_poblado_id is not None:
+        if hamlet_request.settlement_id is not None:
             existing_settlement = await self.settlement_repository.exists_by(
-                id=hamlet_request.centro_poblado_id
+                id=hamlet_request.settlement_id
             )
             if not existing_settlement:
                 raise NotFoundException(
-                    details=f"Population center with ID {hamlet_request.centro_poblado_id} does not exist",
+                    details=f"Settlement with ID {hamlet_request.settlement_id} does not exist",
                 )
 
-        new_hamlet = Caserio(
-            nombre=hamlet_request.nombre,
-            centro_poblado_id=hamlet_request.centro_poblado_id,
+        new_hamlet = Hamlet(
+            name=hamlet_request.name,
+            settlement_id=hamlet_request.settlement_id,
         )
 
-        created_hamlet = await self.repository.save(new_hamlet)
+        created_hamlet = await self.hamlet_repository.save(new_hamlet)
 
-        return HamletResponseDto(
+        return HamletResponseDTO(
             id=created_hamlet.id,
-            nombre=created_hamlet.nombre,
-            centro_poblado_id=created_hamlet.centro_poblado_id,
+            name=created_hamlet.name,
+            settlement_id=created_hamlet.settlement_id,
+            settlement_name=None,
             created_at=created_hamlet.created_at,
             updated_at=created_hamlet.updated_at,
         )
 
     @handle_exceptions
-    async def get_all_hamlets(self) -> list[HamletResponseDto]:
+    async def get_all_hamlets(self) -> list[HamletResponseDTO]:
         """
         Retrieves all hamlets from the database.
 
-        Returns:
-            List of DTOs containing all hamlets
+        :return: List of DTOs containing all hamlets
         """
-        hamlets = await self.repository.get_all()
+        hamlets = await self.hamlet_repository.get_all()
         return [
-            HamletResponseDto(
+            HamletResponseDTO(
                 id=hamlet.id,
-                nombre=hamlet.nombre,
-                centro_poblado_id=hamlet.centro_poblado_id,
+                name=hamlet.name,
+                settlement_id=hamlet.settlement_id,
+                settlement_name=hamlet.settlement.name if hamlet.settlement else None,
                 created_at=hamlet.created_at,
                 updated_at=hamlet.updated_at,
             )
@@ -99,58 +96,54 @@ class HamletServiceImpl(IHamletService):
     @handle_exceptions
     async def update_hamlet(
         self, hamlet_id: int, hamlet_request: HamletRequestDTO
-    ) -> HamletResponseDto:
+    ) -> HamletResponseDTO:
         """
         Updates an existing hamlet.
 
-        Args:
-            hamlet_id: ID of the hamlet to update
-            hamlet_request: DTO containing the updated hamlet details
-
-        Returns:
-            DTO with the updated hamlet data
-
-        Raises:
-            NotFoundException: If the hamlet with the given ID doesn't exist
-            ConflictException: If another hamlet with the same name already exists
-            NotFoundException: If the specified population center does not exist
+        :param hamlet_id: ID of the hamlet to update
+        :param hamlet_request: DTO containing the updated hamlet details
+        :return: DTO with the updated hamlet data
+        :raises NotFoundException: If the hamlet with the given ID doesn't exist
+        :raises ConflictException: If another hamlet with the same name already exists
+        :raises NotFoundException: If the specified settlement does not exist
         """
-        exists_hamlet_id = await self.repository.exists_by(id=hamlet_id)
+        exists_hamlet_id = await self.hamlet_repository.exists_by(id=hamlet_id)
         if not exists_hamlet_id:
             raise NotFoundException(
                 details=f"Hamlet with ID {hamlet_id} not found",
             )
 
-        hamlet = await self.repository.get_by_id(hamlet_id)
+        hamlet = await self.hamlet_repository.get_by_id(hamlet_id)
 
-        if hamlet.nombre != hamlet_request.nombre:
-            existing_hamlet = await self.repository.exists_by(
-                nombre=hamlet_request.nombre
+        if hamlet.name != hamlet_request.name:
+            existing_hamlet = await self.hamlet_repository.exists_by(
+                name=hamlet_request.name
             )
             if existing_hamlet:
                 raise ConflictException(
-                    details=f"Hamlet with name {hamlet_request.nombre} already exists",
+                    details=f"Hamlet with name {hamlet_request.name} already exists",
                 )
 
-        if hamlet_request.centro_poblado_id is not None:
+        if hamlet_request.settlement_id is not None:
             existing_settlement = await self.settlement_repository.exists_by(
-                id=hamlet_request.centro_poblado_id
+                id=hamlet_request.settlement_id
             )
             if not existing_settlement:
                 raise NotFoundException(
-                    details=f"Population center with ID {hamlet_request.centro_poblado_id} does not exist",
+                    details=f"Settlement with ID {hamlet_request.settlement_id} does not exist",
                 )
 
-        hamlet.nombre = hamlet_request.nombre
-        hamlet.centro_poblado_id = hamlet_request.centro_poblado_id
+        hamlet.name = hamlet_request.name
+        hamlet.settlement_id = hamlet_request.settlement_id
         hamlet.updated_at = datetime.now()
 
-        updated_hamlet = await self.repository.save(hamlet)
+        updated_hamlet = await self.hamlet_repository.save(hamlet)
 
-        return HamletResponseDto(
+        return HamletResponseDTO(
             id=updated_hamlet.id,
-            nombre=updated_hamlet.nombre,
-            centro_poblado_id=updated_hamlet.centro_poblado_id,
+            name=updated_hamlet.name,
+            settlement_id=updated_hamlet.settlement_id,
+            settlement_name=None,
             created_at=updated_hamlet.created_at,
             updated_at=updated_hamlet.updated_at,
         )
@@ -160,22 +153,17 @@ class HamletServiceImpl(IHamletService):
         """
         Deletes a hamlet by its ID.
 
-        Args:
-            hamlet_id: ID of the hamlet to delete
-
-        Returns:
-            Message response indicating success or failure
-
-        Raises:
-            NotFoundException: If the hamlet with the given ID doesn't exist
+        :param hamlet_id: ID of the hamlet to delete
+        :return: Message response indicating success or failure
+        :raises NotFoundException: If the hamlet with the given ID doesn't exist
         """
-        existing_hamlet_id = await self.repository.exists_by(id=hamlet_id)
+        existing_hamlet_id = await self.hamlet_repository.exists_by(id=hamlet_id)
         if not existing_hamlet_id:
             raise NotFoundException(
                 details=f"Hamlet with ID {hamlet_id} not found",
             )
 
-        response = await self.repository.delete(hamlet_id)
+        response = await self.hamlet_repository.delete(hamlet_id)
 
         if response is True:
             return MessageResponse(
@@ -193,31 +181,27 @@ class HamletServiceImpl(IHamletService):
             )
 
     @handle_exceptions
-    async def get_hamlet_by_id(self, hamlet_id: int) -> HamletResponseDto:
+    async def get_hamlet_by_id(self, hamlet_id: int) -> HamletResponseDTO:
         """
         Retrieves a hamlet by its ID.
 
-        Args:
-            hamlet_id: ID of the hamlet to retrieve
-
-        Returns:
-            DTO with the hamlet data
-
-        Raises:
-            NotFoundException: If the hamlet with the given ID doesn't exist
+        :param hamlet_id: ID of the hamlet to retrieve
+        :return: DTO with the hamlet data
+        :raises NotFoundException: If the hamlet with the given ID doesn't exist
         """
-        existing_hamlet_id = await self.repository.exists_by(id=hamlet_id)
+        existing_hamlet_id = await self.hamlet_repository.exists_by(id=hamlet_id)
         if not existing_hamlet_id:
             raise NotFoundException(
                 details=f"Hamlet with ID {hamlet_id} not found",
             )
 
-        hamlet = await self.repository.get_by_id(hamlet_id)
+        hamlet = await self.hamlet_repository.get_by_id(hamlet_id)
 
-        return HamletResponseDto(
+        return HamletResponseDTO(
             id=hamlet.id,
-            nombre=hamlet.nombre,
-            centro_poblado_id=hamlet.centro_poblado_id,
+            name=hamlet.name,
+            settlement_id=hamlet.settlement_id,
+            settlement_name=hamlet.settlement.name if hamlet.settlement else None,
             created_at=hamlet.created_at,
             updated_at=hamlet.updated_at,
         )
@@ -227,15 +211,10 @@ class HamletServiceImpl(IHamletService):
         """
         Retrieves a paginated list of hamlets.
 
-        Args:
-            page: Page number to retrieve
-            size: Number of items per page
-
-        Returns:
-            Paginated hamlets with metadata
-
-        Raises:
-            BadRequestException: If page or size parameters are invalid
+        :param page: Page number to retrieve
+        :param size: Number of items per page
+        :return: Paginated hamlets with metadata
+        :raises BadRequestException: If page or size parameters are invalid
         """
         if page < 1:
             raise BadRequestException(
@@ -248,9 +227,9 @@ class HamletServiceImpl(IHamletService):
                 details="Size number must be greater than 0",
             )
 
-        page_result = await self.repository.get_pageable(page, size)
+        page_result = await self.hamlet_repository.get_pageable(page, size)
         hamlet_response = [
-            HamletResponseDto(**hamlet_dict) for hamlet_dict in page_result.data
+            HamletResponseDTO(**hamlet_dict) for hamlet_dict in page_result.data
         ]
 
         return HamletPage(
@@ -263,17 +242,12 @@ class HamletServiceImpl(IHamletService):
         """
         Searches for hamlets based on search criteria.
 
-        Args:
-            page: Page number to retrieve
-            size: Number of items per page
-            search_term: The term to search for in hamlet names
-
-        Returns:
-            Paginated hamlets matching the search criteria
-
-        Raises:
-            BadRequestException: If page or size parameters are invalid
-            NotFoundException: If no hamlets match the search criteria
+        :param page: Page number to retrieve
+        :param size: Number of items per page
+        :param search_term: The term to search for in hamlet names
+        :return: Paginated hamlets matching the search criteria
+        :raises BadRequestException: If page or size parameters are invalid
+        :raises NotFoundException: If no hamlets match the search criteria
         """
         if page < 1:
             raise BadRequestException(
@@ -286,9 +260,9 @@ class HamletServiceImpl(IHamletService):
                 details="Size number must be greater than 0",
             )
 
-        search_dict = {"nombre": search_term}
+        search_dict = {"name": search_term}
 
-        page_result = await self.repository.find(page, size, search_dict)
+        page_result = await self.hamlet_repository.find(page, size, search_dict)
 
         if not page_result.data:
             raise NotFoundException(
@@ -296,7 +270,7 @@ class HamletServiceImpl(IHamletService):
             )
 
         hamlet_response = [
-            HamletResponseDto(**hamlet_dict) for hamlet_dict in page_result.data
+            HamletResponseDTO(**hamlet_dict) for hamlet_dict in page_result.data
         ]
 
         return HamletPage(

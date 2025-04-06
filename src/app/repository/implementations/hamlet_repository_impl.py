@@ -3,7 +3,7 @@ from sqlmodel import select, func, or_
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.app.repository.decorator import transactional
 from src.app.repository.interfaces import IHamletRepository
-from src.app.model.entity import Caserio, CentroPoblado
+from src.app.model.entity import Hamlet, Settlement
 from src.app.exception import InvalidFieldException
 from src.app.schema import Page, Pagination
 
@@ -17,78 +17,59 @@ class HamletRepositoryImpl(IHamletRepository):
         """
         Initialize the repository with a database session.
 
-        Args:
-            session: The SQLAlchemy AsyncSession instance for database operations
+        :param session: The SQLAlchemy AsyncSession instance for database operations
         """
         self.session = session
 
     @transactional(readonly=False)
-    async def save(self, caserio: Caserio) -> Caserio:
+    async def save(self, hamlet: Hamlet) -> Hamlet:
         """
         Save a hamlet entity to the database.
 
-        Args:
-            caserio: The hamlet entity to save
-
-        Returns:
-            The persisted hamlet with updated attributes
-
-        Raises:
-            DatabaseException: If an error occurs during the save operation
+        :param hamlet: The hamlet entity to save
+        :return: The persisted hamlet with updated attributes
+        :raises DatabaseException: If an error occurs during the save operation
         """
-        self.session.add(caserio)
-        return caserio
+        self.session.add(hamlet)
+        return hamlet
 
     @transactional(readonly=True)
-    async def get_all(self) -> list[Caserio]:
+    async def get_all(self) -> list[Hamlet]:
         """
         Retrieve all hamlets from the database.
 
-        Returns:
-            A list containing all hamlets
-
-        Raises:
-            DatabaseException: If an error occurs during the retrieval
+        :return: A list containing all hamlets
+        :raises DatabaseException: If an error occurs during the retrieval
         """
-        stmt = select(Caserio)
+        stmt = select(Hamlet)
         results = await self.session.exec(stmt)
         hamlets = results.all()
         return list(hamlets)
 
     @transactional(readonly=False)
-    async def delete(self, caserio_id: int) -> bool:
+    async def delete(self, hamlet_id: int) -> bool:
         """
         Delete a hamlet from the database by ID.
 
-        Args:
-            caserio_id: The ID of the hamlet to delete
-
-        Returns:
-            True if the deletion was successful, False otherwise
-
-        Raises:
-            DatabaseException: If an error occurs during the deletion
+        :param hamlet_id: The ID of the hamlet to delete
+        :return: True if the deletion was successful, False otherwise
+        :raises DatabaseException: If an error occurs during the deletion
         """
-        hamlet = await self.get_by_id(caserio_id)
+        hamlet = await self.get_by_id(hamlet_id)
         await self.session.delete(hamlet)
         return True
 
     @transactional(readonly=True)
-    async def get_by_id(self, caserio_id: int) -> Caserio:
+    async def get_by_id(self, hamlet_id: int) -> Hamlet:
         """
         Retrieve a hamlet from the database by ID.
 
-        Args:
-            caserio_id: The ID of the hamlet to retrieve
-
-        Returns:
-            The hamlet entity with the specified ID
-
-        Raises:
-            EntityNotFoundException: If the hamlet does not exist
-            DatabaseException: If an error occurs during the retrieval
+        :param hamlet_id: The ID of the hamlet to retrieve
+        :return: The hamlet entity with the specified ID
+        :raises EntityNotFoundException: If the hamlet does not exist
+        :raises DatabaseException: If an error occurs during the retrieval
         """
-        stmt = select(Caserio).where(Caserio.id == caserio_id)
+        stmt = select(Hamlet).where(Hamlet.id == hamlet_id)
         results = await self.session.exec(stmt)
         hamlet = results.first()
         return hamlet
@@ -97,35 +78,33 @@ class HamletRepositoryImpl(IHamletRepository):
     async def get_pageable(self, page: int, size: int) -> Page:
         """
         Retrieve a paginated list of hamlets.
-        Args:
-            page: The page number to retrieve
-            size: The number of items per page
-        Returns:
-            A Page object containing the paginated results
-        Raises:
-            DatabaseException: If an error occurs during the retrieval
+
+        :param page: The page number to retrieve
+        :param size: The number of items per page
+        :return: A Page object containing the paginated results
+        :raises DatabaseException: If an error occurs during the retrieval
         """
         offset_value = (page - 1) * size
         stmt = select(
-            Caserio.id,
-            Caserio.nombre,
-            Caserio.centro_poblado_id,
-            CentroPoblado.nombre.label("centro_poblado_nombre"),
-            Caserio.created_at,
-            Caserio.updated_at,
-        ).join(Caserio, Caserio.id == Caserio.id, isouter=True)
+            Hamlet.id,
+            Hamlet.name,
+            Hamlet.settlement_id,
+            Settlement.name.label("settlement_name"),
+            Hamlet.created_at,
+            Hamlet.updated_at,
+        ).join(Settlement, Hamlet.settlement_id == Settlement.id, isouter=True)
 
         stmt = stmt.offset(offset_value).limit(size)
         results = await self.session.exec(stmt)
         hamlets_data = [dict(row._mapping) for row in results]
 
-        count_stmt = select(func.count(Caserio.id))
+        count_stmt = select(func.count(Hamlet.id))
         count_result = await self.session.exec(count_stmt)
         total_items = count_result.first()
         total_pages = math.ceil(total_items / size) if total_items > 0 else 1
 
         next_page = page + 1 if page < total_pages else None
-        previous_page = page - 1 if page > 0 else None
+        previous_page = page - 1 if page > 1 else None
 
         page_info = Pagination(
             current_page=page,
@@ -146,41 +125,36 @@ class HamletRepositoryImpl(IHamletRepository):
         """
         Retrieve a paginated list of hamlets based on search criteria.
 
-        Args:
-            page: Page number (1-based indexing)
-            size: Number of items per page
-            search_dict: Dictionary containing search criteria
-
-        Returns:
-            A Page object containing hamlets and pagination metadata
-
-        Raises:
-            InvalidFieldException: If an invalid search field is provided
-            DatabaseException: If an error occurs during the retrieval
+        :param page: Page number (1-based indexing)
+        :param size: Number of items per page
+        :param search_dict: Dictionary containing search criteria
+        :return: A Page object containing hamlets and pagination metadata
+        :raises InvalidFieldException: If an invalid search field is provided
+        :raises DatabaseException: If an error occurs during the retrieval
         """
 
         offset_value = (page - 1) * size
         conditions = []
 
-        allowed_fields = ["nombre"]
+        allowed_fields = ["name"]
 
         for field_name, search_value in search_dict.items():
             if not search_value or field_name not in allowed_fields:
                 continue
 
-            if field_name == "nombre":
-                field = Caserio.nombre
+            if field_name == "name":
+                field = Hamlet.name
 
             conditions.append(func.lower(field).like(f"%{search_value.lower()}%"))
 
         stmt = select(
-            Caserio.id,
-            Caserio.nombre,
-            Caserio.centro_poblado_id,
-            CentroPoblado.nombre.label("centro_poblado_nombre"),
-            Caserio.created_at,
-            Caserio.updated_at,
-        ).join(Caserio, Caserio.id == Caserio.id, isouter=True)
+            Hamlet.id,
+            Hamlet.name,
+            Hamlet.settlement_id,
+            Settlement.name.label("settlement_name"),
+            Hamlet.created_at,
+            Hamlet.updated_at,
+        ).join(Settlement, Hamlet.settlement_id == Settlement.id, isouter=True)
 
         if conditions:
             stmt = stmt.where(or_(*conditions))
@@ -189,7 +163,7 @@ class HamletRepositoryImpl(IHamletRepository):
         results = await self.session.exec(stmt)
         hamlets_data = [dict(row._mapping) for row in results]
 
-        count_stmt = select(func.count(Caserio.id))
+        count_stmt = select(func.count(Hamlet.id))
 
         if conditions:
             count_stmt = count_stmt.where(or_(*conditions))
@@ -220,27 +194,22 @@ class HamletRepositoryImpl(IHamletRepository):
         """
         Check if a hamlet exists based on the provided criteria.
 
-        Args:
-            **kwargs: Criteria for checking existence
-
-        Returns:
-            True if the hamlet exists, False otherwise
-
-        Raises:
-            InvalidFieldException: If an invalid field is provided
-            DatabaseException: If an error occurs during the check
+        :param kwargs: Criteria for checking existence
+        :return: True if the hamlet exists, False otherwise
+        :raises InvalidFieldException: If an invalid field is provided
+        :raises DatabaseException: If an error occurs during the check
         """
-        valid_fields = Caserio.__dict__.keys()
+        valid_fields = Hamlet.__dict__.keys()
         for key in kwargs.keys():
             if key not in valid_fields:
                 raise InvalidFieldException(
-                    message=f"Field '{key}' does not exist in the Caserio model",
+                    message=f"Field '{key}' does not exist in the Hamlet model",
                     details=f"Valid fields are: {', '.join([f for f in valid_fields if not f.startswith('_')])}",
                 )
 
-        stmt = select(Caserio.id)
+        stmt = select(Hamlet.id)
         for key, value in kwargs.items():
-            stmt = stmt.where(getattr(Caserio, key) == value)
+            stmt = stmt.where(getattr(Hamlet, key) == value)
 
         result = await self.session.exec(stmt)
         return result.first() is not None

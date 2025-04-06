@@ -1,5 +1,5 @@
 from datetime import datetime
-from src.app.model.entity import Cargo
+from src.app.model.entity import Position
 from src.app.dto.request import PositionRequestDTO
 from src.app.dto.response import PositionPage, PositionResponseDTO
 from src.app.schema import MessageResponse
@@ -15,14 +15,13 @@ class PositionServiceImpl(IPositionService):
     Handles business logic for position-related operations.
     """
 
-    def __init__(self, repository: IPositionRepository):
+    def __init__(self, position_repository: IPositionRepository):
         """
         Initializes the Position Service with a repository.
 
-        Args:
-            repository: The repository for position data access
+        :param position_repository: The repository for position data access
         """
-        self.repository = repository
+        self.position_repository = position_repository
 
     @handle_exceptions
     async def add_position(
@@ -31,32 +30,28 @@ class PositionServiceImpl(IPositionService):
         """
         Adds a new position to the system.
 
-        Args:
-            position_request: DTO containing the position details
+        :param position_request: DTO containing the position details
+        :return: DTO with the created position data
 
-        Returns:
-            DTO with the created position data
-
-        Raises:
-            ConflictException: If a position with the same name already exists
+        :raises ConflictException: If a position with the same name already exists
         """
-        existing_position = await self.repository.exists_by(
-            nombre=position_request.nombre
+        existing_position = await self.position_repository.exists_by(
+            name=position_request.name
         )
         if existing_position:
             raise ConflictException(
-                details=f"Position with name {position_request.nombre} already exists",
+                details=f"Position with name {position_request.name} already exists",
             )
 
-        new_position = Cargo(
-            nombre=position_request.nombre,
+        new_position = Position(
+            name=position_request.name,
         )
 
-        created_position = await self.repository.save(new_position)
+        created_position = await self.position_repository.save(new_position)
 
         return PositionResponseDTO(
             id=created_position.id,
-            nombre=created_position.nombre,
+            name=created_position.name,
             created_at=created_position.created_at,
             updated_at=created_position.updated_at,
         )
@@ -66,14 +61,13 @@ class PositionServiceImpl(IPositionService):
         """
         Retrieves all positions from the database.
 
-        Returns:
-            List of DTOs containing all positions
+        :return: List of DTOs containing all positions
         """
-        positions = await self.repository.get_all()
+        positions = await self.position_repository.get_all()
         return [
             PositionResponseDTO(
                 id=position.id,
-                nombre=position.nombre,
+                name=position.name,
                 created_at=position.created_at,
                 updated_at=position.updated_at,
             )
@@ -87,41 +81,37 @@ class PositionServiceImpl(IPositionService):
         """
         Updates an existing position.
 
-        Args:
-            position_id: ID of the position to update
-            position_request: DTO containing the updated position details
+        :param position_id: ID of the position to update
+        :param position_request: DTO containing the updated position details
+        :return: DTO with the updated position data
 
-        Returns:
-            DTO with the updated position data
-
-        Raises:
-            NotFoundException: If the position with the given ID doesn't exist
-            ConflictException: If another position with the same name already exists
+        :raises NotFoundException: If the position with the given ID doesn't exist
+        :raises ConflictException: If another position with the same name already exists
         """
-        exists_position_id = await self.repository.exists_by(id=position_id)
+        exists_position_id = await self.position_repository.exists_by(id=position_id)
         if not exists_position_id:
             raise NotFoundException(
                 details=f"Position with id {position_id} not found",
             )
-        position = await self.repository.get_by_id(position_id)
+        position = await self.position_repository.get_by_id(position_id)
 
-        if position.nombre != position_request.nombre:
-            existing_position = await self.repository.exists_by(
-                nombre=position_request.nombre
+        if position.name != position_request.name:
+            existing_position = await self.position_repository.exists_by(
+                name=position_request.name
             )
             if existing_position:
                 raise ConflictException(
-                    details=f"Position with name {position_request.nombre} already exists",
+                    details=f"Position with name {position_request.name} already exists",
                 )
 
-        position.nombre = position_request.nombre
+        position.name = position_request.name
         position.updated_at = datetime.now()
 
-        updated_position = await self.repository.save(position)
+        updated_position = await self.position_repository.save(position)
 
         return PositionResponseDTO(
             id=updated_position.id,
-            nombre=updated_position.nombre,
+            name=updated_position.name,
             created_at=updated_position.created_at,
             updated_at=updated_position.updated_at,
         )
@@ -131,21 +121,17 @@ class PositionServiceImpl(IPositionService):
         """
         Deletes a position by its ID.
 
-        Args:
-            position_id: ID of the position to delete
+        :param position_id: ID of the position to delete
+        :return: Message response indicating success or failure
 
-        Returns:
-            Message response indicating success or failure
-
-        Raises:
-            NotFoundException: If the position with the given ID doesn't exist
+        :raises NotFoundException: If the position with the given ID doesn't exist
         """
-        existing_position_id = await self.repository.exists_by(id=position_id)
+        existing_position_id = await self.position_repository.exists_by(id=position_id)
         if not existing_position_id:
             raise NotFoundException(
                 details=f"Position with id {position_id} not found",
             )
-        response = await self.repository.delete(position_id)
+        response = await self.position_repository.delete(position_id)
         if response is True:
             return MessageResponse(
                 message="Position deleted successfully.",
@@ -166,24 +152,20 @@ class PositionServiceImpl(IPositionService):
         """
         Retrieves a position by its ID.
 
-        Args:
-            position_id: ID of the position to retrieve
+        :param position_id: ID of the position to retrieve
+        :return: DTO with the position data
 
-        Returns:
-            DTO with the position data
-
-        Raises:
-            NotFoundException: If the position with the given ID doesn't exist
+        :raises NotFoundException: If the position with the given ID doesn't exist
         """
-        existing_position_id = await self.repository.exists_by(id=position_id)
+        existing_position_id = await self.position_repository.exists_by(id=position_id)
         if not existing_position_id:
             raise NotFoundException(
                 details=f"Position with id {position_id} not found",
             )
-        position = await self.repository.get_by_id(position_id)
+        position = await self.position_repository.get_by_id(position_id)
         return PositionResponseDTO(
             id=position.id,
-            nombre=position.nombre,
+            name=position.name,
             created_at=position.created_at,
             updated_at=position.updated_at,
         )
@@ -193,15 +175,11 @@ class PositionServiceImpl(IPositionService):
         """
         Retrieves a paginated list of positions.
 
-        Args:
-            page: Page number to retrieve
-            size: Number of items per page
+        :param page: Page number to retrieve
+        :param size: Number of items per page
+        :return: Paginated positions with metadata
 
-        Returns:
-            Paginated positions with metadata
-
-        Raises:
-            BadRequestException: If page or size parameters are invalid
+        :raises BadRequestException: If page or size parameters are invalid
         """
         if page < 1:
             raise BadRequestException(
@@ -214,7 +192,7 @@ class PositionServiceImpl(IPositionService):
                 details="Size number must be greater than 0",
             )
 
-        page_result = await self.repository.get_pageable(page, size)
+        page_result = await self.position_repository.get_pageable(page, size)
         position_response = [
             PositionResponseDTO(**position.__dict__) for position in page_result.data
         ]
@@ -229,17 +207,13 @@ class PositionServiceImpl(IPositionService):
         """
         Searches for positions matching the given search term.
 
-        Args:
-            page: Page number to retrieve
-            size: Number of items per page
-            search_term: Term to search for in position names
+        :param page: Page number to retrieve
+        :param size: Number of items per page
+        :param search_term: Term to search for in position names
+        :return: Paginated positions matching the search criteria
 
-        Returns:
-            Paginated positions matching the search criteria
-
-        Raises:
-            BadRequestException: If page or size parameters are invalid
-            NotFoundException: If no positions match the search criteria
+        :raises BadRequestException: If page or size parameters are invalid
+        :raises NotFoundException: If no positions match the search criteria
         """
         if page < 1:
             raise BadRequestException(
@@ -252,9 +226,9 @@ class PositionServiceImpl(IPositionService):
                 details="Size number must be greater than 0",
             )
 
-        search_dict = {"nombre": search_term}
+        search_dict = {"name": search_term}
 
-        page_result = await self.repository.find(page, size, search_dict)
+        page_result = await self.position_repository.find(page, size, search_dict)
 
         if not page_result.data:
             raise NotFoundException(

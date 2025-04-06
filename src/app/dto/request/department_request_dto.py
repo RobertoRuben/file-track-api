@@ -6,26 +6,25 @@ class DepartmentRequestDTO(BaseModel):
     """
     Data Transfer Object for department creation and update requests.
     Validates department data according to business rules.
+
+    :ivar name: Name of the department in the institution
     """
 
-    nombre: str = Field(
-        description="Nombre del departamento de la institucion", min_length=3
+    name: str = Field(
+        description="Name of the department in the institution",
+        min_length=3,
+        examples=["Department of Human Resources", "Department of Finance"],
     )
 
-    @field_validator("nombre", mode="before")
+    @field_validator("name", mode="before")
     def strip_and_validate_string(cls, v, info: ValidationInfo):
         """
         Validates that the input is a string and strips whitespace.
 
-        Args:
-            v: The value to validate
-            info: Validation information context
-
-        Returns:
-            The stripped string value
-
-        Raises:
-            ValueError: If the value is not a string or is empty after stripping
+        :param v: The value to validate
+        :param info: Validation information context
+        :return: The stripped string value
+        :raises ValueError: If the value is not a string or is empty after stripping
         """
         field_name = info.field_name.replace("_", " ").title()
 
@@ -38,19 +37,14 @@ class DepartmentRequestDTO(BaseModel):
 
         return stripped_value
 
-    @field_validator("nombre", mode="after")
+    @field_validator("name", mode="after")
     def validate_name_format(cls, v):
         """
         Validates that the name contains only alphabetic characters and spaces.
 
-        Args:
-            v: The string value to validate
-
-        Returns:
-            The validated string value
-
-        Raises:
-            ValueError: If the name contains invalid characters
+        :param v: The string value to validate
+        :return: The validated string value
+        :raises ValueError: If the name contains invalid characters
         """
         pattern = re.compile(r"^[A-Za-zÁÉÍÓÚáéíóúÑñ][A-Za-zÁÉÍÓÚáéíóúÑñ\s]*$")
         if not pattern.fullmatch(v):

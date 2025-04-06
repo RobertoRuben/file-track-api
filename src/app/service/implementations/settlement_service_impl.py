@@ -1,7 +1,7 @@
 from datetime import datetime
-from src.app.model.entity import CentroPoblado
+from src.app.model.entity import Settlement
 from src.app.dto.request import SettlementRequestDTO
-from src.app.dto.response import SettlementPage, SettlementReponseDTO
+from src.app.dto.response import SettlementPage, SettlementResponseDTO
 from src.app.schema import MessageResponse
 from src.app.exception import BadRequestException, ConflictException, NotFoundException
 from src.app.exception.decorator import handle_exceptions
@@ -13,67 +13,62 @@ class SettlementServiceImpl(ISettlementService):
     """
     Implementation of the Settlement Service interface.
     Handles business logic for settlement operations.
+
+    :ivar settlement_repository: Repository for settlement data access operations
     """
 
-    def __init__(self, repository: ISettlementRepository):
+    def __init__(self, settlement_repository: ISettlementRepository):
         """
         Initializes the Settlement Service with a repository.
 
-        Args:
-            repository: The repository for settlement data access
+        :param settlement_repository: The repository for settlement data access
         """
-        self.repository = repository
+        self.settlement_repository = settlement_repository
 
     @handle_exceptions
     async def add_settlement(
         self, settlement_request: SettlementRequestDTO
-    ) -> SettlementReponseDTO:
+    ) -> SettlementResponseDTO:
         """
         Adds a new settlement to the system.
 
-        Args:
-            settlement_request: DTO containing the settlement details
-
-        Returns:
-            DTO with the created settlement data
-
-        Raises:
-            ConflictException: If a settlement with the same name already exists
+        :param settlement_request: DTO containing the settlement details
+        :return: DTO with the created settlement data
+        :raises ConflictException: If a settlement with the same name already exists
         """
-        existing_settlement = await self.repository.exists_by(
-            nombre=settlement_request.nombre
+        existing_settlement = await self.settlement_repository.exists_by(
+            name=settlement_request.name
         )
         if existing_settlement:
             raise ConflictException(
-                details=f"Settlement with name {settlement_request.nombre} already exists",
+                details=f"Settlement with name {settlement_request.name} already exists",
             )
 
-        new_settlement = CentroPoblado(
-            nombre=settlement_request.nombre,
+        new_settlement = Settlement(
+            name=settlement_request.name,
         )
 
-        created_settlement = await self.repository.save(new_settlement)
+        created_settlement = await self.settlement_repository.save(new_settlement)
 
-        return SettlementReponseDTO(
+        return SettlementResponseDTO(
             id=created_settlement.id,
-            nombre=created_settlement.nombre,
+            name=created_settlement.name,
             created_at=created_settlement.created_at,
             updated_at=created_settlement.updated_at,
         )
 
     @handle_exceptions
-    async def get_all_settlements(self) -> list[SettlementReponseDTO]:
+    async def get_all_settlements(self) -> list[SettlementResponseDTO]:
         """
         Retrieves all settlements from the database.
 
-        Returns:
-            List of DTOs containing all settlements
+        :return: List of DTOs containing all settlements
         """
-        settlements = await self.repository.get_all()
+        settlements = await self.settlement_repository.get_all()
         return [
-            SettlementReponseDTO(
+            SettlementResponseDTO(
                 id=settlement.id,
-                nombre=settlement.nombre,
+                name=settlement.name,
                 created_at=settlement.created_at,
                 updated_at=settlement.updated_at,
             )
@@ -83,45 +78,42 @@ class SettlementServiceImpl(ISettlementService):
     @handle_exceptions
     async def update_settlement(
         self, settlement_id: int, settlement_request: SettlementRequestDTO
-    ) -> SettlementReponseDTO:
+    ) -> SettlementResponseDTO:
         """
         Updates an existing settlement.
 
-        Args:
-            settlement_id: ID of the settlement to update
-            settlement_request: DTO containing the updated settlement details
-
-        Returns:
-            DTO with the updated settlement data
-
-        Raises:
-            NotFoundException: If the settlement with the given ID doesn't exist
-            ConflictException: If another settlement with the same name already exists
+        :param settlement_id: ID of the settlement to update
+        :param settlement_request: DTO containing the updated settlement details
+        :return: DTO with the updated settlement data
+        :raises NotFoundException: If the settlement with the given ID doesn't exist
+        :raises ConflictException: If another settlement with the same name already exists
         """
-        exists_settlement_id = await self.repository.exists_by(id=settlement_id)
+        exists_settlement_id = await self.settlement_repository.exists_by(
+            id=settlement_id
+        )
         if not exists_settlement_id:
             raise NotFoundException(
                 details=f"Settlement with id {settlement_id} not found",
             )
-        settlement = await self.repository.get_by_id(settlement_id)
+        settlement = await self.settlement_repository.get_by_id(settlement_id)
 
-        if settlement.nombre != settlement_request.nombre:
-            existing_settlement = await self.repository.exists_by(
-                nombre=settlement_request.nombre
+        if settlement.name != settlement_request.name:
+            existing_settlement = await self.settlement_repository.exists_by(
+                name=settlement_request.name
             )
             if existing_settlement:
                 raise ConflictException(
-                    details=f"Settlement with name {settlement_request.nombre} already exists",
+                    details=f"Settlement with name {settlement_request.name} already exists",
                 )
 
-        settlement.nombre = settlement_request.nombre
+        settlement.name = settlement_request.name
         settlement.updated_at = datetime.now()
 
-        updated_settlement = await self.repository.save(settlement)
+        updated_settlement = await self.settlement_repository.save(settlement)
 
-        return SettlementReponseDTO(
+        return SettlementResponseDTO(
             id=updated_settlement.id,
-            nombre=updated_settlement.nombre,
+            name=updated_settlement.name,
             created_at=updated_settlement.created_at,
             updated_at=updated_settlement.updated_at,
         )
@@ -131,21 +123,18 @@ class SettlementServiceImpl(ISettlementService):
         """
         Deletes a settlement by its ID.
 
-        Args:
-            settlement_id: ID of the settlement to delete
-
-        Returns:
-            Message response indicating success or failure
-
-        Raises:
-            NotFoundException: If the settlement with the given ID doesn't exist
+        :param settlement_id: ID of the settlement to delete
+        :return: Message response indicating success or failure
+        :raises NotFoundException: If the settlement with the given ID doesn't exist
         """
-        existing_settlement_id = await self.repository.exists_by(id=settlement_id)
+        existing_settlement_id = await self.settlement_repository.exists_by(
+            id=settlement_id
+        )
         if not existing_settlement_id:
             raise NotFoundException(
                 details=f"Settlement with id {settlement_id} not found",
             )
-        response = await self.repository.delete(settlement_id)
+        response = await self.settlement_repository.delete(settlement_id)
         if response is True:
             return MessageResponse(
                 message="Settlement deleted successfully.",
@@ -162,28 +151,25 @@ class SettlementServiceImpl(ISettlementService):
             )
 
     @handle_exceptions
-    async def get_settlement_by_id(self, settlement_id: int) -> SettlementReponseDTO:
+    async def get_settlement_by_id(self, settlement_id: int) -> SettlementResponseDTO:
         """
         Retrieves a settlement by its ID.
 
-        Args:
-            settlement_id: ID of the settlement to retrieve
-
-        Returns:
-            DTO with the settlement data
-
-        Raises:
-            NotFoundException: If the settlement with the given ID doesn't exist
+        :param settlement_id: ID of the settlement to retrieve
+        :return: DTO with the settlement data
+        :raises NotFoundException: If the settlement with the given ID doesn't exist
         """
-        existing_settlement_id = await self.repository.exists_by(id=settlement_id)
+        existing_settlement_id = await self.settlement_repository.exists_by(
+            id=settlement_id
+        )
         if not existing_settlement_id:
             raise NotFoundException(
                 details=f"Settlement with id {settlement_id} not found",
             )
-        settlement = await self.repository.get_by_id(settlement_id)
-        return SettlementReponseDTO(
+        settlement = await self.settlement_repository.get_by_id(settlement_id)
+        return SettlementResponseDTO(
             id=settlement.id,
-            nombre=settlement.nombre,
+            name=settlement.name,
             created_at=settlement.created_at,
             updated_at=settlement.updated_at,
         )
@@ -193,15 +179,10 @@ class SettlementServiceImpl(ISettlementService):
         """
         Retrieves a paginated list of settlements.
 
-        Args:
-            page: Page number to retrieve
-            size: Number of items per page
-
-        Returns:
-            Paginated settlements with metadata
-
-        Raises:
-            BadRequestException: If page or size parameters are invalid
+        :param page: Page number to retrieve
+        :param size: Number of items per page
+        :return: Paginated settlements with metadata
+        :raises BadRequestException: If page or size parameters are invalid
         """
         if page < 1:
             raise BadRequestException(
@@ -214,11 +195,11 @@ class SettlementServiceImpl(ISettlementService):
                 details="Size number must be greater than 0",
             )
 
-        page_result = await self.repository.get_pageable(page, size)
+        page_result = await self.settlement_repository.get_pageable(page, size)
         settlement_response = [
-            SettlementReponseDTO(
+            SettlementResponseDTO(
                 id=settlement.id,
-                nombre=settlement.nombre,
+                name=settlement.name,
                 created_at=settlement.created_at,
                 updated_at=settlement.updated_at,
             )
@@ -235,17 +216,12 @@ class SettlementServiceImpl(ISettlementService):
         """
         Searches for settlements matching the given search term.
 
-        Args:
-            page: Page number to retrieve
-            size: Number of items per page
-            search_term: Term to search for in settlement names
-
-        Returns:
-            Paginated settlements matching the search criteria
-
-        Raises:
-            BadRequestException: If page or size parameters are invalid
-            NotFoundException: If no settlements match the search criteria
+        :param page: Page number to retrieve
+        :param size: Number of items per page
+        :param search_term: Term to search for in settlement names
+        :return: Paginated settlements matching the search criteria
+        :raises BadRequestException: If page or size parameters are invalid
+        :raises NotFoundException: If no settlements match the search criteria
         """
         if page < 1:
             raise BadRequestException(
@@ -258,9 +234,9 @@ class SettlementServiceImpl(ISettlementService):
                 details="Size number must be greater than 0",
             )
 
-        search_dict = {"nombre": search_term}
+        search_dict = {"name": search_term}
 
-        page_result = await self.repository.find(page, size, search_dict)
+        page_result = await self.settlement_repository.find(page, size, search_dict)
 
         if not page_result.data:
             raise NotFoundException(
@@ -268,9 +244,9 @@ class SettlementServiceImpl(ISettlementService):
             )
 
         settlement_response = [
-            SettlementReponseDTO(
+            SettlementResponseDTO(
                 id=settlement.id,
-                nombre=settlement.nombre,
+                name=settlement.name,
                 created_at=settlement.created_at,
                 updated_at=settlement.updated_at,
             )

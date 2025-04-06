@@ -6,7 +6,7 @@ from src.app.repository.dependencies import get_position_repository
 
 
 async def get_position_service(
-    repository: IPositionRepository = Depends(get_position_repository),
+    position_repository: IPositionRepository = Depends(get_position_repository),
 ) -> IPositionService:
     """
     Dependency function to get the position service implementation.
@@ -14,11 +14,8 @@ async def get_position_service(
     This function creates and provides an instance of the position service
     implementation with the necessary repository dependency injected.
 
-    Args:
-        repository: The position repository implementation provided by
-                   the FastAPI dependency injection system.
-
-    Returns:
-        An implementation of IPositionService configured with the provided repository.
+    :param position_repository: The position repository implementation provided by
+                                the FastAPI dependency injection system
+    :return: An implementation of IPositionService configured with the provided repository
     """
-    return PositionServiceImpl(repository=repository)
+    return PositionServiceImpl(position_repository=position_repository)

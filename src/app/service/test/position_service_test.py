@@ -1,7 +1,7 @@
 import pytest
 from datetime import datetime
 from unittest.mock import AsyncMock
-from src.app.model.entity import Cargo
+from src.app.model.entity import Position
 from src.app.dto.request import PositionRequestDTO
 from src.app.dto.response import PositionResponseDTO, PositionPage
 from src.app.service.implementations import PositionServiceImpl
@@ -13,47 +13,41 @@ class TestPositionServiceImpl:
     @pytest.fixture
     def position_repository(self):
         """
-        Creates a mock repository for testing the position service.
+        Crea un mock del repositorio para pruebas del servicio de posiciones.
 
-        Returns:
-            A mock position repository with predefined async methods.
+        :return: Un mock del repositorio de posiciones con métodos asincrónicos predefinidos
         """
         return AsyncMock()
 
     @pytest.fixture
     def position_service(self, position_repository):
         """
-        Creates a position service instance for testing.
+        Crea una instancia del servicio de posiciones para pruebas.
 
-        Args:
-            position_repository: The mock repository to inject.
-
-        Returns:
-            An instance of PositionServiceImpl with the mock repository.
+        :param position_repository: El mock del repositorio a inyectar
+        :return: Una instancia de PositionServiceImpl con el repositorio mock
         """
-        return PositionServiceImpl(repository=position_repository)
+        return PositionServiceImpl(position_repository=position_repository)
 
     @pytest.fixture
     def position_request_dto(self):
         """
-        Creates a sample position request DTO.
+        Crea un DTO de solicitud de posición de ejemplo.
 
-        Returns:
-            A PositionRequestDTO instance with test data.
+        :return: Una instancia de PositionRequestDTO con datos de prueba
         """
-        return PositionRequestDTO(nombre="Project Manager")
+        return PositionRequestDTO(name="Project Manager")
 
     @pytest.fixture
     def position_entity(self):
         """
-        Creates a sample position entity.
+        Crea una entidad de posición de ejemplo.
 
-        Returns:
-            A Cargo instance with test data.
+        :return: Una instancia de Position con datos de prueba
         """
-        return Cargo(
+        return Position(
             id=1,
-            nombre="Project Manager",
+            name="Project Manager",
             created_at=datetime.now(),
             updated_at=None,
         )
@@ -67,9 +61,9 @@ class TestPositionServiceImpl:
         position_entity,
     ):
         """
-        Tests successful position creation.
+        Prueba la creación exitosa de una posición.
         """
-        print(f"\n🔹 Creating new position: '{position_request_dto.nombre}' 🔹")
+        print(f"\n🔹 Creating new position: '{position_request_dto.name}' 🔹")
         position_repository.exists_by.return_value = False
         position_repository.save.return_value = position_entity
 
@@ -78,9 +72,9 @@ class TestPositionServiceImpl:
 
         assert isinstance(result, PositionResponseDTO)
         assert result.id == position_entity.id
-        assert result.nombre == position_entity.nombre
+        assert result.name == position_entity.name
         position_repository.exists_by.assert_called_once_with(
-            nombre=position_request_dto.nombre
+            name=position_request_dto.name
         )
         position_repository.save.assert_called_once()
 
@@ -92,10 +86,10 @@ class TestPositionServiceImpl:
         position_request_dto,
     ):
         """
-        Tests position creation with a name that already exists.
+        Prueba la creación de una posición con un nombre que ya existe.
         """
         print(
-            f"\n🔹 Attempting to create duplicate position: '{position_request_dto.nombre}' 🔹"
+            f"\n🔹 Attempting to create duplicate position: '{position_request_dto.name}' 🔹"
         )
         position_repository.exists_by.return_value = True
 
@@ -103,12 +97,11 @@ class TestPositionServiceImpl:
             await position_service.add_position(position_request_dto)
         print(f"⚠️ Conflict detected: {exc_info.value}")
 
-        assert (
-            f"Position with name {position_request_dto.nombre} already exists"
-            in str(exc_info.value)
+        assert f"Position with name {position_request_dto.name} already exists" in str(
+            exc_info.value
         )
         position_repository.exists_by.assert_called_once_with(
-            nombre=position_request_dto.nombre
+            name=position_request_dto.name
         )
         position_repository.save.assert_not_called()
 
@@ -120,12 +113,12 @@ class TestPositionServiceImpl:
         position_entity,
     ):
         """
-        Tests retrieving all positions.
+        Prueba la recuperación de todas las posiciones.
         """
         print("\n🔹 Getting all positions 🔍")
         positions = [
             position_entity,
-            Cargo(id=2, nombre="Developer", created_at=datetime.now()),
+            Position(id=2, name="Developer", created_at=datetime.now()),
         ]
         position_repository.get_all.return_value = positions
 
@@ -136,9 +129,9 @@ class TestPositionServiceImpl:
         assert len(result) == 2
         assert all(isinstance(position, PositionResponseDTO) for position in result)
         assert result[0].id == 1
-        assert result[0].nombre == "Project Manager"
+        assert result[0].name == "Project Manager"
         assert result[1].id == 2
-        assert result[1].nombre == "Developer"
+        assert result[1].name == "Developer"
         position_repository.get_all.assert_called_once()
 
     @pytest.mark.asyncio
@@ -149,13 +142,13 @@ class TestPositionServiceImpl:
         position_entity,
     ):
         """
-        Tests successful position update.
+        Prueba la actualización exitosa de una posición.
         """
         print(f"\n🔹 Updating position ID: 1 to name: 'Senior Project Manager' 🔄")
-        updated_request = PositionRequestDTO(nombre="Senior Project Manager")
-        updated_entity = Cargo(
+        updated_request = PositionRequestDTO(name="Senior Project Manager")
+        updated_entity = Position(
             id=1,
-            nombre="Senior Project Manager",
+            name="Senior Project Manager",
             created_at=position_entity.created_at,
             updated_at=datetime.now(),
         )
@@ -165,14 +158,14 @@ class TestPositionServiceImpl:
         position_repository.save.return_value = updated_entity
 
         result = await position_service.update_position(1, updated_request)
-        print(f"✅ Position successfully updated: {result.nombre}")
+        print(f"✅ Position successfully updated: {result.name}")
 
         assert isinstance(result, PositionResponseDTO)
         assert result.id == 1
-        assert result.nombre == "Senior Project Manager"
+        assert result.name == "Senior Project Manager"
         assert result.updated_at is not None
         position_repository.exists_by.assert_any_call(id=1)
-        position_repository.exists_by.assert_any_call(nombre="Senior Project Manager")
+        position_repository.exists_by.assert_any_call(name="Senior Project Manager")
         position_repository.save.assert_called_once()
 
     @pytest.mark.asyncio
@@ -180,10 +173,10 @@ class TestPositionServiceImpl:
         self, position_service, position_repository
     ):
         """
-        Tests position update when the position doesn't exist.
+        Prueba la actualización de una posición cuando esta no existe.
         """
         print(f"\n🔹 Attempting to update non-existent position (ID: 999) 🔄")
-        updated_request = PositionRequestDTO(nombre="Senior Project Manager")
+        updated_request = PositionRequestDTO(name="Senior Project Manager")
         position_repository.exists_by.return_value = False
 
         with pytest.raises(NotFoundException) as exc_info:
@@ -202,10 +195,10 @@ class TestPositionServiceImpl:
         position_entity,
     ):
         """
-        Tests position update with a conflicting name.
+        Prueba la actualización de una posición con un nombre conflictivo.
         """
         print(f"\n🔹 Attempting to update to an existing name: 'Developer' 🔄")
-        updated_request = PositionRequestDTO(nombre="Developer")
+        updated_request = PositionRequestDTO(name="Developer")
         position_repository.exists_by.side_effect = [True, True]
         position_repository.get_by_id.return_value = position_entity
 
@@ -215,13 +208,13 @@ class TestPositionServiceImpl:
 
         assert "Position with name Developer already exists" in str(exc_info.value)
         position_repository.exists_by.assert_any_call(id=1)
-        position_repository.exists_by.assert_any_call(nombre="Developer")
+        position_repository.exists_by.assert_any_call(name="Developer")
         position_repository.save.assert_not_called()
 
     @pytest.mark.asyncio
     async def test_delete_position_success(self, position_service, position_repository):
         """
-        Tests successful position deletion.
+        Prueba la eliminación exitosa de una posición.
         """
         print("\n🔹 Deleting position (ID: 1) 🗑️")
         position_repository.exists_by.return_value = True
@@ -241,7 +234,7 @@ class TestPositionServiceImpl:
         self, position_service, position_repository
     ):
         """
-        Tests position deletion when the position doesn't exist.
+        Prueba la eliminación de una posición cuando esta no existe.
         """
         print("\n🔹 Attempting to delete non-existent position (ID: 999) 🗑️")
         position_repository.exists_by.return_value = False
@@ -257,7 +250,7 @@ class TestPositionServiceImpl:
     @pytest.mark.asyncio
     async def test_delete_position_failure(self, position_service, position_repository):
         """
-        Tests position deletion when the repository operation fails.
+        Prueba la eliminación de una posición cuando la operación del repositorio falla.
         """
         print("\n🔹 Simulating failure in position deletion (ID: 1) 🗑️")
         position_repository.exists_by.return_value = True
@@ -280,18 +273,18 @@ class TestPositionServiceImpl:
         position_entity,
     ):
         """
-        Tests retrieving a position by ID.
+        Prueba la recuperación de una posición por ID.
         """
         print("\n🔹 Finding position by ID: 1 🔍")
         position_repository.exists_by.return_value = True
         position_repository.get_by_id.return_value = position_entity
 
         result = await position_service.get_position_by_id(1)
-        print(f"✅ Position found: '{result.nombre}'")
+        print(f"✅ Position found: '{result.name}'")
 
         assert isinstance(result, PositionResponseDTO)
         assert result.id == 1
-        assert result.nombre == "Project Manager"
+        assert result.name == "Project Manager"
         position_repository.exists_by.assert_called_once_with(id=1)
         position_repository.get_by_id.assert_called_once_with(1)
 
@@ -300,7 +293,7 @@ class TestPositionServiceImpl:
         self, position_service, position_repository
     ):
         """
-        Tests retrieving a non-existent position by ID.
+        Prueba la recuperación de una posición inexistente por ID.
         """
         print("\n🔹 Finding non-existent position by ID: 999 🔍")
         position_repository.exists_by.return_value = False
@@ -321,12 +314,12 @@ class TestPositionServiceImpl:
         position_entity,
     ):
         """
-        Tests retrieving paginated positions.
+        Prueba la recuperación de posiciones paginadas.
         """
         print("\n🔹 Getting positions with pagination (page: 1, size: 10) 📄")
         positions = [
             position_entity,
-            Cargo(id=2, nombre="Developer", created_at=datetime.now()),
+            Position(id=2, name="Developer", created_at=datetime.now()),
         ]
         pagination = Pagination(
             current_page=1,
@@ -354,7 +347,7 @@ class TestPositionServiceImpl:
     @pytest.mark.asyncio
     async def test_get_positions_paginated_invalid_params(self, position_service):
         """
-        Tests retrieving paginated positions with invalid parameters.
+        Prueba la recuperación de posiciones paginadas con parámetros inválidos.
         """
         print("\n🔹 Testing pagination with invalid parameters ⚠️")
 
@@ -378,7 +371,7 @@ class TestPositionServiceImpl:
         position_entity,
     ):
         """
-        Tests searching for positions with filter criteria.
+        Prueba la búsqueda de posiciones con criterios de filtro.
         """
         print("\n🔹 Searching for positions containing 'Project' 🔍")
         positions = [position_entity]
@@ -397,18 +390,18 @@ class TestPositionServiceImpl:
         result = await position_service.find(page=1, size=10, search_term="Project")
         print(f"🔎 Found {len(result.data)} positions with 'Project'")
         for item in result.data:
-            print(f"  - {item.nombre} (ID: {item.id})")
+            print(f"  - {item.name} (ID: {item.id})")
 
         assert isinstance(result, PositionPage)
         assert len(result.data) == 1
-        assert result.data[0].nombre == "Project Manager"
+        assert result.data[0].name == "Project Manager"
         assert result.meta.total == 1
-        position_repository.find.assert_called_once_with(1, 10, {"nombre": "Project"})
+        position_repository.find.assert_called_once_with(1, 10, {"name": "Project"})
 
     @pytest.mark.asyncio
     async def test_find_invalid_params(self, position_service):
         """
-        Tests searching for positions with invalid parameters.
+        Prueba la búsqueda de posiciones con parámetros inválidos.
         """
         print("\n🔹 Testing search with invalid parameters ⚠️")
 
@@ -427,7 +420,7 @@ class TestPositionServiceImpl:
     @pytest.mark.asyncio
     async def test_find_not_found(self, position_service, position_repository):
         """
-        Tests searching for positions when none are found.
+        Prueba la búsqueda de posiciones cuando no se encuentra ninguna.
         """
         print("\n🔹 Searching for non-existent position term: 'NotFound' 🔍")
         pagination = Pagination(
@@ -446,4 +439,4 @@ class TestPositionServiceImpl:
         print(f"⚠️ Expected error: {exc_info.value}")
 
         assert "No positions found with the search term NotFound" in str(exc_info.value)
-        position_repository.find.assert_called_once_with(1, 10, {"nombre": "NotFound"})
+        position_repository.find.assert_called_once_with(1, 10, {"name": "NotFound"})

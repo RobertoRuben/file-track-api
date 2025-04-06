@@ -1,59 +1,49 @@
 from abc import ABC, abstractmethod
-from src.app.model.entity import Cargo
+from src.app.model.entity import Position
 from src.app.schema import Page
 
 
 class IPositionRepository(ABC):
     """
-    Interface for the Cargo repository.
+    Interface for the Position repository.
     """
 
     @abstractmethod
-    async def save(self, cargo: Cargo) -> Cargo:
+    async def save(self, position: Position) -> Position:
         """
         Save a position entity to the database.
 
-        Args:
-            cargo: The position entity to save
-
-        Returns:
-            The saved position with updated data
+        :param position: The position entity to save
+        :return: The saved position with updated data
         """
         pass
 
     @abstractmethod
-    async def get_all(self) -> list[Cargo]:
+    async def get_all(self) -> list[Position]:
         """
         Retrieve all position entities from the database.
 
-        Returns:
-            A list containing all positions
+        :return: A list containing all positions
         """
         pass
 
     @abstractmethod
-    async def delete(self, cargo_id: int) -> bool:
+    async def delete(self, position_id: int) -> bool:
         """
         Delete a position entity from the database by its ID.
 
-        Args:
-            cargo_id: The ID of the position to delete
-
-        Returns:
-            True if the position was successfully deleted, False otherwise
+        :param position_id: The ID of the position to delete
+        :return: True if the position was successfully deleted, False otherwise
         """
         pass
 
     @abstractmethod
-    async def get_by_id(self, cargo_id: int) -> Cargo:
+    async def get_by_id(self, position_id: int) -> Position:
         """
         Retrieve a position entity from the database by its ID.
 
-        Args:
-            cargo_id: The ID of the position to retrieve
-
-        Returns:
-            The found position entity
+        :param position_id: The ID of the position to retrieve
+        :return: The found position entity
         """
         pass
 
@@ -62,12 +52,9 @@ class IPositionRepository(ABC):
         """
         Retrieve a paginated list of position entities from the database.
 
-        Args:
-            page: The page number (starts at 1)
-            size: The size of each page
-
-        Returns:
-            A Page object containing positions and pagination information
+        :param page: The page number (starts at 1)
+        :param size: The size of each page
+        :return: A Page object containing positions and pagination information
         """
         pass
 
@@ -81,13 +68,10 @@ class IPositionRepository(ABC):
         """
         Retrieve a paginated list of position entities based on search criteria.
 
-        Args:
-            page: The page number (starts at 1)
-            size: The size of each page
-            search_dict: Dictionary containing search parameters
-
-        Returns:
-            A Page object with positions matching the search criteria
+        :param page: The page number (starts at 1)
+        :param size: The size of each page
+        :param search_dict: Dictionary containing search parameters
+        :return: A Page object with positions matching the search criteria
         """
         pass
 
@@ -96,10 +80,7 @@ class IPositionRepository(ABC):
         """
         Check if a position entity exists in the database based on specific criteria.
 
-        Args:
-            **kwargs: Key-value pairs representing the search criteria
-
-        Returns:
-            True if a matching position exists, False otherwise
+        :param kwargs: Key-value pairs representing the search criteria
+        :return: True if a matching position exists, False otherwise
         """
         pass

@@ -11,10 +11,7 @@ async def get_settlement_repository(
     """
     Dependency function to get the settlement repository implementation.
 
-    Args:
-        session: The async database session provided by the FastAPI dependency injection system
-
-    Returns:
-        An implementation of ISettlementRepository bound to the provided session
+    :param session: The async database session provided by FastAPI's dependency injection system
+    :return: An implementation of ISettlementRepository bound to the provided session
     """
     return SettlementRepositoryImpl(session=session)

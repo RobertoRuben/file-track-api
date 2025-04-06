@@ -1,4 +1,4 @@
-from .category_document_request_dto import CategoryDocumentRequestDTO
+from .document_category_request_dto import DocumentCategoryRequestDTO
 from .role_request_dto import RoleRequestDTO
 from .department_request_dto import DepartmentRequestDTO
 from .documentary_topic_request_dto import DocumentaryTopicRequestDTO
@@ -7,11 +7,11 @@ from .submitter_request_dto import SubmitterRequestDTO
 from .position_request_dto import PositionRequestDTO
 from .employe_request_dto import EmployeeRequestDto
 from .hamlet_request_dto import HamletRequestDTO
-from .area_connection_request_dto import AreaConnectionRequestDto
+from .department_connection_request_dto import DepartmentConnectionRequestDTO
 from .user_request_dto import UserRequestDTO
 
 __all__ = [
-    "CategoryDocumentRequestDTO",
+    "DocumentCategoryRequestDTO",
     "RoleRequestDTO",
     "DepartmentRequestDTO",
     "DocumentaryTopicRequestDTO",
@@ -20,6 +20,6 @@ __all__ = [
     "PositionRequestDTO",
     "EmployeeRequestDto",
     "HamletRequestDTO",
-    "AreaConnectionRequestDto",
+    "DepartmentConnectionRequestDTO",
     "UserRequestDTO",
 ]

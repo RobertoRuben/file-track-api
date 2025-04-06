@@ -4,13 +4,18 @@ from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
 from sqlalchemy.exc import IntegrityError
 from src.app.repository.implementations import UserRepositoryImpl
-from src.app.model.entity import User, Trabajador, Rol
+from src.app.model.entity import User, Employee, Role
 from src.app.exception import DatabaseException, InvalidFieldException
 from src.app.schema import Page, Pagination
 
 
 @pytest.fixture
 def mock_session():
+    """
+    Creates a mock database session for testing.
+
+    :return: A mock AsyncSession object
+    """
     session = AsyncMock()
     session.commit = AsyncMock()
     session.refresh = AsyncMock()
@@ -21,19 +26,30 @@ def mock_session():
 
 @pytest.fixture
 def user_repository(mock_session):
+    """
+    Creates a UserRepositoryImpl instance for testing.
+
+    :param mock_session: The mock database session
+    :return: A UserRepositoryImpl instance
+    """
     return UserRepositoryImpl(session=mock_session)
 
 
 @pytest.fixture
 def employee_sample():
-    return Trabajador(
+    """
+    Creates a sample Employee entity for testing.
+
+    :return: A sample Employee entity
+    """
+    return Employee(
         id=1,
         dni=12345678,
-        nombres="Juan Carlos",
-        apellido_paterno="Pérez",
-        apellido_materno="Gómez",
-        genero="Masculino",
-        cargo_id=1,
+        names="Juan Carlos",
+        paternal_surname="Pérez",
+        maternal_surname="Gómez",
+        gender="Male",
+        position_id=1,
         area_id=1,
         created_at=datetime.now(),
         updated_at=None,
@@ -42,27 +58,50 @@ def employee_sample():
 
 @pytest.fixture
 def role_sample():
-    return Rol(id=1, nombre="Administrador")
+    """
+    Creates a sample Role entity for testing.
+
+    :return: A sample Role entity
+    """
+    return Role(id=1, name="Administrator")
 
 
 @pytest.fixture
 def user_sample(employee_sample, role_sample):
+    """
+    Creates a sample User entity for testing.
+
+    :param employee_sample: A sample Employee entity
+    :param role_sample: A sample Role entity
+    :return: A sample User entity
+    """
     return User(
         id=1,
         username="jperez",
         password="hashed_password",
         employee_id=employee_sample.id,
-        rol_id=role_sample.id,
+        role_id=role_sample.id,
         created_at=datetime.now(),
         updated_at=None,
     )
 
 
 class TestUserRepositoryImpl:
+    """
+    Test class for UserRepositoryImpl.
+
+    Contains all tests related to user repository operations.
+    """
 
     @pytest.mark.asyncio
     async def test_save_success(self, user_repository, mock_session, user_sample):
-        """Test to verify that the save method correctly stores a user."""
+        """
+        Test to verify that the save method correctly stores a user.
+
+        :param user_repository: The repository under test
+        :param mock_session: The mock database session
+        :param user_sample: A sample User entity
+        """
         print("🧪 Testing successful user saving...")
 
         result = await user_repository.save(user_sample)
@@ -77,7 +116,13 @@ class TestUserRepositoryImpl:
     async def test_save_integrity_error(
         self, user_repository, mock_session, user_sample
     ):
-        """Test to verify that save method correctly handles integrity errors."""
+        """
+        Test to verify that save method correctly handles integrity errors.
+
+        :param user_repository: The repository under test
+        :param mock_session: The mock database session
+        :param user_sample: A sample User entity
+        """
         print("🧪 Testing integrity error handling during save...")
 
         error_original = MagicMock()
@@ -97,7 +142,13 @@ class TestUserRepositoryImpl:
 
     @pytest.mark.asyncio
     async def test_get_all_success(self, user_repository, mock_session, user_sample):
-        """Test to verify that get_all returns all users."""
+        """
+        Test to verify that get_all returns all users.
+
+        :param user_repository: The repository under test
+        :param mock_session: The mock database session
+        :param user_sample: A sample User entity
+        """
         print("🧪 Testing retrieval of all users...")
 
         users = [
@@ -107,7 +158,7 @@ class TestUserRepositoryImpl:
                 username="mlopez",
                 password="hashed_password",
                 employee_id=2,
-                rol_id=2,
+                role_id=2,
                 created_at=datetime.now(),
                 updated_at=None,
             ),
@@ -128,7 +179,13 @@ class TestUserRepositoryImpl:
 
     @pytest.mark.asyncio
     async def test_delete_success(self, user_repository, mock_session, user_sample):
-        """Test to verify that delete successfully removes a user."""
+        """
+        Test to verify that delete successfully removes a user.
+
+        :param user_repository: The repository under test
+        :param mock_session: The mock database session
+        :param user_sample: A sample User entity
+        """
         print("🧪 Testing user deletion...")
 
         user_repository.get_by_id = AsyncMock(return_value=user_sample)
@@ -148,7 +205,13 @@ class TestUserRepositoryImpl:
 
     @pytest.mark.asyncio
     async def test_get_by_id_success(self, user_repository, mock_session, user_sample):
-        """Test to verify that get_by_id returns the correct user."""
+        """
+        Test to verify that get_by_id returns the correct user.
+
+        :param user_repository: The repository under test
+        :param mock_session: The mock database session
+        :param user_sample: A sample User entity
+        """
         print("🧪 Testing user retrieval by ID...")
 
         mock_result = MagicMock()
@@ -165,7 +228,12 @@ class TestUserRepositoryImpl:
 
     @pytest.mark.asyncio
     async def test_get_pageable_success(self, user_repository, mock_session):
-        """Test to verify that get_pageable returns a page of results."""
+        """
+        Test to verify that get_pageable returns a page of results.
+
+        :param user_repository: The repository under test
+        :param mock_session: The mock database session
+        """
         print("🧪 Testing user pagination...")
 
         users_data = [
@@ -174,8 +242,9 @@ class TestUserRepositoryImpl:
                 "username": "jperez",
                 "employee_id": 1,
                 "employee_name": "Pérez Gómez Juan Carlos",
-                "rol_id": 1,
-                "role_name": "Administrador",
+                "is_active": True,
+                "role_id": 1,
+                "role_name": "Administrator",
                 "created_at": datetime.now(),
                 "updated_at": None,
             },
@@ -184,8 +253,9 @@ class TestUserRepositoryImpl:
                 "username": "mlopez",
                 "employee_id": 2,
                 "employee_name": "López Sánchez María",
-                "rol_id": 2,
-                "role_name": "Usuario",
+                "is_active": True,
+                "role_id": 2,
+                "role_name": "User",
                 "created_at": datetime.now(),
                 "updated_at": None,
             },
@@ -216,7 +286,12 @@ class TestUserRepositoryImpl:
 
     @pytest.mark.asyncio
     async def test_exists_by_success(self, user_repository, mock_session):
-        """Test to verify that exists_by returns True when the user exists."""
+        """
+        Test to verify that exists_by returns True when the user exists.
+
+        :param user_repository: The repository under test
+        :param mock_session: The mock database session
+        """
         print("🧪 Testing user existence verification...")
 
         mock_result = AsyncMock()
@@ -232,7 +307,12 @@ class TestUserRepositoryImpl:
 
     @pytest.mark.asyncio
     async def test_exists_by_not_found(self, user_repository, mock_session):
-        """Test to verify that exists_by returns False when the user doesn't exist."""
+        """
+        Test to verify that exists_by returns False when the user doesn't exist.
+
+        :param user_repository: The repository under test
+        :param mock_session: The mock database session
+        """
         print("🧪 Testing non-existent user verification...")
 
         user_repository.exists_by = AsyncMock(return_value=False)
@@ -246,7 +326,12 @@ class TestUserRepositoryImpl:
 
     @pytest.mark.asyncio
     async def test_exists_by_invalid_field(self, user_repository, mock_session):
-        """Test to verify that exists_by throws an exception with invalid field."""
+        """
+        Test to verify that exists_by throws an exception with invalid field.
+
+        :param user_repository: The repository under test
+        :param mock_session: The mock database session
+        """
         print("🧪 Testing invalid field handling...")
 
         with pytest.raises(InvalidFieldException) as exc_info:
@@ -257,7 +342,12 @@ class TestUserRepositoryImpl:
 
     @pytest.mark.asyncio
     async def test_find_with_filters(self, user_repository, mock_session):
-        """Test to verify that find correctly filters by search criteria."""
+        """
+        Test to verify that find correctly filters by search criteria.
+
+        :param user_repository: The repository under test
+        :param mock_session: The mock database session
+        """
         print("🧪 Testing search with filters...")
 
         users_data = [
@@ -266,8 +356,9 @@ class TestUserRepositoryImpl:
                 "username": "jperez",
                 "employee_id": 1,
                 "employee_name": "Pérez Gómez Juan Carlos",
-                "rol_id": 1,
-                "role_name": "Administrador",
+                "is_active": True,
+                "role_id": 1,
+                "role_name": "Administrator",
                 "created_at": datetime.now(),
                 "updated_at": None,
             }
@@ -286,7 +377,7 @@ class TestUserRepositoryImpl:
 
         user_repository.find = AsyncMock(return_value=page)
 
-        search_params = {"user_name": "jperez"}
+        search_params = {"username": "jperez"}
         result = await user_repository.find(page=1, size=10, search_dict=search_params)
 
         assert isinstance(result, Page)

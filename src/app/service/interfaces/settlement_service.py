@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from src.app.dto.request import SettlementRequestDTO
-from src.app.dto.response import SettlementReponseDTO, SettlementPage
+from src.app.dto.response import SettlementResponseDTO, SettlementPage
 from src.app.schema import MessageResponse
 
 
@@ -8,46 +8,41 @@ class ISettlementService(ABC):
     """
     Interface for settlement service operations.
     Defines the contract for business logic related to settlements.
+
+    :ivar None: This is an interface and does not have instance variables
     """
 
     @abstractmethod
     async def add_settlement(
         self, settlement_request: SettlementRequestDTO
-    ) -> SettlementReponseDTO:
+    ) -> SettlementResponseDTO:
         """
         Adds a new settlement.
 
-        Args:
-            settlement_request: The DTO containing settlement details.
-
-        Returns:
-            The created settlement as SettlementReponseDTO.
+        :param settlement_request: The DTO containing settlement details
+        :return: The created settlement as SettlementResponseDTO
         """
         pass
 
     @abstractmethod
-    async def get_all_settlements(self) -> list[SettlementReponseDTO]:
+    async def get_all_settlements(self) -> list[SettlementResponseDTO]:
         """
         Retrieves all settlements.
 
-        Returns:
-            A list of SettlementReponseDTO objects representing all settlements.
+        :return: A list of SettlementResponseDTO objects representing all settlements
         """
         pass
 
     @abstractmethod
     async def update_settlement(
         self, settlement_id: int, settlement_request: SettlementRequestDTO
-    ) -> SettlementReponseDTO:
+    ) -> SettlementResponseDTO:
         """
         Updates an existing settlement.
 
-        Args:
-            settlement_id: The ID of the settlement to update.
-            settlement_request: The DTO containing updated settlement details.
-
-        Returns:
-            The updated settlement as SettlementReponseDTO.
+        :param settlement_id: The ID of the settlement to update
+        :param settlement_request: The DTO containing updated settlement details
+        :return: The updated settlement as SettlementResponseDTO
         """
         pass
 
@@ -56,24 +51,18 @@ class ISettlementService(ABC):
         """
         Deletes a settlement by its ID.
 
-        Args:
-            settlement_id: The ID of the settlement to delete.
-
-        Returns:
-            A MessageResponse indicating the result of the deletion.
+        :param settlement_id: The ID of the settlement to delete
+        :return: A MessageResponse indicating the result of the deletion
         """
         pass
 
     @abstractmethod
-    async def get_settlement_by_id(self, settlement_id: int) -> SettlementReponseDTO:
+    async def get_settlement_by_id(self, settlement_id: int) -> SettlementResponseDTO:
         """
         Retrieves a settlement by its ID.
 
-        Args:
-            settlement_id: The ID of the settlement to retrieve.
-
-        Returns:
-            The settlement as SettlementReponseDTO.
+        :param settlement_id: The ID of the settlement to retrieve
+        :return: The settlement as SettlementResponseDTO
         """
         pass
 
@@ -82,12 +71,9 @@ class ISettlementService(ABC):
         """
         Retrieves a paginated list of settlements.
 
-        Args:
-            page: The page number to retrieve.
-            size: The number of settlements per page.
-
-        Returns:
-            A SettlementPage object containing the paginated settlements.
+        :param page: The page number to retrieve
+        :param size: The number of settlements per page
+        :return: A SettlementPage object containing the paginated settlements
         """
         pass
 
@@ -96,12 +82,9 @@ class ISettlementService(ABC):
         """
         Searches for settlements based on search criteria.
 
-        Args:
-            page: The page number to retrieve.
-            size: The number of settlements per page.
-            search_term: The term to search for in settlement names.
-
-        Returns:
-            A SettlementPage object containing settlements that match the search criteria.
+        :param page: The page number to retrieve
+        :param size: The number of settlements per page
+        :param search_term: The term to search for in settlement names
+        :return: A SettlementPage object containing settlements that match the search criteria
         """
         pass

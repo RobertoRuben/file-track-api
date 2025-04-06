@@ -4,7 +4,7 @@ from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
 from sqlalchemy.exc import IntegrityError
 from src.app.repository.implementations import HamletRepositoryImpl
-from src.app.model.entity import Caserio, CentroPoblado
+from src.app.model.entity import Hamlet, Settlement
 from src.app.exception import DatabaseException, InvalidFieldException
 from src.app.schema import Page, Pagination
 
@@ -26,18 +26,18 @@ def hamlet_repository(mock_session):
 
 @pytest.fixture
 def hamlet_sample():
-    return Caserio(
+    return Hamlet(
         id=1,
-        nombre="El Paraíso",
-        centro_poblado_id=1,
+        name="El Paraíso",
+        settlement_id=1,
         created_at=datetime.now(),
         updated_at=None,
     )
 
 
 @pytest.fixture
-def populated_center_sample():
-    return CentroPoblado(id=1, nombre="San Juan")
+def settlement_sample():
+    return Settlement(id=1, name="San Juan")
 
 
 class TestHamletRepositoryImpl:
@@ -51,7 +51,7 @@ class TestHamletRepositoryImpl:
 
         mock_session.add.assert_called_once_with(hamlet_sample)
         assert result == hamlet_sample
-        print(f"✅ Hamlet saved successfully: ID={result.id}, Name='{result.nombre}'")
+        print(f"✅ Hamlet saved successfully: ID={result.id}, Name='{result.name}'")
 
     @pytest.mark.asyncio
     async def test_save_integrity_error(
@@ -81,15 +81,15 @@ class TestHamletRepositoryImpl:
         print("🧪 Testing retrieval of all hamlets...")
 
         hamlets = [
-            Caserio(
+            Hamlet(
                 id=1,
-                nombre="El Paraíso",
-                centro_poblado_id=1,
+                name="El Paraíso",
+                settlement_id=1,
             ),
-            Caserio(
+            Hamlet(
                 id=2,
-                nombre="Las Flores",
-                centro_poblado_id=1,
+                name="Las Flores",
+                settlement_id=1,
             ),
         ]
 
@@ -100,11 +100,11 @@ class TestHamletRepositoryImpl:
         result = await hamlet_repository.get_all()
 
         assert len(result) == 2
-        assert result[0].nombre == "El Paraíso"
-        assert result[1].nombre == "Las Flores"
+        assert result[0].name == "El Paraíso"
+        assert result[1].name == "Las Flores"
         print(f"✅ All hamlets retrieved: {len(result)} hamlets found")
         for i, hamlet in enumerate(result):
-            print(f"   - Hamlet {i+1}: ID={hamlet.id}, Name='{hamlet.nombre}'")
+            print(f"   - Hamlet {i+1}: ID={hamlet.id}, Name='{hamlet.name}'")
 
     @pytest.mark.asyncio
     async def test_delete_success(self, hamlet_repository, mock_session, hamlet_sample):
@@ -113,8 +113,8 @@ class TestHamletRepositoryImpl:
 
         hamlet_repository.get_by_id = AsyncMock(return_value=hamlet_sample)
 
-        async def patched_delete(caserio_id):
-            hamlet = await hamlet_repository.get_by_id(caserio_id)
+        async def patched_delete(hamlet_id):
+            hamlet = await hamlet_repository.get_by_id(hamlet_id)
             await mock_session.delete(hamlet)
             await mock_session.commit()
             return True
@@ -125,7 +125,7 @@ class TestHamletRepositoryImpl:
 
         assert result is True
         mock_session.delete.assert_called_once_with(hamlet_sample)
-        print(f"✅ Hamlet deleted successfully: ID=1, Name='{hamlet_sample.nombre}'")
+        print(f"✅ Hamlet deleted successfully: ID=1, Name='{hamlet_sample.name}'")
 
     @pytest.mark.asyncio
     async def test_get_by_id_success(
@@ -143,8 +143,8 @@ class TestHamletRepositoryImpl:
         result = await hamlet_repository.get_by_id(1)
 
         assert result == hamlet_sample
-        assert result.nombre == "El Paraíso"
-        print(f"✅ Hamlet retrieved by ID: ID={result.id}, Name='{result.nombre}'")
+        assert result.name == "El Paraíso"
+        print(f"✅ Hamlet retrieved by ID: ID={result.id}, Name='{result.name}'")
 
     @pytest.mark.asyncio
     async def test_get_pageable_success(self, hamlet_repository, mock_session):
@@ -154,17 +154,17 @@ class TestHamletRepositoryImpl:
         hamlets_data = [
             {
                 "id": 1,
-                "nombre": "El Paraíso",
-                "centro_poblado_id": 1,
-                "centro_poblado_nombre": "San Juan",
+                "name": "El Paraíso",
+                "settlement_id": 1,
+                "settlement_name": "San Juan",
                 "created_at": datetime.now(),
                 "updated_at": None,
             },
             {
                 "id": 2,
-                "nombre": "Las Flores",
-                "centro_poblado_id": 1,
-                "centro_poblado_nombre": "San Juan",
+                "name": "Las Flores",
+                "settlement_id": 1,
+                "settlement_name": "San Juan",
                 "created_at": datetime.now(),
                 "updated_at": None,
             },
@@ -202,7 +202,7 @@ class TestHamletRepositoryImpl:
         mock_result.first.return_value = 1
         mock_session.exec.return_value = mock_result
 
-        result = await hamlet_repository.exists_by(nombre="El Paraíso")
+        result = await hamlet_repository.exists_by(name="El Paraíso")
 
         assert result is True
         print(
@@ -216,11 +216,11 @@ class TestHamletRepositoryImpl:
 
         hamlet_repository.exists_by = AsyncMock(return_value=False)
 
-        result = await hamlet_repository.exists_by(nombre="Hamlet Inexistente")
+        result = await hamlet_repository.exists_by(name="Non-existent Hamlet")
 
         assert result is False
         print(
-            f"✅ Hamlet non-existence verified: Hamlet with name 'Hamlet Inexistente' exists = {result}"
+            f"✅ Hamlet non-existence verified: Hamlet with name 'Non-existent Hamlet' exists = {result}"
         )
 
     @pytest.mark.asyncio
@@ -229,9 +229,9 @@ class TestHamletRepositoryImpl:
         print("🧪 Testing invalid field handling...")
 
         with pytest.raises(InvalidFieldException) as exc_info:
-            await hamlet_repository.exists_by(campo_inexistente="valor")
+            await hamlet_repository.exists_by(non_existent_field="value")
 
-        assert "does not exist in the Caserio model" in str(exc_info.value)
+        assert "does not exist in the Hamlet model" in str(exc_info.value)
         print(f"✅ Invalid field correctly handled: {exc_info.value}")
 
     @pytest.mark.asyncio
@@ -242,9 +242,9 @@ class TestHamletRepositoryImpl:
         hamlets_data = [
             {
                 "id": 1,
-                "nombre": "El Paraíso",
-                "centro_poblado_id": 1,
-                "centro_poblado_nombre": "San Juan",
+                "name": "El Paraíso",
+                "settlement_id": 1,
+                "settlement_name": "San Juan",
                 "created_at": datetime.now(),
                 "updated_at": None,
             }
@@ -263,17 +263,17 @@ class TestHamletRepositoryImpl:
 
         hamlet_repository.find = AsyncMock(return_value=page)
 
-        search_params = {"nombre": "paraíso"}
+        search_params = {"name": "paraíso"}
         result = await hamlet_repository.find(
             page=1, size=10, search_dict=search_params
         )
 
         assert isinstance(result, Page)
         assert len(result.data) == 1
-        assert result.data[0]["nombre"] == "El Paraíso"
+        assert result.data[0]["name"] == "El Paraíso"
         assert result.meta.total == 1
         print(
             f"✅ Search with filters successful: Found {result.meta.total} results for criteria {search_params}"
         )
         for i, hamlet in enumerate(result.data):
-            print(f"   - Result {i + 1}: ID={hamlet['id']}, Name='{hamlet['nombre']}'")
+            print(f"   - Result {i + 1}: ID={hamlet['id']}, Name='{hamlet['name']}'")

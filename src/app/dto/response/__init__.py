@@ -1,6 +1,6 @@
-from .category_document_response_dto import (
-    CategoryDocumentResponseDTO,
-    CategoryDocumentPage,
+from .document_category_response_dto import (
+    DocumentCategoryResponseDTO,
+    DocumentCategoryPage,
 )
 from .role_response_dto import RoleResponseDTO, RolePage
 from .department_response_dto import DepartmentResponseDTO, DepartmentPage
@@ -8,24 +8,27 @@ from .documentary_topic_response_dto import (
     DocumentaryTopicResponseDTO,
     DocumentaryTopicPage,
 )
-from .settlement_reponse_dto import SettlementReponseDTO, SettlementPage
+from .settlement_reponse_dto import SettlementResponseDTO, SettlementPage
 from .submitter_response_dto import SubmitterResponseDTO, SubmitterPage
 from .position_response_dto import PositionResponseDTO, PositionPage
 from .employee_response_dto import EmployeeResponseDTO, EmployeePage
-from .hamlet_response_dto import HamletResponseDto, HamletPage
-from .area_connection_response_dto import AreaConnectionResponseDTO, AreaConnectionPage
+from .hamlet_response_dto import HamletResponseDTO, HamletPage
+from .department_connection_response_dto import (
+    DepartmentConnectionResponseDTO,
+    DepartmentConnectionPage,
+)
 from .user_response_dto import UserResponseDTO, UserPage
 
 __all__ = [
-    "CategoryDocumentResponseDTO",
-    "CategoryDocumentPage",
+    "DocumentCategoryResponseDTO",
+    "DocumentCategoryPage",
     "RoleResponseDTO",
     "RolePage",
     "DepartmentResponseDTO",
     "DepartmentPage",
     "DocumentaryTopicResponseDTO",
     "DocumentaryTopicPage",
-    "SettlementReponseDTO",
+    "SettlementResponseDTO",
     "SettlementPage",
     "SubmitterResponseDTO",
     "SubmitterPage",
@@ -33,10 +36,10 @@ __all__ = [
     "PositionPage",
     "EmployeeResponseDTO",
     "EmployeePage",
-    "HamletResponseDto",
+    "HamletResponseDTO",
     "HamletPage",
-    "AreaConnectionResponseDTO",
-    "AreaConnectionPage",
+    "DepartmentConnectionResponseDTO",
+    "DepartmentConnectionPage",
     "UserResponseDTO",
     "UserPage",
 ]

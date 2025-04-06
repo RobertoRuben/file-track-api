@@ -17,11 +17,8 @@ class IEmployeeService(ABC):
         """
         Add a new employee.
 
-        Args:
-            employee_request: The data transfer object containing employee details.
-
-        Returns:
-            The created employee as an EmployeeResponseDTO.
+        :param employee_request: The data transfer object containing employee details
+        :return: The created employee as an EmployeeResponseDTO
         """
         pass
 
@@ -30,8 +27,7 @@ class IEmployeeService(ABC):
         """
         Retrieve all employees.
 
-        Returns:
-            A list of EmployeeResponseDTO objects representing all employees.
+        :return: A list of EmployeeResponseDTO objects representing all employees
         """
         pass
 
@@ -42,12 +38,9 @@ class IEmployeeService(ABC):
         """
         Update an existing employee.
 
-        Args:
-            employee_id: The ID of the employee to update.
-            employee_request: The data transfer object containing updated employee details.
-
-        Returns:
-            The updated employee as an EmployeeResponseDTO.
+        :param employee_id: The ID of the employee to update
+        :param employee_request: The data transfer object containing updated employee details
+        :return: The updated employee as an EmployeeResponseDTO
         """
         pass
 
@@ -56,11 +49,8 @@ class IEmployeeService(ABC):
         """
         Delete an employee by their ID.
 
-        Args:
-            employee_id: The ID of the employee to delete.
-
-        Returns:
-            A MessageResponse indicating the result of the deletion.
+        :param employee_id: The ID of the employee to delete
+        :return: A MessageResponse indicating the result of the deletion
         """
         pass
 
@@ -69,11 +59,8 @@ class IEmployeeService(ABC):
         """
         Retrieve an employee by their ID.
 
-        Args:
-            employee_id: The ID of the employee to retrieve.
-
-        Returns:
-            The employee as an EmployeeResponseDTO.
+        :param employee_id: The ID of the employee to retrieve
+        :return: The employee as an EmployeeResponseDTO
         """
         pass
 
@@ -82,12 +69,9 @@ class IEmployeeService(ABC):
         """
         Retrieve a paginated list of employees.
 
-        Args:
-            page: The page number to retrieve.
-            size: The number of employees per page.
-
-        Returns:
-            An EmployeePage object containing the paginated employees.
+        :param page: The page number to retrieve
+        :param size: The number of employees per page
+        :return: An EmployeePage object containing the paginated employees
         """
         pass
 
@@ -96,12 +80,9 @@ class IEmployeeService(ABC):
         """
         Find employees based on search criteria.
 
-        Args:
-            page: The page number to retrieve.
-            size: The number of employees per page.
-            search_term: Dictionary of field-value pairs to search for.
-
-        Returns:
-            An EmployeePage object containing the employees that match the search criteria.
+        :param page: The page number to retrieve
+        :param size: The number of employees per page
+        :param search_term: Dictionary of field-value pairs to search for
+        :return: An EmployeePage object containing the employees that match the search criteria
         """
         pass

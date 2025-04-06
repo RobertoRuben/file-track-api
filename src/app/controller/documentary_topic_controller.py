@@ -11,19 +11,21 @@ from src.app.schema import MessageResponse
 from src.app.service.interfaces import IDocumentaryTopicService
 from src.app.service.dependencies import get_documentary_topic_service
 
-router = APIRouter(prefix="/documentary-topic", tags=["DocumentaryTopic"])
+router = APIRouter(prefix="/documentary-topics", tags=["Documentary Topics"])
 
 documentary_topic_tags_metadata = {
-    "name": "DocumentaryTopic",
-    "description": "Manages documentary topics within the system. These operations allow creating, retrieving, "
-    "updating, and deleting documentary topics, as well as searching and listing them with pagination.",
+    "name": "Documentary Topics",
+    "description": "Manages documentary topics within the document management system. "
+    "These topics help organize and classify documents by subject matter, "
+    "enabling efficient search and retrieval of related documents. "
+    "Provides CRUD operations, advanced search capabilities, and pagination features.",
 }
 
 
 @router.post(
     "",
     response_model=DocumentaryTopicResponseDTO,
-    summary="Create a new documentary topic in the system",
+    summary="Create a new documentary topic",
     status_code=201,
     responses={
         201: {
@@ -37,7 +39,7 @@ documentary_topic_tags_metadata = {
         },
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Creates a new documentary topic in the system. Provide the documentary topic details in the request body to create it successfully.",
+    description="Creates a new documentary topic in the system. The topic name must be unique and descriptive to help with document classification.",
 )
 async def create_documentary_topic(
     documentary_topic_request: DocumentaryTopicRequestDTO,
@@ -48,13 +50,13 @@ async def create_documentary_topic(
     """
     Endpoint to create a new documentary topic.
 
-    This endpoint allows the creation of a new documentary topic in the system. The documentary topic data
-    must be provided in the request body. If the documentary topic is created successfully, a status code 201
-    with the created documentary topic's details is returned.
+    This endpoint allows the creation of a new documentary topic in the system. The topic data
+    must be provided in the request body. If the topic is created successfully, a
+    status code 201 is returned with the details of the created topic.
 
-    :param documentary_topic_request: Request body containing documentary topic data.
-    :param documentary_topic_service: Service to handle the documentary topic creation logic.
-    :return: The created documentary topic data.
+    :param documentary_topic_request: Request body containing the documentary topic data
+    :param documentary_topic_service: Service that handles the documentary topic creation logic
+    :return: The data of the created documentary topic
     """
     return await documentary_topic_service.add_documentary_topic(
         documentary_topic_request
@@ -73,7 +75,8 @@ async def create_documentary_topic(
         400: {"model": BackRequestError, "description": "Bad request error"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves a list of all documentary topics in the system.",
+    description="Retrieves the complete list of all documentary topics registered in the system, including their "
+    "identifiers, names, and timestamps.",
 )
 async def get_all_documentary_topics(
     documentary_topic_service: IDocumentaryTopicService = Depends(
@@ -84,10 +87,10 @@ async def get_all_documentary_topics(
     Endpoint to retrieve all documentary topics.
 
     This endpoint returns a list of all available documentary topics in the system. The response will include
-    all documentary topics stored in the database.
+    all topics stored in the database.
 
-    :param documentary_topic_service: Service to handle the query and retrieve all documentary topics.
-    :return: A list of documentary topics in the system.
+    :param documentary_topic_service: Service to handle the query and retrieve all documentary topics
+    :return: A list of documentary topics in the system
     """
     return await documentary_topic_service.get_all_documentary_topics()
 
@@ -104,11 +107,12 @@ async def get_all_documentary_topics(
         400: {"model": BackRequestError, "description": "Bad request error"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves documentary topics in a paginated format to manage large data sets.",
+    description="Retrieves documentary topics in a paginated format to manage large datasets, allowing navigation "
+    "through pages and control over the number of records per page.",
 )
 async def get_paginated_documentary_topics(
     page: int = Query(default=1, description="Page number to retrieve"),
-    size: int = Query(default=10, description="Number of documentary topics per page"),
+    size: int = Query(default=10, description="Number of topics per page"),
     documentary_topic_service: IDocumentaryTopicService = Depends(
         get_documentary_topic_service
     ),
@@ -117,12 +121,12 @@ async def get_paginated_documentary_topics(
     Endpoint to retrieve documentary topics in a paginated manner.
 
     This endpoint allows retrieving documentary topics in a paginated format. The user can specify the page number
-    and the number of documentary topics per page to optimize the query and reduce data overload.
+    and the number of topics per page to optimize the query and reduce data overload.
 
-    :param page: The page number to retrieve.
-    :param size: The number of documentary topics to return per page.
-    :param documentary_topic_service: Service to handle the query and return paginated documentary topics.
-    :return: A paginated list of documentary topics.
+    :param page: The page number to retrieve
+    :param size: The number of documentary topics to return per page
+    :param documentary_topic_service: Service to handle the query and return paginated documentary topics
+    :return: A paginated list of documentary topics
     """
     return await documentary_topic_service.get_documentary_topics_paginated(page, size)
 
@@ -130,7 +134,7 @@ async def get_paginated_documentary_topics(
 @router.get(
     "/search",
     response_model=DocumentaryTopicPage,
-    summary="Search documentary topics based on a term",
+    summary="Search documentary topics by term",
     responses={
         200: {
             "model": DocumentaryTopicPage,
@@ -140,7 +144,8 @@ async def get_paginated_documentary_topics(
         404: {"model": NotFoundError, "description": "Documentary topic not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Search documentary topics based on a keyword or phrase, with pagination for better management of search results.",
+    description="Performs documentary topic searches based on a keyword or phrase. Results are returned paginated for "
+    "better management of search results.",
 )
 async def find_documentary_topics(
     search_term: str | None = Query(
@@ -158,11 +163,11 @@ async def find_documentary_topics(
     This endpoint allows searching for documentary topics based on a given search term. The results are returned
     in a paginated format, where the user can specify the page number and the number of results per page.
 
-    :param search_term: A term to search within documentary topic names.
-    :param page: The page number to retrieve.
-    :param size: The number of results per page.
-    :param documentary_topic_service: Service to handle the search logic and return results.
-    :return: A paginated list of documentary topics that match the search term.
+    :param search_term: A term to search within documentary topic names
+    :param page: The page number to retrieve
+    :param size: The number of results per page
+    :param documentary_topic_service: Service to handle the search logic and return results
+    :return: A paginated list of documentary topics that match the search term
     """
     return await documentary_topic_service.find(page, size, search_term)
 
@@ -170,7 +175,7 @@ async def find_documentary_topics(
 @router.get(
     "/{documentary_topic_id}",
     response_model=DocumentaryTopicResponseDTO,
-    summary="Get a specific documentary topic by ID",
+    summary="Get documentary topic by ID",
     responses={
         200: {
             "model": DocumentaryTopicResponseDTO,
@@ -180,7 +185,7 @@ async def find_documentary_topics(
         404: {"model": NotFoundError, "description": "Documentary topic not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieve details of a specific documentary topic using its ID.",
+    description="Retrieves the complete details of a specific documentary topic using its unique identifier.",
 )
 async def get_documentary_topic_by_id(
     documentary_topic_id: int,
@@ -191,12 +196,12 @@ async def get_documentary_topic_by_id(
     """
     Endpoint to retrieve a documentary topic by its ID.
 
-    This endpoint retrieves the details of a specific documentary topic identified by its ID. If the documentary topic is found,
-    the documentary topic's data is returned. If not, a 404 error is returned.
+    This endpoint retrieves the details of a specific documentary topic identified by its ID. If the topic is found,
+    the topic's data is returned. If not, a 404 error is returned.
 
-    :param documentary_topic_id: The ID of the documentary topic to retrieve.
-    :param documentary_topic_service: Service to handle the query and retrieve the documentary topic.
-    :return: The documentary topic details.
+    :param documentary_topic_id: The ID of the documentary topic to retrieve
+    :param documentary_topic_service: Service to handle the query and retrieve the documentary topic
+    :return: The documentary topic details
     """
     return await documentary_topic_service.get_documentary_topic_by_id(
         documentary_topic_id
@@ -206,7 +211,7 @@ async def get_documentary_topic_by_id(
 @router.put(
     "/{documentary_topic_id}",
     response_model=DocumentaryTopicResponseDTO,
-    summary="Update an existing documentary topic by ID",
+    summary="Update existing documentary topic",
     responses={
         200: {
             "model": DocumentaryTopicResponseDTO,
@@ -214,9 +219,14 @@ async def get_documentary_topic_by_id(
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
         404: {"model": NotFoundError, "description": "Documentary topic not found"},
+        409: {
+            "model": ConflictError,
+            "description": "Documentary topic name already exists",
+        },
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Updates the details of an existing documentary topic by its ID.",
+    description="Updates the details of an existing documentary topic identified by its ID. Verifies that the new name "
+    "is not already in use by another topic.",
 )
 async def update_documentary_topic(
     documentary_topic_id: int,
@@ -228,14 +238,14 @@ async def update_documentary_topic(
     """
     Endpoint to update an existing documentary topic.
 
-    This endpoint allows updating the details of an existing documentary topic identified by its ID. If the documentary topic
-    is updated successfully, the updated documentary topic data is returned. If the documentary topic is not found,
+    This endpoint allows updating the details of an existing documentary topic identified by its ID. If the topic
+    is updated successfully, the updated topic data is returned. If the topic is not found,
     a 404 error is returned.
 
-    :param documentary_topic_id: The ID of the documentary topic to update.
-    :param documentary_topic_request: The new data for the documentary topic.
-    :param documentary_topic_service: Service to handle the update logic.
-    :return: The updated documentary topic data.
+    :param documentary_topic_id: The ID of the documentary topic to update
+    :param documentary_topic_request: The new data for the documentary topic
+    :param documentary_topic_service: Service to handle the update logic
+    :return: The updated documentary topic data
     """
     return await documentary_topic_service.update_documentary_topic(
         documentary_topic_id, documentary_topic_request
@@ -245,7 +255,7 @@ async def update_documentary_topic(
 @router.delete(
     "/{documentary_topic_id}",
     response_model=MessageResponse,
-    summary="Delete a documentary topic by ID",
+    summary="Delete documentary topic",
     responses={
         200: {
             "model": MessageResponse,
@@ -255,7 +265,8 @@ async def update_documentary_topic(
         404: {"model": NotFoundError, "description": "Documentary topic not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Deletes a specific documentary topic from the system using its ID.",
+    description="Deletes a specific documentary topic from the system using its ID. This operation is irreversible and "
+    "may affect document classifications.",
 )
 async def delete_documentary_topic(
     documentary_topic_id: int,
@@ -266,12 +277,12 @@ async def delete_documentary_topic(
     """
     Endpoint to delete a documentary topic.
 
-    This endpoint allows deleting a specific documentary topic identified by its ID. If the documentary topic is deleted
-    successfully, a success message is returned. If the documentary topic is not found, a 404 error is returned.
+    This endpoint allows deleting a specific documentary topic identified by its ID. If the topic is deleted
+    successfully, a success message is returned. If the topic is not found, a 404 error is returned.
 
-    :param documentary_topic_id: The ID of the documentary topic to delete.
-    :param documentary_topic_service: Service to handle the delete logic.
-    :return: A success message indicating that the documentary topic has been deleted.
+    :param documentary_topic_id: The ID of the documentary topic to delete
+    :param documentary_topic_service: Service to handle the delete logic
+    :return: A success message indicating that the documentary topic has been deleted
     """
     return await documentary_topic_service.delete_documentary_topic(
         documentary_topic_id

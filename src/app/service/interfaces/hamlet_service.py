@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from src.app.dto.request import HamletRequestDTO
-from src.app.dto.response import HamletResponseDto, HamletPage
+from src.app.dto.response import HamletResponseDTO, HamletPage
 from src.app.schema import MessageResponse
 
 
@@ -11,41 +11,34 @@ class IHamletService(ABC):
     """
 
     @abstractmethod
-    async def add_hamlet(self, hamlet_request: HamletRequestDTO) -> HamletResponseDto:
+    async def add_hamlet(self, hamlet_request: HamletRequestDTO) -> HamletResponseDTO:
         """
         Adds a new hamlet.
 
-        Args:
-            hamlet_request: The DTO containing hamlet details.
-
-        Returns:
-            The created hamlet as HamletResponseDto.
+        :param hamlet_request: The DTO containing hamlet details
+        :return: The created hamlet as HamletResponseDTO
         """
         pass
 
     @abstractmethod
-    async def get_all_hamlets(self) -> list[HamletResponseDto]:
+    async def get_all_hamlets(self) -> list[HamletResponseDTO]:
         """
         Retrieves all hamlets.
 
-        Returns:
-            A list of HamletResponseDto objects representing all hamlets.
+        :return: A list of HamletResponseDTO objects representing all hamlets
         """
         pass
 
     @abstractmethod
     async def update_hamlet(
         self, hamlet_id: int, hamlet_request: HamletRequestDTO
-    ) -> HamletResponseDto:
+    ) -> HamletResponseDTO:
         """
         Updates an existing hamlet.
 
-        Args:
-            hamlet_id: The ID of the hamlet to update.
-            hamlet_request: The DTO containing updated hamlet details.
-
-        Returns:
-            The updated hamlet as HamletResponseDto.
+        :param hamlet_id: The ID of the hamlet to update
+        :param hamlet_request: The DTO containing updated hamlet details
+        :return: The updated hamlet as HamletResponseDTO
         """
         pass
 
@@ -54,24 +47,18 @@ class IHamletService(ABC):
         """
         Deletes a hamlet by its ID.
 
-        Args:
-            hamlet_id: The ID of the hamlet to delete.
-
-        Returns:
-            A MessageResponse indicating the result of the deletion.
+        :param hamlet_id: The ID of the hamlet to delete
+        :return: A MessageResponse indicating the result of the deletion
         """
         pass
 
     @abstractmethod
-    async def get_hamlet_by_id(self, hamlet_id: int) -> HamletResponseDto:
+    async def get_hamlet_by_id(self, hamlet_id: int) -> HamletResponseDTO:
         """
         Retrieves a hamlet by its ID.
 
-        Args:
-            hamlet_id: The ID of the hamlet to retrieve.
-
-        Returns:
-            The hamlet as HamletResponseDto.
+        :param hamlet_id: The ID of the hamlet to retrieve
+        :return: The hamlet as HamletResponseDTO
         """
         pass
 
@@ -80,12 +67,9 @@ class IHamletService(ABC):
         """
         Retrieves a paginated list of hamlets.
 
-        Args:
-            page: The page number to retrieve.
-            size: The number of hamlets per page.
-
-        Returns:
-            A HamletPage object containing the paginated hamlets.
+        :param page: The page number to retrieve
+        :param size: The number of hamlets per page
+        :return: A HamletPage object containing the paginated hamlets
         """
         pass
 
@@ -94,12 +78,9 @@ class IHamletService(ABC):
         """
         Searches for hamlets based on search criteria.
 
-        Args:
-            page: The page number to retrieve.
-            size: The number of hamlets per page.
-            search_term: The term to search for in hamlet names.
-
-        Returns:
-            A HamletPage object containing hamlets that match the search criteria.
+        :param page: The page number to retrieve
+        :param size: The number of hamlets per page
+        :param search_term: The term to search for in hamlet names
+        :return: A HamletPage object containing hamlets that match the search criteria
         """
         pass

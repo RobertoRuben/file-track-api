@@ -11,10 +11,11 @@ async def get_user_repository(
     """
     Dependency function to get the user repository implementation.
 
-    Args:
-        session: The async database session provided by the FastAPI dependency injection system
+    This function provides an implementation of the user repository interface
+    that can be injected into services or other components that need to
+    interact with user data in the database.
 
-    Returns:
-        An implementation of IUserRepository bound to the provided session
+    :param session: The async database session provided by FastAPI's dependency injection
+    :return: An implementation of IUserRepository bound to the provided session
     """
     return UserRepositoryImpl(session=session)

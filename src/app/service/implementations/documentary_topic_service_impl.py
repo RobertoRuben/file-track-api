@@ -1,5 +1,5 @@
 from datetime import datetime
-from src.app.model.entity import Ambito
+from src.app.model.entity import DocumentaryTopic
 from src.app.dto.request import DocumentaryTopicRequestDTO
 from src.app.dto.response import DocumentaryTopicPage, DocumentaryTopicResponseDTO
 from src.app.schema import MessageResponse
@@ -15,14 +15,13 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
     Handles business logic for documentary topics operations.
     """
 
-    def __init__(self, repository: IDocumentaryTopicRepository):
+    def __init__(self, documentary_topic_repository: IDocumentaryTopicRepository):
         """
         Initializes the Documentary Topic Service with a repository.
 
-        Args:
-            repository: The repository for documentary topic data access
+        :param documentary_topic_repository: The repository for documentary topic data access
         """
-        self.repository = repository
+        self.documentary_topic_repository = documentary_topic_repository
 
     @handle_exceptions
     async def add_documentary_topic(
@@ -31,32 +30,27 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
         """
         Adds a new documentary topic to the system.
 
-        Args:
-            documentary_topic_request: DTO containing the documentary topic details
-
-        Returns:
-            DTO with the created documentary topic data
-
-        Raises:
-            ConflictException: If a documentary topic with the same name already exists
+        :param documentary_topic_request: DTO containing the documentary topic details
+        :return: DTO with the created documentary topic data
+        :raises ConflictException: If a documentary topic with the same name already exists
         """
-        existing_topic = await self.repository.exists_by(
-            nombre=documentary_topic_request.nombre
+        existing_topic = await self.documentary_topic_repository.exists_by(
+            name=documentary_topic_request.name
         )
         if existing_topic:
             raise ConflictException(
-                details=f"Documentary topic with name {documentary_topic_request.nombre} already exists",
+                details=f"Documentary topic with name '{documentary_topic_request.name}' already exists",
             )
 
-        new_topic = Ambito(
-            nombre=documentary_topic_request.nombre,
+        new_topic = DocumentaryTopic(
+            name=documentary_topic_request.name,
         )
 
-        created_topic = await self.repository.save(new_topic)
+        created_topic = await self.documentary_topic_repository.save(new_topic)
 
         return DocumentaryTopicResponseDTO(
             id=created_topic.id,
-            nombre=created_topic.nombre,
+            name=created_topic.name,
             created_at=created_topic.created_at,
             updated_at=created_topic.updated_at,
         )
@@ -66,14 +60,13 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
         """
         Retrieves all documentary topics from the database.
 
-        Returns:
-            List of DTOs containing all documentary topics
+        :return: List of DTOs containing all documentary topics
         """
-        topics = await self.repository.get_all()
+        topics = await self.documentary_topic_repository.get_all()
         return [
             DocumentaryTopicResponseDTO(
                 id=topic.id,
-                nombre=topic.nombre,
+                name=topic.name,
                 created_at=topic.created_at,
                 updated_at=topic.updated_at,
             )
@@ -89,41 +82,38 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
         """
         Updates an existing documentary topic.
 
-        Args:
-            documentary_topic_id: ID of the documentary topic to update
-            documentary_topic_request: DTO containing the updated documentary topic details
-
-        Returns:
-            DTO with the updated documentary topic data
-
-        Raises:
-            NotFoundException: If the documentary topic with the given ID doesn't exist
-            ConflictException: If another documentary topic with the same name already exists
+        :param documentary_topic_id: ID of the documentary topic to update
+        :param documentary_topic_request: DTO containing the updated documentary topic details
+        :return: DTO with the updated documentary topic data
+        :raises NotFoundException: If the documentary topic with the given ID doesn't exist
+        :raises ConflictException: If another documentary topic with the same name already exists
         """
-        exists_topic_id = await self.repository.exists_by(id=documentary_topic_id)
+        exists_topic_id = await self.documentary_topic_repository.exists_by(
+            id=documentary_topic_id
+        )
         if not exists_topic_id:
             raise NotFoundException(
-                details=f"Documentary topic with id {documentary_topic_id} not found",
+                details=f"Documentary topic with ID {documentary_topic_id} not found",
             )
-        topic = await self.repository.get_by_id(documentary_topic_id)
+        topic = await self.documentary_topic_repository.get_by_id(documentary_topic_id)
 
-        if topic.nombre != documentary_topic_request.nombre:
-            existing_topic = await self.repository.exists_by(
-                nombre=documentary_topic_request.nombre
+        if topic.name != documentary_topic_request.name:
+            existing_topic = await self.documentary_topic_repository.exists_by(
+                name=documentary_topic_request.name
             )
             if existing_topic:
                 raise ConflictException(
-                    details=f"Documentary topic with name {documentary_topic_request.nombre} already exists",
+                    details=f"Documentary topic with name '{documentary_topic_request.name}' already exists",
                 )
 
-        topic.nombre = documentary_topic_request.nombre
+        topic.name = documentary_topic_request.name
         topic.updated_at = datetime.now()
 
-        updated_topic = await self.repository.save(topic)
+        updated_topic = await self.documentary_topic_repository.save(topic)
 
         return DocumentaryTopicResponseDTO(
             id=updated_topic.id,
-            nombre=updated_topic.nombre,
+            name=updated_topic.name,
             created_at=updated_topic.created_at,
             updated_at=updated_topic.updated_at,
         )
@@ -135,33 +125,30 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
         """
         Deletes a documentary topic by its ID.
 
-        Args:
-            documentary_topic_id: ID of the documentary topic to delete
-
-        Returns:
-            Message response indicating success or failure
-
-        Raises:
-            NotFoundException: If the documentary topic with the given ID doesn't exist
+        :param documentary_topic_id: ID of the documentary topic to delete
+        :return: Message response indicating success or failure
+        :raises NotFoundException: If the documentary topic with the given ID doesn't exist
         """
-        existing_topic_id = await self.repository.exists_by(id=documentary_topic_id)
+        existing_topic_id = await self.documentary_topic_repository.exists_by(
+            id=documentary_topic_id
+        )
         if not existing_topic_id:
             raise NotFoundException(
-                details=f"Documentary topic with id {documentary_topic_id} not found",
+                details=f"Documentary topic with ID {documentary_topic_id} not found",
             )
-        response = await self.repository.delete(documentary_topic_id)
+        response = await self.documentary_topic_repository.delete(documentary_topic_id)
         if response is True:
             return MessageResponse(
                 message="Documentary topic deleted successfully.",
                 success=True,
-                details=f"Documentary topic with id {documentary_topic_id} deleted successfully.",
+                details=f"Documentary topic with ID {documentary_topic_id} deleted successfully.",
                 status_code=200,
             )
         else:
             return MessageResponse(
                 message="Failed to delete documentary topic.",
                 success=False,
-                details=f"Documentary topic with id {documentary_topic_id} could not be deleted.",
+                details=f"Documentary topic with ID {documentary_topic_id} could not be deleted.",
                 status_code=500,
             )
 
@@ -172,24 +159,21 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
         """
         Retrieves a documentary topic by its ID.
 
-        Args:
-            documentary_topic_id: ID of the documentary topic to retrieve
-
-        Returns:
-            DTO with the documentary topic data
-
-        Raises:
-            NotFoundException: If the documentary topic with the given ID doesn't exist
+        :param documentary_topic_id: ID of the documentary topic to retrieve
+        :return: DTO with the documentary topic data
+        :raises NotFoundException: If the documentary topic with the given ID doesn't exist
         """
-        existing_topic_id = await self.repository.exists_by(id=documentary_topic_id)
+        existing_topic_id = await self.documentary_topic_repository.exists_by(
+            id=documentary_topic_id
+        )
         if not existing_topic_id:
             raise NotFoundException(
-                details=f"Documentary topic with id {documentary_topic_id} not found",
+                details=f"Documentary topic with ID {documentary_topic_id} not found",
             )
-        topic = await self.repository.get_by_id(documentary_topic_id)
+        topic = await self.documentary_topic_repository.get_by_id(documentary_topic_id)
         return DocumentaryTopicResponseDTO(
             id=topic.id,
-            nombre=topic.nombre,
+            name=topic.name,
             created_at=topic.created_at,
             updated_at=topic.updated_at,
         )
@@ -201,30 +185,31 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
         """
         Retrieves a paginated list of documentary topics.
 
-        Args:
-            page: Page number to retrieve
-            size: Number of items per page
-
-        Returns:
-            Paginated documentary topics with metadata
-
-        Raises:
-            BadRequestException: If page or size parameters are invalid
+        :param page: Page number to retrieve
+        :param size: Number of items per page
+        :return: Paginated documentary topics with metadata
+        :raises BadRequestException: If page or size parameters are invalid
         """
         if page < 1:
             raise BadRequestException(
                 message="Invalid page number",
-                details="Page number must be greater than 0",
+                details="Page number must be greater than 0.",
             )
         if size < 1:
             raise BadRequestException(
                 message="Invalid size number",
-                details="Size number must be greater than 0",
+                details="Size number must be greater than 0.",
             )
 
-        page_result = await self.repository.get_pageable(page, size)
+        page_result = await self.documentary_topic_repository.get_pageable(page, size)
         topic_response = [
-            DocumentaryTopicResponseDTO(**topic.__dict__) for topic in page_result.data
+            DocumentaryTopicResponseDTO(
+                id=topic.id,
+                name=topic.name,
+                created_at=topic.created_at,
+                updated_at=topic.updated_at,
+            )
+            for topic in page_result.data
         ]
 
         return DocumentaryTopicPage(
@@ -239,40 +224,43 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
         """
         Searches for documentary topics matching the given search term.
 
-        Args:
-            page: Page number to retrieve
-            size: Number of items per page
-            search_term: Term to search for in documentary topic names
-
-        Returns:
-            Paginated documentary topics matching the search criteria
-
-        Raises:
-            BadRequestException: If page or size parameters are invalid
-            NotFoundException: If no documentary topics match the search criteria
+        :param page: Page number to retrieve
+        :param size: Number of items per page
+        :param search_term: Term to search for in documentary topic names
+        :return: Paginated documentary topics matching the search criteria
+        :raises BadRequestException: If page or size parameters are invalid
+        :raises NotFoundException: If no documentary topics match the search criteria
         """
         if page < 1:
             raise BadRequestException(
                 message="Invalid page number",
-                details="Page number must be greater than 0",
+                details="Page number must be greater than 0.",
             )
         if size < 1:
             raise BadRequestException(
                 message="Invalid size number",
-                details="Size number must be greater than 0",
+                details="Size number must be greater than 0.",
             )
 
-        search_dict = {"nombre": search_term}
+        search_dict = {"name": search_term}
 
-        page_result = await self.repository.find(page, size, search_dict)
+        page_result = await self.documentary_topic_repository.find(
+            page, size, search_dict
+        )
 
         if not page_result.data:
             raise NotFoundException(
-                details=f"No documentary topics found with the search term {search_term}",
+                details=f"No documentary topics found with search term: {search_term}",
             )
 
         topic_response = [
-            DocumentaryTopicResponseDTO(**topic.__dict__) for topic in page_result.data
+            DocumentaryTopicResponseDTO(
+                id=topic.id,
+                name=topic.name,
+                created_at=topic.created_at,
+                updated_at=topic.updated_at,
+            )
+            for topic in page_result.data
         ]
 
         return DocumentaryTopicPage(
