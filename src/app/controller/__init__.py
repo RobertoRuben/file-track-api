@@ -18,6 +18,7 @@ from .department_connection_controller import (
     department_connection_tags_metadata,
 )
 from .user_controller import router as user_router, user_tags_metadata
+from .auth_controller import router as auth_router, auth_tags_metadata
 
 __all__ = [
     "document_category_router",
@@ -42,4 +43,6 @@ __all__ = [
     "department_connection_tags_metadata",
     "user_router",
     "user_tags_metadata",
+    "auth_router",
+    "auth_tags_metadata",
 ]
