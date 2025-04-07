@@ -9,6 +9,7 @@ from .employe_request_dto import EmployeeRequestDto
 from .hamlet_request_dto import HamletRequestDTO
 from .department_connection_request_dto import DepartmentConnectionRequestDTO
 from .user_request_dto import UserRequestDTO
+from .auth_request_dto import AuthRequestDTO
 
 __all__ = [
     "DocumentCategoryRequestDTO",
@@ -22,4 +23,5 @@ __all__ = [
     "HamletRequestDTO",
     "DepartmentConnectionRequestDTO",
     "UserRequestDTO",
+    "AuthRequestDTO",
 ]
