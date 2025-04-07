@@ -9,11 +9,13 @@ class UnauthorizedException(BaseHTTPException):
         message: str = "Authentication credentials are missing or invalid.",
         details: str = None,
         time: str = None,
+        headers: dict = None,
     ):
         super().__init__(
-            type_="Authentication Error",
-            code=401,
             message=message,
+            code=401,
+            type_="Authentication Error",
             details=details,
             time=time,
+            headers=headers,
         )
