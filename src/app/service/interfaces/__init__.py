@@ -9,6 +9,7 @@ from .employee_service import IEmployeeService
 from .hamlet_service import IHamletService
 from .department_connection_service import IDepartmentConnectionService
 from .user_service import IUserService
+from .auth_service import IAuthService
 
 __all__ = [
     "IDocumentCategoryService",
@@ -22,4 +23,5 @@ __all__ = [
     "IHamletService",
     "IDepartmentConnectionService",
     "IUserService",
+    "IAuthService",
 ]
