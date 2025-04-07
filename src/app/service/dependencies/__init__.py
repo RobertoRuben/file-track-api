@@ -9,6 +9,8 @@ from .employee_service_dependency import get_employee_service
 from .hamlet_service_dependency import get_hamlet_service
 from .department_connection_service_dependency import get_department_connection_service
 from .user_service_dependency import get_user_service
+from .auth_service_dependency import get_auth_service
+from .auth_current_user_dependency import get_current_user
 
 __all__ = [
     "get_document_category_service",
@@ -22,4 +24,6 @@ __all__ = [
     "get_hamlet_service",
     "get_department_connection_service",
     "get_user_service",
+    "get_auth_service",
+    "get_current_user",
 ]
