@@ -9,7 +9,11 @@ from src.app.exception.schema import (
     UnauthorizedError,
 )
 from src.app.dto.request import AuthRequestDTO
-from src.app.dto.response import UserResponseDTO, AuthResponseDTO
+from src.app.dto.response import (
+    UserResponseDTO,
+    AuthResponseDTO,
+    CurrentUserResponseDTO,
+)
 from src.app.service.interfaces import IAuthService
 from src.app.service.dependencies import get_auth_service, get_current_user
 
@@ -97,11 +101,11 @@ async def refresh_token(
 
 @router.get(
     "/me",
-    response_model=UserResponseDTO,
+    response_model=CurrentUserResponseDTO,
     summary="Get current authenticated user",
     responses={
         200: {
-            "model": UserResponseDTO,
+            "model": CurrentUserResponseDTO,
             "description": "Current user information",
         },
         401: {"model": UnauthorizedError, "description": "Not authenticated"},
@@ -111,8 +115,8 @@ async def refresh_token(
     description="Retrieves the profile information of the currently authenticated user based on their access token.",
 )
 async def get_user_me(
-    current_user: UserResponseDTO = Depends(get_current_user),
-) -> UserResponseDTO:
+    current_user: CurrentUserResponseDTO = Depends(get_current_user),
+) -> CurrentUserResponseDTO:
     """
     Endpoint to retrieve the current authenticated user's information.
 
