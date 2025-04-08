@@ -9,6 +9,12 @@ class NotFoundError(ErrorDetail):
     This class extends the base ErrorDetail model to provide a standardized
     response format for server-side not found errors, specifically 404 Not Found
     scenarios where the server cannot find the requested resource.
+
+    :ivar type: Type of error
+    :ivar code: HTTP status code
+    :ivar message: Human-readable error message
+    :ivar details: Additional details about the error
+    :ivar time: Timestamp of when the error occurred
     """
 
     type: str = Field(
@@ -17,4 +23,22 @@ class NotFoundError(ErrorDetail):
     code: int = Field(
         default=404,
         description="HTTP 404 Not Found status code indicating that the server cannot find the requested resource",
+    )
+    message: str = Field(
+        default="The requested resource was not found.",
+        description="Human-readable error message",
+        examples=[
+            "The requested resource was not found.",
+            "The specified endpoint does not exist.",
+            "The requested document could not be found.",
+        ],
+    )
+    details: str = Field(
+        default=None,
+        description="Additional details about the error",
+        examples=[
+            "Resource not found.",
+            "Document not found.",
+            "The requested resource does not exist.",
+        ],
     )

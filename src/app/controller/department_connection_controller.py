@@ -1,18 +1,23 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Security
 from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
     InternalServerError,
     NotFoundError,
+    ForbiddenError,
+    UnauthorizedError,
 )
 from src.app.dto.request import DepartmentConnectionRequestDTO
 from src.app.dto.response import (
     DepartmentConnectionResponseDTO,
     DepartmentConnectionPage,
+    CurrentUserResponseDTO,
 )
 from src.app.schema import MessageResponse
 from src.app.service.dependencies import get_department_connection_service
 from src.app.service.interfaces import IDepartmentConnectionService
+from src.app.service.dependencies import get_current_user, get_user_service
+from src.app.security.auth.constants import Scopes
 
 router = APIRouter(prefix="/department-connections", tags=["Department Connections"])
 
@@ -36,6 +41,8 @@ department_connection_tags_metadata = {
             "description": "Department connection created successfully",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         409: {
             "model": ConflictError,
             "description": "Department connection already exists",
@@ -46,6 +53,9 @@ department_connection_tags_metadata = {
 )
 async def create_department_connection(
     department_connection: DepartmentConnectionRequestDTO,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_CREATE]
+    ),
     department_connection_service: IDepartmentConnectionService = Depends(
         get_department_connection_service
     ),
@@ -58,6 +68,7 @@ async def create_department_connection(
     a status code 201 is returned with the details of the created connection.
 
     :param department_connection: Request body containing the department connection data
+    :param current_user: The user making the request, used for authorization
     :param department_connection_service: Service that handles the department connection creation logic
     :return: The data of the created department connection
     """
@@ -76,11 +87,16 @@ async def create_department_connection(
             "description": "List of department connections",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
     description="Retrieves the complete list of all department connections registered in the system, including their source and target departments.",
 )
 async def get_all_department_connections(
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_READ]
+    ),
     department_connection_service: IDepartmentConnectionService = Depends(
         get_department_connection_service
     ),
@@ -91,6 +107,7 @@ async def get_all_department_connections(
     This endpoint returns a list of all available department connections in the system. The response will include
     all connections stored in the database.
 
+    :param current_user: The user making the request, used for authorization
     :param department_connection_service: Service to handle the query and retrieve all department connections
     :return: A list of department connections in the system
     """
@@ -107,6 +124,8 @@ async def get_all_department_connections(
             "description": "Paginated list of department connections",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
     description="Retrieves department connections in a paginated format to manage large datasets, allowing navigation through pages and control over the number of records per page.",
@@ -114,6 +133,9 @@ async def get_all_department_connections(
 async def get_paginated_department_connections(
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of connections per page"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_READ]
+    ),
     department_connection_service: IDepartmentConnectionService = Depends(
         get_department_connection_service
     ),
@@ -126,6 +148,7 @@ async def get_paginated_department_connections(
 
     :param page: The page number to retrieve
     :param size: The number of department connections to return per page
+    :param current_user: The user making the request, used for authorization
     :param department_connection_service: Service to handle the query and return paginated connections
     :return: A paginated list of department connections
     """
@@ -144,6 +167,8 @@ async def get_paginated_department_connections(
             "description": "Paginated list of connections",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "Connection not found"},
         500: {
             "model": InternalServerError,
@@ -158,6 +183,9 @@ async def find_department_connections(
     ),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of connections per page"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_READ]
+    ),
     department_connection_service: IDepartmentConnectionService = Depends(
         get_department_connection_service
     ),
@@ -171,6 +199,7 @@ async def find_department_connections(
     :param search_term: Term to search for in the department connection details
     :param page: The page number to retrieve
     :param size: The number of results per page
+    :param current_user: The user making the request, used for authorization
     :param department_connection_service: Service to handle the search logic and return the results
     :return: A paginated list of department connections that match the search term
     """
@@ -187,6 +216,8 @@ async def find_department_connections(
             "description": "Department connection found",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "Department connection not found"},
         500: {
             "model": InternalServerError,
@@ -197,6 +228,9 @@ async def find_department_connections(
 )
 async def get_department_connection_by_id(
     department_connection_id: int,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_READ]
+    ),
     department_connection_service: IDepartmentConnectionService = Depends(
         get_department_connection_service
     ),
@@ -208,6 +242,7 @@ async def get_department_connection_by_id(
     If found, it returns the connection data. If not, it returns a 404 error.
 
     :param department_connection_id: ID of the department connection to retrieve
+    :param current_user: The user making the request, used for authorization
     :param department_connection_service: Service to handle the query and retrieve the connection
     :return: Department connection details
     """
@@ -226,6 +261,8 @@ async def get_department_connection_by_id(
             "description": "Connection updated successfully",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "Department connection not found"},
         409: {"model": ConflictError, "description": "Department connection conflict"},
         500: {
@@ -238,6 +275,9 @@ async def get_department_connection_by_id(
 async def update_department_connection(
     department_connection_id: int,
     department_connection_request: DepartmentConnectionRequestDTO,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_UPDATE]
+    ),
     department_connection_service: IDepartmentConnectionService = Depends(
         get_department_connection_service
     ),
@@ -250,6 +290,7 @@ async def update_department_connection(
 
     :param department_connection_id: ID of the connection to update
     :param department_connection_request: New data for the department connection
+    :param current_user: The user making the request, used for authorization
     :param department_connection_service: Service to handle the update logic
     :return: Updated data of the department connection
     """
@@ -268,6 +309,8 @@ async def update_department_connection(
             "description": "Connection deleted successfully",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "Department connection not found"},
         500: {
             "model": InternalServerError,
@@ -278,6 +321,9 @@ async def update_department_connection(
 )
 async def delete_department_connection(
     department_connection_id: int,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_DELETE]
+    ),
     department_connection_service: IDepartmentConnectionService = Depends(
         get_department_connection_service
     ),
@@ -289,6 +335,7 @@ async def delete_department_connection(
     it returns a success message. If not found, it returns a 404 error.
 
     :param department_connection_id: ID of the connection to delete
+    :param current_user: The user making the request, used for authorization
     :param department_connection_service: Service to handle the deletion logic
     :return: Success message indicating the connection has been deleted
     """
@@ -307,6 +354,8 @@ async def delete_department_connection(
             "description": "List of department connections",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "Source department not found"},
         500: {
             "model": InternalServerError,
@@ -317,6 +366,9 @@ async def delete_department_connection(
 )
 async def get_connections_by_source_department_id(
     source_department_id: int,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_READ]
+    ),
     department_connection_service: IDepartmentConnectionService = Depends(
         get_department_connection_service
     ),
@@ -328,6 +380,7 @@ async def get_connections_by_source_department_id(
     If no connections are found or if the source department does not exist, appropriate errors are returned.
 
     :param source_department_id: ID of the source department to filter the connections
+    :param current_user: The user making the request, used for authorization
     :param department_connection_service: Service to handle the query and retrieve filtered connections
     :return: List of department connections with the specified source department ID
     """
