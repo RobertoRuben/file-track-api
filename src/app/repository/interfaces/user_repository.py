@@ -1,4 +1,6 @@
 from abc import ABC, abstractmethod
+from typing import Any
+
 from src.app.schema import Page
 from src.app.model.entity import User
 
@@ -67,6 +69,19 @@ class IUserRepository(ABC):
 
         Returns:
             The found user entity
+        """
+        pass
+
+    @abstractmethod
+    async def get_current_user_by_name(self, username: str) -> dict[str, Any] | None:
+        """
+        Retrieve the current user based on the username.
+
+        Args:
+            username: The username of the user to retrieve
+
+        Returns:
+            A dictionary containing user information
         """
         pass
 
