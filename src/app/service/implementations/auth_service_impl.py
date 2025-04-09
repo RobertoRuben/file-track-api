@@ -97,6 +97,7 @@ class AuthServiceImpl(IAuthService):
                 "scope": "access",
                 "user_scopes": user_scopes,
                 "role": user_data["role_name"].upper(),
+                "department_id": user_data["department_id"],
             }
         )
 
@@ -162,6 +163,7 @@ class AuthServiceImpl(IAuthService):
             username=user_data["username"],
             employee_name=user_data["employee_name"],
             role_name=user_data["role_name"],
+            department_id=user_data["department_id"],
             is_active=user_data["is_active"],
             created_at=user_data["created_at"],
             updated_at=user_data["updated_at"],
@@ -287,6 +289,7 @@ class AuthServiceImpl(IAuthService):
             username=user_data["username"],
             employee_name=user_data["employee_name"],
             role_name=user_data["role_name"].upper(),
+            department_id=user_data["department_id"],
             is_active=user_data["is_active"],
             created_at=user_data["created_at"],
             updated_at=user_data["updated_at"],
