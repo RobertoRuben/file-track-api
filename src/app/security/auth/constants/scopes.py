@@ -20,10 +20,10 @@ class Scopes:
     DOCUMENTARY_TOPIC_UPDATE = "documentary_topic:update"
     DOCUMENTARY_TOPIC_DELETE = "documentary_topic:delete"
 
-    STTLEMENT_READ = "statement:read"
-    STTLEMENT_CREATE = "statement:create"
-    STTLEMENT_UPDATE = "statement:update"
-    STTLEMENT_DELETE = "statement:delete"
+    SETTLEMENT_READ = "settlement:read"
+    SETTLEMENT_CREATE = "settlement:create"
+    SETTLEMENT_UPDATE = "settlement:update"
+    SETTLEMENT_DELETE = "settlement:delete"
 
     SUBMITTER_READ = "submitter:read"
     SUBMITTER_CREATE = "submitter:create"
@@ -55,18 +55,92 @@ class Scopes:
     USER_UPDATE = "user:update"
     USER_DELETE = "user:delete"
 
+    DOCUMENT_READ = "document:read"
+    DOCUMENT_CREATE = "document:create"
+    DOCUMENT_UPDATE = "document:update"
+    DOCUMENT_DELETE = "document:delete"
+
     ROLE_SCOPES = {
-        "SUPER_ADMIN": [
+        "SUPER ADMIN": [
+            DOCUMENT_CATEGORY_READ,
+            DOCUMENT_CATEGORY_CREATE,
+            DOCUMENT_CATEGORY_UPDATE,
+            DOCUMENT_CATEGORY_DELETE,
+            ROLE_READ,
+            ROLE_CREATE,
+            ROLE_UPDATE,
+            ROLE_DELETE,
+            DEPARTMENT_READ,
+            DEPARTMENT_CREATE,
+            DEPARTMENT_UPDATE,
+            DEPARTMENT_DELETE,
+            DOCUMENTARY_TOPIC_READ,
+            DOCUMENTARY_TOPIC_CREATE,
+            DOCUMENTARY_TOPIC_UPDATE,
+            DOCUMENTARY_TOPIC_DELETE,
+            SETTLEMENT_READ,
+            SETTLEMENT_CREATE,
+            SETTLEMENT_UPDATE,
+            SETTLEMENT_DELETE,
+            SUBMITTER_READ,
+            SUBMITTER_CREATE,
+            SUBMITTER_UPDATE,
+            SUBMITTER_DELETE,
+            POSITION_READ,
+            POSITION_CREATE,
+            POSITION_UPDATE,
+            POSITION_DELETE,
+            EMPLOYEE_READ,
+            EMPLOYEE_CREATE,
+            EMPLOYEE_UPDATE,
+            EMPLOYEE_DELETE,
+            HAMLET_READ,
+            HAMLET_CREATE,
+            HAMLET_UPDATE,
+            HAMLET_DELETE,
+            DEPARTMENT_CONNECTION_READ,
+            DEPARTMENT_CONNECTION_CREATE,
+            DEPARTMENT_CONNECTION_UPDATE,
+            DEPARTMENT_CONNECTION_DELETE,
             USER_READ,
             USER_CREATE,
             USER_UPDATE,
             USER_DELETE,
+            DOCUMENT_READ,
+            DOCUMENT_CREATE,
+            DOCUMENT_UPDATE,
+            DOCUMENT_DELETE,
         ],
         "ADMIN": [
             USER_READ,
             USER_CREATE,
             USER_UPDATE,
             USER_DELETE,
+            DOCUMENT_CATEGORY_READ,
+            DOCUMENT_CATEGORY_CREATE,
+            DOCUMENT_CATEGORY_UPDATE,
+            DOCUMENT_CATEGORY_DELETE,
+            DOCUMENTARY_TOPIC_READ,
+            DOCUMENTARY_TOPIC_CREATE,
+            DOCUMENTARY_TOPIC_UPDATE,
+            DOCUMENTARY_TOPIC_DELETE,
+            EMPLOYEE_READ,
+            EMPLOYEE_CREATE,
+            EMPLOYEE_UPDATE,
+            EMPLOYEE_DELETE,
+        ],
+        "MESA DE PARTES": [
+            DOCUMENT_CATEGORY_READ,
+            DOCUMENT_CATEGORY_CREATE,
+            DOCUMENT_CATEGORY_UPDATE,
+            DOCUMENTARY_TOPIC_READ,
+            DOCUMENTARY_TOPIC_CREATE,
+            DOCUMENTARY_TOPIC_UPDATE,
+            DOCUMENTARY_TOPIC_DELETE,
+            DOCUMENT_READ,
+            DOCUMENT_CREATE,
+            DOCUMENT_UPDATE,
+            DOCUMENT_DELETE,
         ],
     }
 
@@ -88,10 +162,10 @@ scope_descriptions = {
     "documentary_topic:create": "Create new documentary topics",
     "documentary_topic:update": "Update documentary topics",
     "documentary_topic:delete": "Delete documentary topics",
-    "statement:read": "Read statements",
-    "statement:create": "Create statements",
-    "statement:update": "Update statements",
-    "statement:delete": "Delete statements",
+    "settlement:read": "Read settlements",
+    "settlement:create": "Create settlements",
+    "settlement:update": "Update settlements",
+    "settlement:delete": "Delete settlements",
     "submitter:read": "Read submitter information",
     "submitter:create": "Create submitters",
     "submitter:update": "Update submitters",
@@ -116,4 +190,8 @@ scope_descriptions = {
     "user:create": "Create new users",
     "user:update": "Update users",
     "user:delete": "Delete users",
+    "document:read": "Read document information",
+    "document:create": "Create new documents",
+    "document:update": "Update documents",
+    "document:delete": "Delete documents",
 }
