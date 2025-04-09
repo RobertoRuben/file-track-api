@@ -7,8 +7,13 @@ from sqlmodel import (
     BIGINT,
     TEXT,
     DateTime,
+    Relationship,
 )
 from datetime import datetime
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:
+    from .document import Document
 
 
 class DocumentaryTopic(SQLModel, table=True):
@@ -34,3 +39,5 @@ class DocumentaryTopic(SQLModel, table=True):
     updated_at: datetime | None = Field(
         default=None, sa_column=Column(DateTime(timezone=True))
     )
+
+    documents: list["Document"] = Relationship(back_populates="documentary_topic")
