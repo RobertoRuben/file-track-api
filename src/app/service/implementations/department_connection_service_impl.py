@@ -4,6 +4,7 @@ from src.app.dto.request import DepartmentConnectionRequestDTO
 from src.app.dto.response import (
     DepartmentConnectionPage,
     DepartmentConnectionResponseDTO,
+    CurrentUserResponseDTO,
 )
 from src.app.schema import MessageResponse
 from src.app.exception import BadRequestException, ConflictException, NotFoundException
@@ -354,6 +355,46 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
         connections = await self.department_connection_repository.get_connections_by_source_department_id(
             source_department_id
         )
+        return [
+            DepartmentConnectionResponseDTO(
+                id=connection.id,
+                source_department_id=connection.source_department_id,
+                target_department_id=connection.target_department_id,
+                created_at=connection.created_at,
+                updated_at=connection.updated_at,
+            )
+            for connection in connections
+        ]
+
+    @handle_exceptions
+    async def get_department_connections_by_current_user_department(
+        self, current_user: CurrentUserResponseDTO
+    ) -> list[DepartmentConnectionResponseDTO]:
+
+        if not current_user.department_id:
+            raise NotFoundException(
+                details="Current user does not belong to any department.",
+            )
+
+        department_id = current_user.department_id
+
+        existing_department = await self.department_repository.exists_by(
+            id=department_id
+        )
+        if not existing_department:
+            raise NotFoundException(
+                details=f"Department with ID {department_id} not found.",
+            )
+
+        connections = await self.department_connection_repository.get_connections_by_source_department_id(
+            department_id
+        )
+
+        if not connections:
+            raise NotFoundException(
+                details=f"No department connections found for department ID {department_id}.",
+            )
+
         return [
             DepartmentConnectionResponseDTO(
                 id=connection.id,

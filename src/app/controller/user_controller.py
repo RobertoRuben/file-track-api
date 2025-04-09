@@ -1,16 +1,22 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Security
 from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
     InternalServerError,
     NotFoundError,
+    UnauthorizedError,
+    ForbiddenError,
 )
 from src.app.model.enum import StatusEnum
 from src.app.dto.request import UserRequestDTO
-from src.app.dto.response import UserResponseDTO, UserPage
+from src.app.dto.response import UserResponseDTO, CurrentUserResponseDTO, UserPage
 from src.app.schema import MessageResponse
 from src.app.service.interfaces import IUserService
-from src.app.service.dependencies import get_user_service
+from src.app.service.dependencies import (
+    get_user_service,
+    get_current_user,
+)
+from src.app.security.auth.constants import Scopes
 
 router = APIRouter(prefix="/user", tags=["Users"])
 
@@ -32,6 +38,8 @@ user_tags_metadata = {
             "description": "User created successfully",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "Role or employee not found"},
         409: {"model": ConflictError, "description": "User already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
@@ -40,6 +48,9 @@ user_tags_metadata = {
 )
 async def create_user(
     user_request: UserRequestDTO,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.USER_CREATE]
+    ),
     user_service: IUserService = Depends(get_user_service),
 ) -> UserResponseDTO:
     """
@@ -50,7 +61,9 @@ async def create_user(
     with the created user's details is returned.
 
     :param user_request: Request body containing user data.
+    :param current_user: The user making the request, used for scope validation.
     :param user_service: Service to handle the user creation logic.
+    :param _: Dependency to check if the user has the required scopes for this operation.
     :return: The created user data.
     """
     return await user_service.add_user(user_request)
@@ -66,11 +79,16 @@ async def create_user(
             "description": "List of users",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
     description="Retrieves a list of all users in the system.",
 )
 async def get_all_users(
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.USER_READ]
+    ),
     user_service: IUserService = Depends(get_user_service),
 ) -> list[UserResponseDTO]:
     """
@@ -80,6 +98,7 @@ async def get_all_users(
     all users stored in the database.
 
     :param user_service: Service to handle the query and retrieve all users.
+    :param current_user: The user making the request, used for scope validation.
     :return: A list of users in the system.
     """
     return await user_service.get_all_users()
@@ -92,6 +111,8 @@ async def get_all_users(
     responses={
         200: {"model": UserPage, "description": "Paginated list of users"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
     description="Retrieves users in a paginated format to manage large data sets.",
@@ -99,6 +120,9 @@ async def get_all_users(
 async def get_paginated_users(
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of users per page"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.USER_READ]
+    ),
     user_service: IUserService = Depends(get_user_service),
 ) -> UserPage:
     """
@@ -109,6 +133,7 @@ async def get_paginated_users(
 
     :param page: The page number to retrieve.
     :param size: The number of users to return per page.
+    :param current_user: The user making the request, used for scope validation.
     :param user_service: Service to handle the query and return paginated users.
     :return: A paginated list of users.
     """
@@ -122,6 +147,8 @@ async def get_paginated_users(
     responses={
         200: {"model": UserPage, "description": "Paginated list of users"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "User not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -131,6 +158,9 @@ async def find_users(
     search_term: str | None = Query(None, description="Search term to filter users"),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of users per page"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.USER_READ]
+    ),
     user_service: IUserService = Depends(get_user_service),
 ) -> UserPage:
     """
@@ -142,6 +172,7 @@ async def find_users(
     :param search_term: A term to search within usernames, role names, or employee names.
     :param page: The page number to retrieve.
     :param size: The number of results per page.
+    :param current_user: The user making the request, used for scope validation.
     :param user_service: Service to handle the search logic and return results.
     :return: A paginated list of users that match the search term.
     """
@@ -155,6 +186,8 @@ async def find_users(
     responses={
         200: {"model": UserResponseDTO, "description": "User found"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "User not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -162,6 +195,9 @@ async def find_users(
 )
 async def get_user_by_id(
     user_id: int,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.USER_READ]
+    ),
     user_service: IUserService = Depends(get_user_service),
 ) -> UserResponseDTO:
     """
@@ -171,6 +207,7 @@ async def get_user_by_id(
     the user's data is returned. If not, a 404 error is returned.
 
     :param user_id: The ID of the user to retrieve.
+    :param current_user: The user making the request, used for scope validation.
     :param user_service: Service to handle the query and retrieve the user.
     :return: The user details.
     """
@@ -184,6 +221,8 @@ async def get_user_by_id(
     responses={
         200: {"model": UserResponseDTO, "description": "User found"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "User not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -191,6 +230,9 @@ async def get_user_by_id(
 )
 async def get_user_by_username(
     username: str,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.USER_READ]
+    ),
     user_service: IUserService = Depends(get_user_service),
 ) -> UserResponseDTO:
     """
@@ -200,6 +242,7 @@ async def get_user_by_username(
     the user's data is returned. If not, a 404 error is returned.
 
     :param username: The username of the user to retrieve.
+    :param current_user: The user making the request, used for scope validation.
     :param user_service: Service to handle the query and retrieve the user.
     :return: The user details.
     """
@@ -213,6 +256,8 @@ async def get_user_by_username(
     responses={
         200: {"model": UserResponseDTO, "description": "User updated successfully"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {
             "model": NotFoundError,
             "description": "User, role, or employee not found",
@@ -225,6 +270,9 @@ async def get_user_by_username(
 async def update_user(
     user_id: int,
     user_request: UserRequestDTO,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.USER_UPDATE]
+    ),
     user_service: IUserService = Depends(get_user_service),
 ) -> UserResponseDTO:
     """
@@ -236,6 +284,7 @@ async def update_user(
 
     :param user_id: The ID of the user to update.
     :param user_request: The new data for the user.
+    :param current_user: The user making the request, used for scope validation.
     :param user_service: Service to handle the update logic.
     :return: The updated user data.
     """
@@ -249,6 +298,8 @@ async def update_user(
     responses={
         200: {"model": MessageResponse, "description": "Password updated successfully"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "User not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -258,6 +309,9 @@ async def update_password(
     user_id: int,
     old_password: str,
     new_password: str,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.USER_UPDATE]
+    ),
     user_service: IUserService = Depends(get_user_service),
 ) -> MessageResponse:
     """
@@ -269,6 +323,7 @@ async def update_password(
     :param user_id: The ID of the user whose password is to be updated.
     :param old_password: The current password of the user.
     :param new_password: The new password to set.
+    :param current_user: The user making the request, used for scope validation.
     :param user_service: Service to handle the password update logic.
     :return: A message indicating the result of the password update.
     """
@@ -282,6 +337,8 @@ async def update_password(
     responses={
         200: {"model": MessageResponse, "description": "Status updated successfully"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "User not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -290,6 +347,9 @@ async def update_password(
 async def update_user_status(
     user_id: int,
     status: StatusEnum,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.USER_UPDATE]
+    ),
     user_service: IUserService = Depends(get_user_service),
 ) -> MessageResponse:
     """
@@ -299,6 +359,7 @@ async def update_user_status(
 
     :param user_id: The ID of the user whose status is to be updated.
     :param status: The new status to set for the user ("Activate" or "Deactivate").
+    :param current_user: The user making the request, used for scope validation.
     :param user_service: Service to handle the status update logic.
     :return: A message indicating the result of the status update.
     """
@@ -312,6 +373,8 @@ async def update_user_status(
     responses={
         200: {"model": MessageResponse, "description": "User deleted successfully"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "User not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -319,6 +382,9 @@ async def update_user_status(
 )
 async def delete_user(
     user_id: int,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.USER_DELETE]
+    ),
     user_service: IUserService = Depends(get_user_service),
 ) -> MessageResponse:
     """
@@ -328,6 +394,7 @@ async def delete_user(
     successfully, a success message is returned. If the user is not found, a 404 error is returned.
 
     :param user_id: The ID of the user to delete.
+    :param current_user: The user making the request, used for scope validation.
     :param user_service: Service to handle the delete logic.
     :return: A success message indicating that the user has been deleted.
     """

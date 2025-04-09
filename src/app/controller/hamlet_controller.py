@@ -1,15 +1,18 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Security
 from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
     InternalServerError,
     NotFoundError,
+    UnauthorizedError,
+    ForbiddenError,
 )
 from src.app.dto.request import HamletRequestDTO
-from src.app.dto.response import HamletResponseDTO, HamletPage
+from src.app.dto.response import HamletResponseDTO, HamletPage, CurrentUserResponseDTO
 from src.app.schema import MessageResponse
 from src.app.service.interfaces import IHamletService
-from src.app.service.dependencies import get_hamlet_service
+from src.app.service.dependencies import get_hamlet_service, get_current_user
+from src.app.security.auth.constants import Scopes
 
 router = APIRouter(prefix="/hamlet", tags=["Hamlets"])
 
@@ -32,6 +35,8 @@ hamlet_tags_metadata = {
             "description": "Hamlet created successfully",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         409: {"model": ConflictError, "description": "Hamlet already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -39,6 +44,9 @@ hamlet_tags_metadata = {
 )
 async def create_hamlet(
     hamlet_request: HamletRequestDTO,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.HAMLET_CREATE]
+    ),
     hamlet_service: IHamletService = Depends(get_hamlet_service),
 ) -> HamletResponseDTO:
     """
@@ -49,6 +57,7 @@ async def create_hamlet(
     status code 201 is returned with the details of the created hamlet.
 
     :param hamlet_request: Request body containing the hamlet data.
+    :param current_user: The user creating the hamlet, used for authorization.
     :param hamlet_service: Service that handles the hamlet creation logic.
     :return: The data of the created hamlet.
     """
@@ -65,11 +74,17 @@ async def create_hamlet(
             "description": "List of hamlets",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete list of all hamlets registered in the system, including their identifiers, names, and timestamps.",
+    description="Retrieves the complete list of all hamlets registered in the system, including their identifiers,"
+    " names, and timestamps.",
 )
 async def get_all_hamlets(
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.HAMLET_READ]
+    ),
     hamlet_service: IHamletService = Depends(get_hamlet_service),
 ) -> list[HamletResponseDTO]:
     """
@@ -78,6 +93,7 @@ async def get_all_hamlets(
     This endpoint returns a list of all available hamlets in the system. The response will include
     all hamlets stored in the database.
 
+    :param current_user: The user requesting the hamlets, used for authorization.
     :param hamlet_service: Service to handle the query and retrieve all hamlets.
     :return: A list of hamlets in the system.
     """
@@ -91,13 +107,19 @@ async def get_all_hamlets(
     responses={
         200: {"model": HamletPage, "description": "Paginated list of hamlets"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves hamlets in a paginated format to manage large data sets, allowing navigation through pages and control over the number of records per page.",
+    description="Retrieves hamlets in a paginated format to manage large data sets, allowing navigation through pages "
+    "and control over the number of records per page.",
 )
 async def get_paginated_hamlets(
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of hamlets per page"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.HAMLET_READ]
+    ),
     hamlet_service: IHamletService = Depends(get_hamlet_service),
 ) -> HamletPage:
     """
@@ -108,6 +130,7 @@ async def get_paginated_hamlets(
 
     :param page: The page number to retrieve.
     :param size: The number of hamlets to return per page.
+    :param current_user: The user requesting the paginated hamlets, used for authorization.
     :param hamlet_service: Service to handle the query and return paginated hamlets.
     :return: A paginated list of hamlets.
     """
@@ -121,15 +144,21 @@ async def get_paginated_hamlets(
     responses={
         200: {"model": HamletPage, "description": "Paginated list of hamlets"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "Hamlet not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Performs hamlet searches based on a keyword or phrase. Results are returned paginated for better management of search results.",
+    description="Performs hamlet searches based on a keyword or phrase. Results are returned paginated for better "
+    "management of search results.",
 )
 async def find_hamlets(
     search_term: str | None = Query(None, description="Search term to filter hamlets"),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of hamlets per page"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.HAMLET_READ]
+    ),
     hamlet_service: IHamletService = Depends(get_hamlet_service),
 ) -> HamletPage:
     """
@@ -141,6 +170,7 @@ async def find_hamlets(
     :param search_term: A term to search within hamlet names.
     :param page: The page number to retrieve.
     :param size: The number of results per page.
+    :param current_user: The user performing the search, used for authorization.
     :param hamlet_service: Service to handle the search logic and return results.
     :return: A paginated list of hamlets that match the search term.
     """
@@ -154,6 +184,8 @@ async def find_hamlets(
     responses={
         200: {"model": HamletResponseDTO, "description": "Hamlet found"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "Hamlet not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -161,6 +193,9 @@ async def find_hamlets(
 )
 async def get_hamlet_by_id(
     hamlet_id: int,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.HAMLET_READ]
+    ),
     hamlet_service: IHamletService = Depends(get_hamlet_service),
 ) -> HamletResponseDTO:
     """
@@ -170,6 +205,7 @@ async def get_hamlet_by_id(
     the hamlet's data is returned. If not, a 404 error is returned.
 
     :param hamlet_id: The ID of the hamlet to retrieve.
+    :param current_user: The user requesting the hamlet, used for authorization.
     :param hamlet_service: Service to handle the query and retrieve the hamlet.
     :return: The hamlet details.
     """
@@ -186,15 +222,21 @@ async def get_hamlet_by_id(
             "description": "Hamlet updated successfully",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "Hamlet not found"},
         409: {"model": ConflictError, "description": "Hamlet name already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Updates the details of an existing hamlet identified by its ID. Verifies that the new name is not already in use by another hamlet.",
+    description="Updates the details of an existing hamlet identified by its ID. Verifies that the new name is not"
+    " already in use by another hamlet.",
 )
 async def update_hamlet(
     hamlet_id: int,
     hamlet_request: HamletRequestDTO,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.HAMLET_UPDATE]
+    ),
     hamlet_service: IHamletService = Depends(get_hamlet_service),
 ) -> HamletResponseDTO:
     """
@@ -206,6 +248,7 @@ async def update_hamlet(
 
     :param hamlet_id: The ID of the hamlet to update.
     :param hamlet_request: The new data for the hamlet.
+    :param current_user: The user updating the hamlet, used for authorization.
     :param hamlet_service: Service to handle the update logic.
     :return: The updated hamlet data.
     """
@@ -222,13 +265,19 @@ async def update_hamlet(
             "description": "Hamlet deleted successfully",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "Hamlet not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Deletes a specific hamlet from the system using its ID. This operation is irreversible and may affect relationships with other entities.",
+    description="Deletes a specific hamlet from the system using its ID. This operation is irreversible and may"
+    " affect relationships with other entities.",
 )
 async def delete_hamlet(
     hamlet_id: int,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.HAMLET_DELETE]
+    ),
     hamlet_service: IHamletService = Depends(get_hamlet_service),
 ) -> MessageResponse:
     """
@@ -238,6 +287,7 @@ async def delete_hamlet(
     successfully, a success message is returned. If the hamlet is not found, a 404 error is returned.
 
     :param hamlet_id: The ID of the hamlet to delete.
+    :param current_user: The user deleting the hamlet, used for authorization.
     :param hamlet_service: Service to handle the delete logic.
     :return: A success message indicating that the hamlet has been deleted.
     """

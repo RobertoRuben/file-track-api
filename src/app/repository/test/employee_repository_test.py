@@ -2,7 +2,7 @@ import pytest
 from datetime import datetime
 from unittest.mock import AsyncMock
 from src.app.model.entity import Employee
-from src.app.dto.request import EmployeeRequestDto
+from src.app.dto.request import EmployeeRequestDTO
 from src.app.dto.response import EmployeeResponseDTO, EmployeePage
 from src.app.service.implementations import EmployeeServiceImpl
 from src.app.exception import ConflictException, NotFoundException, BadRequestException
@@ -66,7 +66,7 @@ class TestEmployeeServiceImpl:
 
         :return: An EmployeeRequestDto instance with test data
         """
-        return EmployeeRequestDto(
+        return EmployeeRequestDTO(
             dni=12345678,
             names="John",
             paternal_surname="Doe",
@@ -315,7 +315,7 @@ class TestEmployeeServiceImpl:
         print(f"\n🔹 Updating employee ID: 1 🔄")
 
         # Create updated request
-        updated_request = EmployeeRequestDto(
+        updated_request = EmployeeRequestDTO(
             dni="12345678",
             names="John Updated",
             paternal_surname="Doe Updated",
@@ -380,7 +380,7 @@ class TestEmployeeServiceImpl:
         print(f"\n🔹 Attempting to update non-existent employee (ID: 999) 🔄")
 
         # Create update request
-        updated_request = EmployeeRequestDto(
+        updated_request = EmployeeRequestDTO(
             dni="12345678",
             names="John Updated",
             paternal_surname="Doe Updated",
@@ -415,7 +415,7 @@ class TestEmployeeServiceImpl:
         print(f"\n🔹 Attempting to update employee to a DNI already in use 🔄")
 
         # Create update request with new DNI
-        updated_request = EmployeeRequestDto(
+        updated_request = EmployeeRequestDTO(
             dni="87654321",  # Different from current DNI
             names="John Updated",
             paternal_surname="Doe Updated",

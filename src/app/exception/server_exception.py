@@ -17,6 +17,12 @@ class ServerException(BaseHTTPException):
     ):
         """
         Initialize a new ServerException.
+
+        :param message: Human-readable error message
+        :param details: Additional details about the error
+        :param time: Timestamp when the error occurred, defaults to current time
+        :param type_: The type of the error
+        :param code: HTTP status code
         """
         super().__init__(
             type_=type_, code=code, message=message, details=details, time=time

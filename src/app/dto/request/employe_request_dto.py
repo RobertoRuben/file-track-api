@@ -3,7 +3,7 @@ from pydantic import BaseModel, Field, ValidationInfo, field_validator, model_va
 from src.app.model.enum import GeneroEnum
 
 
-class EmployeeRequestDto(BaseModel):
+class EmployeeRequestDTO(BaseModel):
     """
     DTO for employee creation and update requests.
     Contains all fields necessary to process employee information.

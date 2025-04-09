@@ -1,9 +1,10 @@
 import math
+from typing import Any
 from sqlmodel import select, func, or_
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.app.repository.decorator import transactional
 from src.app.repository.interfaces import IUserRepository
-from src.app.model.entity import User, Employee, Role
+from src.app.model.entity import User, Employee, Role, Department
 from src.app.exception import invalid_field_exception
 from src.app.schema import Page, Pagination
 
@@ -84,6 +85,41 @@ class UserRepositoryImpl(IUserRepository):
         result = await self.session.exec(stmt)
         user = result.first()
         return user
+
+    @transactional(readonly=False)
+    async def get_current_user_by_name(self, username: str) -> dict[str, Any] | None:
+        """
+        Retrieves the current user by username.
+        :param username: The username of the user to retrieve
+        :return: A dictionary containing user information, or None if not found
+        """
+        stmt = (
+            select(
+                User.id,
+                User.username,
+                User.password,
+                func.concat(
+                    Employee.paternal_surname,
+                    ' ',
+                    Employee.maternal_surname,
+                    ' ',
+                    Employee.names,
+                ).label('employee_name'),
+                Role.name.label("role_name"),
+                Department.id.label("department_id"),
+                User.is_active,
+                User.created_at,
+                User.updated_at,
+            )
+            .join(Employee, Employee.id == User.employee_id)
+            .join(Role, Role.id == User.role_id)
+            .join(Department, Department.id == Employee.department_id)
+            .where(User.username == username)
+        )
+        result = await self.session.exec(stmt)
+        current_user = result.first()
+
+        return current_user._asdict() if current_user else None
 
     @transactional(readonly=True)
     async def get_pageable(self, page: int, size: int) -> Page:

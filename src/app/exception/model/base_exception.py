@@ -10,7 +10,13 @@ class BaseHTTPException(HTTPException):
     """
 
     def __init__(
-        self, type_: str, code: int, message: str, details: str = None, time: str = None
+        self,
+        type_: str,
+        code: int,
+        message: str,
+        details: str = None,
+        time: str = None,
+        headers: dict = None,
     ):
         """
         Initialize a new BaseHTTPException.
@@ -20,6 +26,7 @@ class BaseHTTPException(HTTPException):
         :param message: Human-readable error message
         :param details: Additional details about the error
         :param time: Timestamp when the error occurred, defaults to current time
+        :param headers: HTTP headers to include in the response
         """
 
         error = ErrorDetail(
@@ -30,4 +37,4 @@ class BaseHTTPException(HTTPException):
             time=time or datetime.now().isoformat(),
         )
 
-        super().__init__(status_code=code, detail=error.model_dump())
+        super().__init__(status_code=code, detail=error.model_dump(), headers=headers)

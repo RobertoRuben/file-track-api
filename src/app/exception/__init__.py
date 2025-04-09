@@ -14,5 +14,6 @@ __all__ = [
     "InvalidFieldException",
     "NotFoundException",
     "ServerException",
-    "UnauthorizedException"
+    "UnauthorizedException",
+    "ForbiddenException",
 ]

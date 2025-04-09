@@ -1,15 +1,22 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Security
 from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
     InternalServerError,
     NotFoundError,
+    UnauthorizedError,
+    ForbiddenError,
 )
 from src.app.dto.request import PositionRequestDTO
-from src.app.dto.response import PositionResponseDTO, PositionPage
+from src.app.dto.response import (
+    PositionResponseDTO,
+    PositionPage,
+    CurrentUserResponseDTO,
+)
 from src.app.schema import MessageResponse
 from src.app.service.interfaces import IPositionService
-from src.app.service.dependencies import get_position_service
+from src.app.service.dependencies import get_position_service, get_current_user
+from src.app.security.auth.constants import Scopes
 
 router = APIRouter(prefix="/position", tags=["Positions"])
 
@@ -32,6 +39,8 @@ position_tags_metadata = {
             "description": "Position created successfully",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         409: {"model": ConflictError, "description": "Position already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -39,6 +48,9 @@ position_tags_metadata = {
 )
 async def create_position(
     position_request: PositionRequestDTO,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.POSITION_CREATE]
+    ),
     position_service: IPositionService = Depends(get_position_service),
 ) -> PositionResponseDTO:
     """
@@ -49,6 +61,7 @@ async def create_position(
     status code 201 is returned with the details of the created position.
 
     :param position_request: Request body containing the position data.
+    :param current_user: The user creating the position, used for authorization.
     :param position_service: Service that handles the position creation logic.
     :return: The data of the created position.
     """
@@ -65,11 +78,17 @@ async def create_position(
             "description": "List of positions",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete list of all positions registered in the system, including their identifiers, names, and timestamps.",
+    description="Retrieves the complete list of all positions registered in the system, including their identifiers, "
+    "names, and timestamps.",
 )
 async def get_all_positions(
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.POSITION_READ]
+    ),
     position_service: IPositionService = Depends(get_position_service),
 ) -> list[PositionResponseDTO]:
     """
@@ -78,6 +97,7 @@ async def get_all_positions(
     This endpoint returns a list of all available positions in the system. The response will include
     all positions stored in the database.
 
+    :param current_user: The user requesting the positions, used for authorization.
     :param position_service: Service to handle the query and retrieve all positions.
     :return: A list of positions in the system.
     """
@@ -91,13 +111,19 @@ async def get_all_positions(
     responses={
         200: {"model": PositionPage, "description": "Paginated list of positions"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves positions in a paginated format to manage large data sets, allowing navigation through pages and control over the number of records per page.",
+    description="Retrieves positions in a paginated format to manage large data sets, allowing navigation through pages"
+    " and control over the number of records per page.",
 )
 async def get_paginated_positions(
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of positions per page"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.POSITION_READ]
+    ),
     position_service: IPositionService = Depends(get_position_service),
 ) -> PositionPage:
     """
@@ -108,6 +134,7 @@ async def get_paginated_positions(
 
     :param page: The page number to retrieve.
     :param size: The number of positions to return per page.
+    :param current_user: The user requesting the positions, used for authorization.
     :param position_service: Service to handle the query and return paginated positions.
     :return: A paginated list of positions.
     """
@@ -121,10 +148,13 @@ async def get_paginated_positions(
     responses={
         200: {"model": PositionPage, "description": "Paginated list of positions"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "Position not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Performs position searches based on a keyword or phrase. Results are returned paginated for better management of search results.",
+    description="Performs position searches based on a keyword or phrase. Results are returned paginated for better"
+    " management of search results.",
 )
 async def find_positions(
     search_term: str | None = Query(
@@ -132,6 +162,9 @@ async def find_positions(
     ),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of positions per page"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.POSITION_READ]
+    ),
     position_service: IPositionService = Depends(get_position_service),
 ) -> PositionPage:
     """
@@ -143,6 +176,7 @@ async def find_positions(
     :param search_term: A term to search within position names.
     :param page: The page number to retrieve.
     :param size: The number of results per page.
+    :param current_user: The user requesting the search, used for authorization.
     :param position_service: Service to handle the search logic and return results.
     :return: A paginated list of positions that match the search term.
     """
@@ -156,6 +190,8 @@ async def find_positions(
     responses={
         200: {"model": PositionResponseDTO, "description": "Position found"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "Position not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -163,6 +199,9 @@ async def find_positions(
 )
 async def get_position_by_id(
     position_id: int,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.POSITION_READ]
+    ),
     position_service: IPositionService = Depends(get_position_service),
 ) -> PositionResponseDTO:
     """
@@ -172,6 +211,7 @@ async def get_position_by_id(
     the position's data is returned. If not, a 404 error is returned.
 
     :param position_id: The ID of the position to retrieve.
+    :param current_user: The user requesting the position, used for authorization.
     :param position_service: Service to handle the query and retrieve the position.
     :return: The position details.
     """
@@ -188,15 +228,21 @@ async def get_position_by_id(
             "description": "Position updated successfully",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "Position not found"},
         409: {"model": ConflictError, "description": "Position name already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Updates the details of an existing position identified by its ID. Verifies that the new name is not already in use by another position.",
+    description="Updates the details of an existing position identified by its ID. Verifies that the new name is not "
+    "already in use by another position.",
 )
 async def update_position(
     position_id: int,
     position_request: PositionRequestDTO,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.POSITION_UPDATE]
+    ),
     position_service: IPositionService = Depends(get_position_service),
 ) -> PositionResponseDTO:
     """
@@ -208,6 +254,7 @@ async def update_position(
 
     :param position_id: The ID of the position to update.
     :param position_request: The new data for the position.
+    :param current_user: The user updating the position, used for authorization.
     :param position_service: Service to handle the update logic.
     :return: The updated position data.
     """
@@ -224,13 +271,19 @@ async def update_position(
             "description": "Position deleted successfully",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "Position not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Deletes a specific position from the system using its ID. This operation is irreversible and may affect relationships with other entities.",
+    description="Deletes a specific position from the system using its ID. This operation is irreversible and may "
+    "affect relationships with other entities.",
 )
 async def delete_position(
     position_id: int,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.POSITION_DELETE]
+    ),
     position_service: IPositionService = Depends(get_position_service),
 ) -> MessageResponse:
     """
@@ -240,6 +293,7 @@ async def delete_position(
     successfully, a success message is returned. If the position is not found, a 404 error is returned.
 
     :param position_id: The ID of the position to delete.
+    :param current_user: The user deleting the position, used for authorization.
     :param position_service: Service to handle the delete logic.
     :return: A success message indicating that the position has been deleted.
     """

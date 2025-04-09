@@ -1,7 +1,8 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, Depends
 from contextlib import asynccontextmanager
 from src.app.db import init_db
 from src.app.exception.globals import register_exception_handlers
+from src.app.service.dependencies import get_current_user
 from src.app.controller import (
     document_category_router,
     document_category_tags_metadata,
@@ -25,6 +26,8 @@ from src.app.controller import (
     department_connection_tags_metadata,
     user_router,
     user_tags_metadata,
+    auth_router,
+    auth_tags_metadata,
 )
 
 API_PREFIX = "/api/v1"
@@ -41,6 +44,7 @@ tags_metadata = [
     hamlet_tags_metadata,
     department_connection_tags_metadata,
     user_tags_metadata,
+    auth_tags_metadata,
 ]
 
 
@@ -75,14 +79,43 @@ app = FastAPI(
     terms_of_service="https://opensource.org/licenses/MIT",
 )
 
-app.include_router(document_category_router, prefix=API_PREFIX)
-app.include_router(role_router, prefix=API_PREFIX)
-app.include_router(department_router, prefix=API_PREFIX)
-app.include_router(documentary_topic_router, prefix=API_PREFIX)
-app.include_router(settlement_router, prefix=API_PREFIX)
-app.include_router(submitter_router, prefix=API_PREFIX)
-app.include_router(position_router, prefix=API_PREFIX)
-app.include_router(employee_router, prefix=API_PREFIX)
-app.include_router(hamlet_router, prefix=API_PREFIX)
-app.include_router(department_connection_router, prefix=API_PREFIX)
-app.include_router(user_router, prefix=API_PREFIX)
+app.include_router(auth_router, prefix=API_PREFIX)
+app.include_router(
+    document_category_router,
+    prefix=API_PREFIX,
+    dependencies=[Depends(get_current_user)],
+)
+app.include_router(
+    role_router, prefix=API_PREFIX, dependencies=[Depends(get_current_user)]
+)
+app.include_router(
+    department_router, prefix=API_PREFIX, dependencies=[Depends(get_current_user)]
+)
+app.include_router(
+    documentary_topic_router,
+    prefix=API_PREFIX,
+    dependencies=[Depends(get_current_user)],
+)
+app.include_router(
+    settlement_router, prefix=API_PREFIX, dependencies=[Depends(get_current_user)]
+)
+app.include_router(
+    submitter_router, prefix=API_PREFIX, dependencies=[Depends(get_current_user)]
+)
+app.include_router(
+    position_router, prefix=API_PREFIX, dependencies=[Depends(get_current_user)]
+)
+app.include_router(
+    employee_router, prefix=API_PREFIX, dependencies=[Depends(get_current_user)]
+)
+app.include_router(
+    hamlet_router, prefix=API_PREFIX, dependencies=[Depends(get_current_user)]
+)
+app.include_router(
+    department_connection_router,
+    prefix=API_PREFIX,
+    dependencies=[Depends(get_current_user)],
+)
+app.include_router(
+    user_router, prefix=API_PREFIX, dependencies=[Depends(get_current_user)]
+)
