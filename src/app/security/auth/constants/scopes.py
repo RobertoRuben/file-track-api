@@ -116,6 +116,7 @@ class Scopes:
             USER_CREATE,
             USER_UPDATE,
             USER_DELETE,
+            DEPARTMENT_CONNECTION_READ,
             DOCUMENT_CATEGORY_READ,
             DOCUMENT_CATEGORY_CREATE,
             DOCUMENT_CATEGORY_UPDATE,
