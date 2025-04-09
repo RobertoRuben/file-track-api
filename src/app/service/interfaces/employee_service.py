@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from src.app.dto.request import EmployeeRequestDto
+from src.app.dto.request import EmployeeRequestDTO
 from src.app.dto.response import EmployeeResponseDTO, EmployeePage
 from src.app.schema import MessageResponse
 
@@ -12,7 +12,7 @@ class IEmployeeService(ABC):
 
     @abstractmethod
     async def add_employee(
-        self, employee_request: EmployeeRequestDto
+        self, employee_request: EmployeeRequestDTO
     ) -> EmployeeResponseDTO:
         """
         Add a new employee.
@@ -33,7 +33,7 @@ class IEmployeeService(ABC):
 
     @abstractmethod
     async def update_employee(
-        self, employee_id: int, employee_request: EmployeeRequestDto
+        self, employee_id: int, employee_request: EmployeeRequestDTO
     ) -> EmployeeResponseDTO:
         """
         Update an existing employee.

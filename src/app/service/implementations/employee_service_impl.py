@@ -1,6 +1,6 @@
 from datetime import datetime
 from src.app.model.entity import Employee
-from src.app.dto.request import EmployeeRequestDto
+from src.app.dto.request import EmployeeRequestDTO
 from src.app.dto.response import EmployeeResponseDTO, EmployeePage
 from src.app.schema import MessageResponse
 from src.app.exception import BadRequestException, ConflictException, NotFoundException
@@ -36,7 +36,7 @@ class EmployeeServiceImpl(IEmployeeService):
 
     @handle_exceptions
     async def add_employee(
-        self, employee_request: EmployeeRequestDto
+        self, employee_request: EmployeeRequestDTO
     ) -> EmployeeResponseDTO:
         """
         Adds a new employee to the system.
@@ -119,7 +119,7 @@ class EmployeeServiceImpl(IEmployeeService):
 
     @handle_exceptions
     async def update_employee(
-        self, employee_id: int, employee_request: EmployeeRequestDto
+        self, employee_id: int, employee_request: EmployeeRequestDTO
     ) -> EmployeeResponseDTO:
         """
         Updates an existing employee.
