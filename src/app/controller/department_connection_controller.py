@@ -119,6 +119,54 @@ async def get_all_department_connections(
 
 
 @router.get(
+    "/current-department",
+    response_model=list[DepartmentConnectionResponseDTO],
+    summary="Get department connections list by current user",
+    responses={
+        200: {
+            "model": list[DepartmentConnectionResponseDTO],
+            "description": "List of department connections",
+        },
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        404: {"model": NotFoundError, "description": "Source department not found"},
+        500: {
+            "model": InternalServerError,
+            "description": "Internal server error",
+        },
+    },
+    description="Retrieves all department connections linked to the authenticated user's department, ensuring that "
+    "only connections relevant to the user's organizational context are returned.",
+)
+async def get_connections_by_current_user_department_id(
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_READ]
+    ),
+    department_connection_service: IDepartmentConnectionService = Depends(
+        get_department_connection_service
+    ),
+) -> list[DepartmentConnectionResponseDTO]:
+    """
+    Endpoint to retrieve department connections for the current user's department.
+
+    This endpoint fetches all department connections associated with the department
+    of the currently authenticated user. It filters the connections based on the user's
+    department affiliation and returns a list of department connection details.
+    Appropriate error responses are provided for cases such as malformed requests,
+    unauthorized access, or if the source department is not found.
+
+    :param current_user: The currently authenticated user, providing the necessary department context.
+    :param department_connection_service: Service responsible for retrieving the department connections linked to the
+     user's department.
+    :return: A list of DepartmentConnectionResponseDTO objects containing the department connections.
+    """
+    return await department_connection_service.get_department_connections_by_current_user_department(
+        current_user
+    )
+
+
+@router.get(
     "/paginated",
     response_model=DepartmentConnectionPage,
     summary="Get department connections with pagination",
