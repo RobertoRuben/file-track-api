@@ -1,9 +1,9 @@
-# src/app/service/interfaces/department_connection_service.py
 from abc import ABC, abstractmethod
 from src.app.dto.request import DepartmentConnectionRequestDTO
 from src.app.dto.response import (
     DepartmentConnectionResponseDTO,
     DepartmentConnectionPage,
+    CurrentUserResponseDTO,
 )
 from src.app.schema import MessageResponse
 
@@ -112,5 +112,17 @@ class IDepartmentConnectionService(ABC):
 
         :param source_department_id: The ID of the source department to filter connections
         :return: A list of DepartmentConnectionResponseDTO objects representing connections with the specified source department ID
+        """
+        pass
+
+    @abstractmethod
+    async def get_department_connections_by_current_user_department(
+        self, current_user: CurrentUserResponseDTO
+    ) -> list[DepartmentConnectionResponseDTO]:
+        """
+        Retrieve department connections by the current user's department.
+
+        :param current_user: The current user object containing department information
+        :return: A list of DepartmentConnectionResponseDTO objects representing connections for the current user's department
         """
         pass
