@@ -1,8 +1,8 @@
 """add_documents_table
 
-Revision ID: a41f9ce35f62
+Revision ID: e51cd95457a8
 Revises: e808eae2deb4
-Create Date: 2025-04-09 16:00:02.162860
+Create Date: 2025-04-09 16:05:53.096730
 
 """
 from typing import Sequence, Union
@@ -12,7 +12,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision: str = 'a41f9ce35f62'
+revision: str = 'e51cd95457a8'
 down_revision: Union[str, None] = 'e808eae2deb4'
 branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
@@ -28,6 +28,7 @@ def upgrade() -> None:
     sa.Column('subject', sa.TEXT(), nullable=False),
     sa.Column('pages', sa.BIGINT(), nullable=False),
     sa.Column('storage_path', sa.TEXT(), nullable=False),
+    sa.Column('size', sa.BIGINT(), nullable=False),
     sa.Column('submitter_id', sa.BIGINT(), nullable=False),
     sa.Column('document_category_id', sa.BIGINT(), nullable=False),
     sa.Column('documentary_topic_id', sa.BIGINT(), nullable=False),
