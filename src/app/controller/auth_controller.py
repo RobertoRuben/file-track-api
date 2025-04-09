@@ -41,7 +41,8 @@ auth_tags_metadata = {
         401: {"model": UnauthorizedError, "description": "Invalid credentials"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Authenticates a user with username and password credentials, generating both access and refresh tokens upon successful authentication.",
+    description="Authenticates a user with username and password credentials, generating both access and refresh "
+    "tokens upon successful authentication.",
 )
 async def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
@@ -55,9 +56,9 @@ async def login(
     allows the user to access protected resources, while the refresh token can be used
     to obtain a new access token when the current one expires.
 
-    :param form_data: Form containing username and password for authentication
-    :param auth_service: Service that handles the authentication logic
-    :return: Authentication response containing access and refresh tokens
+    :param form_data: Form containing username and password for authentication.
+    :param auth_service: Service that handles the authentication logic.
+    :return: Authentication response containing access and refresh tokens.
     """
     auth_request = AuthRequestDTO(
         username=form_data.username,
@@ -79,7 +80,8 @@ async def login(
         401: {"model": UnauthorizedError, "description": "Invalid refresh token"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Generates a new access token using a valid refresh token, allowing users to maintain their session without re-entering credentials.",
+    description="Generates a new access token using a valid refresh token, allowing users to maintain their session "
+    "without re-entering credentials.",
 )
 async def refresh_token(
     refresh_token: str,
@@ -92,9 +94,9 @@ async def refresh_token(
     refresh token. This is typically used when the original access token has expired
     but the user wishes to maintain their authenticated session without logging in again.
 
-    :param refresh_token: The refresh token used to generate a new access token
-    :param auth_service: Service that handles the token refresh logic
-    :return: Authentication response containing new access token and the existing refresh token
+    :param refresh_token: The refresh token used to generate a new access token.
+    :param auth_service: Service that handles the token refresh logic.
+    :return: Authentication response containing new access token and the existing refresh token.
     """
     return await auth_service.generate_refresh_access_token(refresh_token)
 
@@ -124,7 +126,7 @@ async def get_user_me(
     It uses the access token provided in the Authorization header to identify and
     return the appropriate user data.
 
-    :param current_user: The authenticated user retrieved from the bearer token
-    :return: User information of the currently authenticated user
+    :param current_user: The authenticated user retrieved from the bearer token.
+    :return: User information of the currently authenticated user.
     """
     return current_user

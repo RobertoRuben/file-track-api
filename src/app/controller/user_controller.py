@@ -4,6 +4,8 @@ from src.app.exception.schema import (
     ConflictError,
     InternalServerError,
     NotFoundError,
+    UnauthorizedError,
+    ForbiddenError,
 )
 from src.app.model.enum import StatusEnum
 from src.app.dto.request import UserRequestDTO
@@ -36,6 +38,8 @@ user_tags_metadata = {
             "description": "User created successfully",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "Role or employee not found"},
         409: {"model": ConflictError, "description": "User already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
@@ -75,6 +79,8 @@ async def create_user(
             "description": "List of users",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
     description="Retrieves a list of all users in the system.",
@@ -105,6 +111,8 @@ async def get_all_users(
     responses={
         200: {"model": UserPage, "description": "Paginated list of users"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
     description="Retrieves users in a paginated format to manage large data sets.",
@@ -139,6 +147,8 @@ async def get_paginated_users(
     responses={
         200: {"model": UserPage, "description": "Paginated list of users"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "User not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -176,6 +186,8 @@ async def find_users(
     responses={
         200: {"model": UserResponseDTO, "description": "User found"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "User not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -209,6 +221,8 @@ async def get_user_by_id(
     responses={
         200: {"model": UserResponseDTO, "description": "User found"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "User not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -242,6 +256,8 @@ async def get_user_by_username(
     responses={
         200: {"model": UserResponseDTO, "description": "User updated successfully"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {
             "model": NotFoundError,
             "description": "User, role, or employee not found",
@@ -282,6 +298,8 @@ async def update_user(
     responses={
         200: {"model": MessageResponse, "description": "Password updated successfully"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "User not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -319,6 +337,8 @@ async def update_password(
     responses={
         200: {"model": MessageResponse, "description": "Status updated successfully"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "User not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -353,6 +373,8 @@ async def update_user_status(
     responses={
         200: {"model": MessageResponse, "description": "User deleted successfully"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "User not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },

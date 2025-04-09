@@ -1,15 +1,22 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Security
 from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
     InternalServerError,
     NotFoundError,
+    UnauthorizedError,
+    ForbiddenError,
 )
-from src.app.dto.request import EmployeeRequestDto
-from src.app.dto.response import EmployeeResponseDTO, EmployeePage
+from src.app.dto.request import EmployeeRequestDTO
+from src.app.dto.response import (
+    EmployeeResponseDTO,
+    EmployeePage,
+    CurrentUserResponseDTO,
+)
 from src.app.schema import MessageResponse
 from src.app.service.interfaces import IEmployeeService
-from src.app.service.dependencies import get_employee_service
+from src.app.service.dependencies import get_employee_service, get_current_user
+from src.app.security.auth.constants import Scopes
 
 router = APIRouter(prefix="/employees", tags=["Employees"])
 
@@ -33,6 +40,8 @@ employee_tags_metadata = {
             "description": "Employee created successfully",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         409: {"model": ConflictError, "description": "Employee already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -40,7 +49,10 @@ employee_tags_metadata = {
     "position details. The DNI must be unique.",
 )
 async def create_employee(
-    employee_request: EmployeeRequestDto,
+    employee_request: EmployeeRequestDTO,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.EMPLOYEE_CREATE]
+    ),
     employee_service: IEmployeeService = Depends(get_employee_service),
 ) -> EmployeeResponseDTO:
     """
@@ -50,9 +62,10 @@ async def create_employee(
     must be provided in the request body. If the employee is created successfully, a
     status code 201 is returned with the details of the created employee.
 
-    :param employee_request: Request body containing the employee data
-    :param employee_service: Service that handles the employee creation logic
-    :return: The data of the created employee
+    :param employee_request: Request body containing the employee data.
+    :param current_user: The user creating the employee, used for auditing purposes.
+    :param employee_service: Service that handles the employee creation logic.
+    :return: The data of the created employee.
     """
     return await employee_service.add_employee(employee_request)
 
@@ -67,12 +80,17 @@ async def create_employee(
             "description": "List of employees",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
     description="Retrieves the complete list of all employees registered in the system, including their personal "
     "information, department assignments and position details.",
 )
 async def get_all_employees(
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.EMPLOYEE_READ]
+    ),
     employee_service: IEmployeeService = Depends(get_employee_service),
 ) -> list[EmployeeResponseDTO]:
     """
@@ -81,8 +99,9 @@ async def get_all_employees(
     This endpoint returns a list of all available employees in the system. The response will include
     all employees stored in the database.
 
-    :param employee_service: Service to handle the query and retrieve all employees
-    :return: A list of employees in the system
+    :param current_user: The user requesting the data, used for auditing purposes.
+    :param employee_service: Service to handle the query and retrieve all employees.
+    :return: A list of employees in the system.
     """
     return await employee_service.get_all_employees()
 
@@ -94,6 +113,8 @@ async def get_all_employees(
     responses={
         200: {"model": EmployeePage, "description": "Paginated list of employees"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
     description="Retrieves employees in a paginated format to manage large datasets, allowing navigation through pages"
@@ -102,6 +123,9 @@ async def get_all_employees(
 async def get_paginated_employees(
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of employees per page"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.EMPLOYEE_READ]
+    ),
     employee_service: IEmployeeService = Depends(get_employee_service),
 ) -> EmployeePage:
     """
@@ -110,10 +134,11 @@ async def get_paginated_employees(
     This endpoint allows retrieving employees in a paginated format. The user can specify the page number
     and the number of employees per page to optimize the query and reduce data overload.
 
-    :param page: The page number to retrieve
-    :param size: The number of employees to return per page
-    :param employee_service: Service to handle the query and return paginated employees
-    :return: A paginated list of employees
+    :param page: The page number to retrieve.
+    :param size: The number of employees to return per page.
+    :param current_user: The user requesting the data, used for auditing purposes.
+    :param employee_service: Service to handle the query and return paginated employees.
+    :return: A paginated list of employees.
     """
     return await employee_service.get_employees_paginated(page, size)
 
@@ -125,6 +150,8 @@ async def get_paginated_employees(
     responses={
         200: {"model": EmployeePage, "description": "Paginated list of employees"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "Employee not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -137,6 +164,9 @@ async def find_employees(
     ),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of employees per page"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.EMPLOYEE_READ]
+    ),
     employee_service: IEmployeeService = Depends(get_employee_service),
 ) -> EmployeePage:
     """
@@ -145,11 +175,12 @@ async def find_employees(
     This endpoint allows searching for employees based on a given term. Results are returned in a
     paginated format, where the user can specify the page number and the number of results per page.
 
-    :param search_term: Term to search in employee names, surnames, or DNI
-    :param page: The page number to retrieve
-    :param size: The number of results per page
-    :param employee_service: Service to handle the search logic and return the results
-    :return: A paginated list of employees that match the search term
+    :param search_term: Term to search in employee names, surnames, or DNI.
+    :param page: The page number to retrieve.
+    :param size: The number of results per page.
+    :param current_user: The user requesting the data, used for auditing purposes.
+    :param employee_service: Service to handle the search logic and return the results.
+    :return: A paginated list of employees that match the search term.
     """
     return await employee_service.find(page, size, search_term)
 
@@ -161,6 +192,8 @@ async def find_employees(
     responses={
         200: {"model": EmployeeResponseDTO, "description": "Employee found"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "Employee not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -168,6 +201,9 @@ async def find_employees(
 )
 async def get_employee_by_id(
     employee_id: int,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.EMPLOYEE_READ]
+    ),
     employee_service: IEmployeeService = Depends(get_employee_service),
 ) -> EmployeeResponseDTO:
     """
@@ -176,9 +212,10 @@ async def get_employee_by_id(
     This endpoint retrieves the details of a specific employee identified by their ID.
     If found, it returns the employee data. If not, it returns a 404 error.
 
-    :param employee_id: ID of the employee to retrieve
-    :param employee_service: Service to handle the query and retrieve the employee
-    :return: Employee details
+    :param employee_id: ID of the employee to retrieve.
+    :param current_user: The user requesting the data, used for auditing purposes.
+    :param employee_service: Service to handle the query and retrieve the employee.
+    :return: Employee details.
     """
     return await employee_service.get_employee_by_id(employee_id)
 
@@ -193,6 +230,8 @@ async def get_employee_by_id(
             "description": "Employee updated successfully",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "Employee not found"},
         409: {"model": ConflictError, "description": "Employee DNI already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
@@ -202,7 +241,10 @@ async def get_employee_by_id(
 )
 async def update_employee(
     employee_id: int,
-    employee_request: EmployeeRequestDto,
+    employee_request: EmployeeRequestDTO,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.EMPLOYEE_UPDATE]
+    ),
     employee_service: IEmployeeService = Depends(get_employee_service),
 ) -> EmployeeResponseDTO:
     """
@@ -212,10 +254,11 @@ async def update_employee(
     If the employee is updated successfully, the updated employee data is returned.
     If not found, it returns a 404 error.
 
-    :param employee_id: ID of the employee to update
-    :param employee_request: New data for the employee
-    :param employee_service: Service to handle the update logic
-    :return: Updated data of the employee
+    :param employee_id: ID of the employee to update.
+    :param employee_request: New data for the employee.
+    :param current_user: The user updating the employee, used for auditing purposes.
+    :param employee_service: Service to handle the update logic.
+    :return: Updated data of the employee.
     """
     return await employee_service.update_employee(employee_id, employee_request)
 
@@ -230,6 +273,8 @@ async def update_employee(
             "description": "Employee deleted successfully",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "Employee not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -238,6 +283,9 @@ async def update_employee(
 )
 async def delete_employee(
     employee_id: int,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.EMPLOYEE_DELETE]
+    ),
     employee_service: IEmployeeService = Depends(get_employee_service),
 ) -> MessageResponse:
     """
@@ -247,8 +295,9 @@ async def delete_employee(
     If deleted successfully, a success message is returned.
     If not found, it returns a 404 error.
 
-    :param employee_id: ID of the employee to delete
-    :param employee_service: Service to handle the deletion logic
-    :return: Success message indicating the employee has been deleted
+    :param employee_id: ID of the employee to delete.
+    :param current_user: The user deleting the employee, used for auditing purposes.
+    :param employee_service: Service to handle the deletion logic.
+    :return: Success message indicating the employee has been deleted.
     """
     return await employee_service.delete_employee(employee_id)

@@ -1,15 +1,22 @@
-from fastapi import APIRouter, Depends, Query
+from fastapi import APIRouter, Depends, Query, Security
 from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
     InternalServerError,
     NotFoundError,
+    UnauthorizedError,
+    ForbiddenError,
 )
 from src.app.dto.request import DepartmentRequestDTO
-from src.app.dto.response import DepartmentResponseDTO, DepartmentPage
+from src.app.dto.response import (
+    DepartmentResponseDTO,
+    DepartmentPage,
+    CurrentUserResponseDTO,
+)
 from src.app.schema import MessageResponse
 from src.app.service.interfaces import IDepartmentService
-from src.app.service.dependencies import get_department_service
+from src.app.service.dependencies import get_department_service, get_current_user
+from src.app.security.auth.constants import Scopes
 
 router = APIRouter(prefix="/department", tags=["Departments"])
 
@@ -33,13 +40,19 @@ department_tags_metadata = {
             "description": "Department created successfully",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         409: {"model": ConflictError, "description": "Department already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Creates a new organizational department in the system. The name must be unique and contain only alphabetic characters.",
+    description="Creates a new organizational department in the system. The name must be unique and contain only "
+    "alphabetic characters.",
 )
 async def create_department(
     department_request: DepartmentRequestDTO,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DEPARTMENT_CREATE]
+    ),
     department_service: IDepartmentService = Depends(get_department_service),
 ) -> DepartmentResponseDTO:
     """
@@ -50,6 +63,7 @@ async def create_department(
     status code 201 is returned with the details of the created department.
 
     :param department_request: Request body containing the department data.
+    :param current_user: The current user making the request, used for authorization.
     :param department_service: Service that handles the department creation logic.
     :return: The data of the created department.
     """
@@ -66,11 +80,17 @@ async def create_department(
             "description": "List of departments",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete list of all departments registered in the system, including their identifiers, names, and timestamps.",
+    description="Retrieves the complete list of all departments registered in the system, including their identifiers, "
+    "names, and timestamps.",
 )
 async def get_all_departments(
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DEPARTMENT_READ]
+    ),
     department_service: IDepartmentService = Depends(get_department_service),
 ) -> list[DepartmentResponseDTO]:
     """
@@ -79,6 +99,7 @@ async def get_all_departments(
     This endpoint returns a list of all available departments in the system. The response will include
     all departments stored in the database.
 
+    :param current_user: The current user making the request, used for authorization.
     :param department_service: Service to handle the query and retrieve all departments.
     :return: A list of departments in the system.
     """
@@ -92,13 +113,19 @@ async def get_all_departments(
     responses={
         200: {"model": DepartmentPage, "description": "Paginated list of departments"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves departments in a paginated format to manage large data sets, allowing navigation through pages and control over the number of records per page.",
+    description="Retrieves departments in a paginated format to manage large data sets, allowing navigation through "
+    "pages and control over the number of records per page.",
 )
 async def get_paginated_departments(
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of departments per page"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DEPARTMENT_READ]
+    ),
     department_service: IDepartmentService = Depends(get_department_service),
 ) -> DepartmentPage:
     """
@@ -109,6 +136,7 @@ async def get_paginated_departments(
 
     :param page: The page number to retrieve.
     :param size: The number of departments to return per page.
+    :param current_user: The current user making the request, used for authorization.
     :param department_service: Service to handle the query and return paginated departments.
     :return: A paginated list of departments.
     """
@@ -122,10 +150,13 @@ async def get_paginated_departments(
     responses={
         200: {"model": DepartmentPage, "description": "Paginated list of departments"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "Department not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Performs department searches based on a keyword or phrase. Results are returned paginated for better management of search results.",
+    description="Performs department searches based on a keyword or phrase. Results are returned paginated for better "
+    "management of search results.",
 )
 async def find_departments(
     search_term: str | None = Query(
@@ -133,6 +164,9 @@ async def find_departments(
     ),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of departments per page"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DEPARTMENT_READ]
+    ),
     department_service: IDepartmentService = Depends(get_department_service),
 ) -> DepartmentPage:
     """
@@ -144,6 +178,7 @@ async def find_departments(
     :param search_term: A term to search within department names.
     :param page: The page number to retrieve.
     :param size: The number of results per page.
+    :param current_user: The current user making the request, used for authorization.
     :param department_service: Service to handle the search logic and return results.
     :return: A paginated list of departments that match the search term.
     """
@@ -157,6 +192,8 @@ async def find_departments(
     responses={
         200: {"model": DepartmentResponseDTO, "description": "Department found"},
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "Department not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
@@ -164,6 +201,9 @@ async def find_departments(
 )
 async def get_department_by_id(
     department_id: int,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DEPARTMENT_READ]
+    ),
     department_service: IDepartmentService = Depends(get_department_service),
 ) -> DepartmentResponseDTO:
     """
@@ -173,6 +213,7 @@ async def get_department_by_id(
     the department's data is returned. If not, a 404 error is returned.
 
     :param department_id: The ID of the department to retrieve.
+    :param current_user: The current user making the request, used for authorization.
     :param department_service: Service to handle the query and retrieve the department.
     :return: The department details.
     """
@@ -189,15 +230,21 @@ async def get_department_by_id(
             "description": "Department updated successfully",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "Department not found"},
         409: {"model": ConflictError, "description": "Department name already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Updates the details of an existing department identified by its ID. Verifies that the new name is not already in use by another department.",
+    description="Updates the details of an existing department identified by its ID. Verifies that the new name is "
+    "not already in use by another department.",
 )
 async def update_department(
     department_id: int,
     department_request: DepartmentRequestDTO,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DEPARTMENT_UPDATE]
+    ),
     department_service: IDepartmentService = Depends(get_department_service),
 ) -> DepartmentResponseDTO:
     """
@@ -209,6 +256,7 @@ async def update_department(
 
     :param department_id: The ID of the department to update.
     :param department_request: The new data for the department.
+    :param current_user: The current user making the request, used for authorization.
     :param department_service: Service to handle the update logic.
     :return: The updated department data.
     """
@@ -225,13 +273,19 @@ async def update_department(
             "description": "Department deleted successfully",
         },
         400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
         404: {"model": NotFoundError, "description": "Department not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Deletes a specific department from the system using its ID. This operation is irreversible and may affect relationships with employees and other departments.",
+    description="Deletes a specific department from the system using its ID. This operation is irreversible and may "
+    "affect relationships with employees and other departments.",
 )
 async def delete_department(
     department_id: int,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DEPARTMENT_DELETE]
+    ),
     department_service: IDepartmentService = Depends(get_department_service),
 ) -> MessageResponse:
     """
@@ -241,6 +295,7 @@ async def delete_department(
     successfully, a success message is returned. If the department is not found, a 404 error is returned.
 
     :param department_id: The ID of the department to delete.
+    :param current_user: The current user making the request, used for authorization.
     :param department_service: Service to handle the delete logic.
     :return: A success message indicating that the department has been deleted.
     """

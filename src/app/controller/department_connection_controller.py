@@ -14,9 +14,11 @@ from src.app.dto.response import (
     CurrentUserResponseDTO,
 )
 from src.app.schema import MessageResponse
-from src.app.service.dependencies import get_department_connection_service
+from src.app.service.dependencies import (
+    get_department_connection_service,
+    get_current_user,
+)
 from src.app.service.interfaces import IDepartmentConnectionService
-from src.app.service.dependencies import get_current_user, get_user_service
 from src.app.security.auth.constants import Scopes
 
 router = APIRouter(prefix="/department-connections", tags=["Department Connections"])
@@ -49,7 +51,8 @@ department_connection_tags_metadata = {
         },
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Creates a new connection between two departments in the organization, establishing a relationship between source and target departments.",
+    description="Creates a new connection between two departments in the organization, establishing a relationship "
+    "between source and target departments.",
 )
 async def create_department_connection(
     department_connection: DepartmentConnectionRequestDTO,
@@ -67,10 +70,10 @@ async def create_department_connection(
     The connection data must be provided in the request body. If the connection is created successfully,
     a status code 201 is returned with the details of the created connection.
 
-    :param department_connection: Request body containing the department connection data
-    :param current_user: The user making the request, used for authorization
-    :param department_connection_service: Service that handles the department connection creation logic
-    :return: The data of the created department connection
+    :param department_connection: Request body containing the department connection data.
+    :param current_user: The user making the request, used for authorization.
+    :param department_connection_service: Service that handles the department connection creation logic.
+    :return: The data of the created department connection.
     """
     return await department_connection_service.add_department_connection(
         department_connection
@@ -91,7 +94,8 @@ async def create_department_connection(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete list of all department connections registered in the system, including their source and target departments.",
+    description="Retrieves the complete list of all department connections registered in the system, including their "
+    "source and target departments.",
 )
 async def get_all_department_connections(
     current_user: CurrentUserResponseDTO = Security(
@@ -107,9 +111,9 @@ async def get_all_department_connections(
     This endpoint returns a list of all available department connections in the system. The response will include
     all connections stored in the database.
 
-    :param current_user: The user making the request, used for authorization
-    :param department_connection_service: Service to handle the query and retrieve all department connections
-    :return: A list of department connections in the system
+    :param current_user: The user making the request, used for authorization.
+    :param department_connection_service: Service to handle the query and retrieve all department connections.
+    :return: A list of department connections in the system.
     """
     return await department_connection_service.get_all_department_connections()
 
@@ -128,7 +132,8 @@ async def get_all_department_connections(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves department connections in a paginated format to manage large datasets, allowing navigation through pages and control over the number of records per page.",
+    description="Retrieves department connections in a paginated format to manage large datasets, allowing navigation "
+    "through pages and control over the number of records per page.",
 )
 async def get_paginated_department_connections(
     page: int = Query(default=1, description="Page number to retrieve"),
@@ -146,11 +151,11 @@ async def get_paginated_department_connections(
     This endpoint allows for retrieving department connections in a paginated format. The user can specify the page
     number and the number of connections per page to optimize the query and reduce data overload.
 
-    :param page: The page number to retrieve
-    :param size: The number of department connections to return per page
-    :param current_user: The user making the request, used for authorization
-    :param department_connection_service: Service to handle the query and return paginated connections
-    :return: A paginated list of department connections
+    :param page: The page number to retrieve.
+    :param size: The number of department connections to return per page.
+    :param current_user: The user making the request, used for authorization.
+    :param department_connection_service: Service to handle the query and return paginated connections.
+    :return: A paginated list of department connections.
     """
     return await department_connection_service.get_paginated_department_connections(
         page, size
@@ -175,7 +180,8 @@ async def get_paginated_department_connections(
             "description": "Internal server error",
         },
     },
-    description="Performs department connection searches based on a keyword or phrase. Results are returned paginated for better management of search results.",
+    description="Performs department connection searches based on a keyword or phrase. Results are returned paginated "
+    "for better management of search results.",
 )
 async def find_department_connections(
     search_term: str | None = Query(
@@ -196,12 +202,12 @@ async def find_department_connections(
     This endpoint allows searching for department connections based on a given term. Results are returned in a
     paginated format, where the user can specify the page number and the number of results per page.
 
-    :param search_term: Term to search for in the department connection details
-    :param page: The page number to retrieve
-    :param size: The number of results per page
-    :param current_user: The user making the request, used for authorization
-    :param department_connection_service: Service to handle the search logic and return the results
-    :return: A paginated list of department connections that match the search term
+    :param search_term: Term to search for in the department connection details.
+    :param page: The page number to retrieve.
+    :param size: The number of results per page.
+    :param current_user: The user making the request, used for authorization.
+    :param department_connection_service: Service to handle the search logic and return the results.
+    :return: A paginated list of department connections that match the search term.
     """
     return await department_connection_service.find(page, size, search_term)
 
@@ -241,10 +247,10 @@ async def get_department_connection_by_id(
     This endpoint retrieves the details of a specific department connection identified by its ID.
     If found, it returns the connection data. If not, it returns a 404 error.
 
-    :param department_connection_id: ID of the department connection to retrieve
-    :param current_user: The user making the request, used for authorization
-    :param department_connection_service: Service to handle the query and retrieve the connection
-    :return: Department connection details
+    :param department_connection_id: ID of the department connection to retrieve.
+    :param current_user: The user making the request, used for authorization.
+    :param department_connection_service: Service to handle the query and retrieve the connection.
+    :return: Department connection details.
     """
     return await department_connection_service.get_department_connection_by_id(
         department_connection_id
@@ -270,7 +276,8 @@ async def get_department_connection_by_id(
             "description": "Internal server error",
         },
     },
-    description="Updates the details of an existing department connection identified by its ID, verifying that the new relationship does not conflict with existing connections.",
+    description="Updates the details of an existing department connection identified by its ID, verifying that the new"
+    " relationship does not conflict with existing connections.",
 )
 async def update_department_connection(
     department_connection_id: int,
@@ -288,11 +295,11 @@ async def update_department_connection(
     This endpoint allows updating the details of an existing connection identified by its ID.
     If the connection is updated successfully, it returns the updated data. If not found, it returns a 404 error.
 
-    :param department_connection_id: ID of the connection to update
-    :param department_connection_request: New data for the department connection
-    :param current_user: The user making the request, used for authorization
-    :param department_connection_service: Service to handle the update logic
-    :return: Updated data of the department connection
+    :param department_connection_id: ID of the connection to update.
+    :param department_connection_request: New data for the department connection.
+    :param current_user: The user making the request, used for authorization.
+    :param department_connection_service: Service to handle the update logic.
+    :return: Updated data of the department connection.
     """
     return await department_connection_service.update_department_connection(
         department_connection_id, department_connection_request
@@ -317,7 +324,8 @@ async def update_department_connection(
             "description": "Internal server error",
         },
     },
-    description="Deletes a specific department connection from the system using its ID. This operation is irreversible and affects the organizational structure representation.",
+    description="Deletes a specific department connection from the system using its ID. This operation is irreversible"
+    " and affects the organizational structure representation.",
 )
 async def delete_department_connection(
     department_connection_id: int,
@@ -334,10 +342,10 @@ async def delete_department_connection(
     This endpoint allows deleting a specific connection identified by its ID. If deleted successfully,
     it returns a success message. If not found, it returns a 404 error.
 
-    :param department_connection_id: ID of the connection to delete
-    :param current_user: The user making the request, used for authorization
-    :param department_connection_service: Service to handle the deletion logic
-    :return: Success message indicating the connection has been deleted
+    :param department_connection_id: ID of the connection to delete.
+    :param current_user: The user making the request, used for authorization.
+    :param department_connection_service: Service to handle the deletion logic.
+    :return: Success message indicating the connection has been deleted.
     """
     return await department_connection_service.delete_department_connection(
         department_connection_id
@@ -362,7 +370,8 @@ async def delete_department_connection(
             "description": "Internal server error",
         },
     },
-    description="Retrieves a list of department connections filtered by the source department ID, showing all relationships originating from a specific department.",
+    description="Retrieves a list of department connections filtered by the source department ID, showing all "
+    "relationships originating from a specific department.",
 )
 async def get_connections_by_source_department_id(
     source_department_id: int,
@@ -379,10 +388,10 @@ async def get_connections_by_source_department_id(
     This endpoint returns a list of all connections with the specified source department.
     If no connections are found or if the source department does not exist, appropriate errors are returned.
 
-    :param source_department_id: ID of the source department to filter the connections
-    :param current_user: The user making the request, used for authorization
-    :param department_connection_service: Service to handle the query and retrieve filtered connections
-    :return: List of department connections with the specified source department ID
+    :param source_department_id: ID of the source department to filter the connections.
+    :param current_user: The user making the request, used for authorization.
+    :param department_connection_service: Service to handle the query and retrieve filtered connections.
+    :return: List of department connections with the specified source department ID.
     """
     return await department_connection_service.get_connections_by_source_department_id(
         source_department_id
