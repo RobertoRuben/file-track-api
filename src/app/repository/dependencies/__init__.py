@@ -11,6 +11,7 @@ from .department_connection_repository_dependency import (
     get_department_connection_repository,
 )
 from .user_repository_dependency import get_user_repository
+from .document_repository_dependency import get_document_repository
 
 __all__ = [
     "get_document_category_repository",
@@ -24,4 +25,5 @@ __all__ = [
     "get_hamlet_repository",
     "get_department_connection_repository",
     "get_user_repository",
+    "get_document_repository",
 ]
