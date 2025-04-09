@@ -9,6 +9,7 @@ from .employee_repository import IEmployeeRepository
 from .hamlet_repository import IHamletRepository
 from .department_connection_repository import IDepartmentConnectionRepository
 from .user_repository import IUserRepository
+from .document_repository import IDocumentRepository
 
 __all__ = [
     "IDocumentCategoryRepository",
@@ -22,4 +23,5 @@ __all__ = [
     "IHamletRepository",
     "IDepartmentConnectionRepository",
     "IUserRepository",
+    "IDocumentRepository",
 ]
