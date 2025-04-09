@@ -39,6 +39,7 @@ class Document(SQLModel, table=True):
     subject: str = Field(sa_column=Column(TEXT, nullable=False))
     pages: int = Field(sa_column=Column(BIGINT, nullable=False))
     storage_path: str = Field(sa_column=Column(TEXT, nullable=False))
+    size: int = Field(sa_column=Column(BIGINT, nullable=False))
     submitter_id: int = Field(
         sa_column=Column(
             BIGINT,
