@@ -89,7 +89,8 @@ class AuthServiceImpl(IAuthService):
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        user_scopes = Scopes.ROLE_SCOPES.get(user_data["role_name"], [])
+        role_name = user_data["role_name"].upper()
+        user_scopes = Scopes.ROLE_SCOPES.get(role_name, [])
 
         access_token = await self.token_provider.generate_access_token(
             {
