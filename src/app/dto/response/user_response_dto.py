@@ -68,6 +68,7 @@ class CurrentUserResponseDTO(BaseModel):
     :ivar username: User's login name used for authentication
     :ivar employee_name: Full name of the employee associated with this user
     :ivar role_name: Name of the role assigned to this user
+    :ivar department_id: ID of the department associated with this user
     :ivar is_active: Indicates whether the user account is active or deactivated
     :ivar created_at: Timestamp when the user account was created
     :ivar updated_at: Timestamp when the user account was last updated
@@ -88,6 +89,11 @@ class CurrentUserResponseDTO(BaseModel):
         ...,
         description="Name of the role assigned to this user",
         examples=["Administrator", "Employee"],
+    )
+    department_id: int = Field(
+        ...,
+        description="ID of the department associated with this user",
+        examples=[1, 2],
     )
     is_active: bool = Field(
         ...,
