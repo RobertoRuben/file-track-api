@@ -28,6 +28,8 @@ from src.app.controller import (
     user_tags_metadata,
     auth_router,
     auth_tags_metadata,
+    document_router,
+    document_tags_metadata,
 )
 
 API_PREFIX = "/api/v1"
@@ -45,6 +47,7 @@ tags_metadata = [
     department_connection_tags_metadata,
     user_tags_metadata,
     auth_tags_metadata,
+    document_tags_metadata,
 ]
 
 
@@ -61,11 +64,29 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(
     title="File Track API",
-    description="API for File Track",
+    description=(
+        "File Track API is a comprehensive document management system designed to streamline "
+        "the tracking, storage, and management of official documents. It provides robust features "
+        "for document lifecycle management including:\n\n"
+        "- Secure document upload, storage, and retrieval\n"
+        "- Advanced search and filtering capabilities\n"
+        "- User authentication and role-based access control\n"
+        "- Document categorization and metadata management\n"
+        "- Employee and department management\n"
+        "- Geographic organizational structure with settlements and hamlets\n"
+        "- Complete audit trail for document processing\n\n"
+        "This RESTful API enables organizations to digitally transform their document handling workflows, "
+        "ensuring efficient processing, improved accessibility, and regulatory compliance. "
+        "All endpoints are secured with OAuth2 authentication and fine-grained permission scopes."
+    ),
     version="0.1.0",
     openapi_tags=tags_metadata,
     debug=True,
     lifespan=lifespan,
+    contact={
+        "name": "Roberto Ruben Chavez Vargas",
+        "email": "https://github.com/RobertoRuben",
+    },
     license_info={
         "name": "MIT",
         "url": "https://opensource.org/licenses/MIT",
@@ -75,9 +96,24 @@ app = FastAPI(
             "url": "http://localhost:8000",
             "description": "Local server",
         },
+        {
+            "url": "http://192.168.1.35:8000",
+            "description": "Production server",
+        },
     ],
     terms_of_service="https://opensource.org/licenses/MIT",
+    docs_url="/api/v1/docs",
+    redoc_url="/api/v1/redoc",
+    swagger_ui_parameters={
+        "defaultModelsExpandDepth": 1,
+        "deepLinking": True,
+        "displayRequestDuration": True,
+        "filter": True,
+        "showExtensions": True,
+        "syntaxHighlight.theme": "monokai",
+    },
 )
+
 
 app.include_router(auth_router, prefix=API_PREFIX)
 app.include_router(
@@ -118,4 +154,7 @@ app.include_router(
 )
 app.include_router(
     user_router, prefix=API_PREFIX, dependencies=[Depends(get_current_user)]
+)
+app.include_router(
+    document_router, prefix=API_PREFIX, dependencies=[Depends(get_current_user)]
 )
