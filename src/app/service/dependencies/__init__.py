@@ -12,6 +12,7 @@ from .user_service_dependency import get_user_service
 from .auth_service_dependency import get_auth_service
 from .auth_current_user_dependency import get_current_user
 from .auth_scope_dependency import requires_scopes
+from .document_service_dependency import get_document_service
 
 __all__ = [
     "get_document_category_service",
@@ -28,4 +29,5 @@ __all__ = [
     "get_auth_service",
     "get_current_user",
     "requires_scopes",
+    "get_document_service",
 ]
