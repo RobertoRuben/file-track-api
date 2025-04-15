@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
 from src.app.model.entity import Document
 from src.app.schema import Page
+from typing import Any
 
 
 class IDocumentRepository(ABC):
@@ -109,5 +110,37 @@ class IDocumentRepository(ABC):
         :param size: The size of each page
         :param search_dict: Dictionary with search parameters
         :return: A Page object with documents that match the search criteria
+        """
+        pass
+
+    @abstractmethod
+    async def get_last_registration_code(self) -> str | None:
+        """
+        Get the last registration code used for documents.
+
+        :return: The last registration code
+        """
+        pass
+
+    @abstractmethod
+    async def get_pageable_by_current_date(self, page: int, size: int) -> Page:
+        """
+        Get a paginated list of documents created on the current date.
+
+        :param page: The page number (starts at 1)
+        :param size: The size of each page
+        :return: A Page object with documents created today
+        """
+        pass
+
+    @abstractmethod
+    async def get_document_information_by_id(
+        self, document_id: int
+    ) -> dict[str, Any] | None:
+        """
+        Get detailed information about a document by its ID.
+
+        :param document_id: The ID of the document to retrieve
+        :return: The document with detailed information
         """
         pass

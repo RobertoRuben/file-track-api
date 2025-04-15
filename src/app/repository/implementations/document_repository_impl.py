@@ -1,6 +1,8 @@
 import math
 from datetime import date
-from sqlmodel import select, func, or_, and_
+from typing import Any
+
+from sqlmodel import select, func, or_, and_, cast, String
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.app.repository.decorator import transactional
 from src.app.repository.interfaces import IDocumentRepository
@@ -180,7 +182,7 @@ class DocumentRepositoryImpl(IDocumentRepository):
             "hamlet_id",
             "settlement_id",
             "registered_by_user_id",
-            "submitter_dni",  # Añadido el campo submitter_dni como criterio de búsqueda
+            "submitter_dni",
         ]
 
         for field_name, search_value in search_dict.items():
@@ -201,14 +203,9 @@ class DocumentRepositoryImpl(IDocumentRepository):
                 except ValueError:
                     pass
             elif field_name == "submitter_dni":
-                # Búsqueda por DNI del submitter
-                try:
-                    # Intenta convertir a entero si es un número
-                    dni_value = search_value
-                    conditions.append(Submitter.dni == dni_value)
-                except ValueError:
-                    # Si no es un número válido, busca como texto
-                    conditions.append(Submitter.dni.like(f"%{search_value}%"))
+                dni_value = search_value
+                conditions.append(cast(Submitter.dni, String) == dni_value)
+                conditions.append(cast(Submitter.dni, String).like(f"%{dni_value}%"))
             elif field_name in ["registration_code", "title", "subject"]:
                 normalized_search = search_value.lower()
                 field = getattr(Document, field_name)
@@ -339,7 +336,6 @@ class DocumentRepositoryImpl(IDocumentRepository):
         offset = (page - 1) * size
         conditions = []
 
-        # Add condition for current date
         today = date.today()
         conditions.append(func.date(Document.created_at) == today)
 
@@ -353,7 +349,7 @@ class DocumentRepositoryImpl(IDocumentRepository):
             "hamlet_id",
             "settlement_id",
             "registered_by_user_id",
-            "submitter_dni",  # Añadido el campo submitter_dni como criterio de búsqueda
+            "submitter_dni",
         ]
 
         for field_name, search_value in search_dict.items():
@@ -374,14 +370,9 @@ class DocumentRepositoryImpl(IDocumentRepository):
                 except ValueError:
                     pass
             elif field_name == "submitter_dni":
-                # Búsqueda por DNI del submitter
-                try:
-                    # Intenta convertir a entero si es un número
-                    dni_value = search_value
-                    conditions.append(Submitter.dni == dni_value)
-                except ValueError:
-                    # Si no es un número válido, busca como texto
-                    conditions.append(Submitter.dni.like(f"%{search_value}%"))
+                dni_value = search_value
+                conditions.append(cast(Submitter.dni, String) == dni_value)
+                conditions.append(cast(Submitter.dni, String).like(f"%{dni_value}%"))
             elif field_name in ["registration_code", "title", "subject"]:
                 normalized_search = search_value.lower()
                 field = getattr(Document, field_name)
@@ -454,3 +445,127 @@ class DocumentRepositoryImpl(IDocumentRepository):
             data=documents_data,
             meta=pagination_info,
         )
+
+    @transactional(readonly=True)
+    async def get_last_registration_code(self) -> str | None:
+        """
+        Retrieve the last registration code from the documents.
+        This method is useful for generating new registration codes.
+        :return: last registration code or None if no documents exist
+        """
+        stmt = (
+            select(Document.registration_code)
+            .order_by(Document.created_at.desc())
+            .limit(1)
+        )
+
+        result = await self.session.exec(stmt)
+        last_registration_code = result.first()
+        return last_registration_code
+
+    @transactional(readonly=True)
+    async def get_pageable_by_current_date(self, page: int, size: int) -> Page:
+        """
+        Retrieve a paginated list of documents created on the current date with related entity information.
+
+        :param page: The page number (starts at 1)
+        :param size: The size of each page
+        :return: A Page object containing documents created today and pagination information
+        """
+        offset = (page - 1) * size
+        today = date.today()
+
+        stmt = (
+            select(
+                Document.id,
+                Document.registration_code,
+                Document.title,
+                Document.subject,
+                Document.pages,
+                Document.storage_path,
+                Document.size,
+                Document.submitter_id,
+                Submitter.dni.label("submitter_dni"),
+                Document.document_category_id,
+                DocumentCategory.name.label("document_category_name"),
+                Document.documentary_topic_id,
+                DocumentaryTopic.name.label("documentary_topic_name"),
+                Document.hamlet_id,
+                Hamlet.name.label("hamlet_name"),
+                Document.settlement_id,
+                Settlement.name.label("settlement_name"),
+                Document.registered_by_user_id,
+                User.username.label("registered_by_username"),
+                Document.created_at,
+                Document.updated_at,
+            )
+            .join(Submitter, Submitter.id == Document.submitter_id)
+            .join(
+                DocumentCategory, DocumentCategory.id == Document.document_category_id
+            )
+            .join(
+                DocumentaryTopic, DocumentaryTopic.id == Document.documentary_topic_id
+            )
+            .outerjoin(Hamlet, Hamlet.id == Document.hamlet_id)
+            .join(Settlement, Settlement.id == Document.settlement_id)
+            .join(User, User.id == Document.registered_by_user_id)
+            .where(func.date(Document.created_at) == today)
+        )
+
+        stmt = stmt.offset(offset).limit(size)
+        results = await self.session.exec(stmt)
+        documents_data = [dict(row._mapping) for row in results]
+
+        count_stmt = select(func.count(Document.id)).where(
+            func.date(Document.created_at) == today
+        )
+        count_result = await self.session.exec(count_stmt)
+        total_items = count_result.first()
+
+        total_pages = math.ceil(total_items / size) if total_items > 0 else 1
+        next_page = page + 1 if page < total_pages else None
+        previous_page = page - 1 if page > 1 else None
+
+        page_info = Pagination(
+            current_page=page,
+            per_page=size,
+            total=total_items,
+            total_pages=total_pages,
+            next_page=next_page,
+            previous_page=previous_page,
+        )
+
+        return Page(
+            data=documents_data,
+            meta=page_info,
+        )
+
+    @transactional(readonly=True)
+    async def get_document_information_by_id(
+        self, document_id: int
+    ) -> dict[str, Any] | None:
+        stmt = select(
+            Document.id,
+            Document.registration_code,
+            Document.title,
+            Document.subject,
+            Document.pages,
+            DocumentaryTopic.name.label("documentary_topic_name"),
+            DocumentCategory.name.label("document_category_name"),
+            Settlement.name.label("settlement_name"),
+            Hamlet.name.label("hamlet_name"),
+            Submitter.dni.label("submitter_dni"),
+            func.concat(
+                Submitter.paternal_surname,
+                ' ',
+                Submitter.maternal_surname,
+                ' ',
+                Submitter.names,
+            ).label("submitter_names"),
+            User.username.label("registered_by_username"),
+            Document.created_at,
+        ).where(Document.id == document_id)
+        results = await self.session.exec(stmt)
+        document_info = results.first()
+
+        return document_info._asdict() if document_info else None
