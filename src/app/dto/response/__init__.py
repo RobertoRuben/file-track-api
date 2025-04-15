@@ -19,6 +19,7 @@ from .department_connection_response_dto import (
 )
 from .user_response_dto import UserResponseDTO, CurrentUserResponseDTO, UserPage
 from .auth_response_dto import AuthResponseDTO
+from .document_response_dto import DocumentResponseDTO, DocumentPage
 
 __all__ = [
     "DocumentCategoryResponseDTO",
@@ -46,4 +47,6 @@ __all__ = [
     "UserPage",
     "UserResponseDTO",
     "AuthResponseDTO",
+    "DocumentResponseDTO",
+    "DocumentPage",
 ]
