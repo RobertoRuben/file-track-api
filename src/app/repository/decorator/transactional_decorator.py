@@ -24,11 +24,9 @@ def transactional(
             try:
                 result = await func(self, *args, **kwargs)
 
-                # Solo hacer commit para operaciones de escritura (readonly=False)
                 if not readonly:
                     await self.session.commit()
 
-                    # Hacer refresh después del commit
                     if result is not None:
                         if hasattr(result, '__table__'):
                             await self.session.refresh(result)
@@ -42,7 +40,7 @@ def transactional(
             except IntegrityError as e:
                 await self.session.rollback()
                 raise DatabaseException(
-                    message="Error de integridad de datos",
+                    message="Data integrity error",
                     details=str(e.orig),
                 )
             except InvalidFieldException as e:
@@ -51,18 +49,18 @@ def transactional(
             except AttributeError as e:
                 await self.session.rollback()
                 raise InvalidFieldException(
-                    message="Error en los atributos proporcionados", details=str(e)
+                    message="Error in provided attributes", details=str(e)
                 )
             except SQLAlchemyError as e:
                 await self.session.rollback()
                 raise DatabaseException(
-                    message=f"Error en operación de base de datos: {func.__name__}",
+                    message=f"Error in database operation: {func.__name__}",
                     details=str(e),
                 )
             except Exception as e:
                 await self.session.rollback()
                 raise DatabaseException(
-                    message=f"Error inesperado en operación de repositorio: {func.__name__}",
+                    message=f"Unexpected error in repository operation: {func.__name__}",
                     details=str(e),
                 )
 
