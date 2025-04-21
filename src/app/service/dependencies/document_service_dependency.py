@@ -1,5 +1,5 @@
 from fastapi import Depends
-from src.app.service.interfaces import IDocumentService
+from src.app.service.interfaces import IDocumentService, IReportService
 from src.app.service.implementations import DocumentServiceImpl
 from src.app.repository.interfaces import (
     IDocumentRepository,
@@ -17,6 +17,7 @@ from src.app.repository.dependencies import (
     get_settlement_repository,
     get_documentary_topic_repository,
 )
+from .report_service_dependency import get_report_service
 
 
 async def get_document_service(
@@ -30,12 +31,10 @@ async def get_document_service(
     documentary_topic_repository: IDocumentaryTopicRepository = Depends(
         get_documentary_topic_repository
     ),
+    report_service: IReportService = Depends(get_report_service),
 ) -> IDocumentService:
     """
     Dependency function to get the document service implementation.
-
-    This function creates and provides an instance of the document service
-    implementation with all necessary repositories injected.
 
     :param document_repository: The document repository implementation
     :param document_category_repository: The document category repository implementation
@@ -43,7 +42,8 @@ async def get_document_service(
     :param hamlet_repository: The hamlet repository implementation
     :param settlement_repository: The settlement repository implementation
     :param documentary_topic_repository: The documentary topic repository implementation
-    :return: An implementation of IDocumentService configured with the provided repositories
+    :param report_service: The report service implementation
+    :return: An implementation of IDocumentService
     """
     return DocumentServiceImpl(
         document_repository=document_repository,
@@ -52,4 +52,5 @@ async def get_document_service(
         hamlet_repository=hamlet_repository,
         settlement_repository=settlement_repository,
         documentary_topic_repository=documentary_topic_repository,
+        report_service=report_service,
     )
