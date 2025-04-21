@@ -146,3 +146,16 @@ class IDocumentService(ABC):
         :return: The document with detailed information
         """
         pass
+
+    @abstractmethod
+    async def generate_document_registration_report(
+        self, document_id: int
+    ) -> tuple[bytes, str]:
+        """
+        Genera un reporte de registro de documento en formato PDF.
+
+        :param document_id: El ID del documento para generar el reporte
+        :return: Una tupla con el contenido del PDF y el nombre del archivo
+        :raises NotFoundException: Si el documento no existe
+        """
+        pass
