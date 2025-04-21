@@ -131,6 +131,7 @@ class Scopes:
             EMPLOYEE_DELETE,
             DOCUMENT_READ,
             DOCUMENT_CREATE,
+            DOCUMENT_UPDATE,
         ],
         "MESA DE PARTES": [
             DOCUMENT_CATEGORY_READ,
