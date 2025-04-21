@@ -634,18 +634,16 @@ class DocumentServiceImpl(IDocumentService):
         self, document_id: int
     ) -> tuple[bytes, str]:
         """
-        Genera un reporte de registro de documento en formato PDF.
+        Generates a document registration report in PDF format.
 
-        :param document_id: El ID del documento para generar el reporte
-        :return: Una tupla con el contenido del PDF y el nombre del archivo
-        :raises NotFoundException: Si el documento no existe
+        :param document_id: The ID of the document to generate the report for
+        :return: A tuple containing the PDF content and the filename
+        :raises NotFoundException: If the document does not exist
         """
         document_info = await self.get_document_information_by_id(document_id)
 
         if not document_info:
-            raise NotFoundException(
-                details=f"Documento con ID {document_id} no encontrado"
-            )
+            raise NotFoundException(details=f"Document with ID {document_id} not found")
 
         pdf_content = await self.report_service.generate_document_registration_report(
             document_info
