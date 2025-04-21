@@ -19,7 +19,7 @@ from src.app.repository.interfaces import (
     ISettlementRepository,
     IDocumentaryTopicRepository,
 )
-from src.app.service.interfaces import IDocumentService
+from src.app.service.interfaces import IDocumentService, IReportService
 from src.app.service.helpers import document_helper
 
 
@@ -38,6 +38,7 @@ class DocumentServiceImpl(IDocumentService):
         hamlet_repository: IHamletRepository,
         settlement_repository: ISettlementRepository,
         documentary_topic_repository: IDocumentaryTopicRepository,
+        report_service: IReportService,
     ):
         """
         Initialize the DocumentService with a repository.
@@ -50,6 +51,7 @@ class DocumentServiceImpl(IDocumentService):
         self.hamlet_repository = hamlet_repository
         self.settlement_repository = settlement_repository
         self.documentary_topic_repository = documentary_topic_repository
+        self.report_service = report_service
 
     @handle_exceptions
     async def add_document(
@@ -224,14 +226,6 @@ class DocumentServiceImpl(IDocumentService):
         if not existing_document:
             raise NotFoundException(details=f"Document with ID {document_id} not found")
 
-        MAX_FILE_SIZE_MB = 10
-        MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
-
-        if len(document_request.document) > MAX_FILE_SIZE_BYTES:
-            raise BadRequestException(
-                details=f"Document file size exceeds the maximum allowed size of {MAX_FILE_SIZE_MB}MB"
-            )
-
         exists_category = await self.document_category_repository.exists_by(
             id=document_request.document_category_id
         )
@@ -288,9 +282,22 @@ class DocumentServiceImpl(IDocumentService):
                     details=f"A document with title '{document_request.title}' already exists"
                 )
 
-        storage_path, file_size = await document_helper.save_document_file(
-            document_request.document
-        )
+        storage_path = existing_document.storage_path
+        file_size = existing_document.size
+
+        if document_request.document and document_request.document != b'':
+            MAX_FILE_SIZE_MB = 10
+            MAX_FILE_SIZE_BYTES = MAX_FILE_SIZE_MB * 1024 * 1024
+
+            if len(document_request.document) > MAX_FILE_SIZE_BYTES:
+                raise BadRequestException(
+                    details=f"Document file size exceeds the maximum allowed size of {MAX_FILE_SIZE_MB}MB"
+                )
+
+            # Solo guardar el nuevo archivo si realmente se proporcionó uno
+            storage_path, file_size = await document_helper.save_document_file(
+                document_request.document
+            )
 
         existing_document.title = document_request.title
         existing_document.subject = document_request.subject
@@ -621,3 +628,30 @@ class DocumentServiceImpl(IDocumentService):
             registered_by_user_name=document_info.get("registered_by_username"),
             created_at=document_info["created_at"],
         )
+
+    @handle_exceptions
+    async def generate_document_registration_report(
+        self, document_id: int
+    ) -> tuple[bytes, str]:
+        """
+        Genera un reporte de registro de documento en formato PDF.
+
+        :param document_id: El ID del documento para generar el reporte
+        :return: Una tupla con el contenido del PDF y el nombre del archivo
+        :raises NotFoundException: Si el documento no existe
+        """
+        document_info = await self.get_document_information_by_id(document_id)
+
+        if not document_info:
+            raise NotFoundException(
+                details=f"Documento con ID {document_id} no encontrado"
+            )
+
+        pdf_content = await self.report_service.generate_document_registration_report(
+            document_info
+        )
+
+        current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
+        filename = f"{document_info.registration_code}_{current_datetime}.pdf"
+
+        return pdf_content, filename
