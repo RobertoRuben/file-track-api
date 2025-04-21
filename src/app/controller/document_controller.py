@@ -399,12 +399,12 @@ async def update_document(
     title: str = Form(...),
     subject: str = Form(...),
     pages: int = Form(...),
-    document: UploadFile = File(...),
     submitter_id: int = Form(...),
     document_category_id: int = Form(...),
     documentary_topic_id: int = Form(...),
     settlement_id: int = Form(...),
-    hamlet_id: Optional[int] = Form(None),
+    hamlet_id: int | None = Form(default=None),
+    document: UploadFile | None = File(default=None),
     current_user: CurrentUserResponseDTO = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_UPDATE]
     ),
@@ -414,24 +414,26 @@ async def update_document(
     Endpoint to update an existing document.
 
     This endpoint allows updating the details of an existing document identified by its ID.
-    The document file can be replaced, and the document's associations with other entities can be modified.
+    The document file can be replaced (optional), and the document's associations with other entities can be modified.
     If the document is updated successfully, it returns the updated data. If not found, it returns a 404 error.
 
     :param document_id: ID of the document to update
     :param title: The new title of the document
     :param subject: The new subject of the document
     :param pages: The new number of pages in the document
-    :param document: The new document file to upload
     :param submitter_id: The new ID of the submitter
     :param document_category_id: The new ID of the document's category
     :param documentary_topic_id: The new ID of the documentary topic
     :param settlement_id: The new ID of the settlement
     :param hamlet_id: The new ID of the hamlet (optional)
+    :param document: The new document file to upload (optional)
     :param current_user: The user making the request, used for authorization
     :param document_service: Service to handle the update logic
     :return: Updated data of the document
     """
-    document_content = await document.read()
+    document_content = None
+    if document:
+        document_content = await document.read()
 
     document_request = DocumentRequestDTO(
         title=title,
@@ -579,3 +581,54 @@ async def get_document_information_by_id(
     :return: Detailed document information
     """
     return await document_service.get_document_information_by_id(document_id)
+
+
+@router.get(
+    "/{document_id}/report",
+    summary="Generate document registration report",
+    responses={
+        200: {
+            "content": {"application/pdf": {}},
+            "description": "Report generated successfully",
+        },
+        401: {"model": UnauthorizedError, "description": "Unauthorized"},
+        403: {"model": ForbiddenError, "description": "Forbidden"},
+        404: {"model": NotFoundError, "description": "Document not found"},
+        500: {
+            "model": InternalServerError,
+            "description": "Internal server error",
+        },
+    },
+    description="Generates and downloads a detailed PDF report of the document registration.",
+)
+async def generate_document_report(
+    document_id: int,
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DOCUMENT_READ]
+    ),
+    document_service: IDocumentService = Depends(get_document_service),
+) -> StreamingResponse:
+    """
+    Endpoint to generate and download a detailed PDF report for a specific document.
+
+    This endpoint creates a comprehensive PDF report for a given document,
+    including registration details, metadata, and related entities.
+
+    :param document_id: ID of the document to generate the report for
+    :param current_user: The user making the request, used for authorization
+    :param document_service: Service responsible for generating the report
+    :return: A StreamingResponse containing the PDF file
+    """
+    content, filename = await document_service.generate_document_registration_report(
+        document_id
+    )
+
+    if not isinstance(content, bytes):
+        content = await content
+
+    content_stream = BytesIO(content)
+    response = StreamingResponse(content_stream, media_type="application/pdf")
+    response.headers["Content-Disposition"] = f'attachment; filename="{filename}"'
+    response.headers["Content-Length"] = str(len(content))
+
+    return response
