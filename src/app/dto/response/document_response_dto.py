@@ -64,6 +64,11 @@ class DocumentResponseDTO(BaseModel):
         description="ID of the person or entity that submitted the document",
         examples=[1, 342],
     )
+    submitter_dni: int | None = Field(
+        default=None,
+        description="DNI of the person or entity that submitted the document",
+        examples=[12345678, 87654321],
+    )
     submitter_names: str | None = Field(
         default=None,
         description="Names of the person or entity that submitted the document",

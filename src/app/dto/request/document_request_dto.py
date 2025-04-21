@@ -35,7 +35,9 @@ class DocumentRequestDTO(BaseModel):
         gt=0,
         examples=[12, 45],
     )
-    document: bytes = Field(..., description="Binary content of the document file.")
+    document: bytes | None = Field(
+        default=None, description="Binary content of the document file."
+    )
     submitter_id: int = Field(
         ...,
         description="ID of the person or entity submitting the document.",
