@@ -17,6 +17,7 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from .role import Role
     from .employee import Employee
+    from .document import Document
 
 
 class User(SQLModel, table=True):
@@ -70,3 +71,4 @@ class User(SQLModel, table=True):
 
     role: "Role" = Relationship(back_populates="users")
     employee: "Employee" = Relationship(back_populates="user")
+    documents: list["Document"] = Relationship(back_populates="registered_by_user")

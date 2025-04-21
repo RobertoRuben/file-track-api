@@ -16,6 +16,7 @@ from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
     from .settlement import Settlement
+    from .document import Document
 
 
 class Hamlet(SQLModel, table=True):
@@ -55,3 +56,4 @@ class Hamlet(SQLModel, table=True):
     )
 
     settlement: Optional["Settlement"] = Relationship(back_populates="hamlets")
+    documents: list["Document"] = Relationship(back_populates="hamlet")

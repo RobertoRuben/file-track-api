@@ -9,6 +9,7 @@ from .employee import Employee
 from .hamlet import Hamlet
 from .department_connection import DepartmentConnection
 from .user import User
+from .document import Document
 
 __all__ = [
     "DocumentCategory",
@@ -22,4 +23,5 @@ __all__ = [
     "Hamlet",
     "DepartmentConnection",
     "User",
+    "Document",
 ]

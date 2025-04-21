@@ -10,6 +10,7 @@ from .hamlet_service_impl import HamletServiceImpl
 from .department_connection_service_impl import DepartmentConnectionServiceImpl
 from .user_service_impl import UserServiceImpl
 from .auth_service_impl import AuthServiceImpl
+from .document_service_impl import DocumentServiceImpl
 
 __all__ = [
     "DocumentCategoryServiceImpl",
@@ -24,4 +25,5 @@ __all__ = [
     "DepartmentConnectionServiceImpl",
     "UserServiceImpl",
     "AuthServiceImpl",
+    "DocumentServiceImpl",
 ]

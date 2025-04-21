@@ -9,6 +9,7 @@ from .employee_repository_impl import EmployeeRepositoryImpl
 from .hamlet_repository_impl import HamletRepositoryImpl
 from .department_connection_repository_impl import DepartmentConnectionRepositoryImpl
 from .user_repository_impl import UserRepositoryImpl
+from .document_repository_impl import DocumentRepositoryImpl
 
 __all__ = [
     "DocumentCategoryRepositoryImpl",
@@ -22,4 +23,5 @@ __all__ = [
     "HamletRepositoryImpl",
     "DepartmentConnectionRepositoryImpl",
     "UserRepositoryImpl",
+    "DocumentRepositoryImpl",
 ]

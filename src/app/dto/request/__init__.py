@@ -10,6 +10,7 @@ from .hamlet_request_dto import HamletRequestDTO
 from .department_connection_request_dto import DepartmentConnectionRequestDTO
 from .user_request_dto import UserRequestDTO
 from .auth_request_dto import AuthRequestDTO
+from .document_request_dto import DocumentRequestDTO
 
 __all__ = [
     "DocumentCategoryRequestDTO",
@@ -24,4 +25,5 @@ __all__ = [
     "DepartmentConnectionRequestDTO",
     "UserRequestDTO",
     "AuthRequestDTO",
+    "DocumentRequestDTO",
 ]
