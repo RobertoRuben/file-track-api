@@ -37,5 +37,6 @@ async def init_db():
 
     The function uses a transaction to ensure schema creation is atomic.
     """
+
     async with engine.begin() as conn:
         await conn.run_sync(SQLModel.metadata.create_all)
