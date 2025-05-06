@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, Query, Security
+from datetime import datetime
+from fastapi import APIRouter, Depends, Query, Security, Body, Response
 from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -291,3 +292,80 @@ async def delete_role(
     :return: A success message indicating that the role has been deleted.
     """
     return await role_service.delete_role(role_id)
+
+
+@router.post(
+    "/delete-multiple",
+    response_model=MessageResponse,
+    summary="Delete multiple roles by IDs",
+    responses={
+        200: {"model": MessageResponse, "description": "Roles deleted successfully"},
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Deletes multiple roles by their IDs in a single operation.",
+)
+async def delete_multiple_roles(
+    role_ids: list[int] = Body(..., description="List of role IDs to delete"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.ROLE_DELETE]
+    ),
+    role_service: IRoleService = Depends(get_role_service),
+) -> MessageResponse:
+    """
+    Endpoint to delete multiple roles by their IDs.
+
+    This endpoint allows deleting multiple roles in a single operation by providing their IDs.
+
+    :param role_ids: List of IDs of roles to delete
+    :param current_user: The user performing the operation, used for authorization
+    :param role_service: Service to handle the deletion logic
+    :return: A success message indicating the number of roles deleted
+    """
+    return await role_service.delete_roles_by_ids(role_ids)
+
+
+@router.post(
+    "/export-excel",
+    response_class=Response,
+    summary="Export roles to Excel",
+    responses={
+        200: {"description": "Excel file containing the requested roles"},
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        404: {"model": NotFoundError, "description": "No roles found to export"},
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Exports selected roles to Excel format based on provided IDs.",
+)
+async def export_roles_to_excel(
+    role_ids: list[int] = Body(..., description="List of role IDs to export"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.ROLE_READ]
+    ),
+    role_service: IRoleService = Depends(get_role_service),
+) -> Response:
+    """
+    Endpoint to export selected roles to Excel.
+
+    This endpoint exports the selected roles to an Excel file format.
+
+    :param role_ids: List of IDs of roles to export
+    :param current_user: The user performing the export, used for authorization
+    :param role_service: Service to handle the export logic
+    :return: Excel file as a downloadable response
+    """
+    excel_data = await role_service.export_roles_to_excel(role_ids)
+
+    current_datetime = datetime.now().strftime("%d%m%Y%H%M")
+    filename = f"{current_datetime}.xlsx"
+
+    headers = {
+        "Content-Disposition": f"attachment; filename={filename}",
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }
+
+    return Response(content=excel_data, headers=headers)
