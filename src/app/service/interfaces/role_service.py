@@ -84,3 +84,23 @@ class IRoleService(ABC):
         :return: A RolePage object containing the roles that match the search criteria
         """
         pass
+
+    @abstractmethod
+    async def delete_roles_by_ids(self, role_ids: list[int]) -> MessageResponse:
+        """
+        Delete multiple roles by their IDs.
+
+        :param role_ids: List of role IDs to delete
+        :return: Message with the number of deleted roles
+        """
+        pass
+
+    @abstractmethod
+    async def export_roles_to_excel(self, role_ids: list[int]) -> bytes:
+        """
+        Export roles to Excel format by their IDs.
+
+        :param role_ids: List of role IDs to export
+        :return: Excel file as bytes
+        """
+        pass

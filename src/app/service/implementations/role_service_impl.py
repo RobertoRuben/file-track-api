@@ -1,5 +1,8 @@
+import pandas as pd
+import io
 from datetime import datetime
 from src.app.model.entity import Role
+from src.app.service.helpers import datetime_helper
 from src.app.dto.request import RoleRequestDTO
 from src.app.dto.response import RolePage, RoleResponseDTO
 from src.app.schema import MessageResponse
@@ -235,3 +238,68 @@ class RoleServiceImpl(IRoleService):
             data=role_response,
             meta=page_result.meta,
         )
+
+    async def delete_roles_by_ids(self, role_ids: list[int]) -> MessageResponse:
+        """
+        Delete multiple roles by their IDs.
+
+        :param role_ids: List of role IDs to delete
+        :return: Message with the number of deleted roles
+        """
+        resp = await self.role_repository.delete_by_ids(role_ids)
+
+        if resp is True:
+            return MessageResponse(
+                message="Roles deleted successfully.",
+                success=True,
+                details=f"Roles with IDs {role_ids} deleted successfully.",
+                status_code=200,
+            )
+        else:
+            return MessageResponse(
+                message="Failed to delete roles.",
+                success=False,
+                details=f"Roles with IDs {role_ids} could not be deleted.",
+                status_code=500,
+            )
+
+    async def export_roles_to_excel(self, role_ids: list[int]) -> bytes:
+        """
+        Export roles to Excel format by their IDs.
+
+        :param role_ids: List of role IDs to export
+        :return: Excel file as bytes
+        """
+
+        roles = await self.role_repository.find_by_ids(role_ids)
+
+        if not roles:
+            raise NotFoundException(
+                details="No roles found for the provided IDs.",
+            )
+
+        roles_data = [
+            {
+                "ID": role.id,
+                "Nombre": role.name,
+                "Fecha de Creación": datetime_helper.to_lima_timezone(role.created_at),
+                "Fecha de Actualización": datetime_helper.to_lima_timezone(
+                    role.updated_at
+                ),
+            }
+            for role in roles
+        ]
+
+        df = pd.DataFrame(roles_data)
+        output = io.BytesIO()
+
+        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+            df.to_excel(writer, sheet_name="Roles", index=False)
+
+            worksheet = writer.sheets["Roles"]
+            for i, col in enumerate(df.columns):
+                column_width = max(df[col].astype(str).map(len).max(), len(col)) + 2
+                worksheet.set_column(i, i, column_width)
+
+        output.seek(0)
+        return output.getvalue()
