@@ -94,3 +94,25 @@ class IDepartmentService(ABC):
         :raises NotFoundException: If no departments match the search criteria
         """
         pass
+
+    @abstractmethod
+    async def delete_departments_by_ids(
+        self, department_ids: list[int]
+    ) -> MessageResponse:
+        """
+        Delete multiple departments by their IDs.
+
+        :param department_ids: List of department IDs to delete
+        :return: Message with the result of the deletion operation
+        """
+        pass
+
+    @abstractmethod
+    async def export_departments_to_excel(self, department_ids: list[int]) -> bytes:
+        """
+        Export departments to Excel format by their IDs.
+
+        :param department_ids: List of department IDs to export
+        :return: Excel file as bytes
+        """
+        pass

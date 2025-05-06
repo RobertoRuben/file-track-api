@@ -1,5 +1,8 @@
+import pandas as pd
+import io
 from datetime import datetime
 from src.app.model.entity import Department
+from src.app.service.helpers import datetime_helper
 from src.app.dto.request import DepartmentRequestDTO
 from src.app.dto.response import DepartmentPage, DepartmentResponseDTO
 from src.app.schema import MessageResponse
@@ -258,3 +261,73 @@ class DepartmentServiceImpl(IDepartmentService):
             data=department_response,
             meta=page_result.meta,
         )
+
+    @handle_exceptions
+    async def delete_departments_by_ids(
+        self, department_ids: list[int]
+    ) -> MessageResponse:
+        """
+        Delete multiple departments by their IDs.
+
+        :param department_ids: List of department IDs to delete
+        :return: Message with the result of the deletion operation
+        """
+        resp = await self.department_repository.delete_by_ids(department_ids)
+
+        if resp is True:
+            return MessageResponse(
+                message="Departments deleted successfully.",
+                success=True,
+                details=f"Departments with IDs {department_ids} deleted successfully.",
+                status_code=200,
+            )
+        else:
+            return MessageResponse(
+                message="Failed to delete departments.",
+                success=False,
+                details=f"Departments with IDs {department_ids} could not be deleted.",
+                status_code=500,
+            )
+
+    @handle_exceptions
+    async def export_departments_to_excel(self, department_ids: list[int]) -> bytes:
+        """
+        Export departments to Excel format by their IDs.
+
+        :param department_ids: List of department IDs to export
+        :return: Excel file as bytes
+        """
+        departments = await self.department_repository.find_by_ids(department_ids)
+
+        if not departments:
+            raise NotFoundException(
+                details="No departments found for the provided IDs.",
+            )
+
+        departments_data = [
+            {
+                "ID": department.id,
+                "Nombre": department.name,
+                "Fecha de Creación": datetime_helper.to_lima_timezone(
+                    department.created_at
+                ),
+                "Fecha de Actualización": datetime_helper.to_lima_timezone(
+                    department.updated_at
+                ),
+            }
+            for department in departments
+        ]
+
+        df = pd.DataFrame(departments_data)
+        output = io.BytesIO()
+
+        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+            df.to_excel(writer, sheet_name="Departments", index=False)
+
+            worksheet = writer.sheets["Departments"]
+            for i, col in enumerate(df.columns):
+                column_width = max(df[col].astype(str).map(len).max(), len(col)) + 2
+                worksheet.set_column(i, i, column_width)
+
+        output.seek(0)
+        return output.getvalue()
