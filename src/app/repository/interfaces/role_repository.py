@@ -81,3 +81,23 @@ class IRoleRepository(ABC):
         :return: True if a matching role exists, False otherwise
         """
         pass
+
+    @abstractmethod
+    async def delete_by_ids(self, rol_ids: list[int]) -> bool:
+        """
+        Delete multiple role entities from the database by their IDs.
+
+        :param rol_ids: List of role IDs to delete
+        :return: True if the roles were successfully deleted, False otherwise
+        """
+        pass
+
+    @abstractmethod
+    async def find_by_ids(self, rol_ids: list[int]) -> list[Role]:
+        """
+        Retrieve multiple role entities from the database by their IDs.
+
+        :param rol_ids: List of role IDs to retrieve
+        :return: List of found role entities
+        """
+        pass

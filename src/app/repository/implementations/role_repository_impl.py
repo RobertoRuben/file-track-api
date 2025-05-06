@@ -85,7 +85,7 @@ class RoleRepositoryImpl(IRoleRepository):
         :raises: DatabaseException if an error occurs during the paginated query
         """
         offset_value = (page - 1) * size
-        stmt = select(Role)
+        stmt = select(Role).order_by(Role.id)
         stmt = stmt.offset(offset_value).limit(size)
         results = await self.session.exec(stmt)
         roles = list(results.all())
@@ -192,3 +192,44 @@ class RoleRepositoryImpl(IRoleRepository):
 
         result = await self.session.exec(stmt)
         return result.first() is not None
+
+    @transactional(readonly=False)
+    async def delete_by_ids(self, rol_ids: list[int]) -> bool:
+        """
+        Delete multiple role entities from the database by their IDs.
+
+        :param rol_ids: List of role IDs to delete
+        :return: True if all roles were successfully deleted, False otherwise
+        :raises: DatabaseException if an error occurs during deletion
+        """
+        if not rol_ids:
+            return True
+
+        stmt = select(Role).where(Role.id.in_(rol_ids))
+        results = await self.session.exec(stmt)
+        roles = results.all()
+
+        found_ids = {role.id for role in roles}
+        if len(found_ids) != len(rol_ids):
+            return False
+        for role in roles:
+            await self.session.delete(role)
+
+        return True
+
+    @transactional(readonly=True)
+    async def find_by_ids(self, role_ids: list[int]) -> list[Role]:
+        """
+        Find roles by a list of IDs.
+
+        :param role_ids: List of role IDs to retrieve
+        :return: List of roles matching the provided IDs
+        :raises: DatabaseException if an error occurs during retrieval
+        """
+        if not role_ids:
+            return []
+
+        stmt = select(Role).where(Role.id.in_(role_ids))
+        results = await self.session.exec(stmt)
+        roles = list(results.all())
+        return roles
