@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, Query, Security
+from datetime import datetime
+from fastapi import APIRouter, Depends, Query, Security, Body, Response
 from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -300,3 +301,87 @@ async def delete_department(
     :return: A success message indicating that the department has been deleted.
     """
     return await department_service.delete_department(department_id)
+
+
+@router.post(
+    "/delete-multiple",
+    response_model=MessageResponse,
+    summary="Delete multiple departments by IDs",
+    responses={
+        200: {
+            "model": MessageResponse,
+            "description": "Departments deleted successfully",
+        },
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Deletes multiple departments by their IDs in a single operation.",
+)
+async def delete_multiple_departments(
+    department_ids: list[int] = Body(
+        ..., description="List of department IDs to delete"
+    ),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DEPARTMENT_DELETE]
+    ),
+    department_service: IDepartmentService = Depends(get_department_service),
+) -> MessageResponse:
+    """
+    Endpoint to delete multiple departments by their IDs.
+
+    This endpoint allows deleting multiple departments in a single operation by providing their IDs.
+
+    :param department_ids: List of IDs of departments to delete
+    :param current_user: The user performing the operation, used for authorization
+    :param department_service: Service to handle the deletion logic
+    :return: A success message indicating the result of the deletion operation
+    """
+    return await department_service.delete_departments_by_ids(department_ids)
+
+
+@router.post(
+    "/export-excel",
+    response_class=Response,
+    summary="Export departments to Excel",
+    responses={
+        200: {"description": "Excel file containing the requested departments"},
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        404: {"model": NotFoundError, "description": "No departments found to export"},
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Exports selected departments to Excel format based on provided IDs.",
+)
+async def export_departments_to_excel(
+    department_ids: list[int] = Body(
+        ..., description="List of department IDs to export"
+    ),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DEPARTMENT_READ]
+    ),
+    department_service: IDepartmentService = Depends(get_department_service),
+) -> Response:
+    """
+    Endpoint to export selected departments to Excel.
+
+    This endpoint exports the selected departments to an Excel file format.
+
+    :param department_ids: List of IDs of departments to export
+    :param current_user: The user performing the export, used for authorization
+    :param department_service: Service to handle the export logic
+    :return: Excel file as a downloadable response
+    """
+    excel_data = await department_service.export_departments_to_excel(department_ids)
+
+    current_datetime = datetime.now().strftime("%d%m%Y%H%M")
+    filename = f"departments_{current_datetime}.xlsx"
+
+    headers = {
+        "Content-Disposition": f"attachment; filename={filename}",
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }
+
+    return Response(content=excel_data, headers=headers)
