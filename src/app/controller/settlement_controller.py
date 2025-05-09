@@ -18,7 +18,7 @@ from src.app.service.interfaces import ISettlementService
 from src.app.service.dependencies import get_settlement_service, get_current_user
 from src.app.security.auth.constants import Scopes
 
-router = APIRouter(prefix="/settlement", tags=["Settlements"])
+router = APIRouter(prefix="/settlements", tags=["Settlements"])
 
 settlement_tags_metadata = {
     "name": "Settlements",

@@ -14,7 +14,7 @@ from src.app.service.interfaces import IHamletService
 from src.app.service.dependencies import get_hamlet_service, get_current_user
 from src.app.security.auth.constants import Scopes
 
-router = APIRouter(prefix="/hamlet", tags=["Hamlets"])
+router = APIRouter(prefix="/hamlets", tags=["Hamlets"])
 
 hamlet_tags_metadata = {
     "name": "Hamlets",

@@ -15,7 +15,7 @@ from src.app.service.interfaces import IRoleService
 from src.app.service.dependencies import get_role_service, get_current_user
 from src.app.security.auth.constants import Scopes
 
-router = APIRouter(prefix="/role", tags=["Roles"])
+router = APIRouter(prefix="/roles", tags=["Roles"])
 
 role_tags_metadata = {
     "name": "Roles",

@@ -26,7 +26,7 @@ from src.app.service.interfaces import IPositionService
 from src.app.service.dependencies import get_position_service, get_current_user
 from src.app.security.auth.constants import Scopes
 
-router = APIRouter(prefix="/position", tags=["Positions"])
+router = APIRouter(prefix="/positions", tags=["Positions"])
 
 position_tags_metadata = {
     "name": "Positions",

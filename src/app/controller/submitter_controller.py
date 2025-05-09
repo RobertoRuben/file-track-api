@@ -18,7 +18,7 @@ from src.app.service.interfaces import ISubmitterService
 from src.app.service.dependencies import get_submitter_service, get_current_user
 from src.app.security.auth.constants import Scopes
 
-router = APIRouter(prefix="/submitter", tags=["Submitters"])
+router = APIRouter(prefix="/submitters", tags=["Submitters"])
 
 submitter_tags_metadata = {
     "name": "Submitters",

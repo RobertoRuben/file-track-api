@@ -18,7 +18,7 @@ from src.app.service.dependencies import (
 )
 from src.app.security.auth.constants import Scopes
 
-router = APIRouter(prefix="/user", tags=["Users"])
+router = APIRouter(prefix="/users", tags=["Users"])
 
 user_tags_metadata = {
     "name": "Users",

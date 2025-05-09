@@ -19,7 +19,7 @@ from src.app.service.interfaces import IDepartmentService
 from src.app.service.dependencies import get_department_service, get_current_user
 from src.app.security.auth.constants import Scopes
 
-router = APIRouter(prefix="/department", tags=["Departments"])
+router = APIRouter(prefix="/departments", tags=["Departments"])
 
 department_tags_metadata = {
     "name": "Departments",
