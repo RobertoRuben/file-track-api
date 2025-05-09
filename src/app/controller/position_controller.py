@@ -1,4 +1,12 @@
-from fastapi import APIRouter, Depends, Query, Security
+from datetime import datetime
+from fastapi import (
+    APIRouter,
+    Depends,
+    Query,
+    Security,
+    Body,
+    Response,
+)
 from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -298,3 +306,83 @@ async def delete_position(
     :return: A success message indicating that the position has been deleted.
     """
     return await position_service.delete_position(position_id)
+
+
+@router.post(
+    "/delete-multiple",
+    response_model=MessageResponse,
+    summary="Delete multiple positions by IDs",
+    responses={
+        200: {
+            "model": MessageResponse,
+            "description": "Positions deleted successfully",
+        },
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Deletes multiple positions by their IDs in a single operation.",
+)
+async def delete_multiple_positions(
+    position_ids: list[int] = Body(..., description="List of position IDs to delete"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.POSITION_DELETE]
+    ),
+    position_service: IPositionService = Depends(get_position_service),
+) -> MessageResponse:
+    """
+    Endpoint to delete multiple positions by their IDs.
+
+    This endpoint allows deleting multiple positions in a single operation by providing their IDs.
+
+    :param position_ids: List of IDs of positions to delete
+    :param current_user: The user performing the operation, used for authorization
+    :param position_service: Service to handle the deletion logic
+    :return: A success message indicating the result of the deletion operation
+    """
+    return await position_service.delete_positions_by_ids(position_ids)
+
+
+@router.post(
+    "/export-excel",
+    response_class=Response,
+    summary="Export positions to Excel",
+    responses={
+        200: {"description": "Excel file containing the requested positions"},
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        404: {"model": NotFoundError, "description": "No positions found to export"},
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Exports selected positions to Excel format based on provided IDs.",
+)
+async def export_positions_to_excel(
+    position_ids: list[int] = Body(..., description="List of position IDs to export"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.POSITION_READ]
+    ),
+    position_service: IPositionService = Depends(get_position_service),
+) -> Response:
+    """
+    Endpoint to export selected positions to Excel.
+
+    This endpoint exports the selected positions to an Excel file format.
+
+    :param position_ids: List of IDs of positions to export
+    :param current_user: The user performing the export, used for authorization
+    :param position_service: Service to handle the export logic
+    :return: Excel file as a downloadable response
+    """
+    excel_data = await position_service.export_positions_to_excel(position_ids)
+
+    current_datetime = datetime.now().strftime("%d%m%Y%H%M")
+    filename = f"{current_datetime}.xlsx"
+
+    headers = {
+        "Content-Disposition": f"attachment; filename={filename}",
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }
+
+    return Response(content=excel_data, headers=headers)
