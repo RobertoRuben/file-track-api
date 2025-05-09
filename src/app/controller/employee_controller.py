@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, Query, Security
+from datetime import datetime
+from fastapi import APIRouter, Depends, Query, Security, Body, Response
 from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -301,3 +302,90 @@ async def delete_employee(
     :return: Success message indicating the employee has been deleted.
     """
     return await employee_service.delete_employee(employee_id)
+
+
+@router.post(
+    "/delete-multiple",
+    response_model=MessageResponse,
+    summary="Delete multiple employees by IDs",
+    responses={
+        200: {
+            "model": MessageResponse,
+            "description": "Employees deleted successfully",
+        },
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Elimina múltiples empleados por sus IDs en una sola operación.",
+)
+async def delete_multiple_employees(
+    employee_ids: list[int] = Body(
+        ..., description="Lista de IDs de empleados a eliminar"
+    ),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.EMPLOYEE_DELETE]
+    ),
+    employee_service: IEmployeeService = Depends(get_employee_service),
+) -> MessageResponse:
+    """
+    Endpoint para eliminar múltiples empleados por sus IDs.
+
+    Este endpoint permite eliminar múltiples empleados en una sola operación proporcionando sus IDs.
+
+    :param employee_ids: Lista de IDs de empleados a eliminar
+    :param current_user: El usuario que realiza la operación, usado para autorización
+    :param employee_service: Servicio para manejar la lógica de eliminación
+    :return: Un mensaje de éxito indicando el resultado de la operación
+    """
+    return await employee_service.delete_employees_by_ids(employee_ids)
+
+
+@router.post(
+    "/export-excel",
+    response_class=Response,
+    summary="Export employees to Excel",
+    responses={
+        200: {"description": "Archivo Excel con los empleados solicitados"},
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        404: {
+            "model": NotFoundError,
+            "description": "No se encontraron empleados para exportar",
+        },
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Exporta los empleados seleccionados a formato Excel basado en los IDs proporcionados.",
+)
+async def export_employees_to_excel(
+    employee_ids: list[int] = Body(
+        ..., description="Lista de IDs de empleados a exportar"
+    ),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.EMPLOYEE_READ]
+    ),
+    employee_service: IEmployeeService = Depends(get_employee_service),
+) -> Response:
+    """
+    Endpoint para exportar empleados seleccionados a Excel.
+
+    Este endpoint exporta los empleados seleccionados a un archivo Excel.
+
+    :param employee_ids: Lista de IDs de empleados a exportar
+    :param current_user: El usuario que realiza la exportación, usado para autorización
+    :param employee_service: Servicio para manejar la lógica de exportación
+    :return: Archivo Excel como una respuesta descargable
+    """
+    excel_data = await employee_service.export_employees_to_excel(employee_ids)
+
+    current_datetime = datetime.now().strftime("%d%m%Y%H%M")
+    filename = f"{current_datetime}.xlsx"
+
+    headers = {
+        "Content-Disposition": f"attachment; filename={filename}",
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }
+
+    return Response(content=excel_data, headers=headers)
