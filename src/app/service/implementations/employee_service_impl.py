@@ -1,3 +1,5 @@
+import io
+import pandas as pd
 from datetime import datetime
 from src.app.model.entity import Employee
 from src.app.dto.request import EmployeeRequestDTO
@@ -9,6 +11,7 @@ from src.app.repository.interfaces import IEmployeeRepository
 from src.app.repository.interfaces import IPositionRepository
 from src.app.repository.interfaces import IDepartmentRepository
 from src.app.service.interfaces import IEmployeeService
+from src.app.service.helpers import datetime_helper
 
 
 class EmployeeServiceImpl(IEmployeeService):
@@ -325,3 +328,73 @@ class EmployeeServiceImpl(IEmployeeService):
             data=employee_response,
             meta=page_result.meta,
         )
+
+    @handle_exceptions
+    async def delete_employees_by_ids(self, employee_ids: list[int]) -> MessageResponse:
+        """
+        Delete multiple employees by their IDs.
+
+        :param employee_ids: List of employee IDs to delete
+        :return: Message with the result of the deletion operation
+        """
+        resp = await self.employee_repository.delete_by_ids(employee_ids)
+
+        if resp is True:
+            return MessageResponse(
+                message="Employees deleted successfully.",
+                success=True,
+                details=f"Employees with IDs {employee_ids} deleted successfully.",
+                status_code=200,
+            )
+        else:
+            return MessageResponse(
+                message="Failed to delete employees.",
+                success=False,
+                details=f"Employees with IDs {employee_ids} could not be deleted.",
+                status_code=500,
+            )
+
+    @handle_exceptions
+    async def export_employees_to_excel(self, employee_ids: list[int]) -> bytes:
+        """
+        Export employees to Excel format by their IDs.
+
+        :param employee_ids: List of employee IDs to export
+        :return: Excel file as bytes
+        """
+        employees = await self.employee_repository.find_by_ids(employee_ids)
+
+        if not employees:
+            raise NotFoundException(
+                details="No employees found for the provided IDs.",
+            )
+
+        employees_data = [
+            {
+                "ID": employee["id"],
+                "DNI": employee["dni"],
+                "Names": employee["names"],
+                "Paternal Surname": employee["paternal_surname"],
+                "Maternal Surname": employee["maternal_surname"],
+                "Gender": employee["gender"],
+                "Position": employee["position_name"],
+                "Department": employee["department_name"],
+                "Created At": datetime_helper.to_lima_timezone(employee["created_at"]),
+                "Updated At": datetime_helper.to_lima_timezone(employee["updated_at"]),
+            }
+            for employee in employees
+        ]
+
+        df = pd.DataFrame(employees_data)
+        output = io.BytesIO()
+
+        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+            df.to_excel(writer, sheet_name="Employees", index=False)
+
+            worksheet = writer.sheets["Employees"]
+            for i, col in enumerate(df.columns):
+                column_width = max(df[col].astype(str).map(len).max(), len(col)) + 2
+                worksheet.set_column(i, i, column_width)
+
+        output.seek(0)
+        return output.getvalue()
