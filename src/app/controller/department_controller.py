@@ -377,7 +377,7 @@ async def export_departments_to_excel(
     excel_data = await department_service.export_departments_to_excel(department_ids)
 
     current_datetime = datetime.now().strftime("%d%m%Y%H%M")
-    filename = f"departments_{current_datetime}.xlsx"
+    filename = f"{current_datetime}.xlsx"
 
     headers = {
         "Content-Disposition": f"attachment; filename={filename}",
