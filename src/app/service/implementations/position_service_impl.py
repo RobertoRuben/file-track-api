@@ -1,3 +1,5 @@
+import io
+import pandas as pd
 from datetime import datetime
 from src.app.model.entity import Position
 from src.app.dto.request import PositionRequestDTO
@@ -7,6 +9,7 @@ from src.app.exception import BadRequestException, ConflictException, NotFoundEx
 from src.app.exception.decorator import handle_exceptions
 from src.app.repository.interfaces import IPositionRepository
 from src.app.service.interfaces import IPositionService
+from src.app.service.helpers import datetime_helper
 
 
 class PositionServiceImpl(IPositionService):
@@ -243,3 +246,67 @@ class PositionServiceImpl(IPositionService):
             data=position_response,
             meta=page_result.meta,
         )
+
+    @handle_exceptions
+    async def delete_positions_by_ids(self, position_ids: list[int]) -> MessageResponse:
+        """
+        Delete multiple positions by their IDs.
+
+        :param position_ids: List of position IDs to delete
+        :return: Message with the result of the deletion operation
+        """
+        resp = await self.position_repository.delete_by_ids(position_ids)
+
+        if resp is True:
+            return MessageResponse(
+                message="Positions deleted successfully.",
+                success=True,
+                details=f"Positions with IDs {position_ids} deleted successfully.",
+                status_code=200,
+            )
+        else:
+            return MessageResponse(
+                message="Failed to delete positions.",
+                success=False,
+                details=f"Positions with IDs {position_ids} could not be deleted.",
+                status_code=500,
+            )
+
+    @handle_exceptions
+    async def export_positions_to_excel(self, position_ids: list[int]) -> bytes:
+        """
+        Export positions to Excel format by their IDs.
+
+        :param position_ids: List of position IDs to export
+        :return: Excel file as bytes
+        """
+        positions = await self.position_repository.find_by_ids(position_ids)
+
+        if not positions:
+            raise NotFoundException(
+                details="No positions found for the provided IDs.",
+            )
+
+        positions_data = [
+            {
+                "ID": position.id,
+                "Name": position.name,
+                "Created At": datetime_helper.to_lima_timezone(position.created_at),
+                "Updated At": datetime_helper.to_lima_timezone(position.updated_at),
+            }
+            for position in positions
+        ]
+
+        df = pd.DataFrame(positions_data)
+        output = io.BytesIO()
+
+        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+            df.to_excel(writer, sheet_name="Positions", index=False)
+
+            worksheet = writer.sheets["Positions"]
+            for i, col in enumerate(df.columns):
+                column_width = max(df[col].astype(str).map(len).max(), len(col)) + 2
+                worksheet.set_column(i, i, column_width)
+
+        output.seek(0)
+        return output.getvalue()
