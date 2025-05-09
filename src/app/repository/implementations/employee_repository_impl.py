@@ -255,3 +255,68 @@ class EmployeeRepositoryImpl(IEmployeeRepository):
 
         result = await self.session.exec(stmt)
         return result.first() is not None
+
+    @transactional(readonly=False)
+    async def delete_by_ids(self, employee_ids: list[int]) -> bool:
+        """
+        Delete multiple employees from the database by their IDs.
+
+        :param employee_ids: List of employee IDs to delete
+        :return: True if all employees were successfully deleted, False otherwise
+
+        :raises DatabaseException: If an error occurs during the deletion
+        """
+        if not employee_ids:
+            return True
+
+        stmt = select(Employee).where(Employee.id.in_(employee_ids))
+        results = await self.session.exec(stmt)
+        employees = results.all()
+
+        found_ids = {employee.id for employee in employees}
+        if len(found_ids) != len(employee_ids):
+            return False
+
+        for employee in employees:
+            await self.session.delete(employee)
+
+        return True
+
+    @transactional(readonly=True)
+    async def find_by_ids(self, employee_ids: list[int]) -> list[dict]:
+        """
+        Retrieve multiple employees from the database by their IDs,
+        returning the same fields as the get_pageable method.
+
+        :param employee_ids: List of employee IDs to retrieve
+        :return: List of employees found with all relevant fields
+
+        :raises DatabaseException: If an error occurs during the retrieval
+        """
+        if not employee_ids:
+            return []
+
+        stmt = (
+            select(
+                Employee.id.label("id"),
+                Employee.dni.label("dni"),
+                Employee.names.label("names"),
+                Employee.paternal_surname.label("paternal_surname"),
+                Employee.maternal_surname.label("maternal_surname"),
+                Employee.gender.label("gender"),
+                Employee.position_id.label("position_id"),
+                Position.name.label("position_name"),
+                Employee.department_id.label("department_id"),
+                Department.name.label("department_name"),
+                Employee.created_at,
+                Employee.updated_at,
+            )
+            .join(Department, Department.id == Employee.department_id)
+            .join(Position, Position.id == Employee.position_id)
+            .where(Employee.id.in_(employee_ids))
+        )
+
+        results = await self.session.exec(stmt)
+        employees_data = [dict(row._mapping) for row in results]
+
+        return employees_data
