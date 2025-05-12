@@ -86,13 +86,16 @@ class IUserRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_pageable(self, page: int, size: int) -> Page:
+    async def get_pageable(
+        self, page: int, size: int, only_active: bool = True
+    ) -> Page:
         """
         Retrieve a paginated list of user entities from the database.
 
         Args:
             page: The page number (starts at 1)
             size: The size of each page
+            only_active: If True, returns only active users; if False, returns all users
 
         Returns:
             A Page object containing users and pagination information
