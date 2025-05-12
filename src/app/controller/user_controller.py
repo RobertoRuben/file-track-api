@@ -115,29 +115,36 @@ async def get_all_users(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves users in a paginated format to manage large data sets.",
+    description="Retrieves users in a paginated format with filtering options for active/inactive status.",
 )
 async def get_paginated_users(
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of users per page"),
+    only_active: bool = Query(
+        default=True,
+        description="If True, returns only active users; if False, returns only inactive users",
+    ),
     current_user: CurrentUserResponseDTO = Security(
         get_current_user, scopes=[Scopes.USER_READ]
     ),
     user_service: IUserService = Depends(get_user_service),
 ) -> UserPage:
     """
-    Endpoint to retrieve users in a paginated manner.
+    Endpoint to retrieve users in a paginated manner with active status filtering.
 
-    This endpoint allows retrieving users in a paginated format. The user can specify the page number
-    and the number of users per page to optimize the query and reduce data overload.
+    This endpoint allows retrieving users in a paginated format. The user can specify the page number,
+    the number of users per page, and filter by active status:
+    - only_active=True: returns only active users
+    - only_active=False: returns only inactive users
 
     :param page: The page number to retrieve.
     :param size: The number of users to return per page.
+    :param only_active: If True, returns only active users; if False, returns only inactive users.
     :param current_user: The user making the request, used for scope validation.
     :param user_service: Service to handle the query and return paginated users.
     :return: A paginated list of users.
     """
-    return await user_service.get_users_paginated(page, size)
+    return await user_service.get_users_paginated(page, size, only_active)
 
 
 @router.get(
