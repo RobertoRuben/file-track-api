@@ -98,12 +98,15 @@ class IUserService(ABC):
         pass
 
     @abstractmethod
-    async def get_users_paginated(self, page: int, size: int) -> UserPage:
+    async def get_users_paginated(
+        self, page: int, size: int, only_active: bool = True
+    ) -> UserPage:
         """
         Retrieve a paginated list of users.
 
         :param page: The page number to retrieve
         :param size: The number of users per page
+        :param only_active: If True, returns only active users; if False, returns all users
         :return: A UserPage object containing the paginated users
         """
         pass

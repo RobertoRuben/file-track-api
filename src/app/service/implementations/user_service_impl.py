@@ -395,15 +395,18 @@ class UserServiceImpl(IUserService):
         )
 
     @handle_exceptions
-    async def get_users_paginated(self, page: int, size: int) -> UserPage:
+    async def get_users_paginated(
+        self, page: int, size: int, only_active: bool = True
+    ) -> UserPage:
         """
-        Retrieves a paginated list of users.
+        Retrieves a paginated list of users with option to filter by active status.
 
         This method validates the provided page and size values. If they are valid, it retrieves a paginated result
         of users from the repository. If the page or size is invalid (less than 1), a BadRequestException is raised.
 
         :param page: The page number to retrieve
         :param size: The number of items per page
+        :param only_active: If True, returns only active users; if False, returns all users
         :return: A paginated response containing the user data and metadata
         :raises BadRequestException: If the page number or size is less than 1
         """
@@ -418,7 +421,7 @@ class UserServiceImpl(IUserService):
                 details="Size must be greater than 0.",
             )
 
-        page_result = await self.user_repository.get_pageable(page, size)
+        page_result = await self.user_repository.get_pageable(page, size, only_active)
         user_response = [UserResponseDTO(**user_dict) for user_dict in page_result.data]
 
         return UserPage(
