@@ -149,6 +149,10 @@ class DepartmentConnectionRepositoryImpl(IDepartmentConnectionRepository):
         :return: A Page object with department connections that match the search criteria
         """
         offset = (page - 1) * size
+
+        SourceDept = aliased(Department, name="source_department")
+        TargetDept = aliased(Department, name="target_department")
+
         conditions = []
 
         allowed_fields = [
@@ -176,14 +180,9 @@ class DepartmentConnectionRepositoryImpl(IDepartmentConnectionRepository):
                 except ValueError:
                     pass
             elif field_name == "source_department_name" and search_value:
-                SourceDept = aliased(Department, name="source_department")
                 conditions.append(SourceDept.name.ilike(f"%{search_value}%"))
             elif field_name == "target_department_name" and search_value:
-                TargetDept = aliased(Department, name="target_department")
                 conditions.append(TargetDept.name.ilike(f"%{search_value}%"))
-
-        SourceDept = aliased(Department, name="source_department")
-        TargetDept = aliased(Department, name="target_department")
 
         stmt = (
             select(
@@ -210,7 +209,15 @@ class DepartmentConnectionRepositoryImpl(IDepartmentConnectionRepository):
         results = await self.session.exec(stmt)
         connections_data = [dict(row._mapping) for row in results]
 
-        count_stmt = select(func.count(DepartmentConnection.id))
+        count_stmt = (
+            select(func.count(DepartmentConnection.id))
+            .join(
+                SourceDept, SourceDept.id == DepartmentConnection.source_department_id
+            )
+            .join(
+                TargetDept, TargetDept.id == DepartmentConnection.target_department_id
+            )
+        )
 
         if conditions:
             count_stmt = count_stmt.where(or_(*conditions))
