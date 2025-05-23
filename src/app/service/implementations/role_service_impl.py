@@ -227,7 +227,7 @@ class RoleServiceImpl(IRoleService):
 
         page_result = await self.role_repository.find(page, size, search_dict)
 
-        if page_result.data is None:
+        if not page_result.data:
             raise NotFoundException(
                 details=f"No roles found with the search term {search_term}.",
             )

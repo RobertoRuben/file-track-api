@@ -259,7 +259,7 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
             page, size, search_dict
         )
 
-        if page_result.data is None:
+        if not page_result.data:
             raise NotFoundException(
                 details=f"No document categories found with search term: {search_term}",
             )
