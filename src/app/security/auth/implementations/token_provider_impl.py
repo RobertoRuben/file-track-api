@@ -8,7 +8,7 @@ from src.app.security.auth.interface import ITokenProvider
 SECRET_KEY = "e88731089b8fdcc5539e5f9017dc7d83bcfaf38367fd777caaa5e69f63bd935f"
 ALGORITHM = "HS256"
 
-ACCESS_TOKEN_EXPIRE_MINUTES = 30
+ACCESS_TOKEN_EXPIRE_MINUTES = 1
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 
@@ -33,7 +33,7 @@ class TokenProviderImpl(ITokenProvider):
         self.access_token_expire_minutes = access_token_expire_minutes
         self.refresh_token_expire_days = refresh_token_expire_days
 
-    async def generate_access_token(self, data: dict[str, Any]) -> str:
+    async def generate_access_token(self, data: dict[str, Any]) -> tuple[str, int]:
         """
         Generate a JWT access token with expiration.
 
@@ -45,7 +45,11 @@ class TokenProviderImpl(ITokenProvider):
         )
         to_encode = data.copy()
         to_encode.update({"exp": expire})
-        return jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)
+        
+        token = jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)
+        expires_in = int((expire - datetime.now(timezone.utc)).total_seconds())
+        
+        return token, expires_in
 
     async def generate_refresh_token(self, data: dict[str, Any]) -> str:
         """

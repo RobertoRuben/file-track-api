@@ -9,7 +9,7 @@ class ITokenProvider(ABC):
     """
 
     @abstractmethod
-    async def generate_access_token(self, data: dict[str, Any]) -> str:
+    async def generate_access_token(self, data: dict[str, Any]) -> tuple[str, int]:
         """
         Generates a JWT access token with expiration time.
 

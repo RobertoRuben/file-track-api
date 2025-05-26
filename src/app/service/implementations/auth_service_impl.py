@@ -92,7 +92,7 @@ class AuthServiceImpl(IAuthService):
         role_name = user_data["role_name"].upper()
         user_scopes = Scopes.ROLE_SCOPES.get(role_name, [])
 
-        access_token = await self.token_provider.generate_access_token(
+        access_token, expires_in = await self.token_provider.generate_access_token(
             {
                 "sub": user_data["username"],
                 "scope": "access",
@@ -113,7 +113,7 @@ class AuthServiceImpl(IAuthService):
             access_token=access_token,
             token_type="Bearer",
             refresh_token=refresh_token,
-            expires_in=1800,  # Example expiration time in seconds
+            expires_in=expires_in,  # Example expiration time in seconds
         )
 
     @handle_exceptions
@@ -207,7 +207,7 @@ class AuthServiceImpl(IAuthService):
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        user_data = await self.user_repository.get_by_username(username)
+        user_data = await self.user_repository.get_current_user_by_name(username)
 
         if not user_data:
             raise UnauthorizedException(
@@ -215,16 +215,22 @@ class AuthServiceImpl(IAuthService):
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        if user_data.is_active is False:
+        if user_data["is_active"] is False:
             raise UnauthorizedException(
                 details="User is inactive",
                 headers={"WWW-Authenticate": "Bearer"},
             )
+            
+        role_name = user_data["role_name"].upper()
+        user_scopes = Scopes.ROLE_SCOPES.get(role_name, [])
 
-        new_access_token = await self.token_provider.generate_access_token(
+        new_access_token, expires_in = await self.token_provider.generate_access_token(
             {
-                "sub": user_data.username,
+                "sub": user_data["username"],
                 "scope": "access",
+                "user_scopes": user_scopes,
+                "role": user_data["role_name"].upper(),
+                "department_id": user_data["department_id"],
             }
         )
 
@@ -232,7 +238,7 @@ class AuthServiceImpl(IAuthService):
             access_token=new_access_token,
             token_type="Bearer",
             refresh_token=refresh_token,
-            expires_in=1800,  # Example expiration time in seconds
+            expires_in= expires_in,  # Example expiration time in seconds
         )
 
     @handle_exceptions
