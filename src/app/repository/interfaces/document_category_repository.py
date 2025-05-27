@@ -85,3 +85,23 @@ class IDocumentCategoryRepository(ABC):
         :return: True if a matching document category exists, False otherwise
         """
         pass
+
+    @abstractmethod
+    async def delete_by_ids(self, category_ids: list[int]) -> bool:
+        """
+        Delete multiple document category entities from the database by their IDs.
+
+        :param category_ids: List of document category IDs to delete
+        :return: True if the document categories were successfully deleted, False otherwise
+        """
+        pass
+
+    @abstractmethod
+    async def find_by_ids(self, category_ids: list[int]) -> list[DocumentCategory]:
+        """
+        Find multiple document categories by their IDs.
+
+        :param category_ids: List of document category IDs to find
+        :return: List of DocumentCategory entities matching the provided IDs
+        """
+        pass

@@ -88,11 +88,38 @@ class IDocumentCategoryService(ABC):
         self, page: int, size: int, search_term: str
     ) -> DocumentCategoryPage:
         """
-        Find document categories based on search criteria.
+        Find document categories by search term with pagination.
 
-        :param page: The page number to retrieve
-        :param size: The number of document categories per page
-        :param search_term: The term to search for in document category names
-        :return: A DocumentCategoryPage object containing the document categories that match the search criteria
+        :param page: The page number (starts at 1)
+        :param size: The size of each page
+        :param search_term: The search term to filter document categories
+        :return: A DocumentCategoryPage with document categories matching the search criteria
+        """
+        pass
+
+    @abstractmethod
+    async def delete_document_categories_by_ids(
+        self, category_ids: list[int]
+    ) -> MessageResponse:
+        """
+        Delete multiple document categories by their IDs.
+
+        :param category_ids: List of document category IDs to delete
+        :return: A MessageResponse indicating the result of the deletion
+        :raises NotFoundException: If none of the document categories with the given IDs exist
+        :raises BadRequestException: If the category_ids list is empty
+        """
+        pass
+
+    @abstractmethod
+    async def export_document_categories_to_excel(
+        self, category_ids: list[int]
+    ) -> bytes:
+        """
+        Export document categories to Excel format.
+
+        :param category_ids: List of document category IDs to export. If empty, exports all categories
+        :return: Excel file content as bytes
+        :raises NotFoundException: If none of the document categories with the given IDs exist
         """
         pass

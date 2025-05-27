@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, Query, Security
+from datetime import datetime
+from fastapi import APIRouter, Depends, Query, Security, Body, Response
 from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -204,6 +205,55 @@ async def find_document_categories(
     return await document_category_service.find(page, size, search_term)
 
 
+@router.delete(
+    "/bulk",
+    response_model=MessageResponse,
+    summary="Delete multiple document categories",
+    responses={
+        200: {
+            "model": MessageResponse,
+            "description": "Document categories deleted successfully",
+        },
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        404: {
+            "model": NotFoundError,
+            "description": "One or more document categories not found",
+        },
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Deletes multiple document categories from the system using a list of IDs. This operation is "
+    "irreversible and may affect document classifications. All specified categories must exist for the "
+    "operation to succeed.",
+)
+async def delete_document_categories_bulk(
+    category_ids: list[int] = Body(
+        ..., description="List of document category IDs to delete"
+    ),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DOCUMENT_CATEGORY_DELETE]
+    ),
+    document_category_service: IDocumentCategoryService = Depends(
+        get_document_category_service
+    ),
+) -> MessageResponse:
+    """
+    Endpoint to delete multiple document categories.
+
+    This endpoint allows deleting multiple document categories identified by their IDs. If all categories
+    are deleted successfully, a success message is returned. If any category is not found, a 404 error
+    is returned. The request body should contain a list of document category IDs.
+
+    :param category_ids: List of document category IDs to delete.
+    :param current_user: The current user making the request, used for authorization.
+    :param document_category_service: Service to handle the bulk delete logic.
+    :return: A success message indicating that the document categories have been deleted.
+    """
+    return await document_category_service.delete_document_categories_by_ids(
+        category_ids
+    )
+
 @router.get(
     "/{document_category_id}",
     response_model=DocumentCategoryResponseDTO,
@@ -336,4 +386,71 @@ async def delete_document_category(
     """
     return await document_category_service.delete_document_category(
         document_category_id
+    )
+    
+
+@router.post(
+    "/export-excel",
+    summary="Export document categories to Excel",
+    responses={
+        200: {
+            "description": "Excel file with document categories",
+            "content": {
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                    "schema": {"type": "string", "format": "binary"}
+                }
+            },
+        },
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        404: {
+            "model": NotFoundError,
+            "description": "One or more document categories not found",
+        },
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Exports document categories to an Excel file. If category IDs are provided, only those specific "
+    "categories will be exported. If no IDs are provided, all categories will be exported. The Excel file "
+    "includes formatted columns with proper headers and styling.",
+)
+async def export_document_categories_to_excel(
+    category_ids: list[int] = Body(
+        ...,
+        description="List of document category IDs to export. If empty, exports all categories",
+    ),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DOCUMENT_CATEGORY_READ]
+    ),
+    document_category_service: IDocumentCategoryService = Depends(
+        get_document_category_service
+    ),
+) -> Response:
+    """
+    Endpoint to export document categories to Excel format.
+
+    This endpoint generates an Excel file containing document category data. Users can specify which
+    categories to export by providing a list of IDs, or export all categories if no IDs are provided.
+    The Excel file includes proper formatting, headers, and is returned as a downloadable stream.
+
+    :param category_ids: Optional list of document category IDs to export. If None, exports all categories.
+    :param current_user: The current user making the request, used for authorization.
+    :param document_category_service: Service to handle the Excel export logic.
+    :return: A StreamingResponse containing the Excel file for download.
+    """
+    excel_data = await document_category_service.export_document_categories_to_excel(
+        category_ids
+    )
+
+    current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{current_datetime}.xlsx"
+
+    headers = {
+        "Content-Disposition": f"attachment; filename={filename}",
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }
+    return Response(
+        content=excel_data,
+        headers=headers,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
