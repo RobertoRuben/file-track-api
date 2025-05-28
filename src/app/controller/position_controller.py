@@ -30,9 +30,13 @@ router = APIRouter(prefix="/positions", tags=["Positions"])
 
 position_tags_metadata = {
     "name": "Positions",
-    "description": "Manages positions within the system. "
-    "These positions represent job roles that employees can hold. "
-    "Allows complete CRUD operations, advanced search, and paginated listing.",
+    "description": "Comprehensive enterprise job position management system facilitating organizational role definition, "
+    "employee assignment coordination, and workforce structure administration for effective human resource "
+    "operations. Manages complex job role hierarchies supporting HR workflows, career progression planning, "
+    "and organizational development through structured position frameworks. Enables sophisticated workforce "
+    "management with advanced search capabilities, bulk operations, and detailed audit trails supporting "
+    "enterprise human resource governance, talent management, and organizational efficiency across complex "
+    "employment structures and career development environments.",
 }
 
 
@@ -426,4 +430,3 @@ async def delete_position(
     :return: Confirmation message indicating successful removal
     """
     return await position_service.delete_position(position_id)
-
