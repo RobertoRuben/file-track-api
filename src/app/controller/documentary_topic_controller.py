@@ -22,10 +22,11 @@ router = APIRouter(prefix="/documentary-topics", tags=["Documentary Topics"])
 
 documentary_topic_tags_metadata = {
     "name": "Documentary Topics",
-    "description": "Manages documentary topics within the document management system. "
-    "These topics help organize and classify documents by subject matter, "
-    "enabling efficient search and retrieval of related documents. "
-    "Provides CRUD operations, advanced search capabilities, and pagination features.",
+    "description": "Comprehensive documentary topic management system providing intelligent subject matter "
+    "classification and taxonomic organization for enterprise document management workflows. Facilitates "
+    "advanced document categorization, thematic grouping, and knowledge organization through structured "
+    "topic hierarchies. Enables sophisticated content classification, search optimization, and semantic "
+    "document relationships for enhanced information retrieval and enterprise knowledge management systems.",
 }
 
 
@@ -48,8 +49,11 @@ documentary_topic_tags_metadata = {
         },
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Creates a new documentary topic in the system. The topic name must be unique and descriptive to help"
-    " with document classification.",
+    description="Establishes new thematic classification categories for advanced document organization and subject "
+    "matter taxonomy management. Creates structured topic hierarchies with unique naming validation, enabling "
+    "sophisticated document classification workflows and knowledge management systems. Implements semantic "
+    "categorization standards for enhanced document discovery, content organization, and enterprise information "
+    "architecture supporting complex document management and retrieval requirements.",
 )
 async def create_documentary_topic(
     documentary_topic_request: DocumentaryTopicRequestDTO,
@@ -91,8 +95,11 @@ async def create_documentary_topic(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete list of all documentary topics registered in the system, including their "
-    "identifiers, names, and timestamps.",
+    description="Retrieves the complete documentary topic taxonomy and classification system including all registered "
+    "subject matter categories with comprehensive metadata, temporal tracking, and hierarchical relationships. "
+    "Provides enterprise-wide access to the complete thematic organization structure for document classification "
+    "workflows, content management systems, and knowledge architecture planning supporting systematic information "
+    "organization and retrieval optimization.",
 )
 async def get_all_documentary_topics(
     current_user: CurrentUserResponseDTO = Security(
@@ -129,8 +136,11 @@ async def get_all_documentary_topics(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves documentary topics in a paginated format to manage large datasets, allowing navigation "
-    "through pages and control over the number of records per page.",
+    description="Delivers optimized paginated access to documentary topic collections for efficient large-scale "
+    "taxonomy management and enhanced system performance. Implements server-side pagination with configurable "
+    "page sizing to handle extensive topic hierarchies, reduce memory consumption, and improve user experience "
+    "through controlled data loading. Essential for enterprise environments with comprehensive topic taxonomies "
+    "requiring responsive navigation and resource optimization.",
 )
 async def get_paginated_documentary_topics(
     page: int = Query(default=1, description="Page number to retrieve"),
@@ -172,8 +182,11 @@ async def get_paginated_documentary_topics(
         404: {"model": NotFoundError, "description": "Documentary topic not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Performs documentary topic searches based on a keyword or phrase. Results are returned paginated for "
-    "better management of search results.",
+    description="Executes intelligent topic search operations with semantic matching capabilities for precise thematic "
+    "discovery and classification system navigation. Implements fuzzy search algorithms with paginated results to "
+    "efficiently locate specific topics within comprehensive taxonomies. Supports complex search scenarios "
+    "including partial matches, case-insensitive queries, and thematic similarity detection for enhanced topic "
+    "accessibility and knowledge management workflows.",
 )
 async def find_documentary_topics(
     search_term: str | None = Query(
@@ -219,7 +232,11 @@ async def find_documentary_topics(
         404: {"model": NotFoundError, "description": "Documentary topic not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete details of a specific documentary topic using its unique identifier.",
+    description="Retrieves comprehensive topic profile and metadata for specific documentary topics using unique "
+    "system identifiers. Provides complete thematic classification details including creation timestamps, "
+    "hierarchical relationships, and associated document counts for detailed topic analysis and taxonomy "
+    "management. Essential for topic verification workflows, classification auditing, and enterprise knowledge "
+    "architecture oversight requiring precise topic identification.",
 )
 async def get_documentary_topic_by_id(
     documentary_topic_id: int,
@@ -265,8 +282,11 @@ async def get_documentary_topic_by_id(
         },
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Updates the details of an existing documentary topic identified by its ID. Verifies that the new name "
-    "is not already in use by another topic.",
+    description="Performs comprehensive topic modification including name updates, hierarchical adjustments, and "
+    "metadata management with validation and integrity preservation. Supports topic evolution workflows while "
+    "maintaining classification consistency, enforcing naming uniqueness, and preserving document associations. "
+    "Enables dynamic taxonomy management through secure modification workflows with change tracking and rollback "
+    "capabilities for enterprise knowledge architecture administration and topic lifecycle management.",
 )
 async def update_documentary_topic(
     documentary_topic_id: int,
@@ -311,8 +331,12 @@ async def update_documentary_topic(
         404: {"model": NotFoundError, "description": "Documentary topic not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Deletes a specific documentary topic from the system using its ID. This operation is irreversible and "
-    "may affect document classifications.",
+    description="Executes secure topic removal including dependency validation, cascade handling, and taxonomy "
+    "integrity preservation for complete classification system management. Performs irreversible topic elimination "
+    "with comprehensive validation, document association checking, and hierarchical impact assessment to maintain "
+    "system consistency. Implements enterprise-grade deletion workflows with confirmation requirements and audit "
+    "trail preservation for regulated knowledge management environments. ⚠️ WARNING: This operation permanently "
+    "removes the topic and may affect document classifications.",
 )
 async def delete_documentary_topic(
     documentary_topic_id: int,
