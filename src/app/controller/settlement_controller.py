@@ -22,8 +22,11 @@ router = APIRouter(prefix="/settlements", tags=["Settlements"])
 
 settlement_tags_metadata = {
     "name": "Settlements",
-    "description": "Manages settlements within the system. These operations allow creating, retrieving, "
-    "updating, and deleting settlements, as well as searching and listing them with pagination.",
+    "description": "Comprehensive territorial settlement management system providing administrative control for "
+    "population centers, municipal boundaries, and governmental subdivision organization. Manages settlement "
+    "registrations, territorial hierarchies, and administrative relationships supporting governmental operations, "
+    "demographic tracking, and regional planning initiatives. Facilitates municipal administration, resource "
+    "allocation, and territorial governance for effective administrative coordination and regional development.",
 }
 
 
@@ -43,8 +46,11 @@ settlement_tags_metadata = {
         409: {"model": ConflictError, "description": "Settlement already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Creates a new settlement in the system. Provide the settlement details in the request body to create"
-    " it successfully.",
+    description="Establishes new territorial settlement registrations with comprehensive administrative validation "
+    "and governmental hierarchy integration for municipal and regional management. Creates detailed settlement "
+    "profiles with unique naming requirements, administrative boundaries, and territorial classifications "
+    "supporting governmental territorial organization, demographic administration, and regional development "
+    "planning in municipal administrative systems and territorial governance workflows.",
 )
 async def create_settlement(
     settlement_request: SettlementRequestDTO,
@@ -82,7 +88,11 @@ async def create_settlement(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves a list of all settlements in the system.",
+    description="Retrieves comprehensive territorial settlement registry including all registered population centers "
+    "with administrative metadata, municipal boundaries, and governmental details for complete territorial "
+    "oversight. Provides enterprise-wide access to settlement data supporting demographic analysis, resource "
+    "planning, administrative coordination, and regional development initiatives requiring complete territorial "
+    "information and municipal structure understanding for governmental operations.",
 )
 async def get_all_settlements(
     current_user: CurrentUserResponseDTO = Security(
@@ -114,8 +124,11 @@ async def get_all_settlements(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves settlements in a paginated format to manage large data sets, allowing navigation through "
-    "pages and control over the number of records per page.",
+    description="Provides optimized paginated access to territorial settlement collections for efficient large-scale "
+    "administrative dataset management and enhanced governmental system performance. Implements server-side "
+    "pagination with configurable page sizes to handle extensive municipal registries, reduce memory consumption, "
+    "and improve user experience through controlled data loading. Essential for governmental systems managing "
+    "extensive territorial databases requiring responsive navigation and administrative efficiency.",
 )
 async def get_paginated_settlements(
     page: int = Query(default=1, description="Page number to retrieve"),
@@ -152,8 +165,11 @@ async def get_paginated_settlements(
         404: {"model": NotFoundError, "description": "Settlement not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Performs settlement searches based on a keyword or phrase. Results are returned paginated for "
-    "better management of search results.",
+    description="Executes intelligent territorial search operations for precise settlement discovery and municipal "
+    "location within comprehensive administrative systems. Implements fuzzy search capabilities with paginated "
+    "results to efficiently locate specific settlements within extensive governmental databases. Supports complex "
+    "search scenarios including partial matches, case-insensitive queries, and territorial proximity searches "
+    "for enhanced municipal navigation and administrative coordination efficiency.",
 )
 async def find_settlements(
     search_term: str | None = Query(
@@ -194,7 +210,11 @@ async def find_settlements(
         404: {"model": NotFoundError, "description": "Settlement not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete details of a specific settlement using its unique identifier.",
+    description="Retrieves comprehensive settlement profile and administrative metadata for specific territorial "
+    "entities using unique governmental identifiers. Provides complete municipal information including "
+    "administrative boundaries, population data, and territorial classifications for detailed settlement "
+    "analysis and governmental oversight. Essential for territorial verification workflows, administrative "
+    "auditing, and municipal development planning requiring precise settlement identification.",
 )
 async def get_settlement_by_id(
     settlement_id: int,
@@ -233,8 +253,11 @@ async def get_settlement_by_id(
         409: {"model": ConflictError, "description": "Settlement name already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Updates the details of an existing settlement identified by its ID. Verifies that the new name is "
-    "not already in use by another settlement.",
+    description="Performs comprehensive settlement modification including name updates, territorial adjustments, and "
+    "administrative metadata management with validation and municipal integrity preservation. Supports settlement "
+    "evolution workflows while maintaining territorial consistency, enforcing naming uniqueness, and preserving "
+    "hierarchical relationships. Enables dynamic territorial management through secure modification workflows "
+    "with change tracking for governmental administrative oversight and municipal development coordination.",
 )
 async def update_settlement(
     settlement_id: int,
@@ -275,7 +298,12 @@ async def update_settlement(
         404: {"model": NotFoundError, "description": "Settlement not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Deletes a specific settlement from the system using its ID. This operation is irreversible.",
+    description="Executes secure settlement removal including dependency validation, territorial cascade handling, "
+    "and administrative integrity preservation for complete governmental system management. Performs irreversible "
+    "settlement elimination with comprehensive validation, hierarchical relationship checking, and territorial "
+    "impact assessment to maintain system consistency. Implements governmental-grade deletion workflows with "
+    "confirmation requirements and audit trail preservation for regulated territorial administration. ⚠️ WARNING: "
+    "This operation permanently removes the settlement and may affect territorial hierarchies.",
 )
 async def delete_settlement(
     settlement_id: int,
