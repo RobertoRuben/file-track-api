@@ -22,8 +22,11 @@ router = APIRouter(prefix="/submitters", tags=["Submitters"])
 
 submitter_tags_metadata = {
     "name": "Submitters",
-    "description": "Manages submitters within the system. These operations allow creating, retrieving, "
-    "updating, and deleting submitters, as well as searching and listing them with pagination.",
+    "description": "Comprehensive citizen and stakeholder management system providing detailed personal information "
+    "handling and identity verification for document submission workflows. Manages submitter registrations, "
+    "personal data validation, and identification tracking supporting governmental document processing, citizen "
+    "services, and administrative coordination. Facilitates secure personal information management, identity "
+    "verification processes, and stakeholder relationship management for effective governmental operations.",
 }
 
 
@@ -43,7 +46,11 @@ submitter_tags_metadata = {
         409: {"model": ConflictError, "description": "Submitter already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Creates a new submitter in the system. The DNI must be unique.",
+    description="Establishes new citizen submitter registrations with comprehensive identity validation and personal "
+    "data verification for secure document management workflows. Creates detailed personal profiles with unique "
+    "identification requirements, contact information validation, and identity verification supporting governmental "
+    "document processing, citizen services, and stakeholder management in administrative systems requiring "
+    "secure personal information handling and identity authentication.",
 )
 async def create_submitter(
     submitter_request: SubmitterRequestDTO,
@@ -81,7 +88,11 @@ async def create_submitter(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete list of all submitters registered in the system, including their identifiers, personal data, and timestamps.",
+    description="Retrieves comprehensive citizen submitter registry including all registered individuals with personal "
+    "identification data, contact information, and administrative details for complete stakeholder oversight. "
+    "Provides enterprise-wide access to submitter profiles supporting citizen services, document processing "
+    "workflows, administrative coordination, and stakeholder relationship management requiring complete personal "
+    "information access and identity verification capabilities for governmental operations.",
 )
 async def get_all_submitters(
     current_user: CurrentUserResponseDTO = Security(
@@ -113,8 +124,11 @@ async def get_all_submitters(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves submitters in a paginated format to manage large data sets, allowing navigation through "
-    "pages and control over the number of records per page.",
+    description="Provides optimized paginated access to citizen submitter collections for efficient large-scale "
+    "personal data management and enhanced governmental system performance. Implements server-side pagination "
+    "with configurable page sizes to handle extensive citizen registries, reduce memory consumption, and improve "
+    "user experience through controlled data loading. Essential for governmental systems managing extensive "
+    "citizen databases requiring responsive navigation and privacy-compliant data handling.",
 )
 async def get_paginated_submitters(
     page: int = Query(default=1, description="Page number to retrieve"),
@@ -151,8 +165,11 @@ async def get_paginated_submitters(
         404: {"model": NotFoundError, "description": "Submitter not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Performs submitter searches based on a keyword or phrase. Results are returned paginated for better "
-    "management of search results.",
+    description="Executes intelligent citizen search operations across personal identification fields for precise "
+    "submitter discovery and identity verification within comprehensive administrative systems. Implements secure "
+    "search capabilities with paginated results across names, surnames, and identification numbers while "
+    "maintaining privacy compliance. Supports complex search scenarios including partial matches and case-"
+    "insensitive queries for enhanced citizen identification and administrative efficiency.",
 )
 async def find_submitters(
     search_term: str | None = Query(
@@ -193,7 +210,11 @@ async def find_submitters(
         404: {"model": NotFoundError, "description": "Submitter not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete details of a specific submitter using its unique identifier.",
+    description="Retrieves comprehensive submitter profile and personal identification metadata for specific citizens "
+    "using unique system identifiers. Provides complete personal information including identification details, "
+    "contact data, and administrative records for detailed citizen analysis and governmental oversight. Essential "
+    "for identity verification workflows, citizen service provision, and administrative processes requiring "
+    "precise personal identification and privacy-compliant data access.",
 )
 async def get_submitter_by_id(
     submitter_id: int,
@@ -232,7 +253,11 @@ async def get_submitter_by_id(
         409: {"model": ConflictError, "description": "Submitter DNI already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Updates the details of an existing submitter identified by its ID. Verifies that the new DNI is not already in use by another submitter.",
+    description="Performs comprehensive submitter modification including personal data updates, contact information "
+    "changes, and identification validation with privacy compliance and data integrity preservation. Supports "
+    "citizen profile evolution workflows while maintaining identification uniqueness, enforcing data validation "
+    "rules, and preserving audit trails. Enables secure personal information management through controlled "
+    "modification workflows with change tracking for governmental administrative oversight and privacy compliance.",
 )
 async def update_submitter(
     submitter_id: int,
@@ -273,7 +298,12 @@ async def update_submitter(
         404: {"model": NotFoundError, "description": "Submitter not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Deletes a specific submitter from the system using its ID. This operation is irreversible.",
+    description="Executes secure submitter removal including dependency validation, document association checking, "
+    "and personal data privacy compliance for complete citizen data management. Performs irreversible submitter "
+    "elimination with comprehensive validation, document relationship verification, and privacy-compliant data "
+    "deletion to maintain system integrity. Implements governmental-grade deletion workflows with confirmation "
+    "requirements and audit trail preservation for regulated personal data management. ⚠️ WARNING: This operation "
+    "permanently removes the submitter and may affect document submissions.",
 )
 async def delete_submitter(
     submitter_id: int,
