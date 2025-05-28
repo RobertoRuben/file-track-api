@@ -19,9 +19,12 @@ router = APIRouter(prefix="/roles", tags=["Roles"])
 
 role_tags_metadata = {
     "name": "Roles",
-    "description": "Manages user roles within the system. "
-    "These roles define permissions and access levels for system users. "
-    "Allows complete CRUD operations, advanced search, and paginated listing.",
+    "description": "Comprehensive enterprise role-based access control system managing organizational permissions, "
+    "security hierarchies, and access level definitions for secure user authentication and authorization. "
+    "Facilitates granular permission management, administrative oversight, and security compliance through "
+    "structured role assignments supporting enterprise security frameworks, identity management systems, "
+    "and organizational access governance. Enables secure role lifecycle management with advanced search "
+    "capabilities, bulk operations, and detailed audit trails for enterprise security administration.",
 }
 
 
