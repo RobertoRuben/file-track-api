@@ -46,8 +46,12 @@ department_tags_metadata = {
         409: {"model": ConflictError, "description": "Department already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Creates a new organizational department in the system. The name must be unique and contain only "
-    "alphabetic characters.",
+    description="Creates a new organizational department in the system to establish structural units within "
+    "the organizational hierarchy. The department name must be unique across the entire system and follows "
+    "strict validation rules including alphabetic character constraints. This endpoint establishes fundamental "
+    "organizational structures that serve as the foundation for employee assignments, interdepartmental "
+    "relationships, and administrative workflows. The created department becomes immediately available for "
+    "employee associations and organizational management operations throughout the system.",
 )
 async def create_department(
     department_request: DepartmentRequestDTO,
@@ -85,8 +89,12 @@ async def create_department(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete list of all departments registered in the system, including their identifiers, "
-    "names, and timestamps.",
+    description="Retrieves the complete organizational structure by returning all departments registered in the system. "
+    "This endpoint provides comprehensive department information including unique identifiers, names, descriptions, "
+    "creation timestamps, modification dates, and associated metadata. The response delivers the full organizational "
+    "hierarchy essential for administrative interfaces, employee assignment systems, and organizational charts. "
+    "This data supports various business processes including HR management, workflow routing, and departmental "
+    "reporting requirements throughout the organization.",
 )
 async def get_all_departments(
     current_user: CurrentUserResponseDTO = Security(
@@ -118,8 +126,12 @@ async def get_all_departments(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves departments in a paginated format to manage large data sets, allowing navigation through "
-    "pages and control over the number of records per page.",
+    description="Provides departments through an advanced pagination system optimized for handling large organizational "
+    "structures with superior performance characteristics. This endpoint returns structured pagination metadata "
+    "including total department counts, total pages, current page indicators, and navigation flags (hasNext, "
+    "hasPrevious) to support sophisticated administrative interfaces. The pagination approach significantly "
+    "enhances application responsiveness when managing extensive organizational hierarchies and enables smooth "
+    "navigation through large departmental datasets in management dashboards and organizational tools.",
 )
 async def get_paginated_departments(
     page: int = Query(default=1, description="Page number to retrieve"),
@@ -156,8 +168,13 @@ async def get_paginated_departments(
         404: {"model": NotFoundError, "description": "Department not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Performs department searches based on a keyword or phrase. Results are returned paginated for better "
-    "management of search results.",
+    description="Implements intelligent search capabilities across the organizational structure using sophisticated "
+    "text matching algorithms to locate departments efficiently. This endpoint performs case-insensitive partial "
+    "matching against department names and descriptions, enabling users to quickly discover specific departments "
+    "or groups of related organizational units. The search functionality supports dynamic filtering and real-time "
+    "suggestions, making it ideal for implementing auto-complete features, advanced organizational filtering systems, "
+    "and department discovery tools. Results are delivered in paginated format with configurable page sizes to "
+    "maintain optimal performance regardless of organizational complexity.",
 )
 async def find_departments(
     search_term: str | None = Query(
@@ -186,6 +203,108 @@ async def find_departments(
     return await department_service.find(page, size, search_term)
 
 
+@router.delete(
+    "/bulk",
+    response_model=MessageResponse,
+    summary="Delete multiple departments",
+    responses={
+        200: {
+            "model": MessageResponse,
+            "description": "Departments deleted successfully",
+        },
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        404: {
+            "model": NotFoundError,
+            "description": "One or more departments not found",
+        },
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Executes bulk deletion of multiple departments in a single atomic transaction to maintain "
+    "organizational integrity and system consistency. This endpoint accepts a collection of department identifiers "
+    "and removes all corresponding departments from the organizational structure simultaneously. The operation "
+    "follows an all-or-nothing approach - if any department cannot be deleted due to employee associations, "
+    "interdepartmental dependencies, or constraints, the entire operation is rolled back to prevent partial "
+    "deletions. Before execution, the system validates department existence, checks for employee assignments, "
+    "verifies interdepartmental relationships, and confirms user permissions. This operation permanently affects "
+    "the organizational structure and may impact employee assignments and departmental workflows throughout the system.",
+)
+async def delete_departments_bulk(
+    department_ids: list[int] = Body(
+        ..., description="List of department IDs to delete"
+    ),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DEPARTMENT_DELETE]
+    ),
+    department_service: IDepartmentService = Depends(get_department_service),
+) -> MessageResponse:
+    """
+    Endpoint to delete multiple departments by their IDs.
+
+    This endpoint allows deleting multiple departments in a single operation by providing their IDs.
+
+    :param department_ids: List of IDs of departments to delete
+    :param current_user: The user performing the operation, used for authorization
+    :param department_service: Service to handle the deletion logic
+    :return: A success message indicating the result of the deletion operation
+    """
+    return await department_service.delete_departments_by_ids(department_ids)
+
+
+@router.post(
+    "/export-excel",
+    response_class=Response,
+    summary="Export departments to Excel",
+    responses={
+        200: {"description": "Excel file containing the requested departments"},
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        404: {"model": NotFoundError, "description": "No departments found to export"},
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Generates professionally formatted Excel spreadsheets containing comprehensive organizational department data "
+    "for reporting, analysis, and administrative purposes. This endpoint creates optimized Excel files with properly "
+    "structured columns, formatted headers, and enhanced styling for improved readability and professional presentation. "
+    "Users can specify particular departments for targeted organizational reports or export the complete departmental "
+    "structure. The generated files include detailed department information such as names, descriptions, employee counts, "
+    "hierarchical relationships, creation dates, and modification timestamps. Files are automatically named with timestamps "
+    "to ensure uniqueness and provide audit trails. This functionality supports organizational reporting requirements, "
+    "compliance documentation, and stakeholder communication needs.",
+)
+async def export_departments_to_excel(
+    department_ids: list[int] = Body(
+        ..., description="List of department IDs to export"
+    ),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DEPARTMENT_READ]
+    ),
+    department_service: IDepartmentService = Depends(get_department_service),
+) -> Response:
+    """
+    Endpoint to export selected departments to Excel.
+
+    This endpoint exports the selected departments to an Excel file format.
+
+    :param department_ids: List of IDs of departments to export
+    :param current_user: The user performing the export, used for authorization
+    :param department_service: Service to handle the export logic
+    :return: Excel file as a downloadable response
+    """
+    excel_data = await department_service.export_departments_to_excel(department_ids)
+
+    current_datetime = datetime.now().strftime("%d%m%Y%H%M")
+    filename = f"{current_datetime}.xlsx"
+
+    headers = {
+        "Content-Disposition": f"attachment; filename={filename}",
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }
+
+    return Response(content=excel_data, headers=headers)
+
+
 @router.get(
     "/{department_id}",
     response_model=DepartmentResponseDTO,
@@ -198,7 +317,13 @@ async def find_departments(
         404: {"model": NotFoundError, "description": "Department not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete details of a specific department using its unique identifier.",
+    description="Retrieves comprehensive details of a specific department using its unique system identifier. "
+    "This endpoint returns complete department information including the department name, detailed description, "
+    "organizational hierarchy position, creation timestamp, last modification date, employee counts, and "
+    "associated metadata. The department ID must correspond to an existing organizational unit in the system. "
+    "This endpoint is essential for displaying detailed department information in administrative interfaces, "
+    "populating department edit forms, supporting organizational reporting, and providing context for employee "
+    "management and interdepartmental operations.",
 )
 async def get_department_by_id(
     department_id: int,
@@ -237,8 +362,13 @@ async def get_department_by_id(
         409: {"model": ConflictError, "description": "Department name already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Updates the details of an existing department identified by its ID. Verifies that the new name is "
-    "not already in use by another department.",
+    description="Updates the properties and organizational attributes of an existing department while maintaining "
+    "system integrity and organizational consistency. This endpoint allows modification of department attributes "
+    "such as name and description, with comprehensive validation to ensure the updated name remains unique across "
+    "the entire organizational structure (excluding the current department being modified). The system performs "
+    "thorough validation of input data, checks for naming conflicts, and automatically updates modification "
+    "timestamps. Changes are immediately reflected throughout the system, affecting employee associations, "
+    "organizational charts, and departmental reporting structures.",
 )
 async def update_department(
     department_id: int,
@@ -279,8 +409,13 @@ async def update_department(
         404: {"model": NotFoundError, "description": "Department not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Deletes a specific department from the system using its ID. This operation is irreversible and may "
-    "affect relationships with employees and other departments.",
+    description="Permanently removes a specific department from the organizational structure using its unique identifier, "
+    "with comprehensive impact assessment and dependency validation. This irreversible operation completely eliminates "
+    "the department and all its associated metadata from the system. Prior to deletion, the system performs thorough "
+    "checks for existing employee associations, interdepartmental relationships, and organizational dependencies to "
+    "prevent data integrity violations. Employees currently assigned to this department may be affected by this "
+    "operation, potentially requiring reassignment to other departments. This endpoint requires elevated administrative "
+    "privileges and should be used with extreme caution in production environments.",
 )
 async def delete_department(
     department_id: int,
@@ -301,87 +436,3 @@ async def delete_department(
     :return: A success message indicating that the department has been deleted.
     """
     return await department_service.delete_department(department_id)
-
-
-@router.post(
-    "/delete-multiple",
-    response_model=MessageResponse,
-    summary="Delete multiple departments by IDs",
-    responses={
-        200: {
-            "model": MessageResponse,
-            "description": "Departments deleted successfully",
-        },
-        400: {"model": BackRequestError, "description": "Bad request error"},
-        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
-        403: {"model": ForbiddenError, "description": "Forbidden access"},
-        500: {"model": InternalServerError, "description": "Internal server error"},
-    },
-    description="Deletes multiple departments by their IDs in a single operation.",
-)
-async def delete_multiple_departments(
-    department_ids: list[int] = Body(
-        ..., description="List of department IDs to delete"
-    ),
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.DEPARTMENT_DELETE]
-    ),
-    department_service: IDepartmentService = Depends(get_department_service),
-) -> MessageResponse:
-    """
-    Endpoint to delete multiple departments by their IDs.
-
-    This endpoint allows deleting multiple departments in a single operation by providing their IDs.
-
-    :param department_ids: List of IDs of departments to delete
-    :param current_user: The user performing the operation, used for authorization
-    :param department_service: Service to handle the deletion logic
-    :return: A success message indicating the result of the deletion operation
-    """
-    return await department_service.delete_departments_by_ids(department_ids)
-
-
-@router.post(
-    "/export-excel",
-    response_class=Response,
-    summary="Export departments to Excel",
-    responses={
-        200: {"description": "Excel file containing the requested departments"},
-        400: {"model": BackRequestError, "description": "Bad request error"},
-        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
-        403: {"model": ForbiddenError, "description": "Forbidden access"},
-        404: {"model": NotFoundError, "description": "No departments found to export"},
-        500: {"model": InternalServerError, "description": "Internal server error"},
-    },
-    description="Exports selected departments to Excel format based on provided IDs.",
-)
-async def export_departments_to_excel(
-    department_ids: list[int] = Body(
-        ..., description="List of department IDs to export"
-    ),
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.DEPARTMENT_READ]
-    ),
-    department_service: IDepartmentService = Depends(get_department_service),
-) -> Response:
-    """
-    Endpoint to export selected departments to Excel.
-
-    This endpoint exports the selected departments to an Excel file format.
-
-    :param department_ids: List of IDs of departments to export
-    :param current_user: The user performing the export, used for authorization
-    :param department_service: Service to handle the export logic
-    :return: Excel file as a downloadable response
-    """
-    excel_data = await department_service.export_departments_to_excel(department_ids)
-
-    current_datetime = datetime.now().strftime("%d%m%Y%H%M")
-    filename = f"{current_datetime}.xlsx"
-
-    headers = {
-        "Content-Disposition": f"attachment; filename={filename}",
-        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
-    }
-
-    return Response(content=excel_data, headers=headers)
