@@ -49,8 +49,11 @@ document_category_tags_metadata = {
         },
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Creates a new document category in the system. The category name must be unique and contain only "
-    "alphabetic characters.",
+    description="Creates a new document category in the system to organize and classify document types effectively. "
+    "The category name must be unique across the entire system and follows specific validation rules including "
+    "alphabetic character constraints. This endpoint establishes a new classification structure that can be "
+    "used to categorize documents for improved organization, searchability, and management. The created category "
+    "becomes immediately available for document assignment and filtering operations throughout the system.",
 )
 async def create_document_category(
     document_category_request: DocumentCategoryRequestDTO,
@@ -92,8 +95,12 @@ async def create_document_category(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete list of all document categories registered in the system, including their "
-    "identifiers, names, and timestamps.",
+    description="Retrieves a comprehensive collection of all document categories registered in the system. "
+    "This endpoint returns complete category information including unique identifiers, names, descriptions, "
+    "creation timestamps, and modification dates. The response provides the complete taxonomy of document "
+    "classifications available for organizing and categorizing documents. This data is essential for "
+    "populating category selection interfaces, implementing document filtering systems, and maintaining "
+    "administrative oversight of the classification structure.",
 )
 async def get_all_document_categories(
     current_user: CurrentUserResponseDTO = Security(
@@ -130,8 +137,12 @@ async def get_all_document_categories(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves document categories in a paginated format to manage large data sets, allowing navigation "
-    "through pages and control over the number of records per page.",
+    description="Provides document categories through an efficient pagination system designed for handling large "
+    "category collections with optimal performance. This endpoint returns structured page metadata including "
+    "total record counts, total pages, current page indicators, and navigation flags (hasNext, hasPrevious) "
+    "to support sophisticated user interface components. The pagination approach significantly improves "
+    "application responsiveness when dealing with extensive category hierarchies and enables smooth "
+    "navigation through large datasets in administrative interfaces and category selection controls.",
 )
 async def get_paginated_document_categories(
     page: int = Query(default=1, description="Page number to retrieve"),
@@ -173,8 +184,12 @@ async def get_paginated_document_categories(
         404: {"model": NotFoundError, "description": "Document category not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Performs document category searches based on a keyword or phrase. Results are returned paginated for "
-    "better management of search results.",
+    description="Implements intelligent search capabilities across document categories using flexible text matching "
+    "algorithms. This endpoint performs case-insensitive partial matching against category names and descriptions, "
+    "enabling users to quickly locate specific categories or groups of related categories. The search functionality "
+    "supports dynamic filtering as users type, making it ideal for implementing auto-complete features, "
+    "advanced filtering systems, and category discovery tools. Results are delivered in paginated format "
+    "with configurable page sizes to maintain optimal performance regardless of search result volume.",
 )
 async def find_document_categories(
     search_term: str | None = Query(
@@ -223,9 +238,13 @@ async def find_document_categories(
         },
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Deletes multiple document categories from the system using a list of IDs. This operation is "
-    "irreversible and may affect document classifications. All specified categories must exist for the "
-    "operation to succeed.",
+    description="Executes bulk deletion of multiple document categories in a single atomic transaction to maintain "
+    "data consistency and system integrity. This endpoint accepts a collection of category identifiers and "
+    "removes all corresponding categories from the system simultaneously. The operation follows an all-or-nothing "
+    "approach - if any category cannot be deleted due to constraints or dependencies, the entire operation "
+    "is rolled back to prevent partial deletions. Before execution, the system validates category existence, "
+    "checks for document associations, and verifies user permissions. This operation permanently affects "
+    "document classification structures and may impact existing document categorizations throughout the system.",
 )
 async def delete_document_categories_bulk(
     category_ids: list[int] = Body(
@@ -253,7 +272,8 @@ async def delete_document_categories_bulk(
     return await document_category_service.delete_document_categories_by_ids(
         category_ids
     )
-    
+
+
 @router.post(
     "/export-excel",
     summary="Export document categories to Excel",
@@ -275,9 +295,14 @@ async def delete_document_categories_bulk(
         },
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Exports document categories to an Excel file. If category IDs are provided, only those specific "
-    "categories will be exported. If no IDs are provided, all categories will be exported. The Excel file "
-    "includes formatted columns with proper headers and styling.",
+    description="Generates professionally formatted Excel spreadsheets containing comprehensive document category data "
+    "for reporting, analysis, and administrative purposes. This endpoint creates optimized Excel files with "
+    "properly structured columns, formatted headers, and enhanced styling for improved readability. Users can "
+    "specify particular categories for targeted exports or export the complete category collection. The generated "
+    "files include detailed category information such as names, descriptions, usage statistics, creation dates, "
+    "and modification timestamps. Files are automatically named with timestamps to ensure uniqueness and provide "
+    "audit trails. This functionality supports data backup procedures, regulatory compliance reporting, and "
+    "stakeholder communication requirements.",
 )
 async def export_document_categories_to_excel(
     category_ids: list[int] = Body(
@@ -320,6 +345,7 @@ async def export_document_categories_to_excel(
         media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
 
+
 @router.get(
     "/{document_category_id}",
     response_model=DocumentCategoryResponseDTO,
@@ -335,7 +361,13 @@ async def export_document_categories_to_excel(
         404: {"model": NotFoundError, "description": "Document category not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete details of a specific document category using its unique identifier.",
+    description="Retrieves comprehensive details of a specific document category using its unique system identifier. "
+    "This endpoint returns complete category information including the category name, detailed description, "
+    "creation timestamp, last modification date, usage statistics, and associated metadata. The category ID "
+    "must correspond to an existing category in the system. This endpoint is essential for displaying detailed "
+    "category information in administrative interfaces, populating category edit forms, and providing context "
+    "for document classification operations. The returned data supports various UI components and business "
+    "logic that depends on specific category characteristics.",
 )
 async def get_document_category_by_id(
     document_category_id: int,
@@ -381,8 +413,14 @@ async def get_document_category_by_id(
         },
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Updates the details of an existing document category identified by its ID. Verifies that the new name "
-    "is not already in use by another category.",
+    description="Updates the properties and metadata of an existing document category while maintaining system "
+    "integrity and data consistency. This endpoint allows modification of category attributes such as name "
+    "and description, with comprehensive validation to ensure the updated name remains unique across the "
+    "entire category system (excluding the current category being modified). The system performs thorough "
+    "validation of input data, checks for naming conflicts, and automatically updates modification timestamps. "
+    "Changes are immediately reflected throughout the system, affecting document classification displays and "
+    "category selection interfaces. This operation is crucial for maintaining an organized and up-to-date "
+    "document classification taxonomy.",
 )
 async def update_document_category(
     document_category_id: int,
@@ -427,8 +465,14 @@ async def update_document_category(
         404: {"model": NotFoundError, "description": "Document category not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Deletes a specific document category from the system using its ID. This operation is irreversible and "
-    "may affect document classifications.",
+    description="Permanently removes a specific document category from the system using its unique identifier, "
+    "with comprehensive impact assessment and validation. This irreversible operation completely eliminates "
+    "the category and all its associated metadata from the database. Prior to deletion, the system performs "
+    "thorough checks for existing document associations and dependencies to prevent data integrity violations. "
+    "Documents currently classified under this category may be affected by this operation, potentially requiring "
+    "recategorization or becoming unclassified. This endpoint requires elevated privileges and should be used "
+    "with extreme caution in production environments. The operation supports administrative cleanup of obsolete "
+    "categories and taxonomy restructuring initiatives.",
 )
 async def delete_document_category(
     document_category_id: int,
@@ -453,4 +497,3 @@ async def delete_document_category(
     return await document_category_service.delete_document_category(
         document_category_id
     )
-    
