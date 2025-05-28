@@ -23,10 +23,13 @@ router = APIRouter(prefix="/document-categories", tags=["Document Categories"])
 
 document_category_tags_metadata = {
     "name": "Document Categories",
-    "description": "Manages document category classifications within the system. "
-    "These categories help organize and classify different types of documents, "
-    "enabling efficient search and retrieval of related documents. "
-    "Provides CRUD operations, advanced search capabilities, and pagination features.",
+    "description": "Comprehensive enterprise document classification system managing taxonomic structures, "
+    "organizational categorization, and semantic document organization for enhanced information management "
+    "and retrieval efficiency. Facilitates systematic document organization through hierarchical category "
+    "management, automated classification workflows, and advanced search optimization supporting enterprise "
+    "content management, regulatory compliance, and knowledge management systems. Enables structured document "
+    "lifecycle administration with sophisticated categorization capabilities for organizational information "
+    "governance and enhanced document discoverability across enterprise environments.",
 }
 
 
