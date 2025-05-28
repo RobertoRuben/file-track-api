@@ -25,10 +25,11 @@ router = APIRouter(prefix="/department-connections", tags=["Department Connectio
 
 department_connection_tags_metadata = {
     "name": "Department Connections",
-    "description": "Manages connections between organizational departments in the system. "
-    "These connections represent the hierarchical and functional relationships "
-    "between departments, allowing the visualization of organizational structure. "
-    "Provides CRUD operations, advanced search capabilities, and pagination features.",
+    "description": "Comprehensive management of interdepartmental relationships and organizational network structures "
+    "within the enterprise ecosystem. Handles the complex web of departmental connections including hierarchical "
+    "reporting structures, workflow dependencies, communication channels, and functional relationships. Provides "
+    "advanced CRUD operations, intelligent search capabilities, contextual filtering, and scalable pagination "
+    "for efficient organizational structure visualization, strategic planning, and enterprise architecture analysis.",
 }
 
 
@@ -51,8 +52,10 @@ department_connection_tags_metadata = {
         },
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Creates a new connection between two departments in the organization, establishing a relationship "
-    "between source and target departments.",
+    description="Establishes new organizational relationships between departments with comprehensive validation and "
+    "hierarchical integrity checks. Creates bidirectional connections that define reporting structures, "
+    "workflow dependencies, and communication pathways essential for organizational chart visualization "
+    "and departmental coordination within the enterprise structure.",
 )
 async def create_department_connection(
     department_connection: DepartmentConnectionRequestDTO,
@@ -94,8 +97,10 @@ async def create_department_connection(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete list of all department connections registered in the system, including their "
-    "source and target departments.",
+    description="Retrieves the complete organizational network of all departmental relationships and connections "
+    "within the enterprise structure. Provides comprehensive mapping of interdepartmental workflows, "
+    "reporting hierarchies, and communication channels essential for organizational analysis, structure "
+    "visualization, and strategic planning initiatives across the entire organizational ecosystem.",
 )
 async def get_all_department_connections(
     current_user: CurrentUserResponseDTO = Security(
@@ -136,8 +141,10 @@ async def get_all_department_connections(
             "description": "Internal server error",
         },
     },
-    description="Retrieves all department connections linked to the authenticated user's department, ensuring that "
-    "only connections relevant to the user's organizational context are returned.",
+    description="Retrieves contextual departmental connections filtered by the authenticated user's organizational "
+    "assignment, providing personalized access to relevant interdepartmental relationships. Ensures users "
+    "only access connections pertinent to their departmental scope for enhanced security and operational "
+    "focus within their specific organizational context and workflow requirements.",
 )
 async def get_connections_by_current_user_department_id(
     current_user: CurrentUserResponseDTO = Security(
@@ -180,8 +187,10 @@ async def get_connections_by_current_user_department_id(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves department connections in a paginated format to manage large datasets, allowing navigation "
-    "through pages and control over the number of records per page.",
+    description="Provides efficient paginated access to departmental connection networks for scalable organizational "
+    "data management. Optimizes performance when handling extensive enterprise structures with numerous "
+    "interdepartmental relationships, enabling systematic navigation through large connection datasets "
+    "while maintaining responsive user experience and system performance.",
 )
 async def get_paginated_department_connections(
     page: int = Query(default=1, description="Page number to retrieve"),
@@ -228,8 +237,10 @@ async def get_paginated_department_connections(
             "description": "Internal server error",
         },
     },
-    description="Performs department connection searches based on a keyword or phrase. Results are returned paginated "
-    "for better management of search results.",
+    description="Performs intelligent search across departmental connection networks using advanced matching algorithms "
+    "for precise relationship discovery. Enables organizational analysis and structure exploration with "
+    "flexible query capabilities, supporting department name searches, connection type filtering, and "
+    "hierarchical relationship identification for comprehensive organizational insights.",
 )
 async def find_department_connections(
     search_term: str | None = Query(
@@ -278,7 +289,10 @@ async def find_department_connections(
             "description": "Internal server error",
         },
     },
-    description="Retrieves the complete details of a specific department connection using its unique identifier.",
+    description="Retrieves comprehensive details of a specific departmental relationship using its unique organizational "
+    "identifier. Provides complete connection information including source and target departments, relationship "
+    "types, and hierarchical context essential for detailed organizational analysis and structure verification "
+    "within the enterprise network.",
 )
 async def get_department_connection_by_id(
     department_connection_id: int,
@@ -324,8 +338,10 @@ async def get_department_connection_by_id(
             "description": "Internal server error",
         },
     },
-    description="Updates the details of an existing department connection identified by its ID, verifying that the new"
-    " relationship does not conflict with existing connections.",
+    description="Updates comprehensive departmental relationship configurations with validation of organizational "
+    "hierarchy integrity and conflict prevention. Modifies existing connections while maintaining structural "
+    "consistency, preventing circular dependencies, and ensuring valid organizational workflows within "
+    "the enterprise architecture for seamless departmental coordination.",
 )
 async def update_department_connection(
     department_connection_id: int,
@@ -372,8 +388,10 @@ async def update_department_connection(
             "description": "Internal server error",
         },
     },
-    description="Deletes a specific department connection from the system using its ID. This operation is irreversible"
-    " and affects the organizational structure representation.",
+    description="Permanently removes a specific departmental relationship from the organizational structure with "
+    "comprehensive impact analysis and cleanup procedures. This irreversible operation eliminates connections "
+    "while maintaining referential integrity, updating organizational charts, and preserving audit trails "
+    "for compliance and structural change documentation within the enterprise network.",
 )
 async def delete_department_connection(
     department_connection_id: int,
@@ -418,8 +436,10 @@ async def delete_department_connection(
             "description": "Internal server error",
         },
     },
-    description="Retrieves a list of department connections filtered by the source department ID, showing all "
-    "relationships originating from a specific department.",
+    description="Retrieves comprehensive departmental relationship networks filtered by specific source department "
+    "identification, providing detailed mapping of outbound organizational connections. Enables analysis "
+    "of departmental influence, reporting structures, and downstream workflow dependencies essential for "
+    "hierarchical planning and organizational impact assessment within the enterprise structure.",
 )
 async def get_connections_by_source_department_id(
     source_department_id: int,
