@@ -23,10 +23,13 @@ router = APIRouter(prefix="/departments", tags=["Departments"])
 
 department_tags_metadata = {
     "name": "Departments",
-    "description": "Manages organizational departments within the system. "
-    "These departments represent the structural units of the organization "
-    "and are related to employees and interdepartmental connections. "
-    "Allows complete CRUD operations, advanced search, and paginated listing.",
+    "description": "Comprehensive enterprise organizational structure management system facilitating departmental "
+    "hierarchy administration, employee assignment coordination, and interdepartmental relationship governance "
+    "for effective organizational operations. Manages complex organizational units supporting HR workflows, "
+    "administrative coordination, and business process optimization through structured departmental frameworks. "
+    "Enables sophisticated organizational management with advanced search capabilities, bulk operations, and "
+    "detailed audit trails supporting enterprise organizational governance, workforce management, and "
+    "administrative efficiency across complex organizational environments.",
 }
 
 
