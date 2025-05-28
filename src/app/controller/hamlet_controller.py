@@ -18,9 +18,11 @@ router = APIRouter(prefix="/hamlets", tags=["Hamlets"])
 
 hamlet_tags_metadata = {
     "name": "Hamlets",
-    "description": "Manages hamlets within the system. "
-    "These hamlets represent rural population units connected to settlements. "
-    "Allows complete CRUD operations, advanced search, and paginated listing.",
+    "description": "Comprehensive rural settlement management system providing detailed geographical organization "
+    "for small population centers and administrative subdivisions within larger territorial structures. Manages "
+    "hamlet registrations, territorial relationships, and geographical hierarchies supporting governmental "
+    "administration, demographic tracking, and regional planning initiatives. Facilitates rural community "
+    "management, resource allocation, and administrative coordination for effective territorial governance.",
 }
 
 
@@ -40,7 +42,11 @@ hamlet_tags_metadata = {
         409: {"model": ConflictError, "description": "Hamlet already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Creates a new hamlet in the system. The name must be unique and may reference an optional settlement.",
+    description="Establishes new rural settlement registrations with geographical validation and territorial "
+    "hierarchy integration for comprehensive administrative management. Creates detailed hamlet profiles with "
+    "unique naming requirements, settlement associations, and administrative boundaries supporting governmental "
+    "territorial organization, demographic tracking, and regional development planning in rural administrative "
+    "systems and geographical information management workflows.",
 )
 async def create_hamlet(
     hamlet_request: HamletRequestDTO,
@@ -78,8 +84,11 @@ async def create_hamlet(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete list of all hamlets registered in the system, including their identifiers,"
-    " names, and timestamps.",
+    description="Retrieves comprehensive rural settlement inventory including all registered hamlets with geographical "
+    "metadata, territorial relationships, and administrative details for complete territorial oversight. Provides "
+    "enterprise-wide access to rural population center data supporting demographic analysis, resource planning, "
+    "administrative coordination, and regional development initiatives requiring complete geographical information "
+    "and territorial structure understanding.",
 )
 async def get_all_hamlets(
     current_user: CurrentUserResponseDTO = Security(
@@ -111,8 +120,11 @@ async def get_all_hamlets(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves hamlets in a paginated format to manage large data sets, allowing navigation through pages "
-    "and control over the number of records per page.",
+    description="Provides optimized paginated access to rural settlement collections for efficient large-scale "
+    "geographical dataset management and enhanced administrative system performance. Implements server-side "
+    "pagination with configurable page sizes to handle extensive territorial registries, reduce memory "
+    "consumption, and improve user experience through controlled data loading. Essential for governmental "
+    "systems managing extensive rural territories requiring responsive navigation capabilities.",
 )
 async def get_paginated_hamlets(
     page: int = Query(default=1, description="Page number to retrieve"),
@@ -149,8 +161,11 @@ async def get_paginated_hamlets(
         404: {"model": NotFoundError, "description": "Hamlet not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Performs hamlet searches based on a keyword or phrase. Results are returned paginated for better "
-    "management of search results.",
+    description="Executes intelligent geographical search operations for precise rural settlement discovery and "
+    "territorial location within comprehensive administrative systems. Implements fuzzy search capabilities "
+    "with paginated results to efficiently locate specific hamlets within extensive geographical databases. "
+    "Supports complex search scenarios including partial matches, case-insensitive queries, and geographical "
+    "proximity searches for enhanced territorial navigation and administrative efficiency.",
 )
 async def find_hamlets(
     search_term: str | None = Query(None, description="Search term to filter hamlets"),
@@ -189,7 +204,11 @@ async def find_hamlets(
         404: {"model": NotFoundError, "description": "Hamlet not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete details of a specific hamlet using its unique identifier.",
+    description="Retrieves comprehensive hamlet profile and geographical metadata for specific rural settlements "
+    "using unique administrative identifiers. Provides complete territorial information including settlement "
+    "associations, administrative boundaries, and demographic details for detailed geographical analysis and "
+    "administrative oversight. Essential for territorial verification workflows, geographical auditing, and "
+    "rural development planning requiring precise settlement identification.",
 )
 async def get_hamlet_by_id(
     hamlet_id: int,
@@ -228,8 +247,11 @@ async def get_hamlet_by_id(
         409: {"model": ConflictError, "description": "Hamlet name already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Updates the details of an existing hamlet identified by its ID. Verifies that the new name is not"
-    " already in use by another hamlet.",
+    description="Performs comprehensive hamlet modification including name updates, territorial adjustments, and "
+    "administrative metadata management with validation and geographical integrity preservation. Supports "
+    "settlement evolution workflows while maintaining territorial consistency, enforcing naming uniqueness, "
+    "and preserving hierarchical relationships. Enables dynamic geographical management through secure "
+    "modification workflows with change tracking for administrative territorial oversight.",
 )
 async def update_hamlet(
     hamlet_id: int,
@@ -270,8 +292,12 @@ async def update_hamlet(
         404: {"model": NotFoundError, "description": "Hamlet not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Deletes a specific hamlet from the system using its ID. This operation is irreversible and may"
-    " affect relationships with other entities.",
+    description="Executes secure hamlet removal including dependency validation, territorial cascade handling, and "
+    "geographical integrity preservation for complete administrative system management. Performs irreversible "
+    "settlement elimination with comprehensive validation, hierarchical relationship checking, and territorial "
+    "impact assessment to maintain system consistency. Implements governmental-grade deletion workflows with "
+    "confirmation requirements and audit trail preservation for regulated territorial management. ⚠️ WARNING: "
+    "This operation permanently removes the hamlet and may affect territorial relationships.",
 )
 async def delete_hamlet(
     hamlet_id: int,
