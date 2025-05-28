@@ -23,10 +23,13 @@ router = APIRouter(prefix="/employees", tags=["Employees"])
 
 employee_tags_metadata = {
     "name": "Employees",
-    "description": "Manages employee records within the system. "
-    "These endpoints handle the complete lifecycle of employee data, "
-    "including personal information, department assignments, and position details. "
-    "Provides CRUD operations, advanced search capabilities, and pagination features.",
+    "description": "Comprehensive enterprise human resource management system facilitating complete employee lifecycle "
+    "administration, organizational assignment coordination, and workforce data governance for effective "
+    "personnel management operations. Manages complex employee records supporting HR workflows, compliance "
+    "requirements, and organizational development through structured personnel frameworks. Enables sophisticated "
+    "workforce administration with advanced search capabilities, bulk operations, and detailed audit trails "
+    "supporting enterprise human resource governance, talent management, regulatory compliance, and organizational "
+    "efficiency across complex employment environments and personnel administration systems.",
 }
 
 
