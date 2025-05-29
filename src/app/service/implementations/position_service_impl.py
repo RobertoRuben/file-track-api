@@ -1,4 +1,5 @@
 import io
+from turtle import position
 import pandas as pd
 from datetime import datetime
 from src.app.model.entity import Position
@@ -254,7 +255,35 @@ class PositionServiceImpl(IPositionService):
 
         :param position_ids: List of position IDs to delete
         :return: Message with the result of the deletion operation
+        :raises BadRequestException: If no position IDs are provided or if any ID is invalid
+        :raises NotFoundException: If any of the provided position IDs do not exist
         """
+        if len(position_ids) == 0:
+            raise BadRequestException(
+                message="No position IDs provided",
+                details="At least one position ID must be specified for deletion.",
+            )
+            
+        invalid_ids = [id for id in position_ids if id <= 0]
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid position IDs",
+                details=f"Position IDs must be positive integers. Invalid IDs: {invalid_ids}",
+            )
+        
+        positions = await self.position_repository.find_by_ids(position_ids)
+        
+        found_ids = {
+            position["id"] if isinstance(position, dict) else position.id for position in positions
+        }
+        
+        missing_ids = [id for id in position_ids if id not in found_ids]
+        
+        if missing_ids:
+            raise NotFoundException(
+                details=f"Positions with IDs {missing_ids} not found.",
+            )
+            
         resp = await self.position_repository.delete_by_ids(position_ids)
 
         if resp is True:
@@ -280,11 +309,29 @@ class PositionServiceImpl(IPositionService):
         :param position_ids: List of position IDs to export
         :return: Excel file as bytes
         """
+        if len(position_ids) == 0:
+            raise BadRequestException(
+                message="No position IDs provided",
+                details="At least one position ID must be specified for export.",
+            )
+            
+        invalid_ids = [id for id in position_ids if id <= 0]
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid position IDs",
+                details=f"Position IDs must be positive integers. Invalid IDs: {invalid_ids}",
+            )
+                
         positions = await self.position_repository.find_by_ids(position_ids)
-
-        if not positions:
+        
+        found_ids = {
+            position["id"] if isinstance(position, dict) else position.id for position in positions
+        }
+        missing_ids = [id for id in position_ids if id not in found_ids]
+        
+        if missing_ids:
             raise NotFoundException(
-                details="No positions found for the provided IDs.",
+                details=f"Positions with IDs {missing_ids} not found.",
             )
 
         positions_data = [

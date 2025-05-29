@@ -239,6 +239,7 @@ class RoleServiceImpl(IRoleService):
             meta=page_result.meta,
         )
 
+    @handle_exceptions
     async def delete_roles_by_ids(self, role_ids: list[int]) -> MessageResponse:
         """
         Delete multiple roles by their IDs.
@@ -246,6 +247,31 @@ class RoleServiceImpl(IRoleService):
         :param role_ids: List of role IDs to delete
         :return: Message with the number of deleted roles
         """
+        if len(role_ids) == 0:
+            raise BadRequestException(
+                message="No role IDs provided",
+                details="At least one role ID must be specified for deletion.",
+            )
+            
+        invalid_ids = [id for id in role_ids if id <= 0]
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid role IDs",
+                details=f"Role IDs must be positive integers. Invalid IDs: {invalid_ids}",
+            )
+            
+        roles = await self.role_repository.find_by_ids(role_ids)
+        
+        found_ids = {
+            role["id"] if isinstance(role, dict) else role.id for role in roles
+        }
+        missing_ids = [id for id in role_ids if id not in found_ids]
+        
+        if missing_ids:
+            raise NotFoundException(
+                details=f"Roles with IDs {missing_ids} not found.",
+            )   
+            
         resp = await self.role_repository.delete_by_ids(role_ids)
 
         if resp is True:
@@ -263,6 +289,7 @@ class RoleServiceImpl(IRoleService):
                 status_code=500,
             )
 
+    @handle_exceptions
     async def export_roles_to_excel(self, role_ids: list[int]) -> bytes:
         """
         Export roles to Excel format by their IDs.
@@ -270,12 +297,29 @@ class RoleServiceImpl(IRoleService):
         :param role_ids: List of role IDs to export
         :return: Excel file as bytes
         """
+        if len(role_ids) == 0:
+            raise BadRequestException(
+                message="No role IDs provided",
+                details="At least one role ID must be specified for export.",
+            )
+            
+        invalid_ids = [id for id in role_ids if id <= 0]
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid role IDs",
+                details=f"Role IDs must be positive integers. Invalid IDs: {invalid_ids}",
+            )
 
         roles = await self.role_repository.find_by_ids(role_ids)
-
-        if not roles:
+        
+        found_ids = {
+            role["id"] if isinstance(role, dict) else role.id for role in roles
+        }
+        missing_ids = [id for id in role_ids if id not in found_ids]
+        
+        if missing_ids:
             raise NotFoundException(
-                details="No roles found for the provided IDs.",
+                details=f"Roles with IDs {missing_ids} not found.",
             )
 
         roles_data = [
