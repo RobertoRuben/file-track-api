@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, Query, Security
+from fastapi import APIRouter, Body, Depends, Query, Security
+from fastapi.responses import Response
 from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -196,6 +197,105 @@ async def find_submitters(
     :return: A paginated list of submitters that match the search term.
     """
     return await submitter_service.find(page, size, search_term)
+
+
+@router.delete(
+    "/bulk",
+    response_model=MessageResponse,
+    summary="Delete multiple submitters by IDs",
+    responses={
+        200: {
+            "model": MessageResponse,
+            "description": "Submitters deleted successfully",
+        },
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Performs bulk deletion of multiple submitter records in a single atomic operation for efficient "
+    "citizen data management. Validates all submitter IDs, maintains referential integrity, and provides "
+    "comprehensive audit trails for mass administrative operations and data cleanup workflows.",
+)
+async def delete_submitters_bulk(
+    submitter_ids: list[int] = Body(
+        ..., description="List of submitter IDs for bulk deletion operation"
+    ),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.SUBMITTER_DELETE]
+    ),
+    submitter_service: ISubmitterService = Depends(get_submitter_service),
+) -> MessageResponse:
+    """
+    Performs efficient bulk deletion of multiple submitter records in a single atomic operation.
+
+    This endpoint enables mass submitter record deletion for administrative cleanup,
+    data migration, or large-scale citizen data management operations. Implements comprehensive
+    validation, maintains system integrity, and provides detailed audit trails for
+    compliance and organizational record-keeping requirements.
+
+    :param submitter_ids: List of unique submitter identifiers for bulk deletion
+    :param current_user: Authenticated user with bulk submitter deletion privileges
+    :param submitter_service: Service layer handling complex bulk deletion logic
+    :return: Comprehensive operation summary with success counts and audit information
+    """
+    return await submitter_service.delete_submitters_by_ids(submitter_ids)
+
+
+@router.post(
+    "/export-excel",
+    response_class=Response,
+    summary="Export submitters to Excel",
+    responses={
+        200: {"description": "Archivo Excel con los presentadores solicitados"},
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        404: {
+            "model": NotFoundError,
+            "description": "No se encontraron presentadores para exportar",
+        },
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Generates comprehensive Excel reports of selected submitter records with complete citizen data "
+    "for administrative analytics, compliance reporting, and external system integration. Provides formatted spreadsheets "
+    "with professional layouts, complete submitter information, and optimized data structures for governmental analysis.",
+)
+async def export_submitters_to_excel(
+    submitter_ids: list[int] = Body(
+        ..., description="List of submitter IDs for Excel export generation"
+    ),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.SUBMITTER_READ]
+    ),
+    submitter_service: ISubmitterService = Depends(get_submitter_service),
+) -> Response:
+    """
+    Generates comprehensive Excel reports of selected submitter records for administrative analysis.
+
+    This endpoint creates professional Excel spreadsheets containing complete submitter
+    data including personal information and citizen details. Optimized for administrative
+    analytics, compliance reporting, external system integration, and strategic citizen
+    data management initiatives.
+
+    :param submitter_ids: List of submitter identifiers for selective data export
+    :param current_user: Authenticated user with submitter read privileges for audit tracking
+    :param submitter_service: Service layer handling Excel generation and data formatting
+    :return: Excel file download response with formatted submitter data and professional layout
+    """
+    from datetime import datetime
+
+    excel_data = await submitter_service.export_submitters_to_excel(submitter_ids)
+
+    current_datetime = datetime.now().strftime("%d%m%Y%H%M")
+    filename = f"submitters_{current_datetime}.xlsx"
+
+    headers = {
+        "Content-Disposition": f"attachment; filename={filename}",
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }
+
+    return Response(content=excel_data, headers=headers)
 
 
 @router.get(
