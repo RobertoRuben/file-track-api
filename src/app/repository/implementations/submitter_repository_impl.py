@@ -222,9 +222,6 @@ class SubmitterRepositoryImpl(ISubmitterRepository):
 
         :raises DatabaseException: If an error occurs during the deletion
         """
-        if not submitter_ids:
-            return True
-
         stmt = select(Submitter).where(Submitter.id.in_(submitter_ids))
         results = await self.session.exec(stmt)
         submitters = results.all()

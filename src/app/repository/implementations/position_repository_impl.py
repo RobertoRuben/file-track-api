@@ -214,9 +214,6 @@ class PositionRepositoryImpl(IPositionRepository):
         :return: True si todas las posiciones fueron eliminadas correctamente, False en caso contrario
         :raises: DatabaseException si ocurre un error durante la eliminación
         """
-        if not position_ids:
-            return True
-
         stmt = select(Position).where(Position.id.in_(position_ids))
         results = await self.session.exec(stmt)
         positions = results.all()

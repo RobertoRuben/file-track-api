@@ -194,9 +194,6 @@ class DocumentaryTopicRepositoryImpl(IDocumentaryTopicRepository):
         :param documentary_topic_ids: List of IDs of the documentary topics to delete
         :return: True if the topics were successfully deleted, False otherwise
         """
-        if not documentary_topic_ids:
-            return False
-
         stmt = select(DocumentaryTopic).where(
             DocumentaryTopic.id.in_(documentary_topic_ids)
         )

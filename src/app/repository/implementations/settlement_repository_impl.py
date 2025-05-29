@@ -199,9 +199,6 @@ class SettlementRepositoryImpl(ISettlementRepository):
         :param settlement_ids: List of settlement IDs to delete
         :return: True if all settlements were successfully deleted, False otherwise
         """
-        if not settlement_ids:
-            return False
-        
         stmt = select(Settlement).where(Settlement.id.in_(settlement_ids))
         results = await self.session.exec(stmt)
         settlements = results.all()

@@ -197,10 +197,7 @@ class DocumentCategoryRepositoryImpl(IDocumentCategoryRepository):
         :param category_ids: List of document category IDs to delete
         :return: True if the document categories were successfully deleted, False otherwise
         :raises DatabaseException: If an error occurs during deletion
-        """
-        if not category_ids:
-            return True
-        
+        """    
         stmt = select(DocumentCategory).where(DocumentCategory.id.in_(category_ids))
         results = await self.session.exec(stmt)
         categories = results.all()

@@ -207,9 +207,6 @@ class DepartmentRepositoryImpl(IDepartmentRepository):
         :return: True if all roles were successfully deleted, False otherwise
         :raises: DatabaseException if an error occurs during deletion
         """
-        if not department_ids:
-            return True
-
         stmt = select(Department).where(Department.id.in_(department_ids))
         results = await self.session.exec(stmt)
         departments = results.all()

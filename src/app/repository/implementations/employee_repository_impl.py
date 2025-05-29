@@ -266,9 +266,6 @@ class EmployeeRepositoryImpl(IEmployeeRepository):
 
         :raises DatabaseException: If an error occurs during the deletion
         """
-        if not employee_ids:
-            return True
-
         stmt = select(Employee).where(Employee.id.in_(employee_ids))
         results = await self.session.exec(stmt)
         employees = results.all()

@@ -202,9 +202,6 @@ class RoleRepositoryImpl(IRoleRepository):
         :return: True if all roles were successfully deleted, False otherwise
         :raises: DatabaseException if an error occurs during deletion
         """
-        if not rol_ids:
-            return True
-
         stmt = select(Role).where(Role.id.in_(rol_ids))
         results = await self.session.exec(stmt)
         roles = results.all()
