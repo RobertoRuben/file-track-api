@@ -1,3 +1,5 @@
+import io
+import pandas as pd
 from datetime import datetime
 from src.app.model.entity import Submitter
 from src.app.dto.request import SubmitterRequestDTO
@@ -7,6 +9,7 @@ from src.app.exception import BadRequestException, ConflictException, NotFoundEx
 from src.app.exception.decorator import handle_exceptions
 from src.app.repository.interfaces import ISubmitterRepository
 from src.app.service.interfaces import ISubmitterService
+from src.app.service.helpers import datetime_helper
 
 
 class SubmitterServiceImpl(ISubmitterService):
@@ -291,3 +294,78 @@ class SubmitterServiceImpl(ISubmitterService):
             data=submitter_response,
             meta=page_result.meta,
         )
+
+    @handle_exceptions
+    async def delete_submitters_by_ids(
+        self, submitter_ids: list[int]
+    ) -> MessageResponse:
+        """
+        Delete multiple submitters by their IDs.
+
+        :param submitter_ids: List of submitter IDs to delete
+        :return: Message with the result of the deletion operation
+        """
+        resp = await self.submitter_repository.delete_by_ids(submitter_ids)
+
+        if resp is True:
+            return MessageResponse(
+                message="Submitters deleted successfully.",
+                success=True,
+                details=f"Submitters with IDs {submitter_ids} deleted successfully.",
+                status_code=200,
+            )
+        else:
+            return MessageResponse(
+                message="Failed to delete submitters.",
+                success=False,
+                details=f"Submitters with IDs {submitter_ids} could not be deleted.",
+                status_code=500,
+            )
+
+    @handle_exceptions
+    async def export_submitters_to_excel(self, submitter_ids: list[int]) -> bytes:
+        """
+        Export submitters to Excel format by their IDs.
+
+        :param submitter_ids: List of submitter IDs to export
+        :return: Excel file as bytes
+        :raises NotFoundException: If none of the submitters with the given IDs exist
+        """
+        submitters = await self.submitter_repository.find_by_ids(submitter_ids)
+
+        if not submitters:
+            raise NotFoundException(
+                details="No submitters found for the provided IDs.",
+            )
+
+        submitters_data = [
+            {
+                "ID": submitter.id,
+                "DNI": submitter.dni,
+                "Nombres": submitter.names,
+                "Apellido Paterno": submitter.paternal_surname,
+                "Apellido Materno": submitter.maternal_surname,
+                "Género": submitter.gender,
+                "Fecha de Creación": datetime_helper.to_lima_timezone(
+                    submitter.created_at
+                ),
+                "Fecha de Actualización": datetime_helper.to_lima_timezone(
+                    submitter.updated_at
+                ),
+            }
+            for submitter in submitters
+        ]
+
+        df = pd.DataFrame(submitters_data)
+        output = io.BytesIO()
+
+        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+            df.to_excel(writer, sheet_name="Submitters", index=False)
+
+            worksheet = writer.sheets["Submitters"]
+            for i, col in enumerate(df.columns):
+                column_width = max(df[col].astype(str).map(len).max(), len(col)) + 2
+                worksheet.set_column(i, i, column_width)
+
+        output.seek(0)
+        return output.getvalue()
