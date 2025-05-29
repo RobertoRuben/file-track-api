@@ -286,6 +286,18 @@ class DepartmentServiceImpl(IDepartmentService):
                 details=f"Department IDs must be greater than 0. Invalid IDs: {invalid_ids}",
             )
             
+        departments = await self.department_repository.find_by_ids(department_ids)
+        
+        found_ids = {
+            dep["id"] if isinstance(dep, dict) else dep.id for dep in departments
+        }
+        missing_ids = [id for id in department_ids if id not in found_ids]
+        
+        if missing_ids:
+            raise NotFoundException(
+                details=f"Departments with IDs {missing_ids} not found. Cannot proceed with deletion.",
+            )
+            
         resp = await self.department_repository.delete_by_ids(department_ids)
 
         if resp is True:
@@ -325,10 +337,15 @@ class DepartmentServiceImpl(IDepartmentService):
             )
         
         departments = await self.department_repository.find_by_ids(department_ids)
-
-        if not departments:
+        
+        found_ids = {
+            dep["id"] if isinstance(dep, dict) else dep.id for dep in departments
+        }
+        missing_ids = [id for id in department_ids if id not in found_ids]
+        
+        if missing_ids:
             raise NotFoundException(
-                details="No departments found for the provided IDs.",
+                details=f"Departments with IDs {missing_ids} not found. Cannot proceed with export.",
             )
 
         departments_data = [

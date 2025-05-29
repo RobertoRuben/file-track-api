@@ -336,6 +336,8 @@ class EmployeeServiceImpl(IEmployeeService):
 
         :param employee_ids: List of employee IDs to delete
         :return: Message with the result of the deletion operation
+        :raises BadRequestException: If no IDs are provided or if any ID is invalid
+        :raises NotFoundException: If any of the provided IDs do not correspond to existing employees
         """
         if len(employee_ids) == 0:
             raise BadRequestException(
@@ -386,6 +388,8 @@ class EmployeeServiceImpl(IEmployeeService):
 
         :param employee_ids: List of employee IDs to export
         :return: Excel file as bytes
+        :raises BadRequestException: If no IDs are provided or if any ID is invalid
+        :raises NotFoundException: If any of the provided IDs do not correspond to existing employees
         """
 
         if len(employee_ids) == 0:
