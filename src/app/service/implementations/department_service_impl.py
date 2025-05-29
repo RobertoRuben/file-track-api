@@ -272,6 +272,20 @@ class DepartmentServiceImpl(IDepartmentService):
         :param department_ids: List of department IDs to delete
         :return: Message with the result of the deletion operation
         """
+        
+        if len(department_ids) == 0:
+            raise BadRequestException(
+                message="No department IDs provided",
+                details="Please provide a list of department IDs to delete.",
+            )
+            
+        invalid_ids = [id for id in department_ids if id <= 0]
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid department IDs",
+                details=f"Department IDs must be greater than 0. Invalid IDs: {invalid_ids}",
+            )
+            
         resp = await self.department_repository.delete_by_ids(department_ids)
 
         if resp is True:
@@ -297,6 +311,19 @@ class DepartmentServiceImpl(IDepartmentService):
         :param department_ids: List of department IDs to export
         :return: Excel file as bytes
         """
+        if len(department_ids) == 0:
+            raise BadRequestException(
+                message="No department IDs provided",
+                details="Please provide a list of department IDs to export.",
+            )
+            
+        invalid_ids = [id for id in department_ids if id <= 0]
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid department IDs",
+                details=f"Department IDs must be greater than 0. Invalid IDs: {invalid_ids}",
+            )
+        
         departments = await self.department_repository.find_by_ids(department_ids)
 
         if not departments:
