@@ -283,6 +283,19 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
         :raises NotFoundException: If none of the documentary topics with the given IDs exist
         :raises BadRequestException: If the documentary_topic_ids list is empty
         """
+        if len(documentary_topic_ids) == 0:
+            raise BadRequestException(
+                message="Empty documentary topic IDs list",
+                details="The list of documentary topic IDs to delete cannot be empty.",
+            )
+        
+        invalid_ids = [id for id in documentary_topic_ids if id <= 0]
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid documentary topic IDs",
+                details=f"Documentary topic IDs must be positive integers. Invalid IDs: {invalid_ids}",
+            )
+        
         resp = await self.documentary_topic_repository.delete_by_ids(
             documentary_topic_ids
         )
