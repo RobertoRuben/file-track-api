@@ -271,6 +271,8 @@ class DepartmentServiceImpl(IDepartmentService):
 
         :param department_ids: List of department IDs to delete
         :return: Message with the result of the deletion operation
+        :raises BadRequestException: If no IDs are provided or if any ID is invalid
+        :raises NotFoundException: If any of the provided IDs do not correspond to existing departments
         """
         
         if len(department_ids) == 0:
@@ -322,6 +324,8 @@ class DepartmentServiceImpl(IDepartmentService):
 
         :param department_ids: List of department IDs to export
         :return: Excel file as bytes
+        :raises BadRequestException: If no IDs are provided or if any ID is invalid
+        :raises NotFoundException: If any of the provided IDs do not correspond to existing departments
         """
         if len(department_ids) == 0:
             raise BadRequestException(
