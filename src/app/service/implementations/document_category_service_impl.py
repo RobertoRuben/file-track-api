@@ -1,6 +1,6 @@
-from annotated_types import T
-import pandas as pd
 import io
+from unicodedata import category
+import pandas as pd
 from datetime import datetime
 from src.app.model.entity import DocumentCategory, document
 from src.app.service.helpers import datetime_helper
@@ -296,6 +296,20 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
                 message="Invalid document category IDs",
                 details=f"Document category IDs must be positive integers. Invalid IDs: {invalid_ids}",
             )
+
+        document_categories = await self.document_category_repository.find_by_ids(
+            category_ids
+        )
+        
+        found_ids = {
+            category["id"] if isinstance(category, dict) else category.id for category in document_categories
+        }
+        missing_ids = [id for id in category_ids if id not in found_ids]
+        
+        if missing_ids:
+            raise NotFoundException(
+                details=f"Document categories with IDs {missing_ids} not found.",
+            )
             
         resp = await self.document_category_repository.delete_by_ids(category_ids)
 
@@ -324,6 +338,7 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
         :param category_ids: List of document category IDs to export. If empty, exports all categories
         :return: Excel file content as bytes
         :raises NotFoundException: If none of the document categories with the given IDs exist
+        :raises BadRequestException: If the category_ids list is empty or contains invalid IDs
         """
         
         if len(category_ids) == 0:
@@ -342,10 +357,16 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
         document_categories = await self.document_category_repository.find_by_ids(
             category_ids
         )
-
-        if not document_categories:
+        
+        found_ids = {
+            category["id"] if isinstance(category, dict) else category.id for category in document_categories
+        }
+        
+        missing_ids = [id for id in category_ids if id not in found_ids]
+        
+        if missing_ids:
             raise NotFoundException(
-                details="No document categories found for the provided IDs."
+                details=f"Document categories with IDs {missing_ids} not found.",
             )
 
         categories_data = [
