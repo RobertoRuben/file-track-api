@@ -185,3 +185,46 @@ class DocumentaryTopicRepositoryImpl(IDocumentaryTopicRepository):
 
         result = await self.session.exec(stmt)
         return result.first() is not None
+    
+    @transactional(readonly=False)
+    async def delete_by_ids(self, documentary_topic_ids: list[int]) -> bool:
+        """
+        Delete documentary topics by their IDs.
+
+        :param documentary_topic_ids: List of IDs of the documentary topics to delete
+        :return: True if the topics were successfully deleted, False otherwise
+        """
+        if not documentary_topic_ids:
+            return False
+
+        stmt = select(DocumentaryTopic).where(
+            DocumentaryTopic.id.in_(documentary_topic_ids)
+        )
+        results = await self.session.exec(stmt)
+        documentary_topics = results.all()
+        
+        founds_ids = {topics.id for topics in documentary_topics}
+        if len(founds_ids) != len(documentary_topic_ids):
+            return False
+        for topic in documentary_topics:
+            await self.session.delete(topic)
+        return True
+    
+    @transactional(readonly=True)
+    async def find_by_ids(self, documentary_topic_ids: list[int]) -> list[DocumentaryTopic]:
+        """
+        Find documentary topics by their IDs.
+
+        :param documentary_topic_ids: List of IDs of the documentary topics to find
+        :return: A list of documentary topics matching the provided IDs
+        """
+        if not documentary_topic_ids:
+            return []
+
+        stmt = select(DocumentaryTopic).where(
+            DocumentaryTopic.id.in_(documentary_topic_ids)
+        )
+        results = await self.session.exec(stmt)
+        documentary_topics = results.all()
+        return list(documentary_topics)
+    
