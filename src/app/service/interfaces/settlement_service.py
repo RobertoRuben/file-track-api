@@ -88,3 +88,27 @@ class ISettlementService(ABC):
         :return: A SettlementPage object containing settlements that match the search criteria
         """
         pass
+    
+    @abstractmethod
+    async def delete_settlements_by_ids(
+        self, settlement_ids: list[int]
+    ) -> MessageResponse:
+        """
+        Deletes multiple settlements by their IDs.
+
+        :param settlement_ids: A list of IDs of the settlements to delete
+        :return: A MessageResponse indicating the result of the deletion
+        """
+        pass
+    
+    @abstractmethod
+    async def export_settlements_to_excel(
+        self, settlement_ids: list[int]
+    ) -> bytes:
+        """
+        Exports settlements to an Excel file.
+
+        :param settlement_ids: Optional list of settlement IDs to export. If None, exports all settlements.
+        :return: Bytes representing the Excel file containing the settlements
+        """
+        pass
