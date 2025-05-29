@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, Query, Security
+from datetime import datetime
+from fastapi import APIRouter, Depends, Query, Security, Body, Response
 from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -215,6 +216,130 @@ async def find_documentary_topics(
     :return: A paginated list of documentary topics that match the search term.
     """
     return await documentary_topic_service.find(page, size, search_term)
+
+
+@router.delete(
+    "/bulk",
+    response_model=MessageResponse,
+    summary="Delete multiple documentary topics",
+    responses={
+        200: {
+            "model": MessageResponse,
+            "description": "Documentary topics deleted successfully",
+        },
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        404: {
+            "model": NotFoundError,
+            "description": "One or more documentary topics not found",
+        },
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Executes bulk deletion of multiple documentary topics in a single atomic transaction to maintain "
+    "data consistency and system integrity. This endpoint accepts a collection of topic identifiers and "
+    "removes all corresponding topics from the system simultaneously. The operation follows an all-or-nothing "
+    "approach - if any topic cannot be deleted due to constraints or dependencies, the entire operation "
+    "is rolled back to prevent partial deletions. Before execution, the system validates topic existence, "
+    "checks for document associations, and verifies user permissions. This operation permanently affects "
+    "document classification structures and may impact existing document categorizations throughout the system.",
+)
+async def delete_documentary_topics_bulk(
+    topic_ids: list[int] = Body(
+        ..., description="List of documentary topic IDs to delete"
+    ),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DOCUMENTARY_TOPIC_DELETE]
+    ),
+    documentary_topic_service: IDocumentaryTopicService = Depends(
+        get_documentary_topic_service
+    ),
+) -> MessageResponse:
+    """
+    Endpoint to delete multiple documentary topics.
+
+    This endpoint allows deleting multiple documentary topics identified by their IDs. If all topics
+    are deleted successfully, a success message is returned. If any topic is not found, a 404 error
+    is returned. The request body should contain a list of documentary topic IDs.
+
+    :param topic_ids: List of documentary topic IDs to delete.
+    :param current_user: The user performing the bulk deletion, used for auditing and permissions.
+    :param documentary_topic_service: Service to handle the bulk delete logic.
+    :return: A success message indicating that the documentary topics have been deleted.
+    """
+    return await documentary_topic_service.delete_documentary_topics_by_ids(topic_ids)
+
+
+@router.post(
+    "/export-excel",
+    summary="Export documentary topics to Excel",
+    responses={
+        200: {
+            "description": "Excel file with documentary topics",
+            "content": {
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                    "schema": {"type": "string", "format": "binary"}
+                }
+            },
+        },
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        404: {
+            "model": NotFoundError,
+            "description": "One or more documentary topics not found",
+        },
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Generates professionally formatted Excel spreadsheets containing comprehensive documentary topic data "
+    "for reporting, analysis, and administrative purposes. This endpoint creates optimized Excel files with "
+    "properly structured columns, formatted headers, and enhanced styling for improved readability. Users can "
+    "specify particular topics for targeted exports or export the complete topic collection. The generated "
+    "files include detailed topic information such as names, descriptions, usage statistics, creation dates, "
+    "and modification timestamps. Files are automatically named with timestamps to ensure uniqueness and provide "
+    "audit trails. This functionality supports data backup procedures, regulatory compliance reporting, and "
+    "stakeholder communication requirements.",
+)
+async def export_documentary_topics_to_excel(
+    topic_ids: list[int] = Body(
+        ...,
+        description="List of documentary topic IDs to export. If empty, exports all topics",
+    ),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DOCUMENTARY_TOPIC_READ]
+    ),
+    documentary_topic_service: IDocumentaryTopicService = Depends(
+        get_documentary_topic_service
+    ),
+) -> Response:
+    """
+    Endpoint to export documentary topics to Excel format.
+
+    This endpoint generates an Excel file containing documentary topic data. Users can specify which
+    topics to export by providing a list of IDs, or export all topics if no IDs are provided.
+    The Excel file includes proper formatting, headers, and is returned as a downloadable stream.
+
+    :param topic_ids: Optional list of documentary topic IDs to export. If None, exports all topics.
+    :param current_user: The user requesting the export, used for auditing and permissions.
+    :param documentary_topic_service: Service to handle the Excel export logic.
+    :return: A StreamingResponse containing the Excel file for download.
+    """
+    excel_data = await documentary_topic_service.export_documentary_topics_to_excel(
+        topic_ids
+    )
+
+    current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{current_datetime}.xlsx"
+
+    headers = {
+        "Content-Disposition": f"attachment; filename={filename}",
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }
+    return Response(
+        content=excel_data,
+        headers=headers,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
 
 
 @router.get(
