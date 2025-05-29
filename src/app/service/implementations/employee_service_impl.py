@@ -1,7 +1,7 @@
 import io
 import pandas as pd
 from datetime import datetime
-from src.app.model.entity import Employee
+from src.app.model.entity import Employee, employee
 from src.app.dto.request import EmployeeRequestDTO
 from src.app.dto.response import EmployeeResponseDTO, EmployeePage
 from src.app.schema import MessageResponse
@@ -337,6 +337,31 @@ class EmployeeServiceImpl(IEmployeeService):
         :param employee_ids: List of employee IDs to delete
         :return: Message with the result of the deletion operation
         """
+        if len(employee_ids) == 0:
+            raise BadRequestException(
+                message="No employee IDs provided",
+                details="Please provide at least one employee ID to delete.",
+            )
+
+        invalid_ids = [id for id in employee_ids if id <= 0]
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid employee IDs",
+                details=f"Employee IDs must be positive integers. Invalid IDs: {invalid_ids}",
+            )
+
+        employees = await self.employee_repository.find_by_ids(employee_ids)
+
+        found_ids = {
+            emp["id"] if isinstance(emp, dict) else emp.id for emp in employees
+        }
+        missing_ids = [id for id in employee_ids if id not in found_ids]
+
+        if missing_ids:
+            raise NotFoundException(
+                details=f"Employees with IDs {missing_ids} not found. Cannot proceed with deletion.",
+            )
+
         resp = await self.employee_repository.delete_by_ids(employee_ids)
 
         if resp is True:
@@ -362,11 +387,30 @@ class EmployeeServiceImpl(IEmployeeService):
         :param employee_ids: List of employee IDs to export
         :return: Excel file as bytes
         """
+
+        if len(employee_ids) == 0:
+            raise BadRequestException(
+                message="No employee IDs provided",
+                details="Please provide at least one employee ID to export.",
+            )
+
+        invalid_ids = [id for id in employee_ids if id <= 0]
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid employee IDs",
+                details=f"Employee IDs must be positive integers. Invalid IDs: {invalid_ids}",
+            )
+
         employees = await self.employee_repository.find_by_ids(employee_ids)
 
-        if not employees:
+        found_ids = {
+            emp["id"] if isinstance(emp, dict) else emp.id for emp in employees
+        }
+        missing_ids = [id for id in employee_ids if id not in found_ids]
+
+        if missing_ids:
             raise NotFoundException(
-                details="No employees found for the provided IDs.",
+                details=f"Employees with IDs {missing_ids} not found. Found {len(employees)} of {len(employee_ids)} requested employees.",
             )
 
         employees_data = [
