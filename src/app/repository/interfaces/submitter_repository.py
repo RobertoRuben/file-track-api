@@ -85,3 +85,23 @@ class ISubmitterRepository(ABC):
         :return: True if a matching submitter exists, False otherwise
         """
         pass
+
+    @abstractmethod
+    async def delete_by_ids(self, submitter_ids: list[int]) -> bool:
+        """
+        Delete multiple submitters by their IDs.
+
+        :param submitter_ids: List of submitter IDs to delete
+        :return: True if all submitters were successfully deleted, False otherwise
+        """
+        pass
+
+    @abstractmethod
+    async def find_by_ids(self, submitter_ids: list[int]) -> list[Submitter]:
+        """
+        Find multiple submitters by their IDs.
+
+        :param submitter_ids: List of submitter IDs to retrieve
+        :return: List of Submitter entities with the given IDs
+        """
+        pass
