@@ -284,6 +284,19 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
         :raises NotFoundException: If none of the document categories with the given IDs exist
         :raises BadRequestException: If the category_ids list is empty
         """
+        if len(category_ids) == 0:
+            raise BadRequestException(
+                message="No document category IDs provided",
+                details="The list of document category IDs to delete cannot be empty.",
+            )
+            
+        invalid_ids = [id for id in category_ids if id <= 0]
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid document category IDs",
+                details=f"Document category IDs must be positive integers. Invalid IDs: {invalid_ids}",
+            )
+            
         resp = await self.document_category_repository.delete_by_ids(category_ids)
 
         if resp is True:
@@ -312,6 +325,20 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
         :return: Excel file content as bytes
         :raises NotFoundException: If none of the document categories with the given IDs exist
         """
+        
+        if len(category_ids) == 0:
+            return BadRequestException(
+                message="No document category IDs provided",
+                details="The list of document category IDs to export cannot be empty.",
+            )
+            
+        invalid_ids = [id for id in category_ids if id <= 0]
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid document category IDs",
+                details=f"Document category IDs must be positive integers. Invalid IDs: {invalid_ids}",
+            )
+        
         document_categories = await self.document_category_repository.find_by_ids(
             category_ids
         )
