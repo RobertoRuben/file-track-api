@@ -1,5 +1,8 @@
+import io
+import pandas as pd
 from datetime import datetime
 from src.app.model.entity import DocumentaryTopic
+from src.app.service.helpers import datetime_helper
 from src.app.dto.request import DocumentaryTopicRequestDTO
 from src.app.dto.response import DocumentaryTopicPage, DocumentaryTopicResponseDTO
 from src.app.schema import MessageResponse
@@ -267,3 +270,79 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
             data=topic_response,
             meta=page_result.meta,
         )
+        
+    @handle_exceptions
+    async def delete_documentary_topic_by_ids(
+        self, documentary_topic_ids: list[int]
+    ) -> MessageResponse:
+        """
+        Deletes multiple documentary topics by their IDs.
+
+        :param documentary_topic_ids: List of documentary topic IDs to delete
+        :return: Message response indicating success or failure
+        :raises NotFoundException: If none of the documentary topics with the given IDs exist
+        :raises BadRequestException: If the documentary_topic_ids list is empty
+        """
+        resp = await self.documentary_topic_repository.delete_by_ids(documentary_topic_ids)
+        
+        if resp is True:
+            return MessageResponse(
+                message="Documentary topics deleted successfully.",
+                success=True,
+                details=f"Documentary topics with IDs {documentary_topic_ids} deleted successfully.",
+                status_code=200,
+            )
+        else:
+            return MessageResponse(
+                message="Failed to delete documentary topics.",
+                success=False,
+                details=f"Documentary topics with IDs {documentary_topic_ids} could not be deleted.",
+                status_code=500,
+            )
+            
+    @handle_exceptions
+    async def export_document_topics_to_excel(
+        self, documentary_topic_ids: list[int]
+    ) -> bytes:
+        """
+        Exports documentary topics to an Excel file.
+
+        :param documentary_topic_ids: List of documentary topic IDs to export
+        :return: Bytes of the generated Excel file
+        :raises NotFoundException: If none of the documentary topics with the given IDs exist
+        :raises BadRequestException: If the documentary_topic_ids list is empty
+        """
+        documentary_topics = await self.documentary_topic_repository.find_by_ids(documentary_topic_ids)
+        
+        if not documentary_topics:
+            raise NotFoundException(
+                details=f"No documentary topics found with IDs: {documentary_topic_ids}",
+            )
+            
+        topics_data = [
+            {
+                "ID": topic.id,
+                "Nombre": topic.name,
+                "Fecha de Creación": datetime_helper.to_lima_timezone(
+                    topic.created_at
+                ),
+                "Fecha de Actualización": datetime_helper.to_lima_timezone(
+                    topic.updated_at
+                ),
+            }
+            for topic in documentary_topics
+        ]
+        
+        df = pd.DataFrame(topics_data)
+        output = io.BytesIO()
+        
+        with pd.ExcelWriter(output, engine='xlsxwriter') as writer:
+            df.to_excel(writer, index=False, sheet_name='Documentary Topics')
+            
+            worksheet = writer.sheets['Documentary Topics']
+            for i, col in enumerate(df.columns):
+                max_length = max(df[col].astype(str).map(len).max(), len(col)) + 2
+                worksheet.set_column(i, i, max_length)
+                
+        output.seek(0)
+        return output.getvalue()

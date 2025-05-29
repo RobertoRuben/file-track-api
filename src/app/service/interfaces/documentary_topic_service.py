@@ -99,3 +99,27 @@ class IDocumentaryTopicService(ABC):
         :return: A DocumentaryTopicPage object containing documentary topics that match the search criteria
         """
         pass
+
+    @abstractmethod
+    async def delete_documentary_topic_by_ids(
+        self, documentary_topic_ids: list[int]
+    ) -> MessageResponse:
+        """
+        Deletes multiple documentary topics by their IDs.
+
+        :param documentary_topic_ids: A list of IDs of the documentary topics to delete
+        :return: A MessageResponse indicating the result of the deletion
+        """
+        pass
+
+    @abstractmethod
+    async def export_documentary_topics_to_excel(
+        self, documentary_topic_ids: list[int] = None
+    ) -> bytes:
+        """
+        Exports documentary topics to an Excel file.
+
+        :param documentary_topic_ids: Optional list of IDs to filter the exported topics
+        :return: Bytes representing the Excel file containing the documentary topics
+        """
+        pass
