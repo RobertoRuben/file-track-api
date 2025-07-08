@@ -2,7 +2,6 @@ import functools
 from typing import Callable, TypeVar, Any, Optional, Union
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
 from src.app.exception import DatabaseException, InvalidFieldException
-from src.app.exception.constants import ErrorTypes
 
 T = TypeVar('T')
 
@@ -47,8 +46,6 @@ def transactional(
                     message="Data integrity error",
                     details=str(e.orig),
                     instance=instance,
-                    type_=ErrorTypes.DATABASE_ERROR,
-                    title="Database Integrity Error",
                 )
             except InvalidFieldException as e:
                 await self.session.rollback()
@@ -59,8 +56,6 @@ def transactional(
                     message="Error in provided attributes",
                     details=str(e),
                     instance=instance,
-                    type_=ErrorTypes.INVALID_FIELD,
-                    title="Invalid Field Error",
                 )
             except SQLAlchemyError as e:
                 await self.session.rollback()
@@ -68,8 +63,6 @@ def transactional(
                     message=f"Error in database operation: {func.__name__}",
                     details=str(e),
                     instance=instance,
-                    type_=ErrorTypes.DATABASE_ERROR,
-                    title="Database Error",
                 )
             except Exception as e:
                 await self.session.rollback()
@@ -77,8 +70,6 @@ def transactional(
                     message=f"Unexpected error in repository operation: {func.__name__}",
                     details=str(e),
                     instance=instance,
-                    type_=ErrorTypes.DATABASE_ERROR,
-                    title="Database Error",
                 )
 
         return wrapper

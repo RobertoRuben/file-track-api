@@ -4,7 +4,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from datetime import datetime
 from fastapi.responses import JSONResponse
 from src.app.exception.model import ErrorDetail
-from src.app.exception.constants import ErrorTypes
+from src.app.exception.constants import ErrorTypes, ErrorTitles
 
 
 async def register_exception_handlers(app: FastAPI) -> None:
@@ -26,7 +26,7 @@ async def register_exception_handlers(app: FastAPI) -> None:
 
         error = ErrorDetail(
             type=ErrorTypes.VALIDATION_ERROR,
-            title="Validation Error",
+            title=ErrorTitles.UNPROCESSABLE_ENTITY,
             status=422,
             detail="Input data validation error",
             details=details,
@@ -40,9 +40,23 @@ async def register_exception_handlers(app: FastAPI) -> None:
     async def http_exception_handler(request: Request, exc: StarletteHTTPException):
         instance = f"request:{request.url.path}"
 
+        # Determinar el título genérico basado en el código de estado
+        if exc.status_code == 400:
+            title = ErrorTitles.BAD_REQUEST
+        elif exc.status_code == 401:
+            title = ErrorTitles.UNAUTHORIZED
+        elif exc.status_code == 403:
+            title = ErrorTitles.FORBIDDEN
+        elif exc.status_code == 404:
+            title = ErrorTitles.NOT_FOUND
+        elif exc.status_code == 409:
+            title = ErrorTitles.CONFLICT
+        else:
+            title = ErrorTitles.INTERNAL_SERVER_ERROR
+
         error = ErrorDetail(
             type=ErrorTypes.HTTP_ERROR,
-            title="HTTP Error",
+            title=title,
             status=exc.status_code,
             detail=(
                 str(exc.detail) if isinstance(exc.detail, str) else "Request error"
@@ -60,7 +74,7 @@ async def register_exception_handlers(app: FastAPI) -> None:
 
         error = ErrorDetail(
             type=ErrorTypes.IMPLEMENTATION_ERROR,
-            title="Implementation Error",
+            title=ErrorTitles.IMPLEMENTATION_ERROR,
             status=500,
             detail="Service implementation error",
             details=str(exc),
@@ -78,7 +92,7 @@ async def register_exception_handlers(app: FastAPI) -> None:
 
         error = ErrorDetail(
             type=ErrorTypes.SERVER_ERROR,
-            title="Server Error",
+            title=ErrorTitles.INTERNAL_SERVER_ERROR,
             status=500,
             detail="An internal server error occurred",
             details=str(exc) if app.debug else None,
