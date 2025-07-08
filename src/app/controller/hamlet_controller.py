@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, Query, Security
+from datetime import datetime
+from fastapi import APIRouter, Depends, Query, Security, Body, Response
 from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -318,3 +319,95 @@ async def delete_hamlet(
     :return: A success message indicating that the hamlet has been deleted.
     """
     return await hamlet_service.delete_hamlet(hamlet_id)
+
+
+@router.delete(
+    "/bulk",
+    response_model=MessageResponse,
+    summary="Delete multiple hamlets by IDs",
+    responses={
+        200: {
+            "model": MessageResponse,
+            "description": "Hamlets deleted successfully",
+        },
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Performs bulk deletion of multiple hamlets in a single optimized operation. "
+    "Validates each hamlet for dependencies and active relationships before removal. "
+    "Implements transactional processing to ensure territorial integrity and provides "
+    "detailed feedback on operation success. Critical operation requiring elevated permissions.",
+)
+async def delete_hamlets_bulk(
+    hamlet_ids: list[int] = Body(..., description="List of hamlet IDs to delete"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.HAMLET_DELETE]
+    ),
+    hamlet_service: IHamletService = Depends(get_hamlet_service),
+) -> MessageResponse:
+    """
+    Executes bulk deletion of multiple hamlets.
+
+    This endpoint enables efficient removal of multiple hamlets through a single
+    transactional operation. Performs comprehensive validation for each hamlet
+    to ensure no active territorial dependencies exist before proceeding with deletion.
+    Maintains geographical integrity throughout the bulk operation process.
+
+    :param hamlet_ids: List of unique identifiers for hamlets to delete
+    :param current_user: Authenticated user with bulk deletion privileges
+    :param hamlet_service: Service layer handling bulk deletion logic
+    :return: Operation summary with deletion results and any warnings
+    """
+    return await hamlet_service.delete_hamlets_by_ids(hamlet_ids)
+
+
+@router.post(
+    "/export-excel",
+    response_class=Response,
+    summary="Export hamlets to Excel",
+    responses={
+        200: {"description": "Excel file containing the requested hamlets"},
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        404: {"model": NotFoundError, "description": "No hamlets found to export"},
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Generates comprehensive Excel reports containing detailed hamlet information for specified rural settlements. "
+    "Creates professionally formatted spreadsheets with complete hamlet data including names, settlement relationships, "
+    "and territorial metadata. Ideal for geographical reporting, territorial analysis, compliance documentation, "
+    "and external reporting requirements. Supports bulk export with optimized file generation.",
+)
+async def export_hamlets_to_excel(
+    hamlet_ids: list[int] = Body(..., description="List of hamlet IDs to export"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.HAMLET_READ]
+    ),
+    hamlet_service: IHamletService = Depends(get_hamlet_service),
+) -> Response:
+    """
+    Generates comprehensive Excel reports for selected hamlets.
+
+    This endpoint creates professionally formatted Excel spreadsheets containing
+    detailed hamlet information for reporting, analysis, and compliance purposes.
+    The generated files include complete hamlet metadata, settlement relationships,
+    and formatting optimized for business use and external sharing.
+
+    :param hamlet_ids: List of unique identifiers for hamlets to include in export
+    :param current_user: Authenticated user with hamlet export privileges
+    :param hamlet_service: Service layer handling Excel generation logic
+    :return: Excel file as downloadable response with appropriate headers
+    """
+    excel_data = await hamlet_service.export_hamlets_to_excel(hamlet_ids)
+
+    current_datetime = datetime.now().strftime("%d%m%Y%H%M")
+    filename = f"hamlets_{current_datetime}.xlsx"
+
+    headers = {
+        "Content-Disposition": f"attachment; filename={filename}",
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }
+
+    return Response(content=excel_data, headers=headers)
