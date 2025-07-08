@@ -1,4 +1,5 @@
 from .model import BaseHTTPException
+from .constants import ErrorTypes, ErrorTitles
 
 
 class BadRequestException(BaseHTTPException):
@@ -13,7 +14,8 @@ class BadRequestException(BaseHTTPException):
         details: str = None,
         instance: str = None,
         time: str = None,
-        type_: str = "https://api.file-track/errors/bad-request",
+        type_: str = ErrorTypes.BAD_REQUEST,
+        title: str = ErrorTitles.BAD_REQUEST,
         code: int = 400,
     ):
         """
@@ -24,6 +26,7 @@ class BadRequestException(BaseHTTPException):
         :param instance: URI that identifies the specific occurrence of the problem
         :param time: Timestamp when the error occurred, defaults to current time
         :param type_: URI that identifies the problem type
+        :param title: A short, human-readable summary of the problem type
         :param code: HTTP status code
         """
         super().__init__(
@@ -33,4 +36,5 @@ class BadRequestException(BaseHTTPException):
             details=details,
             instance=instance,
             time=time,
+            title=title,
         )
