@@ -213,3 +213,47 @@ class HamletRepositoryImpl(IHamletRepository):
 
         result = await self.session.exec(stmt)
         return result.first() is not None
+
+    @transactional(readonly=False)
+    async def delete_by_ids(self, hamlet_ids: list[int]) -> bool:
+        """
+        Delete multiple hamlets from the database by their IDs.
+
+        :param hamlet_ids: List of hamlet IDs to delete
+        :return: True if all hamlets were deleted successfully, False otherwise
+        :raises DatabaseException: If an error occurs during deletion
+        """
+        stmt = select(Hamlet).where(Hamlet.id.in_(hamlet_ids))
+        results = await self.session.exec(stmt)
+        hamlets = results.all()
+
+        found_ids = {hamlet.id for hamlet in hamlets}
+        if len(found_ids) != len(hamlet_ids):
+            return False
+
+        for hamlet in hamlets:
+            await self.session.delete(hamlet)
+
+        return True
+
+    @transactional(readonly=True)
+    async def find_by_ids(self, hamlet_ids: list[int]) -> list[Hamlet]:
+        """
+        Retrieve hamlets by a list of IDs with settlement information.
+
+        :param hamlet_ids: List of hamlet IDs to retrieve
+        :return: List of hamlets matching the provided IDs
+        :raises DatabaseException: If an error occurs during retrieval
+        """
+        if not hamlet_ids:
+            return []
+
+        stmt = (
+            select(Hamlet)
+            .join(Settlement, Hamlet.settlement_id == Settlement.id, isouter=True)
+            .where(Hamlet.id.in_(hamlet_ids))
+        )
+
+        results = await self.session.exec(stmt)
+        hamlets = list(results.all())
+        return hamlets

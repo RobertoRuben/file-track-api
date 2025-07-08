@@ -85,3 +85,23 @@ class IHamletRepository(ABC):
         :return: True if a matching hamlet exists, False otherwise
         """
         pass
+
+    @abstractmethod
+    async def delete_by_ids(self, hamlet_ids: list[int]) -> bool:
+        """
+        Delete multiple hamlet entities from the database by their IDs.
+
+        :param hamlet_ids: List of hamlet IDs to delete
+        :return: True if the hamlets were successfully deleted, False otherwise
+        """
+        pass
+
+    @abstractmethod
+    async def find_by_ids(self, hamlet_ids: list[int]) -> list[Hamlet]:
+        """
+        Retrieve multiple hamlet entities from the database by their IDs.
+
+        :param hamlet_ids: List of hamlet IDs to retrieve
+        :return: List of found hamlet entities
+        """
+        pass
