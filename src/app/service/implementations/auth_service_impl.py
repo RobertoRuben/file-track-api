@@ -10,6 +10,7 @@ from src.app.security.hasher.interface import IHasherProvider
 from src.app.exception.decorator import handle_exceptions
 from src.app.exception import UnauthorizedException, ForbiddenException
 from src.app.security.auth.constants import Scopes
+from src.app.exception.constants import ErrorTypes
 
 
 class AuthServiceImpl(IAuthService):
@@ -70,13 +71,17 @@ class AuthServiceImpl(IAuthService):
 
         if not user_data:
             raise UnauthorizedException(
-                details="User or password is incorrect",
+                message="Authentication failed",
+                details="Invalid username or password",
+                type_=ErrorTypes.AUTHENTICATION_FAILED,
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
         if user_data["is_active"] is False:
             raise UnauthorizedException(
-                details="User is inactive",
+                message="Authentication failed",
+                details="User account is inactive",
+                type_=ErrorTypes.INACTIVE_ACCOUNT,
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
@@ -85,7 +90,9 @@ class AuthServiceImpl(IAuthService):
             user_data["password"],
         ):
             raise UnauthorizedException(
-                details="User or password is incorrect",
+                message="Authentication failed",
+                details="Invalid username or password",
+                type_=ErrorTypes.AUTHENTICATION_FAILED,
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
@@ -113,7 +120,7 @@ class AuthServiceImpl(IAuthService):
             access_token=access_token,
             token_type="Bearer",
             refresh_token=refresh_token,
-            expires_in=expires_in,  # Example expiration time in seconds
+            expires_in=expires_in,
         )
 
     @handle_exceptions
@@ -141,7 +148,9 @@ class AuthServiceImpl(IAuthService):
 
         if not username or scope != "access":
             raise UnauthorizedException(
-                details="Invalid access token",
+                message="Token validation failed",
+                details="Access token is invalid or has expired",
+                type_=ErrorTypes.INVALID_TOKEN,
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
@@ -149,13 +158,17 @@ class AuthServiceImpl(IAuthService):
 
         if not user_data:
             raise UnauthorizedException(
-                details="User not found",
+                message="User not found",
+                details="The user associated with this token does not exist in the system",
+                type_=ErrorTypes.USER_NOT_FOUND,
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
         if user_data["is_active"] is False:
             raise UnauthorizedException(
-                details="User is inactive",
+                message="Inactive account",
+                details="The user account is inactive",
+                type_=ErrorTypes.INACTIVE_ACCOUNT,
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
@@ -203,7 +216,9 @@ class AuthServiceImpl(IAuthService):
 
         if not username or scope != "refresh":
             raise UnauthorizedException(
-                details="Invalid refresh token",
+                message="Token validation failed",
+                details="Refresh token is invalid or has expired",
+                type_=ErrorTypes.INVALID_REFRESH_TOKEN,
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
@@ -211,16 +226,20 @@ class AuthServiceImpl(IAuthService):
 
         if not user_data:
             raise UnauthorizedException(
-                details="User not found",
+                message="User not found",
+                details="The user associated with this token does not exist in the system",
+                type_=ErrorTypes.USER_NOT_FOUND,
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
         if user_data["is_active"] is False:
             raise UnauthorizedException(
-                details="User is inactive",
+                message="Inactive account",
+                details="The user account is inactive",
+                type_=ErrorTypes.INACTIVE_ACCOUNT,
                 headers={"WWW-Authenticate": "Bearer"},
             )
-            
+
         role_name = user_data["role_name"].upper()
         user_scopes = Scopes.ROLE_SCOPES.get(role_name, [])
 
@@ -238,7 +257,7 @@ class AuthServiceImpl(IAuthService):
             access_token=new_access_token,
             token_type="Bearer",
             refresh_token=refresh_token,
-            expires_in= expires_in,  # Example expiration time in seconds
+            expires_in=expires_in,
         )
 
     @handle_exceptions
@@ -273,7 +292,9 @@ class AuthServiceImpl(IAuthService):
 
         if not username or scope != "access":
             raise UnauthorizedException(
-                details="Invalid access token",
+                message="Token validation failed",
+                details="Access token is invalid or has expired",
+                type_=ErrorTypes.INVALID_TOKEN,
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
@@ -281,13 +302,17 @@ class AuthServiceImpl(IAuthService):
 
         if not user_data:
             raise UnauthorizedException(
-                details="User not found",
+                message="User not found",
+                details="The user associated with this token does not exist in the system",
+                type_=ErrorTypes.USER_NOT_FOUND,
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
         if user_data["is_active"] is False:
             raise UnauthorizedException(
-                details="User is inactive",
+                message="Inactive account",
+                details="The user account is inactive",
+                type_=ErrorTypes.INACTIVE_ACCOUNT,
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
@@ -307,7 +332,9 @@ class AuthServiceImpl(IAuthService):
             for scope_required in required_scopes:
                 if scope_required not in user_scopes:
                     raise ForbiddenException(
-                        details=f"User does not have the required scope: {scope_required}",
+                        message="Permission denied",
+                        details=f"User does not have the required permission: {scope_required}",
+                        type_=ErrorTypes.MISSING_PERMISSION,
                     )
 
         return user_dto
