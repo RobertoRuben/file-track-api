@@ -2,7 +2,7 @@ import functools
 from typing import Callable, TypeVar, Any, Optional
 from src.app.exception.model import BaseHTTPException
 from src.app.exception import ServerException
-from src.app.exception.constants import ErrorTypes
+from src.app.exception.constants import ErrorTypes, ErrorTitles
 import inspect
 
 T = TypeVar('T')
@@ -35,17 +35,17 @@ def handle_exceptions(
                 raise
             except AttributeError as e:
                 raise ServerException(
-                    details=f"Error de implementación: {str(e)}",
+                    details=f"Implementation error: {str(e)}",
                     instance=instance,
                     type_=ErrorTypes.IMPLEMENTATION_ERROR,
-                    title="Implementation Error",
+                    title=ErrorTitles.IMPLEMENTATION_ERROR,
                 )
             except Exception as e:
                 raise ServerException(
                     details=str(e),
                     instance=instance,
                     type_=ErrorTypes.SERVER_ERROR,
-                    title="Server Error",
+                    title=ErrorTitles.INTERNAL_SERVER_ERROR,
                 )
 
         return wrapper
