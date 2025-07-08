@@ -45,9 +45,7 @@ async def register_exception_handlers(app: FastAPI) -> None:
             title="HTTP Error",
             status=exc.status_code,
             detail=(
-                str(exc.detail)
-                if isinstance(exc.detail, str)
-                else "Request error"
+                str(exc.detail) if isinstance(exc.detail, str) else "Request error"
             ),
             details=exc.detail if not isinstance(exc.detail, str) else None,
             instance=instance,
