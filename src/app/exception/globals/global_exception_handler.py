@@ -4,6 +4,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from datetime import datetime
 from fastapi.responses import JSONResponse
 from src.app.exception.model import ErrorDetail
+from src.app.exception.constants import ErrorTypes
 
 
 async def register_exception_handlers(app: FastAPI) -> None:
@@ -21,14 +22,13 @@ async def register_exception_handlers(app: FastAPI) -> None:
                 }
             )
 
-        # Obtener la ruta de la solicitud actual como instance
         instance = f"request:{request.url.path}"
 
         error = ErrorDetail(
-            type="https://api.file-track/errors/validation-error",
+            type=ErrorTypes.VALIDATION_ERROR,
             title="Validation Error",
             status=422,
-            detail="Error en la validación de datos de entrada",
+            detail="Input data validation error",
             details=details,
             instance=instance,
             timestamp=datetime.now().isoformat(),
@@ -38,17 +38,16 @@ async def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(StarletteHTTPException)
     async def http_exception_handler(request: Request, exc: StarletteHTTPException):
-        # Obtener la ruta de la solicitud actual como instance
         instance = f"request:{request.url.path}"
 
         error = ErrorDetail(
-            type="https://api.file-track/errors/http-error",
+            type=ErrorTypes.HTTP_ERROR,
             title="HTTP Error",
             status=exc.status_code,
             detail=(
                 str(exc.detail)
                 if isinstance(exc.detail, str)
-                else "Error en la solicitud"
+                else "Request error"
             ),
             details=exc.detail if not isinstance(exc.detail, str) else None,
             instance=instance,
@@ -59,14 +58,13 @@ async def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(AttributeError)
     async def attribute_error_handler(request: Request, exc: AttributeError):
-        # Obtener la ruta de la solicitud actual como instance
         instance = f"request:{request.url.path}"
 
         error = ErrorDetail(
-            type="https://api.file-track/errors/implementation-error",
+            type=ErrorTypes.IMPLEMENTATION_ERROR,
             title="Implementation Error",
             status=500,
-            detail="Error en la implementación del servicio",
+            detail="Service implementation error",
             details=str(exc),
             instance=instance,
             timestamp=datetime.now().isoformat(),
@@ -78,14 +76,13 @@ async def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception):
-        # Obtener la ruta de la solicitud actual como instance
         instance = f"request:{request.url.path}"
 
         error = ErrorDetail(
-            type="https://api.file-track/errors/server-error",
+            type=ErrorTypes.SERVER_ERROR,
             title="Server Error",
             status=500,
-            detail="Se produjo un error interno del servidor",
+            detail="An internal server error occurred",
             details=str(exc) if app.debug else None,
             instance=instance,
             timestamp=datetime.now().isoformat(),
