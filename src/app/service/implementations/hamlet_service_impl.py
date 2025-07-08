@@ -1,3 +1,5 @@
+import io
+import pandas as pd
 from datetime import datetime
 from src.app.model.entity import Hamlet
 from src.app.dto.request import HamletRequestDTO
@@ -5,6 +7,7 @@ from src.app.dto.response import HamletResponseDTO, HamletPage
 from src.app.schema import MessageResponse
 from src.app.exception import BadRequestException, ConflictException, NotFoundException
 from src.app.exception.decorator import handle_exceptions
+from src.app.service.helpers import datetime_helper
 from src.app.repository.interfaces import IHamletRepository
 from src.app.repository.interfaces import ISettlementRepository
 from src.app.service.interfaces import IHamletService
@@ -277,3 +280,113 @@ class HamletServiceImpl(IHamletService):
             data=hamlet_response,
             meta=page_result.meta,
         )
+
+    @handle_exceptions
+    async def delete_hamlets_by_ids(self, hamlet_ids: list[int]) -> MessageResponse:
+        """
+        Delete multiple hamlets by their IDs.
+
+        :param hamlet_ids: List of hamlet IDs to delete
+        :return: Message with the result of the deletion operation
+        :raises BadRequestException: If no hamlet IDs are provided or if any ID is invalid
+        :raises NotFoundException: If any of the provided hamlet IDs do not exist
+        """
+        if len(hamlet_ids) == 0:
+            raise BadRequestException(
+                message="No hamlet IDs provided",
+                details="At least one hamlet ID must be specified for deletion.",
+            )
+
+        invalid_ids = [id for id in hamlet_ids if id <= 0]
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid hamlet IDs",
+                details=f"Hamlet IDs must be positive integers. Invalid IDs: {invalid_ids}",
+            )
+
+        hamlets = await self.hamlet_repository.find_by_ids(hamlet_ids)
+
+        found_ids = {hamlet.id for hamlet in hamlets}
+
+        missing_ids = [id for id in hamlet_ids if id not in found_ids]
+
+        if missing_ids:
+            raise NotFoundException(
+                details=f"Hamlets with IDs {missing_ids} not found.",
+            )
+
+        resp = await self.hamlet_repository.delete_by_ids(hamlet_ids)
+
+        if resp is True:
+            return MessageResponse(
+                message="Hamlets deleted successfully.",
+                success=True,
+                details=f"Hamlets with IDs {hamlet_ids} deleted successfully.",
+                status_code=200,
+            )
+        else:
+            return MessageResponse(
+                message="Failed to delete hamlets.",
+                success=False,
+                details=f"Hamlets with IDs {hamlet_ids} could not be deleted.",
+                status_code=500,
+            )
+
+    @handle_exceptions
+    async def export_hamlets_to_excel(self, hamlet_ids: list[int]) -> bytes:
+        """
+        Export hamlets to Excel format by their IDs.
+
+        :param hamlet_ids: List of hamlet IDs to export
+        :return: Excel file as bytes
+        """
+        if len(hamlet_ids) == 0:
+            raise BadRequestException(
+                message="No hamlet IDs provided",
+                details="At least one hamlet ID must be specified for export.",
+            )
+
+        invalid_ids = [id for id in hamlet_ids if id <= 0]
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid hamlet IDs",
+                details=f"Hamlet IDs must be positive integers. Invalid IDs: {invalid_ids}",
+            )
+
+        hamlets = await self.hamlet_repository.find_by_ids(hamlet_ids)
+
+        found_ids = {hamlet.id for hamlet in hamlets}
+        missing_ids = [id for id in hamlet_ids if id not in found_ids]
+
+        if missing_ids:
+            raise NotFoundException(
+                details=f"Hamlets with IDs {missing_ids} not found.",
+            )
+
+        hamlets_data = [
+            {
+                "ID": hamlet.id,
+                "Name": hamlet.name,
+                "Settlement ID": hamlet.settlement_id,
+                "Settlement Name": (
+                    hamlet.settlement.name if hamlet.settlement else "N/A"
+                ),
+                "Created At": datetime_helper.to_lima_timezone(hamlet.created_at),
+                "Updated At": datetime_helper.to_lima_timezone(hamlet.updated_at),
+            }
+            for hamlet in hamlets
+        ]
+
+        df = pd.DataFrame(hamlets_data)
+        output = io.BytesIO()
+
+        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+            df.to_excel(writer, sheet_name="Hamlets", index=False)
+
+            worksheet = writer.sheets["Hamlets"]
+            for i, col in enumerate(df.columns):
+                column_width = max(df[col].astype(str).map(len).max(), len(col)) + 2
+                worksheet.set_column(i, i, column_width)
+
+        output.seek(0)
+        return output.getvalue()
