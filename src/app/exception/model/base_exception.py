@@ -18,6 +18,7 @@ class BaseHTTPException(HTTPException):
         instance: str = None,
         time: str = None,
         headers: dict = None,
+        title: str = "Server Error",
     ):
         """
         Initialize a new BaseHTTPException.
@@ -29,11 +30,12 @@ class BaseHTTPException(HTTPException):
         :param instance: URI that identifies the specific occurrence of the problem
         :param time: Timestamp when the error occurred, defaults to current time
         :param headers: HTTP headers to include in the response
+        :param title: A short, human-readable summary of the problem type
         """
 
         error = ErrorDetail(
             type=type_,
-            title=type_ or "Server Error",
+            title=title,
             status=code,
             detail=message,
             details=details,
