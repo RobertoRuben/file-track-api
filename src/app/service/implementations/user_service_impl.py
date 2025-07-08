@@ -66,12 +66,14 @@ class UserServiceImpl(IUserService):
         )
         if existing_username:
             raise ConflictException(
+                message="Username already exists",
                 details=f"Username {user_request.username} already exists",
             )
 
         existing_role = await self.role_repository.exists_by(id=user_request.role_id)
         if not existing_role:
             raise NotFoundException(
+                message="Role not found",
                 details=f"Role with ID {user_request.role_id} not found",
             )
 
@@ -80,6 +82,7 @@ class UserServiceImpl(IUserService):
         )
         if not existing_employee:
             raise NotFoundException(
+                message="Employee not found",
                 details=f"Employee with ID {user_request.employee_id} not found",
             )
 
@@ -88,6 +91,7 @@ class UserServiceImpl(IUserService):
         )
         if employee_has_user:
             raise ConflictException(
+                message="Employee already has a user account",
                 details=f"Employee with ID {user_request.employee_id} already has a user account",
             )
 
@@ -154,6 +158,7 @@ class UserServiceImpl(IUserService):
         existing_user_id = await self.user_repository.exists_by(id=user_id)
         if not existing_user_id:
             raise NotFoundException(
+                message="User not found",
                 details=f"User with ID {user_id} not found",
             )
 
@@ -165,12 +170,14 @@ class UserServiceImpl(IUserService):
             )
             if existing_username:
                 raise ConflictException(
+                    message="Username already exists",
                     details=f"Username {user_request.username} already exists",
                 )
 
         existing_role = await self.role_repository.exists_by(id=user_request.role_id)
         if not existing_role:
             raise NotFoundException(
+                message="Role not found",
                 details=f"Role with ID {user_request.role_id} not found",
             )
 
@@ -179,6 +186,7 @@ class UserServiceImpl(IUserService):
         )
         if not existing_employee:
             raise NotFoundException(
+                message="Employee not found",
                 details=f"Employee with ID {user_request.employee_id} not found",
             )
 
@@ -223,6 +231,7 @@ class UserServiceImpl(IUserService):
         existing_user_id = await self.user_repository.exists_by(id=user_id)
         if not existing_user_id:
             raise NotFoundException(
+                message="User not found",
                 details=f"User with ID {user_id} not found",
             )
 
@@ -233,6 +242,7 @@ class UserServiceImpl(IUserService):
         )
         if not is_old_password_valid:
             raise BadRequestException(
+                message="Invalid password",
                 details="Old password is incorrect",
             )
 
@@ -268,6 +278,7 @@ class UserServiceImpl(IUserService):
         existing_user_id = await self.user_repository.exists_by(id=user_id)
         if not existing_user_id:
             raise NotFoundException(
+                message="User not found",
                 details=f"User with ID {user_id} not found",
             )
 
@@ -323,6 +334,7 @@ class UserServiceImpl(IUserService):
         existing_user_id = await self.user_repository.exists_by(id=user_id)
         if not existing_user_id:
             raise NotFoundException(
+                message="User not found",
                 details=f"User with ID {user_id} not found",
             )
         response = await self.user_repository.delete(user_id)
@@ -356,6 +368,7 @@ class UserServiceImpl(IUserService):
         existing_user_id = await self.user_repository.exists_by(id=user_id)
         if not existing_user_id:
             raise NotFoundException(
+                message="User not found",
                 details=f"User with ID {user_id} not found",
             )
         user = await self.user_repository.get_by_id(user_id)
@@ -384,6 +397,7 @@ class UserServiceImpl(IUserService):
         existing_username = await self.user_repository.exists_by(username=username)
         if not existing_username:
             raise NotFoundException(
+                message="User not found",
                 details=f"Username {username} not found",
             )
         user = await self.user_repository.get_by_username(username)
@@ -470,7 +484,8 @@ class UserServiceImpl(IUserService):
 
         if not page_result.data:
             raise NotFoundException(
-                details="No users match the search criteria.",
+                message="No users found",
+                details=f"No users match the search criteria for term '{search_term}'.",
             )
 
         user_response = [UserResponseDTO(**user_dict) for user_dict in page_result.data]

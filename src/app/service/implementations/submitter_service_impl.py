@@ -42,6 +42,7 @@ class SubmitterServiceImpl(ISubmitterService):
         )
         if existing_submitter:
             raise ConflictException(
+                message="Submitter already exists",
                 details=f"Submitter with DNI {submitter_request.dni} already exists",
             )
 
@@ -104,6 +105,7 @@ class SubmitterServiceImpl(ISubmitterService):
         exists_submitter_id = await self.submitter_repository.exists_by(id=submitter_id)
         if not exists_submitter_id:
             raise NotFoundException(
+                message="Submitter not found",
                 details=f"Submitter with id {submitter_id} not found",
             )
         submitter = await self.submitter_repository.get_by_id(submitter_id)
@@ -114,6 +116,7 @@ class SubmitterServiceImpl(ISubmitterService):
             )
             if existing_submitter:
                 raise ConflictException(
+                    message="Submitter DNI already exists",
                     details=f"Submitter with DNI {submitter_request.dni} already exists",
                 )
 
@@ -151,6 +154,7 @@ class SubmitterServiceImpl(ISubmitterService):
         )
         if not existing_submitter_id:
             raise NotFoundException(
+                message="Submitter not found",
                 details=f"Submitter with id {submitter_id} not found",
             )
         response = await self.submitter_repository.delete(submitter_id)
@@ -183,6 +187,7 @@ class SubmitterServiceImpl(ISubmitterService):
         )
         if not existing_submitter_id:
             raise NotFoundException(
+                message="Submitter not found",
                 details=f"Submitter with id {submitter_id} not found",
             )
         submitter = await self.submitter_repository.get_by_id(submitter_id)
@@ -273,6 +278,7 @@ class SubmitterServiceImpl(ISubmitterService):
 
         if not page_result.data:
             raise NotFoundException(
+                message="No submitters found",
                 details=f"No submitters found with the search term {search_term}",
             )
 
@@ -335,6 +341,7 @@ class SubmitterServiceImpl(ISubmitterService):
 
         if not submitters:
             raise NotFoundException(
+                message="Submitters not found",
                 details="No submitters found for the provided IDs.",
             )
 

@@ -44,6 +44,7 @@ class RoleServiceImpl(IRoleService):
         exists_role = await self.role_repository.exists_by(name=role_request.name)
         if exists_role:
             raise ConflictException(
+                message="Role already exists",
                 details=f"Role with name {role_request.name} already exists.",
             )
 
@@ -96,6 +97,7 @@ class RoleServiceImpl(IRoleService):
         exists_role_id = await self.role_repository.exists_by(id=role_id)
         if not exists_role_id:
             raise NotFoundException(
+                message="Role not found",
                 details=f"Role with id {role_id} not found.",
             )
         role = await self.role_repository.get_by_id(role_id)
@@ -104,6 +106,7 @@ class RoleServiceImpl(IRoleService):
             name_exists = await self.role_repository.exists_by(name=role_request.name)
             if name_exists:
                 raise ConflictException(
+                    message="Role name already exists",
                     details=f"Role with name {role_request.name} already exists.",
                 )
 
@@ -131,6 +134,7 @@ class RoleServiceImpl(IRoleService):
         exists_role_id = await self.role_repository.exists_by(id=role_id)
         if not exists_role_id:
             raise NotFoundException(
+                message="Role not found",
                 details=f"Role with ID {role_id} not found.",
             )
         response = await self.role_repository.delete(role_id)
@@ -161,6 +165,7 @@ class RoleServiceImpl(IRoleService):
         exists_role_id = await self.role_repository.exists_by(id=role_id)
         if not exists_role_id:
             raise NotFoundException(
+                message="Role not found",
                 details=f"Role with ID {role_id} not found.",
             )
         role = await self.role_repository.get_by_id(role_id)
@@ -229,6 +234,7 @@ class RoleServiceImpl(IRoleService):
 
         if not page_result.data:
             raise NotFoundException(
+                message="No roles found",
                 details=f"No roles found with the search term {search_term}.",
             )
 
@@ -252,26 +258,27 @@ class RoleServiceImpl(IRoleService):
                 message="No role IDs provided",
                 details="At least one role ID must be specified for deletion.",
             )
-            
+
         invalid_ids = [id for id in role_ids if id <= 0]
         if invalid_ids:
             raise BadRequestException(
                 message="Invalid role IDs",
                 details=f"Role IDs must be positive integers. Invalid IDs: {invalid_ids}",
             )
-            
+
         roles = await self.role_repository.find_by_ids(role_ids)
-        
+
         found_ids = {
             role["id"] if isinstance(role, dict) else role.id for role in roles
         }
         missing_ids = [id for id in role_ids if id not in found_ids]
-        
+
         if missing_ids:
             raise NotFoundException(
+                message="Roles not found",
                 details=f"Roles with IDs {missing_ids} not found.",
-            )   
-            
+            )
+
         resp = await self.role_repository.delete_by_ids(role_ids)
 
         if resp is True:
@@ -302,7 +309,7 @@ class RoleServiceImpl(IRoleService):
                 message="No role IDs provided",
                 details="At least one role ID must be specified for export.",
             )
-            
+
         invalid_ids = [id for id in role_ids if id <= 0]
         if invalid_ids:
             raise BadRequestException(
@@ -311,14 +318,15 @@ class RoleServiceImpl(IRoleService):
             )
 
         roles = await self.role_repository.find_by_ids(role_ids)
-        
+
         found_ids = {
             role["id"] if isinstance(role, dict) else role.id for role in roles
         }
         missing_ids = [id for id in role_ids if id not in found_ids]
-        
+
         if missing_ids:
             raise NotFoundException(
+                message="Roles not found",
                 details=f"Roles with IDs {missing_ids} not found.",
             )
 

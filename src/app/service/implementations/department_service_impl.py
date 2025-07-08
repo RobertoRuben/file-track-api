@@ -44,7 +44,8 @@ class DepartmentServiceImpl(IDepartmentService):
         )
         if existing_department:
             raise ConflictException(
-                details=f"Department with name {department_request.name} already exists",
+                message="Department already exists",
+                details=f"Department with name '{department_request.name}' already exists.",
             )
 
         new_department = Department(
@@ -96,8 +97,10 @@ class DepartmentServiceImpl(IDepartmentService):
         )
         if not exists_department_id:
             raise NotFoundException(
-                details=f"Department with id {department_id} not found",
+                message="Department not found",
+                details=f"Department with ID {department_id} not found.",
             )
+
         department = await self.department_repository.get_by_id(department_id)
 
         if department.name != department_request.name:
@@ -106,7 +109,8 @@ class DepartmentServiceImpl(IDepartmentService):
             )
             if existing_department:
                 raise ConflictException(
-                    details=f"Department with name {department_request.name} already exists",
+                    message="Department name already exists",
+                    details=f"Department with name '{department_request.name}' already exists.",
                 )
 
         department.name = department_request.name
@@ -135,21 +139,23 @@ class DepartmentServiceImpl(IDepartmentService):
         )
         if not existing_department_id:
             raise NotFoundException(
-                details=f"Department with id {department_id} not found",
+                message="Department not found",
+                details=f"Department with ID {department_id} not found.",
             )
+
         response = await self.department_repository.delete(department_id)
         if response is True:
             return MessageResponse(
                 message="Department deleted successfully.",
                 success=True,
-                details=f"Department with id {department_id} deleted successfully.",
+                details=f"Department with ID {department_id} deleted successfully.",
                 status_code=200,
             )
         else:
             return MessageResponse(
                 message="Failed to delete department.",
                 success=False,
-                details=f"Department with id {department_id} could not be deleted.",
+                details=f"Department with ID {department_id} could not be deleted.",
                 status_code=500,
             )
 
@@ -167,8 +173,10 @@ class DepartmentServiceImpl(IDepartmentService):
         )
         if not existing_department_id:
             raise NotFoundException(
-                details=f"Department with id {department_id} not found",
+                message="Department not found",
+                details=f"Department with ID {department_id} not found.",
             )
+
         department = await self.department_repository.get_by_id(department_id)
         return DepartmentResponseDTO(
             id=department.id,
@@ -190,12 +198,12 @@ class DepartmentServiceImpl(IDepartmentService):
         if page < 1:
             raise BadRequestException(
                 message="Invalid page number",
-                details="Page number must be greater than 0",
+                details="Page number must be greater than 0.",
             )
         if size < 1:
             raise BadRequestException(
-                message="Invalid size number",
-                details="Size number must be greater than 0",
+                message="Invalid page size",
+                details="Page size must be greater than 0.",
             )
 
         page_result = await self.department_repository.get_pageable(page, size)
@@ -230,12 +238,12 @@ class DepartmentServiceImpl(IDepartmentService):
         if page < 1:
             raise BadRequestException(
                 message="Invalid page number",
-                details="Page number must be greater than 0",
+                details="Page number must be greater than 0.",
             )
         if size < 1:
             raise BadRequestException(
-                message="Invalid size number",
-                details="Size number must be greater than 0",
+                message="Invalid page size",
+                details="Page size must be greater than 0.",
             )
 
         search_dict = {"name": search_term}
@@ -244,7 +252,8 @@ class DepartmentServiceImpl(IDepartmentService):
 
         if not page_result.data:
             raise NotFoundException(
-                details=f"No departments found with the search term {search_term}",
+                message="No departments found",
+                details=f"No departments found matching the search term '{search_term}'.",
             )
 
         department_response = [
@@ -274,32 +283,33 @@ class DepartmentServiceImpl(IDepartmentService):
         :raises BadRequestException: If no IDs are provided or if any ID is invalid
         :raises NotFoundException: If any of the provided IDs do not correspond to existing departments
         """
-        
+
         if len(department_ids) == 0:
             raise BadRequestException(
                 message="No department IDs provided",
                 details="Please provide a list of department IDs to delete.",
             )
-            
+
         invalid_ids = [id for id in department_ids if id <= 0]
         if invalid_ids:
             raise BadRequestException(
                 message="Invalid department IDs",
-                details=f"Department IDs must be greater than 0. Invalid IDs: {invalid_ids}",
+                details=f"Department IDs must be greater than 0. Invalid IDs: {invalid_ids}.",
             )
-            
+
         departments = await self.department_repository.find_by_ids(department_ids)
-        
+
         found_ids = {
             dep["id"] if isinstance(dep, dict) else dep.id for dep in departments
         }
         missing_ids = [id for id in department_ids if id not in found_ids]
-        
+
         if missing_ids:
             raise NotFoundException(
+                message="Departments not found",
                 details=f"Departments with IDs {missing_ids} not found. Cannot proceed with deletion.",
             )
-            
+
         resp = await self.department_repository.delete_by_ids(department_ids)
 
         if resp is True:
@@ -332,23 +342,24 @@ class DepartmentServiceImpl(IDepartmentService):
                 message="No department IDs provided",
                 details="Please provide a list of department IDs to export.",
             )
-            
+
         invalid_ids = [id for id in department_ids if id <= 0]
         if invalid_ids:
             raise BadRequestException(
                 message="Invalid department IDs",
-                details=f"Department IDs must be greater than 0. Invalid IDs: {invalid_ids}",
+                details=f"Department IDs must be greater than 0. Invalid IDs: {invalid_ids}.",
             )
-        
+
         departments = await self.department_repository.find_by_ids(department_ids)
-        
+
         found_ids = {
             dep["id"] if isinstance(dep, dict) else dep.id for dep in departments
         }
         missing_ids = [id for id in department_ids if id not in found_ids]
-        
+
         if missing_ids:
             raise NotFoundException(
+                message="Departments not found",
                 details=f"Departments with IDs {missing_ids} not found. Cannot proceed with export.",
             )
 

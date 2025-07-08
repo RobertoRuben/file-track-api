@@ -42,7 +42,8 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
         )
         if existing_topic:
             raise ConflictException(
-                details=f"Documentary topic with name '{documentary_topic_request.name}' already exists",
+                message="Documentary topic already exists",
+                details=f"Documentary topic with name '{documentary_topic_request.name}' already exists.",
             )
 
         new_topic = DocumentaryTopic(
@@ -96,8 +97,10 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
         )
         if not exists_topic_id:
             raise NotFoundException(
-                details=f"Documentary topic with ID {documentary_topic_id} not found",
+                message="Documentary topic not found",
+                details=f"Documentary topic with ID {documentary_topic_id} not found.",
             )
+
         topic = await self.documentary_topic_repository.get_by_id(documentary_topic_id)
 
         if topic.name != documentary_topic_request.name:
@@ -106,7 +109,8 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
             )
             if existing_topic:
                 raise ConflictException(
-                    details=f"Documentary topic with name '{documentary_topic_request.name}' already exists",
+                    message="Documentary topic name already exists",
+                    details=f"Documentary topic with name '{documentary_topic_request.name}' already exists.",
                 )
 
         topic.name = documentary_topic_request.name
@@ -137,8 +141,10 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
         )
         if not existing_topic_id:
             raise NotFoundException(
-                details=f"Documentary topic with ID {documentary_topic_id} not found",
+                message="Documentary topic not found",
+                details=f"Documentary topic with ID {documentary_topic_id} not found.",
             )
+
         response = await self.documentary_topic_repository.delete(documentary_topic_id)
         if response is True:
             return MessageResponse(
@@ -171,8 +177,10 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
         )
         if not existing_topic_id:
             raise NotFoundException(
-                details=f"Documentary topic with ID {documentary_topic_id} not found",
+                message="Documentary topic not found",
+                details=f"Documentary topic with ID {documentary_topic_id} not found.",
             )
+
         topic = await self.documentary_topic_repository.get_by_id(documentary_topic_id)
         return DocumentaryTopicResponseDTO(
             id=topic.id,
@@ -200,8 +208,8 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
             )
         if size < 1:
             raise BadRequestException(
-                message="Invalid size number",
-                details="Size number must be greater than 0.",
+                message="Invalid page size",
+                details="Page size must be greater than 0.",
             )
 
         page_result = await self.documentary_topic_repository.get_pageable(page, size)
@@ -241,8 +249,8 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
             )
         if size < 1:
             raise BadRequestException(
-                message="Invalid size number",
-                details="Size number must be greater than 0.",
+                message="Invalid page size",
+                details="Page size must be greater than 0.",
             )
 
         search_dict = {"name": search_term}
@@ -253,7 +261,8 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
 
         if not page_result.data:
             raise NotFoundException(
-                details=f"No documentary topics found with search term: {search_term}",
+                message="No documentary topics found",
+                details=f"No documentary topics found matching the search term '{search_term}'.",
             )
 
         topic_response = [
@@ -281,21 +290,37 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
         :param documentary_topic_ids: List of documentary topic IDs to delete
         :return: Message response indicating success or failure
         :raises NotFoundException: If none of the documentary topics with the given IDs exist
-        :raises BadRequestException: If the documentary_topic_ids list is empty
+        :raises BadRequestException: If the documentary_topic_ids list is empty or contains invalid IDs
         """
         if len(documentary_topic_ids) == 0:
             raise BadRequestException(
-                message="Empty documentary topic IDs list",
-                details="The list of documentary topic IDs to delete cannot be empty.",
+                message="No documentary topic IDs provided",
+                details="Please provide a list of documentary topic IDs to delete.",
             )
-        
+
         invalid_ids = [id for id in documentary_topic_ids if id <= 0]
         if invalid_ids:
             raise BadRequestException(
                 message="Invalid documentary topic IDs",
-                details=f"Documentary topic IDs must be positive integers. Invalid IDs: {invalid_ids}",
+                details=f"Documentary topic IDs must be greater than 0. Invalid IDs: {invalid_ids}.",
             )
-        
+
+        documentary_topics = await self.documentary_topic_repository.find_by_ids(
+            documentary_topic_ids
+        )
+
+        found_ids = {
+            topic["id"] if isinstance(topic, dict) else topic.id
+            for topic in documentary_topics
+        }
+        missing_ids = [id for id in documentary_topic_ids if id not in found_ids]
+
+        if missing_ids:
+            raise NotFoundException(
+                message="Documentary topics not found",
+                details=f"Documentary topics with IDs {missing_ids} not found. Cannot proceed with deletion.",
+            )
+
         resp = await self.documentary_topic_repository.delete_by_ids(
             documentary_topic_ids
         )
@@ -325,15 +350,35 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
         :param documentary_topic_ids: List of documentary topic IDs to export
         :return: Bytes of the generated Excel file
         :raises NotFoundException: If none of the documentary topics with the given IDs exist
-        :raises BadRequestException: If the documentary_topic_ids list is empty
+        :raises BadRequestException: If the documentary_topic_ids list is empty or contains invalid IDs
         """
+        if len(documentary_topic_ids) == 0:
+            raise BadRequestException(
+                message="No documentary topic IDs provided",
+                details="Please provide a list of documentary topic IDs to export.",
+            )
+
+        invalid_ids = [id for id in documentary_topic_ids if id <= 0]
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid documentary topic IDs",
+                details=f"Documentary topic IDs must be greater than 0. Invalid IDs: {invalid_ids}.",
+            )
+
         documentary_topics = await self.documentary_topic_repository.find_by_ids(
             documentary_topic_ids
         )
 
-        if not documentary_topics:
+        found_ids = {
+            topic["id"] if isinstance(topic, dict) else topic.id
+            for topic in documentary_topics
+        }
+        missing_ids = [id for id in documentary_topic_ids if id not in found_ids]
+
+        if missing_ids:
             raise NotFoundException(
-                details=f"No documentary topics found with IDs: {documentary_topic_ids}",
+                message="Documentary topics not found",
+                details=f"Documentary topics with IDs {missing_ids} not found. Cannot proceed with export.",
             )
 
         topics_data = [

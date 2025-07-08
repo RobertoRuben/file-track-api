@@ -44,6 +44,7 @@ class SettlementServiceImpl(ISettlementService):
         )
         if existing_settlement:
             raise ConflictException(
+                message="Settlement already exists",
                 details=f"Settlement with name {settlement_request.name} already exists",
             )
 
@@ -96,6 +97,7 @@ class SettlementServiceImpl(ISettlementService):
         )
         if not exists_settlement_id:
             raise NotFoundException(
+                message="Settlement not found",
                 details=f"Settlement with id {settlement_id} not found",
             )
         settlement = await self.settlement_repository.get_by_id(settlement_id)
@@ -106,6 +108,7 @@ class SettlementServiceImpl(ISettlementService):
             )
             if existing_settlement:
                 raise ConflictException(
+                    message="Settlement name already exists",
                     details=f"Settlement with name {settlement_request.name} already exists",
                 )
 
@@ -135,6 +138,7 @@ class SettlementServiceImpl(ISettlementService):
         )
         if not existing_settlement_id:
             raise NotFoundException(
+                message="Settlement not found",
                 details=f"Settlement with id {settlement_id} not found",
             )
         response = await self.settlement_repository.delete(settlement_id)
@@ -167,6 +171,7 @@ class SettlementServiceImpl(ISettlementService):
         )
         if not existing_settlement_id:
             raise NotFoundException(
+                message="Settlement not found",
                 details=f"Settlement with id {settlement_id} not found",
             )
         settlement = await self.settlement_repository.get_by_id(settlement_id)
@@ -243,6 +248,7 @@ class SettlementServiceImpl(ISettlementService):
 
         if not page_result.data:
             raise NotFoundException(
+                message="No settlements found",
                 details=f"No settlements found with the search term {search_term}",
             )
 
@@ -296,6 +302,7 @@ class SettlementServiceImpl(ISettlementService):
 
         if missing_ids:
             raise NotFoundException(
+                message="Settlements not found",
                 details=f"Settlements with ids {missing_ids} not found.",
             )
 
@@ -348,6 +355,7 @@ class SettlementServiceImpl(ISettlementService):
         missing_ids = [id for id in settlement_ids if id not in found_ids]
         if missing_ids:
             raise NotFoundException(
+                message="Settlements not found",
                 details=f"Settlements with ids {missing_ids} not found.",
             )
 

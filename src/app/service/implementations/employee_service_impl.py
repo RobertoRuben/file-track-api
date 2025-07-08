@@ -54,21 +54,26 @@ class EmployeeServiceImpl(IEmployeeService):
         )
         if existing_employee:
             raise ConflictException(
-                details=f"Employee with DNI {employee_request.dni} already exists",
+                message="Employee already exists",
+                details=f"Employee with DNI '{employee_request.dni}' already exists.",
             )
+
         existing_position = await self.position_repository.exists_by(
             id=employee_request.position_id
         )
         if not existing_position:
             raise NotFoundException(
-                details=f"Position with ID {employee_request.position_id} does not exist",
+                message="Position not found",
+                details=f"Position with ID {employee_request.position_id} not found.",
             )
+
         existing_department = await self.department_repository.exists_by(
             id=employee_request.department_id
         )
         if not existing_department:
             raise NotFoundException(
-                details=f"Department with ID {employee_request.department_id} does not exist",
+                message="Department not found",
+                details=f"Department with ID {employee_request.department_id} not found.",
             )
 
         new_employee = Employee(
@@ -137,7 +142,8 @@ class EmployeeServiceImpl(IEmployeeService):
         exists_employee_id = await self.employee_repository.exists_by(id=employee_id)
         if not exists_employee_id:
             raise NotFoundException(
-                details=f"Employee with id {employee_id} not found",
+                message="Employee not found",
+                details=f"Employee with ID {employee_id} not found.",
             )
 
         employee = await self.employee_repository.get_by_id(employee_id)
@@ -148,7 +154,8 @@ class EmployeeServiceImpl(IEmployeeService):
             )
             if existing_employee:
                 raise ConflictException(
-                    details=f"Employee with DNI {employee_request.dni} already exists",
+                    message="Employee DNI already exists",
+                    details=f"Employee with DNI '{employee_request.dni}' already exists.",
                 )
 
         existing_position = await self.position_repository.exists_by(
@@ -156,7 +163,8 @@ class EmployeeServiceImpl(IEmployeeService):
         )
         if not existing_position:
             raise NotFoundException(
-                details=f"Position with ID {employee_request.position_id} does not exist",
+                message="Position not found",
+                details=f"Position with ID {employee_request.position_id} not found.",
             )
 
         existing_department = await self.department_repository.exists_by(
@@ -164,7 +172,8 @@ class EmployeeServiceImpl(IEmployeeService):
         )
         if not existing_department:
             raise NotFoundException(
-                details=f"Department with ID {employee_request.department_id} does not exist",
+                message="Department not found",
+                details=f"Department with ID {employee_request.department_id} not found.",
             )
 
         employee.dni = employee_request.dni
@@ -203,7 +212,8 @@ class EmployeeServiceImpl(IEmployeeService):
         existing_employee_id = await self.employee_repository.exists_by(id=employee_id)
         if not existing_employee_id:
             raise NotFoundException(
-                details=f"Employee with id {employee_id} not found",
+                message="Employee not found",
+                details=f"Employee with ID {employee_id} not found.",
             )
 
         response = await self.employee_repository.delete(employee_id)
@@ -212,14 +222,14 @@ class EmployeeServiceImpl(IEmployeeService):
             return MessageResponse(
                 message="Employee deleted successfully.",
                 success=True,
-                details=f"Employee with id {employee_id} deleted successfully.",
+                details=f"Employee with ID {employee_id} deleted successfully.",
                 status_code=200,
             )
         else:
             return MessageResponse(
                 message="Failed to delete employee.",
                 success=False,
-                details=f"Employee with id {employee_id} could not be deleted.",
+                details=f"Employee with ID {employee_id} could not be deleted.",
                 status_code=500,
             )
 
@@ -235,7 +245,8 @@ class EmployeeServiceImpl(IEmployeeService):
         existing_employee_id = await self.employee_repository.exists_by(id=employee_id)
         if not existing_employee_id:
             raise NotFoundException(
-                details=f"Employee with id {employee_id} not found",
+                message="Employee not found",
+                details=f"Employee with ID {employee_id} not found.",
             )
 
         employee = await self.employee_repository.get_by_id(employee_id)
@@ -266,12 +277,12 @@ class EmployeeServiceImpl(IEmployeeService):
         if page < 1:
             raise BadRequestException(
                 message="Invalid page number",
-                details="Page number must be greater than 0",
+                details="Page number must be greater than 0.",
             )
         if size < 1:
             raise BadRequestException(
-                message="Invalid size number",
-                details="Size number must be greater than 0",
+                message="Invalid page size",
+                details="Page size must be greater than 0.",
             )
 
         page_result = await self.employee_repository.get_pageable(page, size)
@@ -290,7 +301,7 @@ class EmployeeServiceImpl(IEmployeeService):
 
         :param page: Page number to retrieve
         :param size: Number of items per page
-        :param search_term: Dictionary with field names and search terms
+        :param search_term: Term to search for in employee fields
         :return: Paginated employees matching the search criteria
         :raises BadRequestException: If page or size parameters are invalid
         :raises NotFoundException: If no employees match the search criteria
@@ -298,12 +309,12 @@ class EmployeeServiceImpl(IEmployeeService):
         if page < 1:
             raise BadRequestException(
                 message="Invalid page number",
-                details="Page number must be greater than 0",
+                details="Page number must be greater than 0.",
             )
         if size < 1:
             raise BadRequestException(
-                message="Invalid size number",
-                details="Size number must be greater than 0",
+                message="Invalid page size",
+                details="Page size must be greater than 0.",
             )
 
         search_dict = {
@@ -317,7 +328,8 @@ class EmployeeServiceImpl(IEmployeeService):
 
         if not page_result.data:
             raise NotFoundException(
-                details="No employees found with the provided search criteria",
+                message="No employees found",
+                details=f"No employees found matching the search term '{search_term}'.",
             )
 
         employee_response = [
@@ -342,14 +354,14 @@ class EmployeeServiceImpl(IEmployeeService):
         if len(employee_ids) == 0:
             raise BadRequestException(
                 message="No employee IDs provided",
-                details="Please provide at least one employee ID to delete.",
+                details="Please provide a list of employee IDs to delete.",
             )
 
         invalid_ids = [id for id in employee_ids if id <= 0]
         if invalid_ids:
             raise BadRequestException(
                 message="Invalid employee IDs",
-                details=f"Employee IDs must be positive integers. Invalid IDs: {invalid_ids}",
+                details=f"Employee IDs must be greater than 0. Invalid IDs: {invalid_ids}.",
             )
 
         employees = await self.employee_repository.find_by_ids(employee_ids)
@@ -361,6 +373,7 @@ class EmployeeServiceImpl(IEmployeeService):
 
         if missing_ids:
             raise NotFoundException(
+                message="Employees not found",
                 details=f"Employees with IDs {missing_ids} not found. Cannot proceed with deletion.",
             )
 
@@ -395,14 +408,14 @@ class EmployeeServiceImpl(IEmployeeService):
         if len(employee_ids) == 0:
             raise BadRequestException(
                 message="No employee IDs provided",
-                details="Please provide at least one employee ID to export.",
+                details="Please provide a list of employee IDs to export.",
             )
 
         invalid_ids = [id for id in employee_ids if id <= 0]
         if invalid_ids:
             raise BadRequestException(
                 message="Invalid employee IDs",
-                details=f"Employee IDs must be positive integers. Invalid IDs: {invalid_ids}",
+                details=f"Employee IDs must be greater than 0. Invalid IDs: {invalid_ids}.",
             )
 
         employees = await self.employee_repository.find_by_ids(employee_ids)
@@ -414,7 +427,8 @@ class EmployeeServiceImpl(IEmployeeService):
 
         if missing_ids:
             raise NotFoundException(
-                details=f"Employees with IDs {missing_ids} not found. Found {len(employees)} of {len(employee_ids)} requested employees.",
+                message="Employees not found",
+                details=f"Employees with IDs {missing_ids} not found. Cannot proceed with export.",
             )
 
         employees_data = [

@@ -47,6 +47,7 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
         )
         if exists_document_category:
             raise ConflictException(
+                message="Document category already exists",
                 details=f"Document category with name '{document_category_request.name}' already exists.",
             )
 
@@ -103,6 +104,7 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
         )
         if not exists_document_category_id:
             raise NotFoundException(
+                message="Document category not found",
                 details=f"Document category with ID {document_category_id} not found.",
             )
         document_category = await self.document_category_repository.get_by_id(
@@ -115,6 +117,7 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
             )
             if name_exists:
                 raise ConflictException(
+                    message="Document category name already exists",
                     details=f"Document category with name '{document_category_request.name}' already exists.",
                 )
 
@@ -148,6 +151,7 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
         )
         if not exists_document_category_id:
             raise NotFoundException(
+                message="Document category not found",
                 details=f"Document category with ID {document_category_id} not found.",
             )
         response = await self.document_category_repository.delete(document_category_id)
@@ -182,6 +186,7 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
         )
         if not exists_document_category_id:
             raise NotFoundException(
+                message="Document category not found",
                 details=f"Document category with ID {document_category_id} not found.",
             )
         document_category = await self.document_category_repository.get_by_id(
@@ -213,8 +218,8 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
             )
         if size < 1:
             raise BadRequestException(
-                message="Invalid size number",
-                details="Size number must be greater than 0.",
+                message="Invalid page size",
+                details="Page size must be greater than 0.",
             )
 
         page_result = await self.document_category_repository.get_pageable(page, size)
@@ -244,11 +249,18 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
         :param search_term: The search term to filter document categories
         :return: A DocumentCategoryPage with document categories matching the search criteria
         :raises BadRequestException: If page or size parameters are invalid
+        :raises NotFoundException: If no document categories match the search criteria
         """
         if page < 1:
-            raise BadRequestException("Page number must be greater than 0")
+            raise BadRequestException(
+                message="Invalid page number",
+                details="Page number must be greater than 0.",
+            )
         if size < 1:
-            raise BadRequestException("Page size must be greater than 0")
+            raise BadRequestException(
+                message="Invalid page size",
+                details="Page size must be greater than 0.",
+            )
 
         search_dict = {}
         if search_term and search_term.strip():
@@ -258,18 +270,25 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
             page=page, size=size, search_dict=search_dict
         )
 
+        if not page_result.data:
+            raise NotFoundException(
+                message="No document categories found",
+                details=f"No document categories found matching the search term '{search_term}'.",
+            )
+
+        document_categories_response = [
+            DocumentCategoryResponseDTO(
+                id=category.id,
+                name=category.name,
+                created_at=category.created_at,
+                updated_at=category.updated_at,
+            )
+            for category in page_result.data
+        ]
+
         return DocumentCategoryPage(
-            content=[
-                DocumentCategoryResponseDTO(
-                    id=category.id,
-                    name=category.name,
-                    description=category.description,
-                    created_at=category.created_at,
-                    updated_at=category.updated_at,
-                )
-                for category in page_result.content
-            ],
-            pagination=page_result.pagination,
+            data=document_categories_response,
+            meta=page_result.meta,
         )
 
     @handle_exceptions
@@ -287,30 +306,32 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
         if len(category_ids) == 0:
             raise BadRequestException(
                 message="No document category IDs provided",
-                details="The list of document category IDs to delete cannot be empty.",
+                details="Please provide a list of document category IDs to delete.",
             )
-            
+
         invalid_ids = [id for id in category_ids if id <= 0]
         if invalid_ids:
             raise BadRequestException(
                 message="Invalid document category IDs",
-                details=f"Document category IDs must be positive integers. Invalid IDs: {invalid_ids}",
+                details=f"Document category IDs must be greater than 0. Invalid IDs: {invalid_ids}.",
             )
 
         document_categories = await self.document_category_repository.find_by_ids(
             category_ids
         )
-        
+
         found_ids = {
-            category["id"] if isinstance(category, dict) else category.id for category in document_categories
+            category["id"] if isinstance(category, dict) else category.id
+            for category in document_categories
         }
         missing_ids = [id for id in category_ids if id not in found_ids]
-        
+
         if missing_ids:
             raise NotFoundException(
-                details=f"Document categories with IDs {missing_ids} not found.",
+                message="Document categories not found",
+                details=f"Document categories with IDs {missing_ids} not found. Cannot proceed with deletion.",
             )
-            
+
         resp = await self.document_category_repository.delete_by_ids(category_ids)
 
         if resp is True:
@@ -340,33 +361,35 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
         :raises NotFoundException: If none of the document categories with the given IDs exist
         :raises BadRequestException: If the category_ids list is empty or contains invalid IDs
         """
-        
+
         if len(category_ids) == 0:
-            return BadRequestException(
+            raise BadRequestException(
                 message="No document category IDs provided",
-                details="The list of document category IDs to export cannot be empty.",
+                details="Please provide a list of document category IDs to export.",
             )
-            
+
         invalid_ids = [id for id in category_ids if id <= 0]
         if invalid_ids:
             raise BadRequestException(
                 message="Invalid document category IDs",
-                details=f"Document category IDs must be positive integers. Invalid IDs: {invalid_ids}",
+                details=f"Document category IDs must be greater than 0. Invalid IDs: {invalid_ids}.",
             )
-        
+
         document_categories = await self.document_category_repository.find_by_ids(
             category_ids
         )
-        
+
         found_ids = {
-            category["id"] if isinstance(category, dict) else category.id for category in document_categories
+            category["id"] if isinstance(category, dict) else category.id
+            for category in document_categories
         }
-        
+
         missing_ids = [id for id in category_ids if id not in found_ids]
-        
+
         if missing_ids:
             raise NotFoundException(
-                details=f"Document categories with IDs {missing_ids} not found.",
+                message="Document categories not found",
+                details=f"Document categories with IDs {missing_ids} not found. Cannot proceed with export.",
             )
 
         categories_data = [

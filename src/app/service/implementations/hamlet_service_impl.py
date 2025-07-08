@@ -48,7 +48,8 @@ class HamletServiceImpl(IHamletService):
         )
         if existing_hamlet:
             raise ConflictException(
-                details=f"Hamlet with name {hamlet_request.name} already exists",
+                message="Hamlet already exists",
+                details=f"Hamlet with name '{hamlet_request.name}' already exists.",
             )
 
         if hamlet_request.settlement_id is not None:
@@ -57,7 +58,8 @@ class HamletServiceImpl(IHamletService):
             )
             if not existing_settlement:
                 raise NotFoundException(
-                    details=f"Settlement with ID {hamlet_request.settlement_id} does not exist",
+                    message="Settlement not found",
+                    details=f"Settlement with ID {hamlet_request.settlement_id} not found.",
                 )
 
         new_hamlet = Hamlet(
@@ -113,7 +115,8 @@ class HamletServiceImpl(IHamletService):
         exists_hamlet_id = await self.hamlet_repository.exists_by(id=hamlet_id)
         if not exists_hamlet_id:
             raise NotFoundException(
-                details=f"Hamlet with ID {hamlet_id} not found",
+                message="Hamlet not found",
+                details=f"Hamlet with ID {hamlet_id} not found.",
             )
 
         hamlet = await self.hamlet_repository.get_by_id(hamlet_id)
@@ -124,7 +127,8 @@ class HamletServiceImpl(IHamletService):
             )
             if existing_hamlet:
                 raise ConflictException(
-                    details=f"Hamlet with name {hamlet_request.name} already exists",
+                    message="Hamlet name already exists",
+                    details=f"Hamlet with name '{hamlet_request.name}' already exists.",
                 )
 
         if hamlet_request.settlement_id is not None:
@@ -133,7 +137,8 @@ class HamletServiceImpl(IHamletService):
             )
             if not existing_settlement:
                 raise NotFoundException(
-                    details=f"Settlement with ID {hamlet_request.settlement_id} does not exist",
+                    message="Settlement not found",
+                    details=f"Settlement with ID {hamlet_request.settlement_id} not found.",
                 )
 
         hamlet.name = hamlet_request.name
@@ -163,7 +168,8 @@ class HamletServiceImpl(IHamletService):
         existing_hamlet_id = await self.hamlet_repository.exists_by(id=hamlet_id)
         if not existing_hamlet_id:
             raise NotFoundException(
-                details=f"Hamlet with ID {hamlet_id} not found",
+                message="Hamlet not found",
+                details=f"Hamlet with ID {hamlet_id} not found.",
             )
 
         response = await self.hamlet_repository.delete(hamlet_id)
@@ -195,7 +201,8 @@ class HamletServiceImpl(IHamletService):
         existing_hamlet_id = await self.hamlet_repository.exists_by(id=hamlet_id)
         if not existing_hamlet_id:
             raise NotFoundException(
-                details=f"Hamlet with ID {hamlet_id} not found",
+                message="Hamlet not found",
+                details=f"Hamlet with ID {hamlet_id} not found.",
             )
 
         hamlet = await self.hamlet_repository.get_by_id(hamlet_id)
@@ -222,12 +229,12 @@ class HamletServiceImpl(IHamletService):
         if page < 1:
             raise BadRequestException(
                 message="Invalid page number",
-                details="Page number must be greater than 0",
+                details="Page number must be greater than 0.",
             )
         if size < 1:
             raise BadRequestException(
-                message="Invalid size number",
-                details="Size number must be greater than 0",
+                message="Invalid page size",
+                details="Page size must be greater than 0.",
             )
 
         page_result = await self.hamlet_repository.get_pageable(page, size)
@@ -255,12 +262,12 @@ class HamletServiceImpl(IHamletService):
         if page < 1:
             raise BadRequestException(
                 message="Invalid page number",
-                details="Page number must be greater than 0",
+                details="Page number must be greater than 0.",
             )
         if size < 1:
             raise BadRequestException(
-                message="Invalid size number",
-                details="Size number must be greater than 0",
+                message="Invalid page size",
+                details="Page size must be greater than 0.",
             )
 
         search_dict = {"name": search_term}
@@ -269,7 +276,8 @@ class HamletServiceImpl(IHamletService):
 
         if not page_result.data:
             raise NotFoundException(
-                details=f"No hamlets found with the search term {search_term}",
+                message="No hamlets found",
+                details=f"No hamlets found matching the search term '{search_term}'.",
             )
 
         hamlet_response = [
@@ -294,14 +302,14 @@ class HamletServiceImpl(IHamletService):
         if len(hamlet_ids) == 0:
             raise BadRequestException(
                 message="No hamlet IDs provided",
-                details="At least one hamlet ID must be specified for deletion.",
+                details="Please provide a list of hamlet IDs to delete.",
             )
 
         invalid_ids = [id for id in hamlet_ids if id <= 0]
         if invalid_ids:
             raise BadRequestException(
                 message="Invalid hamlet IDs",
-                details=f"Hamlet IDs must be positive integers. Invalid IDs: {invalid_ids}",
+                details=f"Hamlet IDs must be greater than 0. Invalid IDs: {invalid_ids}.",
             )
 
         hamlets = await self.hamlet_repository.find_by_ids(hamlet_ids)
@@ -312,7 +320,8 @@ class HamletServiceImpl(IHamletService):
 
         if missing_ids:
             raise NotFoundException(
-                details=f"Hamlets with IDs {missing_ids} not found.",
+                message="Hamlets not found",
+                details=f"Hamlets with IDs {missing_ids} not found. Cannot proceed with deletion.",
             )
 
         resp = await self.hamlet_repository.delete_by_ids(hamlet_ids)
@@ -339,18 +348,20 @@ class HamletServiceImpl(IHamletService):
 
         :param hamlet_ids: List of hamlet IDs to export
         :return: Excel file as bytes
+        :raises BadRequestException: If no hamlet IDs are provided or if any ID is invalid
+        :raises NotFoundException: If any of the provided hamlet IDs do not exist
         """
         if len(hamlet_ids) == 0:
             raise BadRequestException(
                 message="No hamlet IDs provided",
-                details="At least one hamlet ID must be specified for export.",
+                details="Please provide a list of hamlet IDs to export.",
             )
 
         invalid_ids = [id for id in hamlet_ids if id <= 0]
         if invalid_ids:
             raise BadRequestException(
                 message="Invalid hamlet IDs",
-                details=f"Hamlet IDs must be positive integers. Invalid IDs: {invalid_ids}",
+                details=f"Hamlet IDs must be greater than 0. Invalid IDs: {invalid_ids}.",
             )
 
         hamlets = await self.hamlet_repository.find_by_ids(hamlet_ids)
@@ -360,7 +371,8 @@ class HamletServiceImpl(IHamletService):
 
         if missing_ids:
             raise NotFoundException(
-                details=f"Hamlets with IDs {missing_ids} not found.",
+                message="Hamlets not found",
+                details=f"Hamlets with IDs {missing_ids} not found. Cannot proceed with export.",
             )
 
         hamlets_data = [
