@@ -11,8 +11,9 @@ class DatabaseException(BaseHTTPException):
         self,
         message: str = "An error occurred in the database.",
         details: str = None,
+        instance: str = None,
         time: str = None,
-        type_: str = "Database Error",
+        type_: str = "https://api.file-track/errors/database-error",
         code: int = 500,
     ):
         """
@@ -20,10 +21,16 @@ class DatabaseException(BaseHTTPException):
 
         :param message: Human-readable error message
         :param details: Additional details about the error
+        :param instance: URI that identifies the specific occurrence of the problem
         :param time: Timestamp when the error occurred, defaults to current time
-        :param type_: The type of the error
+        :param type_: URI that identifies the problem type
         :param code: HTTP status code
         """
         super().__init__(
-            type_=type_, code=code, message=message, details=details, time=time
+            type_=type_,
+            code=code,
+            message=message,
+            details=details,
+            instance=instance,
+            time=time,
         )

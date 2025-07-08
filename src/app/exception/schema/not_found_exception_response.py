@@ -14,17 +14,17 @@ class NotFoundError(ErrorDetail):
     :ivar code: HTTP status code
     :ivar message: Human-readable error message
     :ivar details: Additional details about the error
-    :ivar time: Timestamp of when the error occurred
+    :ivar timestamp: Timestamp of when the error occurred
     """
 
-    type: str = Field(
+    title: str = Field(
         default="Not Found", description="Identifies the error as a not found error"
     )
-    code: int = Field(
+    status: int = Field(
         default=404,
         description="HTTP 404 Not Found status code indicating that the server cannot find the requested resource",
     )
-    message: str = Field(
+    detail: str = Field(
         default="The requested resource was not found.",
         description="Human-readable error message",
         examples=[

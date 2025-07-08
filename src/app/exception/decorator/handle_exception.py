@@ -2,6 +2,7 @@ import functools
 from typing import Callable, TypeVar, Any, Optional
 from src.app.exception.model import BaseHTTPException
 from src.app.exception import ServerException
+import inspect
 
 T = TypeVar('T')
 
@@ -22,14 +23,21 @@ def handle_exceptions(
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         @functools.wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> T:
+            # Obtener el nombre de la función y el módulo para la instancia
+            func_name = func.__name__
+            module_name = func.__module__
+            instance = f"function:{module_name}.{func_name}"
+
             try:
                 return await func(*args, **kwargs)
             except BaseHTTPException:
                 raise
             except AttributeError as e:
-                raise ServerException(details=f"Error de implementación: {str(e)}")
+                raise ServerException(
+                    details=f"Error de implementación: {str(e)}", instance=instance
+                )
             except Exception as e:
-                raise ServerException(details=str(e))
+                raise ServerException(details=str(e), instance=instance)
 
         return wrapper
 

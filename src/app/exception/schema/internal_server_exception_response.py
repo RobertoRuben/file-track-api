@@ -16,18 +16,18 @@ class InternalServerError(ErrorDetail):
     :ivar code: HTTP status code
     :ivar message: Human-readable error message
     :ivar details: Additional details about the error
-    :ivar time: Timestamp of when the error occurred
+    :ivar timestamp: Timestamp of when the error occurred
     """
 
-    type: str = Field(
+    title: str = Field(
         default="Internal Server Error",
         description="Error classification identifying a server-side unexpected failure",
     )
-    code: int = Field(
+    status: int = Field(
         default=500,
         description="HTTP status code 500 indicating the server encountered an unexpected condition preventing request fulfillment",
     )
-    message: str = Field(
+    detail: str = Field(
         default="The server encountered an unexpected condition that prevented it from fulfilling the request.",
         description="Human-readable error message",
         examples=[
