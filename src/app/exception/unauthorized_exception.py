@@ -1,4 +1,5 @@
 from .model import BaseHTTPException
+from .constants import ErrorTypes, ErrorTitles
 
 
 class UnauthorizedException(BaseHTTPException):
@@ -13,7 +14,8 @@ class UnauthorizedException(BaseHTTPException):
         details: str = None,
         instance: str = None,
         time: str = None,
-        type_: str = "https://api.file-track/errors/unauthorized",
+        type_: str = ErrorTypes.INVALID_TOKEN,
+        title: str = ErrorTitles.UNAUTHORIZED,
         headers: dict = None,
     ):
         """
@@ -24,6 +26,7 @@ class UnauthorizedException(BaseHTTPException):
         :param instance: URI that identifies the specific occurrence of the problem
         :param time: Timestamp when the error occurred, defaults to current time
         :param type_: URI that identifies the problem type
+        :param title: A short, human-readable summary of the problem type
         :param headers: Additional headers to include in the response
         """
         super().__init__(
@@ -33,5 +36,6 @@ class UnauthorizedException(BaseHTTPException):
             details=details,
             instance=instance,
             time=time,
+            title=title,
             headers=headers,
         )
