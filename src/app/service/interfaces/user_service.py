@@ -122,3 +122,13 @@ class IUserService(ABC):
         :return: A UserPage object containing the users that match the search criteria
         """
         pass
+
+    @abstractmethod
+    async def export_users_to_excel(self, user_ids: list[int]) -> bytes:
+        """
+        Export users to Excel format by their IDs.
+
+        :param user_ids: List of user IDs to export
+        :return: Excel file as bytes
+        """
+        pass

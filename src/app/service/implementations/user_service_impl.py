@@ -1,3 +1,5 @@
+import io
+import pandas as pd
 from datetime import datetime
 from src.app.model.entity import User
 from src.app.model.enum import StatusEnum
@@ -6,6 +8,7 @@ from src.app.dto.response import UserPage, UserResponseDTO
 from src.app.schema import MessageResponse
 from src.app.exception import BadRequestException, ConflictException, NotFoundException
 from src.app.exception.decorator import handle_exceptions
+from src.app.service.helpers import datetime_helper
 from src.app.repository.interfaces import (
     IUserRepository,
     IRoleRepository,
@@ -476,3 +479,69 @@ class UserServiceImpl(IUserService):
             data=user_response,
             meta=page_result.meta,
         )
+
+    @handle_exceptions
+    async def export_users_to_excel(self, user_ids: list[int]) -> bytes:
+        """
+        Export users to Excel format by their IDs.
+
+        :param user_ids: List of user IDs to export
+        :return: Excel file as bytes
+        :raises BadRequestException: If no user IDs are provided or if any ID is invalid
+        :raises NotFoundException: If any of the provided user IDs do not exist
+        """
+        if len(user_ids) == 0:
+            raise BadRequestException(
+                message="No user IDs provided",
+                details="At least one user ID must be provided for export.",
+            )
+
+        invalid_ids = [id for id in user_ids if id <= 0]
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid user IDs",
+                details=f"The following user IDs are invalid: {invalid_ids}. IDs must be positive integers.",
+            )
+
+        users = await self.user_repository.find_by_ids(user_ids)
+
+        found_ids = {user["id"] for user in users}
+        missing_ids = [id for id in user_ids if id not in found_ids]
+
+        if missing_ids:
+            raise NotFoundException(
+                message="Users not found",
+                details=f"The following user IDs were not found: {missing_ids}.",
+            )
+
+        users_data = [
+            {
+                "ID": user["id"],
+                "Usuario": user["username"],
+                "Empleado": user["employee_name"],
+                "Rol": user["role_name"],
+                "Departamento": user["department_name"],
+                "Estado": "Activo" if user["is_active"] else "Inactivo",
+                "Fecha de Creación": datetime_helper.format_datetime_for_excel(
+                    user["created_at"]
+                ),
+                "Última Actualización": datetime_helper.format_datetime_for_excel(
+                    user["updated_at"]
+                ),
+            }
+            for user in users
+        ]
+
+        df = pd.DataFrame(users_data)
+        output = io.BytesIO()
+
+        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+            df.to_excel(writer, sheet_name="Users", index=False)
+
+            worksheet = writer.sheets["Users"]
+            for i, col in enumerate(df.columns):
+                column_len = max(df[col].astype(str).map(len).max(), len(col)) + 2
+                worksheet.set_column(i, i, column_len)
+
+        output.seek(0)
+        return output.getvalue()
