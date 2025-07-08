@@ -10,7 +10,7 @@ from src.app.security.hasher.interface import IHasherProvider
 from src.app.exception.decorator import handle_exceptions
 from src.app.exception import UnauthorizedException, ForbiddenException
 from src.app.security.auth.constants import Scopes
-from src.app.exception.constants import ErrorTypes
+from src.app.exception.constants import ErrorTypes, ErrorTitles
 
 
 class AuthServiceImpl(IAuthService):
@@ -334,7 +334,6 @@ class AuthServiceImpl(IAuthService):
                     raise ForbiddenException(
                         message="Permission denied",
                         details=f"User does not have the required permission: {scope_required}",
-                        type_=ErrorTypes.MISSING_PERMISSION,
                     )
 
         return user_dto
