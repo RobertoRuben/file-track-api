@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, Query, Security
+from datetime import datetime
+from fastapi import APIRouter, Depends, Query, Security, Body, Response
 from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -449,3 +450,59 @@ async def delete_user(
     :return: A success message indicating that the user has been deleted.
     """
     return await user_service.delete_user(user_id)
+
+
+@router.post(
+    "/export-excel",
+    response_class=Response,
+    summary="Export users to Excel",
+    responses={
+        200: {
+            "description": "Excel file with user data",
+            "content": {
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {}
+            },
+        },
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        404: {"model": NotFoundError, "description": "Users not found"},
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Generates comprehensive Excel reports containing detailed user information for specified accounts. "
+    "Creates professionally formatted spreadsheets with complete user data including usernames, employee associations, "
+    "role assignments, department information, and account status. Ideal for user management reporting, security auditing, "
+    "administrative documentation, and external reporting requirements. Supports bulk export with optimized file generation "
+    "for enterprise user administration and compliance reporting.",
+)
+async def export_users_to_excel(
+    user_ids: list[int] = Body(..., description="List of user IDs to export"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.USER_READ]
+    ),
+    user_service: IUserService = Depends(get_user_service),
+) -> Response:
+    """
+    Generates comprehensive Excel reports for selected users.
+
+    This endpoint creates professionally formatted Excel spreadsheets containing
+    detailed user information for reporting, analysis, and compliance purposes.
+    The generated files include complete user metadata, employee associations,
+    role assignments, and formatting optimized for business use and external sharing.
+
+    :param user_ids: List of unique identifiers for users to include in export
+    :param current_user: Authenticated user with user export privileges
+    :param user_service: Service layer handling Excel generation logic
+    :return: Excel file as downloadable response with appropriate headers
+    """
+    excel_data = await user_service.export_users_to_excel(user_ids)
+
+    current_datetime = datetime.now().strftime("%d%m%Y%H%M")
+    filename = f"users_{current_datetime}.xlsx"
+
+    headers = {
+        "Content-Disposition": f"attachment; filename={filename}",
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }
+
+    return Response(content=excel_data, headers=headers)
