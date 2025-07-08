@@ -310,3 +310,44 @@ class UserRepositoryImpl(IUserRepository):
 
         result = await self.session.exec(stmt)
         return result.first() is not None
+
+    @transactional(readonly=True)
+    async def find_by_ids(self, user_ids: list[int]) -> list[User]:
+        """
+        Retrieve users by a list of IDs with complete information.
+
+        :param user_ids: List of user IDs to retrieve
+        :return: List of users matching the provided IDs
+        :raises DatabaseException: If an error occurs during retrieval
+        """
+        if not user_ids:
+            return []
+
+        stmt = (
+            select(
+                User.id,
+                User.username,
+                User.employee_id,
+                func.concat(
+                    Employee.paternal_surname,
+                    ' ',
+                    Employee.maternal_surname,
+                    ' ',
+                    Employee.names,
+                ).label('employee_name'),
+                User.is_active,
+                User.role_id,
+                Role.name.label("role_name"),
+                Department.name.label("department_name"),
+                User.created_at,
+                User.updated_at,
+            )
+            .join(Employee, Employee.id == User.employee_id)
+            .join(Role, Role.id == User.role_id)
+            .join(Department, Department.id == Employee.department_id)
+            .where(User.id.in_(user_ids))
+        )
+
+        results = await self.session.exec(stmt)
+        users_data = [dict(row._mapping) for row in results]
+        return users_data

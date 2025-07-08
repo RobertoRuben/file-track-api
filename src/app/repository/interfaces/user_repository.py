@@ -134,3 +134,16 @@ class IUserRepository(ABC):
             True if a matching user exists, False otherwise
         """
         pass
+
+    @abstractmethod
+    async def find_by_ids(self, user_ids: list[int]) -> list[User]:
+        """
+        Retrieve multiple user entities from the database by their IDs.
+
+        Args:
+            user_ids: List of user IDs to retrieve
+
+        Returns:
+            List of found user entities
+        """
+        pass
