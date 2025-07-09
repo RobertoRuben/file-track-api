@@ -163,7 +163,7 @@ async def get_paginated_roles(
     "comprehensive search results. Results are returned in a paginated format with configurable page "
     "sizes to optimize performance and user experience. If no search term is provided, returns all roles "
     "in paginated format. This endpoint is ideal for implementing search bars and filtering capabilities "
-    "in user interfaces.",
+    "in user interface.",
 )
 async def find_roles(
     search_term: str | None = Query(None, description="Search term to filter roles"),
@@ -296,7 +296,7 @@ async def export_roles_to_excel(
     "This endpoint returns complete role information including the role's name, description, "
     "creation timestamp, last modification date, and any associated metadata. The role ID must "
     "be a valid integer corresponding to an existing role in the system. This endpoint is ideal "
-    "for displaying detailed role information in user interfaces, role management dashboards, "
+    "for displaying detailed role information in user interface, role management dashboards, "
     "or when performing role-specific operations.",
 )
 async def get_role_by_id(
