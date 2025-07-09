@@ -1,6 +1,6 @@
 from fastapi import FastAPI, Depends
 from contextlib import asynccontextmanager
-from src.app.db import init_db
+from src.app.core.db import init_db
 from src.app.middleware import setup_cors_middleware
 from src.app.exception.globals import register_exception_handlers
 from src.app.service.dependencies import get_current_user

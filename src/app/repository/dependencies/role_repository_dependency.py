@@ -1,6 +1,6 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio.session import AsyncSession
-from src.app.db.dependencies import get_async_session
+from src.app.core.db.dependencies import get_async_session
 from src.app.repository.interfaces import IRoleRepository
 from src.app.repository.implementations import RoleRepositoryImpl
 
