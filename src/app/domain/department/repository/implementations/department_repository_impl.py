@@ -7,6 +7,7 @@ from src.app.core.db.decorator import transactional
 from src.app.domain.department.repository.interface import IDepartmentRepository
 from src.app.domain.department.model import Department
 
+
 class DepartmentRepositoryImpl(IDepartmentRepository):
     """
     Repository implementation for handling Department entities.
