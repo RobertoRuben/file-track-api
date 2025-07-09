@@ -1,6 +1,6 @@
 from .document_category_repository_impl import DocumentCategoryRepositoryImpl
 from .role_repository_impl import RoleRepositoryImpl
-from .department_repository_impl import DepartmentRepositoryImpl
+from src.app.domain.department.repository.implementations.department_repository_impl import DepartmentRepositoryImpl
 from .documentary_topic_repository_impl import DocumentaryTopicRepositoryImpl
 from .settlement_repository_impl import SettlementRepositoryImpl
 from .submitter_repository_impl import SubmitterRepositoryImpl
