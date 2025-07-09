@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
-from src.app.dto.request import DepartmentConnectionRequestDTO
-from src.app.dto.response import (
-    DepartmentConnectionResponseDTO,
-    DepartmentConnectionPage,
-    CurrentUserResponseDTO,
-)
+from src.app.core.security.auth.model import CurrentUser
 from src.app.core.schema import MessageResponse
+from src.app.domain.department.dto.request import DepartmentConnectionRequestDTO
+from src.app.domain.department.dto.response import (
+    DepartmentConnectionResponseDTO,
+    DepartmentConnectionPage
+)
+
 
 
 class IDepartmentConnectionService(ABC):
@@ -117,7 +118,7 @@ class IDepartmentConnectionService(ABC):
 
     @abstractmethod
     async def get_department_connections_by_current_user_department(
-        self, current_user: CurrentUserResponseDTO
+        self, current_user: CurrentUser
     ) -> list[DepartmentConnectionResponseDTO]:
         """
         Retrieve department connections by the current user's department.

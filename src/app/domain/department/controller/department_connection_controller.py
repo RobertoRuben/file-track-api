@@ -1,4 +1,9 @@
-from fastapi import APIRouter, Depends, Query, Security
+from fastapi import (
+    APIRouter,
+    Depends,
+    Query,
+    Security
+)
 from src.app.core.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -7,19 +12,17 @@ from src.app.core.exception.schema import (
     ForbiddenError,
     UnauthorizedError,
 )
-from src.app.dto.request import DepartmentConnectionRequestDTO
-from src.app.dto.response import (
-    DepartmentConnectionResponseDTO,
-    DepartmentConnectionPage,
-    CurrentUserResponseDTO,
-)
+from src.app.core.security.auth.constants import Scopes
+from src.app.core.security.auth.model import CurrentUser
+from src.app.core.security.auth.dependencies import get_current_user
 from src.app.core.schema import MessageResponse
-from src.app.service.dependencies import (
-    get_department_connection_service,
-    get_current_user,
+from src.app.domain.department.dto.request import DepartmentConnectionRequestDTO
+from src.app.domain.department.dto.response import (
+    DepartmentConnectionResponseDTO,
+    DepartmentConnectionPage
 )
-from src.app.service.interfaces import IDepartmentConnectionService
-from src.app.core.security.auth import Scopes
+from src.app.domain.department.service.dependencies import get_department_connection_service
+from src.app.domain.department.service.interface import IDepartmentConnectionService
 
 router = APIRouter(prefix="/department-connections", tags=["Department Connections"])
 
@@ -59,7 +62,7 @@ department_connection_tags_metadata = {
 )
 async def create_department_connection(
     department_connection: DepartmentConnectionRequestDTO,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_CREATE]
     ),
     department_connection_service: IDepartmentConnectionService = Depends(
@@ -103,7 +106,7 @@ async def create_department_connection(
     "visualization, and strategic planning initiatives across the entire organizational ecosystem.",
 )
 async def get_all_department_connections(
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_READ]
     ),
     department_connection_service: IDepartmentConnectionService = Depends(
@@ -147,7 +150,7 @@ async def get_all_department_connections(
     "focus within their specific organizational context and workflow requirements.",
 )
 async def get_connections_by_current_user_department_id(
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_READ]
     ),
     department_connection_service: IDepartmentConnectionService = Depends(
@@ -195,7 +198,7 @@ async def get_connections_by_current_user_department_id(
 async def get_paginated_department_connections(
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of connections per page"),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_READ]
     ),
     department_connection_service: IDepartmentConnectionService = Depends(
@@ -248,7 +251,7 @@ async def find_department_connections(
     ),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of connections per page"),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_READ]
     ),
     department_connection_service: IDepartmentConnectionService = Depends(
@@ -296,7 +299,7 @@ async def find_department_connections(
 )
 async def get_department_connection_by_id(
     department_connection_id: int,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_READ]
     ),
     department_connection_service: IDepartmentConnectionService = Depends(
@@ -346,7 +349,7 @@ async def get_department_connection_by_id(
 async def update_department_connection(
     department_connection_id: int,
     department_connection_request: DepartmentConnectionRequestDTO,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_UPDATE]
     ),
     department_connection_service: IDepartmentConnectionService = Depends(
@@ -395,7 +398,7 @@ async def update_department_connection(
 )
 async def delete_department_connection(
     department_connection_id: int,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_DELETE]
     ),
     department_connection_service: IDepartmentConnectionService = Depends(
@@ -443,7 +446,7 @@ async def delete_department_connection(
 )
 async def get_connections_by_source_department_id(
     source_department_id: int,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_READ]
     ),
     department_connection_service: IDepartmentConnectionService = Depends(

@@ -1,21 +1,24 @@
 from datetime import datetime
-from src.app.model.entity import DepartmentConnection
-from src.app.dto.request import DepartmentConnectionRequestDTO
-from src.app.dto.response import (
-    DepartmentConnectionPage,
-    DepartmentConnectionResponseDTO,
-    CurrentUserResponseDTO,
-)
+
 from src.app.core.schema import MessageResponse
 from src.app.core.exception import (
     BadRequestException,
     ConflictException,
     NotFoundException,
 )
-from src.app.core.exception import handle_exceptions
-from src.app.repository.interfaces import IDepartmentConnectionRepository
-from src.app.repository.interfaces import IDepartmentRepository
-from src.app.service.interfaces import IDepartmentConnectionService
+from src.app.core.security.auth.model import CurrentUser
+from src.app.core.exception.decorator import handle_exceptions
+from src.app.domain.department.repository.interface import (
+    IDepartmentConnectionRepository,
+    IDepartmentRepository,
+)
+from src.app.domain.department.service.interface import IDepartmentConnectionService
+from src.app.domain.department.model import DepartmentConnection
+from src.app.domain.department.dto.request import DepartmentConnectionRequestDTO
+from src.app.domain.department.dto.response import (
+    DepartmentConnectionPage,
+    DepartmentConnectionResponseDTO,
+)
 
 
 class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
@@ -76,7 +79,9 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
         if existing_connection:
             raise ConflictException(
                 message="Department connection already exists",
-                details=f"Department connection already exists between department {department_connection_request.source_department_id} and department {department_connection_request.target_department_id}.",
+                details=f"Department connection already exists between department "
+                f"{department_connection_request.source_department_id} and department "
+                f"{department_connection_request.target_department_id}.",
             )
 
         new_connection = DepartmentConnection(
@@ -380,7 +385,7 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
 
     @handle_exceptions
     async def get_department_connections_by_current_user_department(
-        self, current_user: CurrentUserResponseDTO
+        self, current_user: CurrentUser
     ) -> list[DepartmentConnectionResponseDTO]:
 
         if not current_user.department_id:

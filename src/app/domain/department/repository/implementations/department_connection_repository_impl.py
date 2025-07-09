@@ -1,12 +1,13 @@
 import math
+
 from sqlalchemy.orm import aliased
 from sqlmodel import select, func, or_
 from sqlmodel.ext.asyncio.session import AsyncSession
-from src.app.core.db.decorator import transactional
-from src.app.repository.interfaces import IDepartmentConnectionRepository
-from src.app.model.entity import DepartmentConnection, Department
-from src.app.core.exception import InvalidFieldException
 from src.app.core.schema import Page, Pagination
+from src.app.core.db.decorator import transactional
+from src.app.core.exception import InvalidFieldException
+from src.app.repository.interfaces import IDepartmentConnectionRepository
+from src.app.domain.department.model import DepartmentConnection, Department
 
 
 class DepartmentConnectionRepositoryImpl(IDepartmentConnectionRepository):

@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from src.app.model.entity import DepartmentConnection
+
 from src.app.core.schema import Page
+from src.app.domain.department.model import DepartmentConnection
 
 
 class IDepartmentConnectionRepository(ABC):
