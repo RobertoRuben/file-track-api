@@ -13,8 +13,8 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .employee import Employee
-    from .department_connection import DepartmentConnection
+    from src.app.model.entity.employee import Employee
+    from src.app.model.entity.department_connection import DepartmentConnection
 
 
 class Department(SQLModel, table=True):

@@ -14,7 +14,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .department import Department
+    from src.app.domain.department.model.department import Department
     from .position import Position
     from .user import User
 

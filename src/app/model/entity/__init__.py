@@ -1,6 +1,6 @@
 from .document_category import DocumentCategory
 from .role import Role
-from .department import Department
+from src.app.domain.department.model.department import Department
 from .documentary_topic import DocumentaryTopic
 from .settlement import Settlement
 from .submitter import Submitter

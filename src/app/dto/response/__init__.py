@@ -3,7 +3,7 @@ from .document_category_response_dto import (
     DocumentCategoryPage,
 )
 from .role_response_dto import RoleResponseDTO, RolePage
-from .department_response_dto import DepartmentResponseDTO, DepartmentPage
+from src.app.domain.department.dto.response.department_response_dto import DepartmentResponseDTO, DepartmentPage
 from .documentary_topic_response_dto import (
     DocumentaryTopicResponseDTO,
     DocumentaryTopicPage,
