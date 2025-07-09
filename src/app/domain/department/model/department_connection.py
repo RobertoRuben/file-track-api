@@ -13,7 +13,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.app.domain.department.model.department import Department
+    from .department import Department
 
 
 class DepartmentConnection(SQLModel, table=True):
