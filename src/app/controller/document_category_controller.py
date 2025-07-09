@@ -1,5 +1,5 @@
 from datetime import datetime
-from fastapi import APIRouter, Depends, Query, Security, Body, Response
+from fastapi import APIRouter, Depends, Query, Security, Body, Response, Request
 from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -479,6 +479,7 @@ async def update_document_category(
 )
 async def delete_document_category(
     document_category_id: int,
+    request: Request,
     current_user: CurrentUserResponseDTO = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_CATEGORY_DELETE]
     ),
@@ -498,5 +499,5 @@ async def delete_document_category(
     :return: A success message indicating that the document category has been deleted.
     """
     return await document_category_service.delete_document_category(
-        document_category_id
+        document_category_id, request
     )

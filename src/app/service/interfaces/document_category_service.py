@@ -48,12 +48,13 @@ class IDocumentCategoryService(ABC):
 
     @abstractmethod
     async def delete_document_category(
-        self, document_category_id: int
+        self, document_category_id: int, request
     ) -> MessageResponse:
         """
         Delete a document category by its ID.
 
         :param document_category_id: The ID of the document category to delete
+        :param request: The FastAPI request object (for error context)
         :return: A MessageResponse indicating the result of the deletion
         """
         pass
