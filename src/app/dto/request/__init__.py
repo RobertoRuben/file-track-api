@@ -1,6 +1,8 @@
 from .document_category_request_dto import DocumentCategoryRequestDTO
 from .role_request_dto import RoleRequestDTO
-from src.app.domain.department.dto.request.department_request_dto import DepartmentRequestDTO
+from src.app.domain.department.dto.request.department_request_dto import (
+    DepartmentRequestDTO,
+)
 from .documentary_topic_request_dto import DocumentaryTopicRequestDTO
 from .settlement_request_dto import SettlementRequestDTO
 from .submitter_request_dto import SubmitterRequestDTO

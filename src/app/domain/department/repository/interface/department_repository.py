@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from src.app.model.entity import Department
+from src.app.domain.department.model import Department
 from src.app.core.schema import Page
 
 
