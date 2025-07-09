@@ -4,9 +4,8 @@ from src.app.core.schema import MessageResponse
 from src.app.domain.department.dto.request import DepartmentConnectionRequestDTO
 from src.app.domain.department.dto.response import (
     DepartmentConnectionResponseDTO,
-    DepartmentConnectionPage
+    DepartmentConnectionPage,
 )
-
 
 
 class IDepartmentConnectionService(ABC):

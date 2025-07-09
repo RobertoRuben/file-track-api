@@ -93,7 +93,7 @@ async def create_department(
     description="Retrieves the complete organizational structure by returning all departments registered in the system. "
     "This endpoint provides comprehensive department information including unique identifiers, names, descriptions, "
     "creation timestamps, modification dates, and associated metadata. The response delivers the full organizational "
-    "hierarchy essential for administrative interfaces, employee assignment systems, and organizational charts. "
+    "hierarchy essential for administrative interface, employee assignment systems, and organizational charts. "
     "This data supports various business processes including HR management, workflow routing, and departmental "
     "reporting requirements throughout the organization.",
 )
@@ -130,7 +130,7 @@ async def get_all_departments(
     description="Provides departments through an advanced pagination system optimized for handling large organizational "
     "structures with superior performance characteristics. This endpoint returns structured pagination metadata "
     "including total department counts, total pages, current page indicators, and navigation flags (hasNext, "
-    "hasPrevious) to support sophisticated administrative interfaces. The pagination approach significantly "
+    "hasPrevious) to support sophisticated administrative interface. The pagination approach significantly "
     "enhances application responsiveness when managing extensive organizational hierarchies and enables smooth "
     "navigation through large departmental datasets in management dashboards and organizational tools.",
 )
@@ -322,7 +322,7 @@ async def export_departments_to_excel(
     "This endpoint returns complete department information including the department name, detailed description, "
     "organizational hierarchy position, creation timestamp, last modification date, employee counts, and "
     "associated metadata. The department ID must correspond to an existing organizational unit in the system. "
-    "This endpoint is essential for displaying detailed department information in administrative interfaces, "
+    "This endpoint is essential for displaying detailed department information in administrative interface, "
     "populating department edit forms, supporting organizational reporting, and providing context for employee "
     "management and interdepartmental operations.",
 )

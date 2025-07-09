@@ -9,7 +9,9 @@ from src.app.domain.department.repository.dependencies import (
     get_department_repository,
 )
 from src.app.domain.department.service.interface import IDepartmentConnectionService
-from src.app.domain.department.service.implementations import DepartmentConnectionServiceImpl
+from src.app.domain.department.service.implementations import (
+    DepartmentConnectionServiceImpl,
+)
 
 
 async def get_department_connection_service(

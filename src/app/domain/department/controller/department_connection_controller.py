@@ -1,9 +1,4 @@
-from fastapi import (
-    APIRouter,
-    Depends,
-    Query,
-    Security
-)
+from fastapi import APIRouter, Depends, Query, Security
 from src.app.core.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -19,9 +14,11 @@ from src.app.core.schema import MessageResponse
 from src.app.domain.department.dto.request import DepartmentConnectionRequestDTO
 from src.app.domain.department.dto.response import (
     DepartmentConnectionResponseDTO,
-    DepartmentConnectionPage
+    DepartmentConnectionPage,
 )
-from src.app.domain.department.service.dependencies import get_department_connection_service
+from src.app.domain.department.service.dependencies import (
+    get_department_connection_service,
+)
 from src.app.domain.department.service.interface import IDepartmentConnectionService
 
 router = APIRouter(prefix="/department-connections", tags=["Department Connections"])
