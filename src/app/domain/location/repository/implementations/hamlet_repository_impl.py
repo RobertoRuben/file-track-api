@@ -2,10 +2,10 @@ import math
 from sqlmodel import select, func, or_
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.app.core.db.decorator import transactional
-from src.app.repository.interfaces import IHamletRepository
-from src.app.model.entity import Hamlet, Settlement
 from src.app.core.exception import InvalidFieldException
 from src.app.core.schema import Page, Pagination
+from src.app.domain.location.model import Hamlet, Settlement
+from src.app.domain.location.repository.interface import IHamletRepository
 
 
 class HamletRepositoryImpl(IHamletRepository):

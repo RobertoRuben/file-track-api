@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from src.app.dto.request import HamletRequestDTO
-from src.app.dto.response import HamletResponseDTO, HamletPage
+
 from src.app.core.schema import MessageResponse
+from src.app.domain.location.dto.request import HamletRequestDTO
+from src.app.domain.location.dto.response import HamletResponseDTO, HamletPage
 
 
 class IHamletService(ABC):

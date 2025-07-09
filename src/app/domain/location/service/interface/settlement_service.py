@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from src.app.dto.request import SettlementRequestDTO
-from src.app.dto.response import SettlementResponseDTO, SettlementPage
+
 from src.app.core.schema import MessageResponse
+from src.app.domain.location.dto.request import SettlementRequestDTO
+from src.app.domain.location.dto.response import SettlementResponseDTO, SettlementPage
 
 
 class ISettlementService(ABC):

@@ -1,8 +1,11 @@
 from fastapi import Depends
-from src.app.service.interfaces import IHamletService
-from src.app.service.implementations import HamletServiceImpl
-from src.app.repository.interfaces import IHamletRepository, ISettlementRepository
-from src.app.repository.dependencies import (
+from src.app.domain.location.service.interface import IHamletService
+from src.app.domain.location.service.implementations import HamletServiceImpl
+from src.app.domain.location.repository.interface import (
+    IHamletRepository,
+    ISettlementRepository,
+)
+from src.app.domain.location.repository.dependencies import (
     get_hamlet_repository,
     get_settlement_repository,
 )

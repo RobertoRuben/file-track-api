@@ -8,12 +8,15 @@ from src.app.core.exception.schema import (
     UnauthorizedError,
     ForbiddenError,
 )
-from src.app.dto.request import HamletRequestDTO
-from src.app.dto.response import HamletResponseDTO, HamletPage, CurrentUserResponseDTO
+from src.app.core.security.auth.model import CurrentUser
+from src.app.core.security.auth.dependencies import get_current_user
 from src.app.core.schema import MessageResponse
-from src.app.service.interfaces import IHamletService
-from src.app.service.dependencies import get_hamlet_service, get_current_user
-from src.app.core.security.auth import Scopes
+from src.app.core.security.auth.constants import Scopes
+from src.app.domain.location.dto.request import HamletRequestDTO
+from src.app.domain.location.dto.response import HamletResponseDTO, HamletPage
+from src.app.domain.location.service.interface import IHamletService
+from src.app.domain.location.service.dependencies import get_hamlet_service
+
 
 router = APIRouter(prefix="/hamlets", tags=["Hamlets"])
 
@@ -51,7 +54,7 @@ hamlet_tags_metadata = {
 )
 async def create_hamlet(
     hamlet_request: HamletRequestDTO,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.HAMLET_CREATE]
     ),
     hamlet_service: IHamletService = Depends(get_hamlet_service),
@@ -92,9 +95,7 @@ async def create_hamlet(
     "and territorial structure understanding.",
 )
 async def get_all_hamlets(
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.HAMLET_READ]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.HAMLET_READ]),
     hamlet_service: IHamletService = Depends(get_hamlet_service),
 ) -> list[HamletResponseDTO]:
     """
@@ -130,9 +131,7 @@ async def get_all_hamlets(
 async def get_paginated_hamlets(
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of hamlets per page"),
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.HAMLET_READ]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.HAMLET_READ]),
     hamlet_service: IHamletService = Depends(get_hamlet_service),
 ) -> HamletPage:
     """
@@ -172,9 +171,7 @@ async def find_hamlets(
     search_term: str | None = Query(None, description="Search term to filter hamlets"),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of hamlets per page"),
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.HAMLET_READ]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.HAMLET_READ]),
     hamlet_service: IHamletService = Depends(get_hamlet_service),
 ) -> HamletPage:
     """
@@ -213,9 +210,7 @@ async def find_hamlets(
 )
 async def get_hamlet_by_id(
     hamlet_id: int,
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.HAMLET_READ]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.HAMLET_READ]),
     hamlet_service: IHamletService = Depends(get_hamlet_service),
 ) -> HamletResponseDTO:
     """
@@ -257,7 +252,7 @@ async def get_hamlet_by_id(
 async def update_hamlet(
     hamlet_id: int,
     hamlet_request: HamletRequestDTO,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.HAMLET_UPDATE]
     ),
     hamlet_service: IHamletService = Depends(get_hamlet_service),
@@ -302,7 +297,7 @@ async def update_hamlet(
 )
 async def delete_hamlet(
     hamlet_id: int,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.HAMLET_DELETE]
     ),
     hamlet_service: IHamletService = Depends(get_hamlet_service),
@@ -342,7 +337,7 @@ async def delete_hamlet(
 )
 async def delete_hamlets_bulk(
     hamlet_ids: list[int] = Body(..., description="List of hamlet IDs to delete"),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.HAMLET_DELETE]
     ),
     hamlet_service: IHamletService = Depends(get_hamlet_service),
@@ -382,9 +377,7 @@ async def delete_hamlets_bulk(
 )
 async def export_hamlets_to_excel(
     hamlet_ids: list[int] = Body(..., description="List of hamlet IDs to export"),
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.HAMLET_READ]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.HAMLET_READ]),
     hamlet_service: IHamletService = Depends(get_hamlet_service),
 ) -> Response:
     """

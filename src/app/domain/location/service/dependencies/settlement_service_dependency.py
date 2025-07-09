@@ -1,8 +1,8 @@
 from fastapi import Depends
-from src.app.service.interfaces import ISettlementService
-from src.app.service.implementations import SettlementServiceImpl
-from src.app.repository.interfaces import ISettlementRepository
-from src.app.repository.dependencies import get_settlement_repository
+from src.app.domain.location.service.interface import ISettlementService
+from src.app.domain.location.service.implementations import SettlementServiceImpl
+from src.app.domain.location.repository.interface import ISettlementRepository
+from src.app.domain.location.repository.dependencies import get_settlement_repository
 
 
 async def get_settlement_service(

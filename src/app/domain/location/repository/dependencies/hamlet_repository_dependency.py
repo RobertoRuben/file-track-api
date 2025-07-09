@@ -1,8 +1,8 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from src.app.core.db.dependencies import get_async_session
-from src.app.repository.interfaces import IHamletRepository
-from src.app.repository.implementations import HamletRepositoryImpl
+from src.app.domain.location.repository.interface import IHamletRepository
+from src.app.domain.location.repository.implementations import HamletRepositoryImpl
 
 
 async def get_hamlet_repository(

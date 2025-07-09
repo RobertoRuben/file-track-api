@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from src.app.model.entity import Settlement
+
 from src.app.core.schema import Page
+from src.app.domain.location.model import Settlement
 
 
 class ISettlementRepository(ABC):

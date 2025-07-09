@@ -8,16 +8,19 @@ from src.app.core.exception.schema import (
     UnauthorizedError,
     ForbiddenError,
 )
-from src.app.dto.request import SettlementRequestDTO
-from src.app.dto.response import (
+from src.app.core.security.auth.model import CurrentUser
+from src.app.core.security.auth.dependencies import get_current_user
+from src.app.core.security.auth.constants import Scopes
+from src.app.core.schema import MessageResponse
+from src.app.domain.location.dto.request import SettlementRequestDTO
+from src.app.domain.location.dto.response import (
     SettlementResponseDTO,
     SettlementPage,
-    CurrentUserResponseDTO,
 )
-from src.app.core.schema import MessageResponse
-from src.app.service.interfaces import ISettlementService
-from src.app.service.dependencies import get_settlement_service, get_current_user
-from src.app.core.security.auth import Scopes
+
+from src.app.domain.location.service.interface import ISettlementService
+from src.app.domain.location.service.dependencies import get_settlement_service
+
 
 router = APIRouter(prefix="/settlements", tags=["Settlements"])
 
@@ -55,7 +58,7 @@ settlement_tags_metadata = {
 )
 async def create_settlement(
     settlement_request: SettlementRequestDTO,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SETTLEMENT_CREATE]
     ),
     settlement_service: ISettlementService = Depends(get_settlement_service),
@@ -96,7 +99,7 @@ async def create_settlement(
     "information and municipal structure understanding for governmental operations.",
 )
 async def get_all_settlements(
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SETTLEMENT_READ]
     ),
     settlement_service: ISettlementService = Depends(get_settlement_service),
@@ -134,7 +137,7 @@ async def get_all_settlements(
 async def get_paginated_settlements(
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of settlements per page"),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SETTLEMENT_READ]
     ),
     settlement_service: ISettlementService = Depends(get_settlement_service),
@@ -178,7 +181,7 @@ async def find_settlements(
     ),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of settlements per page"),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SETTLEMENT_READ]
     ),
     settlement_service: ISettlementService = Depends(get_settlement_service),
@@ -231,7 +234,7 @@ async def delete_settlements_bulk(
     settlement_ids: list[int] = Body(
         ..., description="List of settlement IDs to delete"
     ),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SETTLEMENT_DELETE]
     ),
     settlement_service: ISettlementService = Depends(get_settlement_service),
@@ -287,7 +290,7 @@ async def export_settlements_to_excel(
         ...,
         description="List of settlement IDs to export. If empty, exports all settlements",
     ),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SETTLEMENT_READ]
     ),
     settlement_service: ISettlementService = Depends(get_settlement_service),
@@ -340,7 +343,7 @@ async def export_settlements_to_excel(
 )
 async def get_settlement_by_id(
     settlement_id: int,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SETTLEMENT_READ]
     ),
     settlement_service: ISettlementService = Depends(get_settlement_service),
@@ -384,7 +387,7 @@ async def get_settlement_by_id(
 async def update_settlement(
     settlement_id: int,
     settlement_request: SettlementRequestDTO,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SETTLEMENT_UPDATE]
     ),
     settlement_service: ISettlementService = Depends(get_settlement_service),
@@ -429,7 +432,7 @@ async def update_settlement(
 )
 async def delete_settlement(
     settlement_id: int,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SETTLEMENT_DELETE]
     ),
     settlement_service: ISettlementService = Depends(get_settlement_service),
