@@ -1,5 +1,5 @@
-import pandas as pd
 import io
+import pandas as pd
 from datetime import datetime
 from src.app.core.exception.decorator import handle_exceptions
 from src.app.core.helpers import datetime_helper
@@ -10,10 +10,10 @@ from src.app.core.exception import (
     NotFoundException,
 )
 from src.app.domain.department.model import Department
-from src.app.dto.request import DepartmentRequestDTO
-from src.app.dto.response import DepartmentPage, DepartmentResponseDTO
-from src.app.repository.interfaces import IDepartmentRepository
-from src.app.service.interfaces import IDepartmentService
+from src.app.domain.department.dto.request import DepartmentRequestDTO
+from src.app.domain.department.dto.response import DepartmentPage, DepartmentResponseDTO
+from src.app.domain.department.repository.interface import IDepartmentRepository
+from src.app.domain.department.service.interface import IDepartmentService
 
 
 class DepartmentServiceImpl(IDepartmentService):

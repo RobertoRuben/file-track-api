@@ -1,5 +1,12 @@
 from datetime import datetime
-from fastapi import APIRouter, Depends, Query, Security, Body, Response
+from fastapi import (
+    APIRouter,
+    Depends,
+    Query,
+    Security,
+    Body,
+    Response
+)
 from src.app.core.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -8,16 +15,14 @@ from src.app.core.exception.schema import (
     UnauthorizedError,
     ForbiddenError,
 )
-from src.app.dto.request import DepartmentRequestDTO
-from src.app.dto.response import (
-    DepartmentResponseDTO,
-    DepartmentPage,
-    CurrentUserResponseDTO,
-)
 from src.app.core.schema import MessageResponse
-from src.app.service.interfaces import IDepartmentService
-from src.app.service.dependencies import get_department_service, get_current_user
-from src.app.core.security.auth import Scopes
+from src.app.core.security.auth.constants import Scopes
+from src.app.core.security.auth.model import CurrentUser
+from src.app.core.security.auth.dependencies import get_current_user
+from src.app.domain.department.dto.request import DepartmentRequestDTO
+from src.app.domain.department.dto.response import DepartmentResponseDTO, DepartmentPage
+from src.app.domain.department.service.interface import IDepartmentService
+from src.app.domain.department.service.dependencies import get_department_service
 
 router = APIRouter(prefix="/departments", tags=["Departments"])
 
@@ -58,7 +63,7 @@ department_tags_metadata = {
 )
 async def create_department(
     department_request: DepartmentRequestDTO,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_CREATE]
     ),
     department_service: IDepartmentService = Depends(get_department_service),
@@ -100,7 +105,7 @@ async def create_department(
     "reporting requirements throughout the organization.",
 )
 async def get_all_departments(
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_READ]
     ),
     department_service: IDepartmentService = Depends(get_department_service),
@@ -139,7 +144,7 @@ async def get_all_departments(
 async def get_paginated_departments(
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of departments per page"),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_READ]
     ),
     department_service: IDepartmentService = Depends(get_department_service),
@@ -185,7 +190,7 @@ async def find_departments(
     ),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of departments per page"),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_READ]
     ),
     department_service: IDepartmentService = Depends(get_department_service),
@@ -237,7 +242,7 @@ async def delete_departments_bulk(
     department_ids: list[int] = Body(
         ..., description="List of department IDs to delete"
     ),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_DELETE]
     ),
     department_service: IDepartmentService = Depends(get_department_service),
@@ -280,7 +285,7 @@ async def export_departments_to_excel(
     department_ids: list[int] = Body(
         ..., description="List of department IDs to export"
     ),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_READ]
     ),
     department_service: IDepartmentService = Depends(get_department_service),
@@ -330,7 +335,7 @@ async def export_departments_to_excel(
 )
 async def get_department_by_id(
     department_id: int,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_READ]
     ),
     department_service: IDepartmentService = Depends(get_department_service),
@@ -376,7 +381,7 @@ async def get_department_by_id(
 async def update_department(
     department_id: int,
     department_request: DepartmentRequestDTO,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_UPDATE]
     ),
     department_service: IDepartmentService = Depends(get_department_service),
@@ -422,7 +427,7 @@ async def update_department(
 )
 async def delete_department(
     department_id: int,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_DELETE]
     ),
     department_service: IDepartmentService = Depends(get_department_service),
