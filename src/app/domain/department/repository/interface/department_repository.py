@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from src.app.domain.department.model import Department
 from src.app.core.schema import Page
+from src.app.domain.department.model import Department
 
 
 class IDepartmentRepository(ABC):

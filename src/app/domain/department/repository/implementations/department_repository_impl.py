@@ -4,8 +4,8 @@ from sqlmodel.ext.asyncio.session import AsyncSession
 from src.app.core.exception import InvalidFieldException
 from src.app.core.schema import Page, Pagination
 from src.app.core.db.decorator import transactional
-from src.app.domain.department.repository.interface import IDepartmentRepository
 from src.app.domain.department.model import Department
+from src.app.domain.department.repository.interface import IDepartmentRepository
 
 
 class DepartmentRepositoryImpl(IDepartmentRepository):
