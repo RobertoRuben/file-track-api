@@ -1,6 +1,6 @@
 import asyncio
 from src.app.core.config import settings
-from src.app.security.hasher.interface import IHasherProvider
+from src.app.core.security.hasher.interface import IHasherProvider
 from argon2 import PasswordHasher
 from argon2.exceptions import VerifyMismatchError
 

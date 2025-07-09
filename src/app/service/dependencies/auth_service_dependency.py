@@ -1,7 +1,7 @@
 from fastapi import Depends
 from src.app.repository.dependencies import get_user_repository
-from src.app.security.auth.dependencies import get_token_provider
-from src.app.security.hasher.dependencies import get_hasher_provider
+from src.app.core.security.auth.dependencies import get_token_provider
+from src.app.core.security.hasher.dependencies import get_hasher_provider
 from src.app.service.implementations import AuthServiceImpl
 from src.app.service.interfaces import IAuthService
 

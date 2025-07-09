@@ -19,7 +19,7 @@ from src.app.service.dependencies import (
     get_current_user,
 )
 from src.app.service.interfaces import IDepartmentConnectionService
-from src.app.security.auth.constants import Scopes
+from src.app.core.security.auth import Scopes
 
 router = APIRouter(prefix="/department-connections", tags=["Department Connections"])
 

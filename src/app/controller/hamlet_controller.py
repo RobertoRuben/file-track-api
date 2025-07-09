@@ -13,7 +13,7 @@ from src.app.dto.response import HamletResponseDTO, HamletPage, CurrentUserRespo
 from src.app.core.schema import MessageResponse
 from src.app.service.interfaces import IHamletService
 from src.app.service.dependencies import get_hamlet_service, get_current_user
-from src.app.security.auth.constants import Scopes
+from src.app.core.security.auth import Scopes
 
 router = APIRouter(prefix="/hamlets", tags=["Hamlets"])
 

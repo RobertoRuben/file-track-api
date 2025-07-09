@@ -19,7 +19,7 @@ from src.app.repository.interfaces import (
     IEmployeeRepository,
 )
 from src.app.service.interfaces import IUserService
-from src.app.security.hasher.interface import IHasherProvider
+from src.app.core.security.hasher import IHasherProvider
 
 
 class UserServiceImpl(IUserService):

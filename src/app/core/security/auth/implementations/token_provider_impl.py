@@ -3,7 +3,7 @@ from datetime import datetime, timedelta, timezone
 from jwt import PyJWTError
 from typing import Any
 from src.app.core.exception import UnauthorizedException
-from src.app.security.auth.interface import ITokenProvider
+from src.app.core.security.auth.interface import ITokenProvider
 
 SECRET_KEY = "e88731089b8fdcc5539e5f9017dc7d83bcfaf38367fd777caaa5e69f63bd935f"
 ALGORITHM = "HS256"

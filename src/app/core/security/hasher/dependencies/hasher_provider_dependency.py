@@ -1,5 +1,5 @@
-from src.app.security.hasher.interface import IHasherProvider
-from src.app.security.hasher.implementations.hasher_provider_impl import (
+from src.app.core.security.hasher.interface import IHasherProvider
+from src.app.core.security.hasher.implementations.hasher_provider_impl import (
     HasherProviderImpl,
 )
 

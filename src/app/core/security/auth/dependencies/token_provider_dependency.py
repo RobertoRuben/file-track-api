@@ -1,5 +1,5 @@
-from src.app.security.auth.interface import ITokenProvider
-from src.app.security.auth.implementations import TokenProviderImpl
+from src.app.core.security.auth.interface import ITokenProvider
+from src.app.core.security.auth.implementations import TokenProviderImpl
 
 
 async def get_token_provider() -> ITokenProvider:

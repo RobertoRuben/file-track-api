@@ -17,7 +17,7 @@ from src.app.service.dependencies import (
     get_user_service,
     get_current_user,
 )
-from src.app.security.auth.constants import Scopes
+from src.app.core.security.auth import Scopes
 
 router = APIRouter(prefix="/users", tags=["Users"])
 

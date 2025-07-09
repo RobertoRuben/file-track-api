@@ -11,8 +11,8 @@ from src.app.repository.dependencies import (
     get_role_repository,
     get_employee_repository,
 )
-from src.app.security.hasher.interface import IHasherProvider
-from src.app.security.hasher.dependencies import get_hasher_provider
+from src.app.core.security.hasher import IHasherProvider
+from src.app.core.security.hasher.dependencies import get_hasher_provider
 
 
 async def get_user_service(

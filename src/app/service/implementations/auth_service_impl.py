@@ -5,11 +5,11 @@ from src.app.dto.response import (
 )
 from src.app.service.interfaces import IAuthService
 from src.app.repository.interfaces import IUserRepository
-from src.app.security.auth.interface import ITokenProvider
-from src.app.security.hasher.interface import IHasherProvider
+from src.app.core.security.auth.interface import ITokenProvider
+from src.app.core.security.hasher import IHasherProvider
 from src.app.core.exception import handle_exceptions
 from src.app.core.exception import UnauthorizedException, ForbiddenException
-from src.app.security.auth.constants import Scopes
+from src.app.core.security.auth import Scopes
 from src.app.core.exception import ErrorTypes
 
 

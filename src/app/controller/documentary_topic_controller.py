@@ -17,7 +17,7 @@ from src.app.dto.response import (
 from src.app.core.schema import MessageResponse
 from src.app.service.interfaces import IDocumentaryTopicService
 from src.app.service.dependencies import get_documentary_topic_service, get_current_user
-from src.app.security.auth.constants import Scopes
+from src.app.core.security.auth import Scopes
 
 router = APIRouter(prefix="/documentary-topics", tags=["Documentary Topics"])
 

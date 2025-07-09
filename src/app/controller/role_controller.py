@@ -13,7 +13,7 @@ from src.app.dto.response import RoleResponseDTO, RolePage, CurrentUserResponseD
 from src.app.core.schema import MessageResponse
 from src.app.service.interfaces import IRoleService
 from src.app.service.dependencies import get_role_service, get_current_user
-from src.app.security.auth.constants import Scopes
+from src.app.core.security.auth import Scopes
 
 router = APIRouter(prefix="/roles", tags=["Roles"])
 

@@ -3,7 +3,7 @@ from fastapi.security import OAuth2PasswordBearer, SecurityScopes
 from src.app.dto.response import CurrentUserResponseDTO
 from src.app.service.interfaces import IAuthService
 from src.app.service.dependencies import get_auth_service
-from src.app.security.auth.constants import scope_descriptions
+from src.app.core.security.auth import scope_descriptions
 
 oauth2_scheme = OAuth2PasswordBearer(
     tokenUrl="/api/v1/auth/login", scopes=scope_descriptions

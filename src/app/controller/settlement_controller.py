@@ -17,7 +17,7 @@ from src.app.dto.response import (
 from src.app.core.schema import MessageResponse
 from src.app.service.interfaces import ISettlementService
 from src.app.service.dependencies import get_settlement_service, get_current_user
-from src.app.security.auth.constants import Scopes
+from src.app.core.security.auth import Scopes
 
 router = APIRouter(prefix="/settlements", tags=["Settlements"])
 
