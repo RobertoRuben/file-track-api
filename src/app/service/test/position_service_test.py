@@ -221,7 +221,7 @@ class TestPositionServiceImpl:
         position_repository.delete.return_value = True
 
         result = await position_service.delete_position(1)
-        print(f"✅ {result.message}")
+        print(f"✅ {result.detail}")
 
         assert isinstance(result, MessageResponse)
         assert result.success is True
@@ -257,7 +257,7 @@ class TestPositionServiceImpl:
         position_repository.delete.return_value = False
 
         result = await position_service.delete_position(1)
-        print(f"⚠️ {result.message}")
+        print(f"⚠️ {result.detail}")
 
         assert isinstance(result, MessageResponse)
         assert result.success is False

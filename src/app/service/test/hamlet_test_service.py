@@ -349,7 +349,7 @@ class TestHamletServiceImpl:
 
         # Execute test
         result = await hamlet_service.delete_hamlet(1)
-        print(f"✅ {result.message}")
+        print(f"✅ {result.detail}")
 
         # Verify results
         assert isinstance(result, MessageResponse)

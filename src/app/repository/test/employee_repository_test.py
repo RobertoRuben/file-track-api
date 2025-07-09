@@ -459,7 +459,7 @@ class TestEmployeeServiceImpl:
 
         # Execute test
         result = await employee_service.delete_employee(1)
-        print(f"✅ {result.message}")
+        print(f"✅ {result.detail}")
 
         # Verify results
         assert isinstance(result, MessageResponse)

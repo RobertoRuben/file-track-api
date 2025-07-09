@@ -258,7 +258,7 @@ class TestSubmitterServiceImpl:
         submitter_repository.delete = AsyncMock(return_value=True)
 
         result = await submitter_service.delete_submitter(1)
-        print(f"✅ {result.message}")
+        print(f"✅ {result.detail}")
 
         assert isinstance(result, MessageResponse)
         assert result.success is True
@@ -296,7 +296,7 @@ class TestSubmitterServiceImpl:
         submitter_repository.delete = AsyncMock(return_value=False)
 
         result = await submitter_service.delete_submitter(1)
-        print(f"⚠️ {result.message}")
+        print(f"⚠️ {result.detail}")
 
         assert isinstance(result, MessageResponse)
         assert result.success is False

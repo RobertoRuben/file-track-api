@@ -254,7 +254,7 @@ class TestDocumentaryTopicServiceImpl:
         documentary_topic_repository.delete = AsyncMock(return_value=True)
 
         result = await documentary_topic_service.delete_documentary_topic(1)
-        print(f"✅ {result.message}")
+        print(f"✅ {result.detail}")
 
         assert isinstance(result, MessageResponse)
         assert result.success is True
@@ -292,7 +292,7 @@ class TestDocumentaryTopicServiceImpl:
         documentary_topic_repository.delete = AsyncMock(return_value=False)
 
         result = await documentary_topic_service.delete_documentary_topic(1)
-        print(f"⚠️ {result.message}")
+        print(f"⚠️ {result.detail}")
 
         assert isinstance(result, MessageResponse)
         assert result.success is False

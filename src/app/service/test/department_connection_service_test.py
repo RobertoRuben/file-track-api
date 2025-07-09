@@ -458,7 +458,7 @@ class TestDepartmentConnectionServiceImpl:
 
         # Execute test
         result = await department_connection_service.delete_department_connection(1)
-        print(f"✅ {result.message}")
+        print(f"✅ {result.detail}")
 
         # Verify results
         assert isinstance(result, MessageResponse)
