@@ -1,5 +1,5 @@
 from datetime import datetime
-from fastapi import APIRouter, Depends, Query, Security, Body, Response
+from fastapi import APIRouter, Depends, Query, Security, Body, Request, Response
 from src.app.core.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -8,16 +8,16 @@ from src.app.core.exception.schema import (
     UnauthorizedError,
     ForbiddenError,
 )
-from src.app.model.enum import StatusEnum
-from src.app.dto.request import UserRequestDTO
-from src.app.dto.response import UserResponseDTO, CurrentUserResponseDTO, UserPage
+from src.app.core.security.auth.constants import Scopes
+from src.app.core.security.auth.model import CurrentUser
+from src.app.core.security.auth.dependencies import get_current_user
 from src.app.core.schema import MessageResponse
-from src.app.service.interfaces import IUserService
-from src.app.service.dependencies import (
-    get_user_service,
-    get_current_user,
-)
-from src.app.core.security.auth import Scopes
+from src.app.domain.user.enum import StatusEnum
+from src.app.domain.user.dto.request import UserRequestDTO
+from src.app.domain.user.dto.response import UserResponseDTO, UserPage
+from src.app.domain.user.service.interface import IUserService
+from src.app.domain.user.service.dependencies import get_user_service
+
 
 router = APIRouter(prefix="/users", tags=["Users"])
 
@@ -56,9 +56,7 @@ user_tags_metadata = {
 )
 async def create_user(
     user_request: UserRequestDTO,
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.USER_CREATE]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.USER_CREATE]),
     user_service: IUserService = Depends(get_user_service),
 ) -> UserResponseDTO:
     """
@@ -98,9 +96,7 @@ async def create_user(
     "compliance capabilities for organizational user administration.",
 )
 async def get_all_users(
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.USER_READ]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.USER_READ]),
     user_service: IUserService = Depends(get_user_service),
 ) -> list[UserResponseDTO]:
     """
@@ -140,9 +136,7 @@ async def get_paginated_users(
         default=True,
         description="If True, returns only active users; if False, returns only inactive users",
     ),
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.USER_READ]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.USER_READ]),
     user_service: IUserService = Depends(get_user_service),
 ) -> UserPage:
     """
@@ -185,9 +179,7 @@ async def find_users(
     search_term: str | None = Query(None, description="Search term to filter users"),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of users per page"),
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.USER_READ]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.USER_READ]),
     user_service: IUserService = Depends(get_user_service),
 ) -> UserPage:
     """
@@ -226,9 +218,7 @@ async def find_users(
 )
 async def get_user_by_id(
     user_id: int,
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.USER_READ]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.USER_READ]),
     user_service: IUserService = Depends(get_user_service),
 ) -> UserResponseDTO:
     """
@@ -265,9 +255,7 @@ async def get_user_by_id(
 )
 async def get_user_by_username(
     username: str,
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.USER_READ]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.USER_READ]),
     user_service: IUserService = Depends(get_user_service),
 ) -> UserResponseDTO:
     """
@@ -309,9 +297,7 @@ async def get_user_by_username(
 async def update_user(
     user_id: int,
     user_request: UserRequestDTO,
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.USER_UPDATE]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.USER_UPDATE]),
     user_service: IUserService = Depends(get_user_service),
 ) -> UserResponseDTO:
     """
@@ -352,9 +338,7 @@ async def update_password(
     user_id: int,
     old_password: str,
     new_password: str,
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.USER_UPDATE]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.USER_UPDATE]),
     user_service: IUserService = Depends(get_user_service),
 ) -> MessageResponse:
     """
@@ -394,9 +378,7 @@ async def update_password(
 async def update_user_status(
     user_id: int,
     status: StatusEnum,
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.USER_UPDATE]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.USER_UPDATE]),
     user_service: IUserService = Depends(get_user_service),
 ) -> MessageResponse:
     """
@@ -433,9 +415,7 @@ async def update_user_status(
 )
 async def delete_user(
     user_id: int,
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.USER_DELETE]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.USER_DELETE]),
     user_service: IUserService = Depends(get_user_service),
 ) -> MessageResponse:
     """
@@ -477,9 +457,7 @@ async def delete_user(
 )
 async def export_users_to_excel(
     user_ids: list[int] = Body(..., description="List of user IDs to export"),
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.USER_READ]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.USER_READ]),
     user_service: IUserService = Depends(get_user_service),
 ) -> Response:
     """

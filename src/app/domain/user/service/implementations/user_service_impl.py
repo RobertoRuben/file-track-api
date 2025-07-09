@@ -53,7 +53,7 @@ class UserServiceImpl(IUserService):
         self.hasher_provider = hasher_provider
 
     @handle_exceptions
-    async def add_user(self, user_request: UserRequestDTO) -> UserResponseDTO:
+    async def add_user(self, user_request: UserRequestDTO, re) -> UserResponseDTO:
         """
         Adds a new user to the system.
 
