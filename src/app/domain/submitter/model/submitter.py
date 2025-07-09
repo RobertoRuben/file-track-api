@@ -13,7 +13,7 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .document import Document
+    from src.app.domain.document.model import Document
 
 
 class Submitter(SQLModel, table=True):
