@@ -3,6 +3,7 @@ from typing import Callable, TypeVar, Any, Optional
 from src.app.exception.model import BaseHTTPException
 from src.app.exception import ServerException
 from src.app.exception.constants import ErrorTypes, ErrorTitles
+from src.app.config.settings import settings
 import inspect
 
 T = TypeVar('T')
@@ -24,14 +25,24 @@ def handle_exceptions(
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         @functools.wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> T:
-            # Obtener el nombre de la función y el módulo para la instancia
-            func_name = func.__name__
-            module_name = func.__module__
-            instance = f"function:{module_name}.{func_name}"
+            request = None
+            for arg in list(args) + list(kwargs.values()):
+                if hasattr(arg, 'url') and hasattr(arg, 'method'):
+                    request = arg
+                    break
+            if request is not None:
+                instance = request.url.path
+            else:
+                func_name = func.__name__
+                instance = f"urn:problem-instance:{func_name}"
 
             try:
                 return await func(*args, **kwargs)
-            except BaseHTTPException:
+            except BaseHTTPException as e:
+                # Si la excepción BaseHTTPException no tiene instance, la inyectamos
+                if hasattr(e, 'detail') and isinstance(e.detail, dict):
+                    if e.detail.get('instance') is None:
+                        e.detail['instance'] = instance
                 raise
             except AttributeError as e:
                 raise ServerException(
