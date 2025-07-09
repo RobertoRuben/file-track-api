@@ -13,7 +13,7 @@ from src.app.core.exception import (
 from src.app.core.exception import handle_exceptions
 from src.app.repository.interfaces import IPositionRepository
 from src.app.service.interfaces import IPositionService
-from src.app.service.helpers import datetime_helper
+from src.app.core.helpers import datetime_helper
 
 
 class PositionServiceImpl(IPositionService):

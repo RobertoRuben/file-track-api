@@ -1,6 +1,6 @@
 from .document_category_dependency import get_document_category_service
 from .role_service_dependency import get_role_service
-from .department_service_dependency import get_department_service
+from src.app.domain.department.service.dependencies.department_service_dependency import get_department_service
 from .documentary_topic_service_dependency import get_documentary_topic_service
 from .settlement_service_dependency import get_settlement_service
 from .submitter_service_dependency import get_submitter_service

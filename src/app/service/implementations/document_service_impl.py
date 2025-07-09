@@ -24,7 +24,7 @@ from src.app.repository.interfaces import (
     IDocumentaryTopicRepository,
 )
 from src.app.service.interfaces import IDocumentService, IReportService
-from src.app.service.helpers import document_helper
+from src.app.core.helpers import document_helper
 
 
 class DocumentServiceImpl(IDocumentService):

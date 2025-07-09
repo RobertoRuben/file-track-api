@@ -1,8 +1,8 @@
 from fastapi import Depends
-from src.app.service.interfaces import IDepartmentService
-from src.app.service.implementations import DepartmentServiceImpl
-from src.app.repository.interfaces import IDepartmentRepository
-from src.app.repository.dependencies import get_department_repository
+from src.app.domain.department.repository.interface import IDepartmentRepository
+from src.app.domain.department.repository.dependencies import get_department_repository
+from src.app.domain.department.service.interface import IDepartmentService
+from src.app.domain.department.service.implementations import DepartmentServiceImpl
 
 
 async def get_department_service(

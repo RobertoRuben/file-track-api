@@ -1,6 +1,6 @@
 from .document_category_service_impl import DocumentCategoryServiceImpl
 from .role_service_impl import RoleServiceImpl
-from .department_service_impl import DepartmentServiceImpl
+from src.app.domain.department.service.implementations.department_service_impl import DepartmentServiceImpl
 from .documentary_topic_service_impl import DocumentaryTopicServiceImpl
 from .settlement_service_impl import SettlementServiceImpl
 from .submitter_service_impl import SubmitterServiceImpl

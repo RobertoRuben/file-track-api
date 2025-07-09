@@ -1,3 +1,3 @@
-from .department_response_dto import DepartmentResponseDTO
+from .department_response_dto import DepartmentResponseDTO, DepartmentPage
 
-__all__ = ["DepartmentResponseDTO"]
+__all__ = ["DepartmentResponseDTO", "DepartmentPage"]

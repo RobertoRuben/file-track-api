@@ -1,6 +1,8 @@
 from .document_category_dependency import get_document_category_repository
 from .role_repository_dependency import get_role_repository
-from src.app.domain.department.repository.dependencies.department_repository_dependency import get_department_repository
+from src.app.domain.department.repository.dependencies.department_repository_dependency import (
+    get_department_repository,
+)
 from .documentary_topic_repository_dependency import get_documentary_topic_repository
 from .settlement_repository_dependency import get_settlement_repository
 from .submitter_repository_dependency import get_submitter_repository

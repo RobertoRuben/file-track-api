@@ -15,7 +15,7 @@ from src.app.repository.interfaces import IEmployeeRepository
 from src.app.repository.interfaces import IPositionRepository
 from src.app.repository.interfaces import IDepartmentRepository
 from src.app.service.interfaces import IEmployeeService
-from src.app.service.helpers import datetime_helper
+from src.app.core.helpers import datetime_helper
 
 
 class EmployeeServiceImpl(IEmployeeService):

@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from src.app.dto.request import DepartmentRequestDTO
-from src.app.dto.response import DepartmentResponseDTO, DepartmentPage
+from src.app.domain.department.dto.request import DepartmentRequestDTO
+from src.app.domain.department.dto.response import DepartmentResponseDTO, DepartmentPage
 from src.app.core.schema import MessageResponse
 
 
