@@ -1,8 +1,8 @@
 from fastapi import Depends
-from src.app.service.interfaces import IRoleService
-from src.app.service.implementations import RoleServiceImpl
-from src.app.repository.interfaces import IRoleRepository
-from src.app.repository.dependencies import get_role_repository
+from src.app.domain.user.service.interface import IRoleService
+from src.app.domain.user.service.implementations import RoleServiceImpl
+from src.app.domain.user.repository.interface import IRoleRepository
+from src.app.domain.user.repository.dependencies import get_role_repository
 
 
 async def get_role_service(

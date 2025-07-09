@@ -8,12 +8,15 @@ from src.app.core.exception.schema import (
     UnauthorizedError,
     ForbiddenError,
 )
-from src.app.dto.request import RoleRequestDTO
-from src.app.dto.response import RoleResponseDTO, RolePage, CurrentUserResponseDTO
 from src.app.core.schema import MessageResponse
-from src.app.service.interfaces import IRoleService
-from src.app.service.dependencies import get_role_service, get_current_user
-from src.app.core.security.auth import Scopes
+from src.app.core.security.auth.constants import Scopes
+from src.app.core.security.auth.model import CurrentUser
+from src.app.core.security.auth.dependencies import get_current_user
+from src.app.domain.user.dto.request import RoleRequestDTO
+from src.app.domain.user.dto.response import RoleResponseDTO, RolePage
+from src.app.domain.user.service.interface import IRoleService
+from src.app.domain.user.service.dependencies import get_role_service
+
 
 router = APIRouter(prefix="/roles", tags=["Roles"])
 
@@ -51,9 +54,7 @@ role_tags_metadata = {
 )
 async def create_role(
     role_request: RoleRequestDTO,
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.ROLE_CREATE]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.ROLE_CREATE]),
     role_service: IRoleService = Depends(get_role_service),
 ) -> RoleResponseDTO:
     """
@@ -91,9 +92,7 @@ async def create_role(
     "without any filtering or pagination applied.",
 )
 async def get_all_roles(
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.ROLE_READ]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.ROLE_READ]),
     role_service: IRoleService = Depends(get_role_service),
 ) -> list[RoleResponseDTO]:
     """
@@ -129,9 +128,7 @@ async def get_all_roles(
 async def get_paginated_roles(
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of roles per page"),
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.ROLE_READ]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.ROLE_READ]),
     role_service: IRoleService = Depends(get_role_service),
 ) -> RolePage:
     """
@@ -172,9 +169,7 @@ async def find_roles(
     search_term: str | None = Query(None, description="Search term to filter roles"),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of roles per page"),
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.ROLE_READ]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.ROLE_READ]),
     role_service: IRoleService = Depends(get_role_service),
 ) -> RolePage:
     """
@@ -220,9 +215,7 @@ async def find_roles(
 )
 async def delete_roles_bulk(
     role_ids: list[int] = Body(..., description="List of role IDs to delete"),
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.ROLE_DELETE]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.ROLE_DELETE]),
     role_service: IRoleService = Depends(get_role_service),
 ) -> MessageResponse:
     """
@@ -261,9 +254,7 @@ async def delete_roles_bulk(
 )
 async def export_roles_to_excel(
     role_ids: list[int] = Body(..., description="List of role IDs to export"),
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.ROLE_READ]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.ROLE_READ]),
     role_service: IRoleService = Depends(get_role_service),
 ) -> Response:
     """
@@ -310,9 +301,7 @@ async def export_roles_to_excel(
 )
 async def get_role_by_id(
     role_id: int,
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.ROLE_READ]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.ROLE_READ]),
     role_service: IRoleService = Depends(get_role_service),
 ) -> RoleResponseDTO:
     """
@@ -355,9 +344,7 @@ async def get_role_by_id(
 async def update_role(
     role_id: int,
     role_request: RoleRequestDTO,
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.ROLE_UPDATE]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.ROLE_UPDATE]),
     role_service: IRoleService = Depends(get_role_service),
 ) -> RoleResponseDTO:
     """
@@ -400,9 +387,7 @@ async def update_role(
 )
 async def delete_role(
     role_id: int,
-    current_user: CurrentUserResponseDTO = Security(
-        get_current_user, scopes=[Scopes.ROLE_DELETE]
-    ),
+    current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.ROLE_DELETE]),
     role_service: IRoleService = Depends(get_role_service),
 ) -> MessageResponse:
     """

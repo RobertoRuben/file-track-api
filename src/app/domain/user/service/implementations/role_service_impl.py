@@ -1,7 +1,6 @@
 import pandas as pd
 import io
 from datetime import datetime
-from src.app.model.entity import Role
 from src.app.core.helpers import datetime_helper
 from src.app.dto.request import RoleRequestDTO
 from src.app.dto.response import RolePage, RoleResponseDTO
@@ -11,9 +10,10 @@ from src.app.core.exception import (
     ConflictException,
     NotFoundException,
 )
-from src.app.core.exception import handle_exceptions
-from src.app.repository.interfaces import IRoleRepository
-from src.app.service.interfaces import IRoleService
+from src.app.core.exception.decorator import handle_exceptions
+from src.app.domain.user.model import Role
+from src.app.domain.user.repository.interface import IRoleRepository
+from src.app.domain.user.service.interface import IRoleService
 
 
 class RoleServiceImpl(IRoleService):

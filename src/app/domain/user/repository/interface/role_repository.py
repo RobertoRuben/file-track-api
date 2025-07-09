@@ -1,9 +1,13 @@
 from abc import ABC, abstractmethod
+
 from src.app.core.schema import Page
-from src.app.model.entity import Role
+from src.app.domain.user.model import Role
 
 
 class IRoleRepository(ABC):
+    """
+    Interface for the Role repository.
+    """
 
     @abstractmethod
     async def save(self, rol: Role) -> Role:
