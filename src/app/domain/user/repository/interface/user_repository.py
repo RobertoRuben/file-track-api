@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 from src.app.core.schema import Page
-from src.app.model.entity import User
+from src.app.domain.user.model import User
 
 
 class IUserRepository(ABC):

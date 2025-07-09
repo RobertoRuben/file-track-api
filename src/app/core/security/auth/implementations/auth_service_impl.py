@@ -1,16 +1,15 @@
-from src.app.dto.request import AuthRequestDTO
-from src.app.dto.response import (
-    AuthResponseDTO,
-    CurrentUserResponseDTO,
-)
-from src.app.service.interfaces import IAuthService
-from src.app.repository.interfaces import IUserRepository
+from src.app.core.security.auth.dto.request import AuthRequestDTO
+from src.app.core.security.auth.dto.response import AuthResponseDTO
+from src.app.core.security.auth.model import CurrentUser
+from src.app.core.security.auth.interface import IAuthService
 from src.app.core.security.auth.interface import ITokenProvider
-from src.app.core.security.hasher import IHasherProvider
-from src.app.core.exception import handle_exceptions
+from src.app.core.security.hasher.interface import IHasherProvider
+from src.app.core.exception.decorator import handle_exceptions
 from src.app.core.exception import UnauthorizedException, ForbiddenException
-from src.app.core.security.auth import Scopes
-from src.app.core.exception import ErrorTypes
+from src.app.core.security.auth.constants import Scopes
+from src.app.core.exception.constants import ErrorTypes
+
+from src.app.domain.user.repository.interface import IUserRepository
 
 
 class AuthServiceImpl(IAuthService):
@@ -124,7 +123,7 @@ class AuthServiceImpl(IAuthService):
         )
 
     @handle_exceptions
-    async def get_current_user(self, token: str) -> CurrentUserResponseDTO:
+    async def get_current_user(self, token: str) -> CurrentUser:
         """
         Retrieve the current user's information using an access token.
 
@@ -172,7 +171,7 @@ class AuthServiceImpl(IAuthService):
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        user_dto = CurrentUserResponseDTO(
+        user_dto = CurrentUser(
             id=user_data["id"],
             username=user_data["username"],
             employee_name=user_data["employee_name"],
@@ -263,7 +262,7 @@ class AuthServiceImpl(IAuthService):
     @handle_exceptions
     async def get_current_user_with_scopes(
         self, token: str, required_scopes: list[str]
-    ) -> CurrentUserResponseDTO:
+    ) -> CurrentUser:
         """
         Retrieve the current user's information and verify that the user has the required scopes.
 
@@ -316,7 +315,7 @@ class AuthServiceImpl(IAuthService):
                 headers={"WWW-Authenticate": "Bearer"},
             )
 
-        user_dto = CurrentUserResponseDTO(
+        user_dto = CurrentUser(
             id=user_data["id"],
             username=user_data["username"],
             employee_name=user_data["employee_name"],

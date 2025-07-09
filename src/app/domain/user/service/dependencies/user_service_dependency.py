@@ -1,18 +1,15 @@
 from fastapi import Depends
-from src.app.service.interfaces import IUserService
-from src.app.service.implementations import UserServiceImpl
-from src.app.repository.interfaces import (
-    IUserRepository,
-    IRoleRepository,
-    IEmployeeRepository,
-)
-from src.app.repository.dependencies import (
+from src.app.core.security.hasher.interface import IHasherProvider
+from src.app.core.security.hasher.dependencies import get_hasher_provider
+from src.app.domain.user.service.interface import IUserService
+from src.app.domain.user.service.implementations import UserServiceImpl
+from src.app.domain.user.repository.interface import IUserRepository, IRoleRepository
+from src.app.domain.user.repository.dependencies import (
     get_user_repository,
     get_role_repository,
-    get_employee_repository,
 )
-from src.app.core.security.hasher import IHasherProvider
-from src.app.core.security.hasher.dependencies import get_hasher_provider
+from src.app.domain.employee.repository.interface import IEmployeeRepository
+from src.app.domain.employee.repository.dependencies import get_employee_repository
 
 
 async def get_user_service(

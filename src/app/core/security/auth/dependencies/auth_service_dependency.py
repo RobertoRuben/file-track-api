@@ -1,9 +1,9 @@
 from fastapi import Depends
-from src.app.repository.dependencies import get_user_repository
+from src.app.core.security.auth.interface import IAuthService
+from src.app.core.security.auth.implementations import AuthServiceImpl
 from src.app.core.security.auth.dependencies import get_token_provider
 from src.app.core.security.hasher.dependencies import get_hasher_provider
-from src.app.service.implementations import AuthServiceImpl
-from src.app.service.interfaces import IAuthService
+from src.app.domain.user.repository.dependencies import get_user_repository
 
 
 async def get_auth_service(

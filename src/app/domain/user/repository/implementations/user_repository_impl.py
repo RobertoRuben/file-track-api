@@ -3,10 +3,12 @@ from typing import Any
 from sqlmodel import select, func, or_
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.app.core.db.decorator import transactional
-from src.app.repository.interfaces import IUserRepository
-from src.app.model.entity import User, Employee, Role, Department
 from src.app.core.exception import invalid_field_exception
 from src.app.core.schema import Page, Pagination
+from src.app.domain.user.model import User, Role
+from src.app.domain.employee.model import Employee
+from src.app.domain.department.model import Department
+from src.app.domain.user.repository.interface import IUserRepository
 
 
 class UserRepositoryImpl(IUserRepository):

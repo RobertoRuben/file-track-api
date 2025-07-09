@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
-from src.app.dto.request import UserRequestDTO
-from src.app.dto.response import UserResponseDTO, UserPage
 from src.app.core.schema import MessageResponse
+from src.app.domain.user.dto.request import UserRequestDTO
+from src.app.domain.user.dto.response import UserResponseDTO, UserPage
 
 
 class IUserService(ABC):

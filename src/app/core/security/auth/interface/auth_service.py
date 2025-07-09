@@ -1,10 +1,7 @@
 from abc import ABC, abstractmethod
-from src.app.dto.request import AuthRequestDTO
-from src.app.dto.response import (
-    UserResponseDTO,
-    AuthResponseDTO,
-    CurrentUserResponseDTO,
-)
+from src.app.core.security.auth.model import CurrentUser
+from src.app.core.security.auth.dto.request import AuthRequestDTO
+from src.app.core.security.auth.dto.response import AuthResponseDTO
 
 
 class IAuthService(ABC):
@@ -35,7 +32,7 @@ class IAuthService(ABC):
         pass
 
     @abstractmethod
-    async def get_current_user(self, token: str) -> CurrentUserResponseDTO:
+    async def get_current_user(self, token: str) -> CurrentUser:
         """
         Retrieve the current user's information based on an access token.
 
@@ -73,7 +70,7 @@ class IAuthService(ABC):
     @abstractmethod
     async def get_current_user_with_scopes(
         self, token: str, required_scopes: list[str]
-    ) -> CurrentUserResponseDTO:
+    ) -> CurrentUser:
         """
         Retrieve the current user's information and verify that the user has the required scopes.
 

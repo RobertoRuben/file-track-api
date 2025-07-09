@@ -1,12 +1,12 @@
 from fastapi import Depends
 from typing import List
-from src.app.dto.response import CurrentUserResponseDTO
-from src.app.service.dependencies.auth_current_user_dependency import get_current_user
+from src.app.core.security.auth.model import CurrentUser
+from src.app.core.security.auth.dependencies import get_current_user
 from src.app.core.exception import ForbiddenException
 
 
 async def get_token_scopes(
-    current_user: CurrentUserResponseDTO = Depends(get_current_user),
+    current_user: CurrentUser = Depends(get_current_user),
 ) -> List[str]:
     """
     Extracts the current token's scopes from the '_token_payload' attribute

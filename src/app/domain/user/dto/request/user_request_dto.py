@@ -1,6 +1,6 @@
 import re
-from src.app.model.enum import StatusEnum
-from pydantic import BaseModel, Field, ValidationInfo, field_validator
+from src.app.domain.user.enum import StatusEnum
+from pydantic import BaseModel, Field, field_validator
 
 
 class UserRequestDTO(BaseModel):

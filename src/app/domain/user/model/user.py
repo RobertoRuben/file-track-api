@@ -15,9 +15,9 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
+    from src.app.domain.employee.model import Employee
+    from src.app.domain.document.model import Document
     from .role import Role
-    from .employee import Employee
-    from .document import Document
 
 
 class User(SQLModel, table=True):
