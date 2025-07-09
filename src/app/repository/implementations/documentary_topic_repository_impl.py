@@ -1,11 +1,11 @@
 import math
 from sqlmodel import select, func, or_
 from sqlmodel.ext.asyncio.session import AsyncSession
-from src.app.repository.decorator import transactional
+from src.app.core.db.decorator import transactional
 from src.app.repository.interfaces import IDocumentaryTopicRepository
 from src.app.model.entity import DocumentaryTopic
-from src.app.exception import InvalidFieldException
-from src.app.schema import Page, Pagination
+from src.app.core.exception import InvalidFieldException
+from src.app.core.schema import Page, Pagination
 
 
 class DocumentaryTopicRepositoryImpl(IDocumentaryTopicRepository):
@@ -185,7 +185,7 @@ class DocumentaryTopicRepositoryImpl(IDocumentaryTopicRepository):
 
         result = await self.session.exec(stmt)
         return result.first() is not None
-    
+
     @transactional(readonly=False)
     async def delete_by_ids(self, documentary_topic_ids: list[int]) -> bool:
         """
@@ -199,16 +199,18 @@ class DocumentaryTopicRepositoryImpl(IDocumentaryTopicRepository):
         )
         results = await self.session.exec(stmt)
         documentary_topics = results.all()
-        
+
         founds_ids = {topics.id for topics in documentary_topics}
         if len(founds_ids) != len(documentary_topic_ids):
             return False
         for topic in documentary_topics:
             await self.session.delete(topic)
         return True
-    
+
     @transactional(readonly=True)
-    async def find_by_ids(self, documentary_topic_ids: list[int]) -> list[DocumentaryTopic]:
+    async def find_by_ids(
+        self, documentary_topic_ids: list[int]
+    ) -> list[DocumentaryTopic]:
         """
         Find documentary topics by their IDs.
 
@@ -224,4 +226,3 @@ class DocumentaryTopicRepositoryImpl(IDocumentaryTopicRepository):
         results = await self.session.exec(stmt)
         documentary_topics = results.all()
         return list(documentary_topics)
-    

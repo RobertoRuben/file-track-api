@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 from typing import Annotated
 
-from src.app.exception.schema import (
+from src.app.core.exception.schema import (
     BackRequestError,
     InternalServerError,
     NotFoundError,
@@ -10,7 +10,6 @@ from src.app.exception.schema import (
 )
 from src.app.dto.request import AuthRequestDTO
 from src.app.dto.response import (
-    UserResponseDTO,
     AuthResponseDTO,
     CurrentUserResponseDTO,
 )

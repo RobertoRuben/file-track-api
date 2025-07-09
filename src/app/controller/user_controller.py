@@ -1,6 +1,6 @@
 from datetime import datetime
 from fastapi import APIRouter, Depends, Query, Security, Body, Response
-from src.app.exception.schema import (
+from src.app.core.exception.schema import (
     BackRequestError,
     ConflictError,
     InternalServerError,
@@ -11,7 +11,7 @@ from src.app.exception.schema import (
 from src.app.model.enum import StatusEnum
 from src.app.dto.request import UserRequestDTO
 from src.app.dto.response import UserResponseDTO, CurrentUserResponseDTO, UserPage
-from src.app.schema import MessageResponse
+from src.app.core.schema import MessageResponse
 from src.app.service.interfaces import IUserService
 from src.app.service.dependencies import (
     get_user_service,

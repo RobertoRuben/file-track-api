@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from src.app.schema import MessageResponse
+from src.app.core.schema import MessageResponse
 from src.app.dto.request import DocumentCategoryRequestDTO
 from src.app.dto.response import DocumentCategoryResponseDTO, DocumentCategoryPage
 

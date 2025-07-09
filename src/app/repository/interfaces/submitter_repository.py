@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from src.app.model.entity import Submitter
-from src.app.schema import Page
+from src.app.core.schema import Page
 
 
 class ISubmitterRepository(ABC):

@@ -5,8 +5,12 @@ from src.app.model.entity import Department
 from src.app.dto.request import DepartmentRequestDTO
 from src.app.dto.response import DepartmentResponseDTO, DepartmentPage
 from src.app.service.implementations import DepartmentServiceImpl
-from src.app.exception import ConflictException, NotFoundException, BadRequestException
-from src.app.schema import Page, Pagination, MessageResponse
+from src.app.core.exception import (
+    ConflictException,
+    NotFoundException,
+    BadRequestException,
+)
+from src.app.core.schema import Page, Pagination, MessageResponse
 
 
 class TestDepartmentServiceImpl:

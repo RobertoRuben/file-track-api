@@ -1,11 +1,11 @@
 import math
 from sqlmodel import select, func, or_
 from sqlmodel.ext.asyncio.session import AsyncSession
-from src.app.repository.decorator import transactional
+from src.app.core.db.decorator import transactional
 from src.app.repository.interfaces import IDocumentCategoryRepository
 from src.app.model.entity import DocumentCategory
-from src.app.exception import InvalidFieldException
-from src.app.schema import Page, Pagination
+from src.app.core.exception import InvalidFieldException
+from src.app.core.schema import Page, Pagination
 
 
 class DocumentCategoryRepositoryImpl(IDocumentCategoryRepository):
@@ -197,11 +197,11 @@ class DocumentCategoryRepositoryImpl(IDocumentCategoryRepository):
         :param category_ids: List of document category IDs to delete
         :return: True if the document categories were successfully deleted, False otherwise
         :raises DatabaseException: If an error occurs during deletion
-        """    
+        """
         stmt = select(DocumentCategory).where(DocumentCategory.id.in_(category_ids))
         results = await self.session.exec(stmt)
         categories = results.all()
-        
+
         found_ids = {category.id for category in categories}
         if len(found_ids) != len(category_ids):
             return False

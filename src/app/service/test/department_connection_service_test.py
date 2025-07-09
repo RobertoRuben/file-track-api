@@ -8,8 +8,12 @@ from src.app.dto.response import (
     DepartmentConnectionPage,
 )
 from src.app.service.implementations import DepartmentConnectionServiceImpl
-from src.app.exception import ConflictException, NotFoundException, BadRequestException
-from src.app.schema import Page, Pagination, MessageResponse
+from src.app.core.exception import (
+    ConflictException,
+    NotFoundException,
+    BadRequestException,
+)
+from src.app.core.schema import Page, Pagination, MessageResponse
 
 
 class TestDepartmentConnectionServiceImpl:

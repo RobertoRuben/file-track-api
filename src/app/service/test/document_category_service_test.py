@@ -6,8 +6,12 @@ import pytest_asyncio
 from src.app.model.entity import DocumentCategory
 from src.app.dto.request import DocumentCategoryRequestDTO
 from src.app.dto.response import DocumentCategoryResponseDTO, DocumentCategoryPage
-from src.app.schema import MessageResponse, Pagination, Page
-from src.app.exception import ConflictException, NotFoundException, BadRequestException
+from src.app.core.schema import MessageResponse, Pagination, Page
+from src.app.core.exception import (
+    ConflictException,
+    NotFoundException,
+    BadRequestException,
+)
 from src.app.service.implementations import DocumentCategoryServiceImpl
 
 

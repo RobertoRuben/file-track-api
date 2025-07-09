@@ -5,9 +5,13 @@ from src.app.model.entity import Role
 from src.app.service.helpers import datetime_helper
 from src.app.dto.request import RoleRequestDTO
 from src.app.dto.response import RolePage, RoleResponseDTO
-from src.app.schema import MessageResponse
-from src.app.exception import BadRequestException, ConflictException, NotFoundException
-from src.app.exception.decorator import handle_exceptions
+from src.app.core.schema import MessageResponse
+from src.app.core.exception import (
+    BadRequestException,
+    ConflictException,
+    NotFoundException,
+)
+from src.app.core.exception import handle_exceptions
 from src.app.repository.interfaces import IRoleRepository
 from src.app.service.interfaces import IRoleService
 

@@ -2,7 +2,7 @@ from io import BytesIO
 from fastapi import APIRouter, Depends, Query, Security, UploadFile, File, Form
 from fastapi.responses import StreamingResponse
 from typing import Optional
-from src.app.exception.schema import (
+from src.app.core.exception.schema import (
     BackRequestError,
     ConflictError,
     InternalServerError,
@@ -16,7 +16,7 @@ from src.app.dto.response import (
     DocumentPage,
     CurrentUserResponseDTO,
 )
-from src.app.schema import MessageResponse
+from src.app.core.schema import MessageResponse
 from src.app.service.dependencies import (
     get_document_service,
     get_current_user,

@@ -2,7 +2,7 @@ import jwt
 from datetime import datetime, timedelta, timezone
 from jwt import PyJWTError
 from typing import Any
-from src.app.exception import UnauthorizedException
+from src.app.core.exception import UnauthorizedException
 from src.app.security.auth.interface import ITokenProvider
 
 SECRET_KEY = "e88731089b8fdcc5539e5f9017dc7d83bcfaf38367fd777caaa5e69f63bd935f"
@@ -45,10 +45,10 @@ class TokenProviderImpl(ITokenProvider):
         )
         to_encode = data.copy()
         to_encode.update({"exp": expire})
-        
+
         token = jwt.encode(to_encode, self.secret_key, algorithm=self.algorithm)
         expires_in = int((expire - datetime.now(timezone.utc)).total_seconds())
-        
+
         return token, expires_in
 
     async def generate_refresh_token(self, data: dict[str, Any]) -> str:

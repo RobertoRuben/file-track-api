@@ -1,13 +1,13 @@
 import pytest
-from datetime import datetime, date
+from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
 from sqlalchemy.exc import IntegrityError
 from src.app.repository.implementations.document_repository_impl import (
     DocumentRepositoryImpl,
 )
 from src.app.model.entity import Document
-from src.app.exception.invalid_field_exception import InvalidFieldException
-from src.app.schema import Page
+from src.app.core.exception import InvalidFieldException
+from src.app.core.schema import Page
 
 
 @pytest.fixture
@@ -454,7 +454,7 @@ class TestDocumentRepositoryImpl:
         )
 
         # Execute the test and verify that the DatabaseException is raised
-        from src.app.exception.database_exception import DatabaseException
+        from src.app.core.exception import DatabaseException
 
         with pytest.raises(DatabaseException) as exc_info:
             await document_repository.save(document_sample)

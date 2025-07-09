@@ -1,11 +1,10 @@
 import pytest
 from datetime import datetime
 from unittest.mock import AsyncMock, MagicMock
-from sqlalchemy.exc import IntegrityError
 from src.app.repository.implementations import DocumentCategoryRepositoryImpl
 from src.app.model.entity import DocumentCategory
-from src.app.exception import DatabaseException, InvalidFieldException
-from src.app.schema import Page, Pagination
+from src.app.core.exception import InvalidFieldException
+from src.app.core.schema import Page
 
 
 @pytest.fixture

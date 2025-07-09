@@ -5,8 +5,12 @@ from src.app.model.entity import Position
 from src.app.dto.request import PositionRequestDTO
 from src.app.dto.response import PositionResponseDTO, PositionPage
 from src.app.service.implementations import PositionServiceImpl
-from src.app.exception import ConflictException, NotFoundException, BadRequestException
-from src.app.schema import Page, Pagination, MessageResponse
+from src.app.core.exception import (
+    ConflictException,
+    NotFoundException,
+    BadRequestException,
+)
+from src.app.core.schema import Page, Pagination, MessageResponse
 
 
 class TestPositionServiceImpl:

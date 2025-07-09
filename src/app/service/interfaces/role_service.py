@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from src.app.dto.request import RoleRequestDTO
 from src.app.dto.response import RoleResponseDTO, RolePage
-from src.app.schema import MessageResponse
+from src.app.core.schema import MessageResponse
 
 
 class IRoleService(ABC):

@@ -2,11 +2,11 @@ import math
 from typing import Any
 from sqlmodel import select, func, or_
 from sqlmodel.ext.asyncio.session import AsyncSession
-from src.app.repository.decorator import transactional
+from src.app.core.db.decorator import transactional
 from src.app.repository.interfaces import IUserRepository
 from src.app.model.entity import User, Employee, Role, Department
-from src.app.exception import invalid_field_exception
-from src.app.schema import Page, Pagination
+from src.app.core.exception import invalid_field_exception
+from src.app.core.schema import Page, Pagination
 
 
 class UserRepositoryImpl(IUserRepository):

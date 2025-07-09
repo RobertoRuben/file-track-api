@@ -5,8 +5,7 @@ from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import async_engine_from_config
 from sqlmodel import SQLModel
 from alembic import context
-from src.app.config import settings
-from src.app.model.entity import *
+from src.app.core.config import settings
 
 config = context.config
 
@@ -14,6 +13,7 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 target_metadata = SQLModel.metadata
+
 
 def run_migrations_offline() -> None:
     context.configure(
@@ -24,6 +24,7 @@ def run_migrations_offline() -> None:
     )
     with context.begin_transaction():
         context.run_migrations()
+
 
 async def run_migrations_online() -> None:
     connectable = async_engine_from_config(
@@ -36,13 +37,12 @@ async def run_migrations_online() -> None:
         await connection.run_sync(do_run_migrations)
     await connectable.dispose()
 
+
 def do_run_migrations(connection: Connection) -> None:
-    context.configure(
-        connection=connection,
-        target_metadata=target_metadata
-    )
+    context.configure(connection=connection, target_metadata=target_metadata)
     with context.begin_transaction():
         context.run_migrations()
+
 
 if context.is_offline_mode():
     run_migrations_offline()

@@ -1,7 +1,7 @@
 from datetime import datetime
 import os
 import uuid
-from src.app.exception.server_exception import ServerException
+from src.app.core.exception import ServerException
 
 
 class DocumentHelper:

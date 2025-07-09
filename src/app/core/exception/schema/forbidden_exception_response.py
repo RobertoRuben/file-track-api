@@ -1,5 +1,5 @@
 from pydantic import Field
-from src.app.exception.model import ErrorDetail
+from src.app.core.exception.model import ErrorDetail
 
 
 class ForbiddenError(ErrorDetail):

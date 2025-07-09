@@ -3,8 +3,8 @@ from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from datetime import datetime
 from fastapi.responses import JSONResponse
-from src.app.exception.model import ErrorDetail
-from src.app.exception.constants import ErrorTypes, ErrorTitles
+from src.app.core.exception.model import ErrorDetail
+from src.app.core.exception.constants import ErrorTypes, ErrorTitles
 
 
 async def register_exception_handlers(app: FastAPI) -> None:

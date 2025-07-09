@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, Query, Security
-from src.app.exception.schema import (
+from src.app.core.exception.schema import (
     BackRequestError,
     ConflictError,
     InternalServerError,
@@ -13,7 +13,7 @@ from src.app.dto.response import (
     DepartmentConnectionPage,
     CurrentUserResponseDTO,
 )
-from src.app.schema import MessageResponse
+from src.app.core.schema import MessageResponse
 from src.app.service.dependencies import (
     get_department_connection_service,
     get_current_user,

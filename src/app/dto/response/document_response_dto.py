@@ -1,6 +1,6 @@
 from datetime import datetime
 from pydantic import BaseModel, Field
-from src.app.schema import Page
+from src.app.core.schema import Page
 
 
 class DocumentResponseDTO(BaseModel):

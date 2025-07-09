@@ -1,11 +1,11 @@
 import math
 from sqlmodel import select, func, or_
 from sqlmodel.ext.asyncio.session import AsyncSession
-from src.app.repository.decorator import transactional
+from src.app.core.db.decorator import transactional
 from src.app.repository.interfaces import ISettlementRepository
 from src.app.model.entity import Settlement
-from src.app.exception import InvalidFieldException
-from src.app.schema import Page, Pagination
+from src.app.core.exception import InvalidFieldException
+from src.app.core.schema import Page, Pagination
 
 
 class SettlementRepositoryImpl(ISettlementRepository):
@@ -190,32 +190,32 @@ class SettlementRepositoryImpl(ISettlementRepository):
 
         result = await self.session.exec(stmt)
         return result.first() is not None
-    
+
     @transactional(readonly=True)
     async def delete_by_ids(self, settlement_ids: list[int]) -> bool:
         """
         Deletes multiple settlement entities from the database by their IDs.
-        
+
         :param settlement_ids: List of settlement IDs to delete
         :return: True if all settlements were successfully deleted, False otherwise
         """
         stmt = select(Settlement).where(Settlement.id.in_(settlement_ids))
         results = await self.session.exec(stmt)
         settlements = results.all()
-        
+
         founds_ids = {settlement.id for settlement in settlements}
-        
+
         if len(founds_ids) != len(settlement_ids):
             raise False
         for settlement in settlements:
             await self.session.delete(settlement)
         return True
-    
+
     @transactional(readonly=False)
     async def find_by_ids(self, settlement_ids: list[int]) -> list[Settlement]:
         """
         Retrieves multiple settlement entities from the database by their IDs.
-        
+
         :param settlement_ids: List of settlement IDs to retrieve
         :return: List of Settlement entities with the given IDs
         :raises DatabaseException: If an error occurs during the retrieval
@@ -226,5 +226,5 @@ class SettlementRepositoryImpl(ISettlementRepository):
         stmt = select(Settlement).where(Settlement.id.in_(settlement_ids))
         results = await self.session.exec(stmt)
         settlements = results.all()
-        
+
         return list(settlements)

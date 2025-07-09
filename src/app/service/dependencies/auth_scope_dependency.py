@@ -2,7 +2,7 @@ from fastapi import Depends
 from typing import List
 from src.app.dto.response import CurrentUserResponseDTO
 from src.app.service.dependencies.auth_current_user_dependency import get_current_user
-from src.app.exception import ForbiddenException
+from src.app.core.exception import ForbiddenException
 
 
 async def get_token_scopes(

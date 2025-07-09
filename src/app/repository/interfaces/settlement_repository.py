@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from src.app.model.entity import Settlement
-from src.app.schema import Page
+from src.app.core.schema import Page
 
 
 class ISettlementRepository(ABC):
@@ -81,7 +81,7 @@ class ISettlementRepository(ABC):
         :return: True if a matching settlement exists, False otherwise
         """
         pass
-    
+
     @abstractmethod
     async def delete_by_ids(self, settlement_ids: list[int]) -> bool:
         """
@@ -91,7 +91,7 @@ class ISettlementRepository(ABC):
         :return: True if all settlements were successfully deleted, False otherwise
         """
         pass
-    
+
     @abstractmethod
     async def find_by_ids(self, settlement_ids: list[int]) -> list[Settlement]:
         """

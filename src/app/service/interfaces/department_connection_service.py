@@ -5,7 +5,7 @@ from src.app.dto.response import (
     DepartmentConnectionPage,
     CurrentUserResponseDTO,
 )
-from src.app.schema import MessageResponse
+from src.app.core.schema import MessageResponse
 
 
 class IDepartmentConnectionService(ABC):

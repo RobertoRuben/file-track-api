@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Body, Depends, Query, Security
 from fastapi.responses import Response
-from src.app.exception.schema import (
+from src.app.core.exception.schema import (
     BackRequestError,
     ConflictError,
     InternalServerError,
@@ -14,7 +14,7 @@ from src.app.dto.response import (
     SubmitterPage,
     CurrentUserResponseDTO,
 )
-from src.app.schema import MessageResponse
+from src.app.core.schema import MessageResponse
 from src.app.service.interfaces import ISubmitterService
 from src.app.service.dependencies import get_submitter_service, get_current_user
 from src.app.security.auth.constants import Scopes

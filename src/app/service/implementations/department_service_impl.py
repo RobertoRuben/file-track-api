@@ -5,9 +5,13 @@ from src.app.model.entity import Department
 from src.app.service.helpers import datetime_helper
 from src.app.dto.request import DepartmentRequestDTO
 from src.app.dto.response import DepartmentPage, DepartmentResponseDTO
-from src.app.schema import MessageResponse
-from src.app.exception import BadRequestException, ConflictException, NotFoundException
-from src.app.exception.decorator import handle_exceptions
+from src.app.core.schema import MessageResponse
+from src.app.core.exception import (
+    BadRequestException,
+    ConflictException,
+    NotFoundException,
+)
+from src.app.core.exception import handle_exceptions
 from src.app.repository.interfaces import IDepartmentRepository
 from src.app.service.interfaces import IDepartmentService
 

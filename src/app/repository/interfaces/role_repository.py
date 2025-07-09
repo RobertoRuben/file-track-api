@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from src.app.schema import Page
+from src.app.core.schema import Page
 from src.app.model.entity import Role
 
 

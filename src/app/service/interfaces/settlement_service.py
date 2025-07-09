@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from src.app.dto.request import SettlementRequestDTO
 from src.app.dto.response import SettlementResponseDTO, SettlementPage
-from src.app.schema import MessageResponse
+from src.app.core.schema import MessageResponse
 
 
 class ISettlementService(ABC):
@@ -88,7 +88,7 @@ class ISettlementService(ABC):
         :return: A SettlementPage object containing settlements that match the search criteria
         """
         pass
-    
+
     @abstractmethod
     async def delete_settlements_by_ids(
         self, settlement_ids: list[int]
@@ -100,11 +100,9 @@ class ISettlementService(ABC):
         :return: A MessageResponse indicating the result of the deletion
         """
         pass
-    
+
     @abstractmethod
-    async def export_settlements_to_excel(
-        self, settlement_ids: list[int]
-    ) -> bytes:
+    async def export_settlements_to_excel(self, settlement_ids: list[int]) -> bytes:
         """
         Exports settlements to an Excel file.
 

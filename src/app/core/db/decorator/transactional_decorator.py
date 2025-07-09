@@ -1,7 +1,7 @@
 import functools
 from typing import Callable, TypeVar, Any, Optional, Union
 from sqlalchemy.exc import SQLAlchemyError, IntegrityError
-from src.app.exception import DatabaseException, InvalidFieldException
+from src.app.core.exception import DatabaseException, InvalidFieldException
 
 T = TypeVar('T')
 

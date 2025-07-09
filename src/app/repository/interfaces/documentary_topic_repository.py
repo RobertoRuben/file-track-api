@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
 from src.app.model.entity import DocumentaryTopic
-from src.app.schema import Page
+from src.app.core.schema import Page
 
 
 class IDocumentaryTopicRepository(ABC):
@@ -84,7 +84,7 @@ class IDocumentaryTopicRepository(ABC):
         :return: True if a matching documentary topic exists, False otherwise
         """
         pass
-    
+
     @abstractmethod
     async def delete_by_ids(self, documentary_topic_ids: list[int]) -> bool:
         """
@@ -94,9 +94,11 @@ class IDocumentaryTopicRepository(ABC):
         :return: True if the topics were successfully deleted, False otherwise
         """
         pass
-    
+
     @abstractmethod
-    async def find_by_ids(self, documentary_topic_ids: list[int]) -> list[DocumentaryTopic]:
+    async def find_by_ids(
+        self, documentary_topic_ids: list[int]
+    ) -> list[DocumentaryTopic]:
         """
         Find documentary topics by their IDs.
 

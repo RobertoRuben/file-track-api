@@ -7,7 +7,7 @@ from fastapi import (
     Body,
     Response,
 )
-from src.app.exception.schema import (
+from src.app.core.exception.schema import (
     BackRequestError,
     ConflictError,
     InternalServerError,
@@ -21,7 +21,7 @@ from src.app.dto.response import (
     PositionPage,
     CurrentUserResponseDTO,
 )
-from src.app.schema import MessageResponse
+from src.app.core.schema import MessageResponse
 from src.app.service.interfaces import IPositionService
 from src.app.service.dependencies import get_position_service, get_current_user
 from src.app.security.auth.constants import Scopes

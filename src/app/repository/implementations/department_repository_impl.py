@@ -1,11 +1,11 @@
 import math
 from sqlmodel import select, func, or_
 from sqlmodel.ext.asyncio.session import AsyncSession
-from src.app.repository.decorator import transactional
+from src.app.core.db.decorator import transactional
 from src.app.repository.interfaces import IDepartmentRepository
 from src.app.model.entity import Department
-from src.app.exception.invalid_field_exception import InvalidFieldException
-from src.app.schema import Page, Pagination
+from src.app.core.exception import InvalidFieldException
+from src.app.core.schema import Page, Pagination
 
 
 class DepartmentRepositoryImpl(IDepartmentRepository):

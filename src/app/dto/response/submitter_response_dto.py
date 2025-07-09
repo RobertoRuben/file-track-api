@@ -1,5 +1,5 @@
 from datetime import datetime
-from src.app.schema import Page
+from src.app.core.schema import Page
 from pydantic import BaseModel, Field
 
 

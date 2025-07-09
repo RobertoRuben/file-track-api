@@ -5,8 +5,12 @@ from src.app.model.entity import Role
 from src.app.dto.request import RoleRequestDTO
 from src.app.dto.response import RoleResponseDTO, RolePage
 from src.app.service.implementations import RoleServiceImpl
-from src.app.exception import ConflictException, NotFoundException, BadRequestException
-from src.app.schema import Page, Pagination, MessageResponse
+from src.app.core.exception import (
+    ConflictException,
+    NotFoundException,
+    BadRequestException,
+)
+from src.app.core.schema import Page, Pagination, MessageResponse
 
 
 class TestRoleServiceImpl:
