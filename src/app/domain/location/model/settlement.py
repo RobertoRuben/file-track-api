@@ -13,8 +13,8 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from .hamlet import Hamlet
-    from .document import Document
+    from src.app.domain.location.model.hamlet import Hamlet
+    from src.app.domain.document.model.document import Document
 
 
 class Settlement(SQLModel, table=True):

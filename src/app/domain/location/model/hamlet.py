@@ -15,8 +15,8 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
-    from .settlement import Settlement
-    from .document import Document
+    from src.app.domain.location.model import Settlement
+    from src.app.domain.document.model import Document
 
 
 class Hamlet(SQLModel, table=True):
