@@ -19,6 +19,7 @@ class Settings(BaseSettings):
         DB_PASSWORD (str): Database password.
     """
 
+    API_BASE_URL: str
     DB_ECHO_LOG: bool = True
     DB_HOST: str
     DB_PORT: str
