@@ -86,3 +86,23 @@ class IPositionService(ABC):
         :return: A PositionPage object containing the positions that match the search criteria
         """
         pass
+
+    @abstractmethod
+    async def delete_positions_by_ids(self, position_ids: list[int]) -> MessageResponse:
+        """
+        Delete multiple positions by their IDs.
+
+        :param position_ids: List of position IDs to delete
+        :return: Message with the result of the deletion operation
+        """
+        pass
+
+    @abstractmethod
+    async def export_positions_to_excel(self, position_ids: list[int]) -> bytes:
+        """
+        Export positions to Excel format by their IDs.
+
+        :param position_ids: List of position IDs to export
+        :return: Excel file as bytes
+        """
+        pass

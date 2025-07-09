@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, Query, Security
+from datetime import datetime
+from fastapi import APIRouter, Depends, Query, Security, Body, Response
 from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -22,10 +23,13 @@ router = APIRouter(prefix="/employees", tags=["Employees"])
 
 employee_tags_metadata = {
     "name": "Employees",
-    "description": "Manages employee records within the system. "
-    "These endpoints handle the complete lifecycle of employee data, "
-    "including personal information, department assignments, and position details. "
-    "Provides CRUD operations, advanced search capabilities, and pagination features.",
+    "description": "Comprehensive enterprise human resource management system facilitating complete employee lifecycle "
+    "administration, organizational assignment coordination, and workforce data governance for effective "
+    "personnel management operations. Manages complex employee records supporting HR workflows, compliance "
+    "requirements, and organizational development through structured personnel frameworks. Enables sophisticated "
+    "workforce administration with advanced search capabilities, bulk operations, and detailed audit trails "
+    "supporting enterprise human resource governance, talent management, regulatory compliance, and organizational "
+    "efficiency across complex employment environments and personnel administration systems.",
 }
 
 
@@ -45,8 +49,10 @@ employee_tags_metadata = {
         409: {"model": ConflictError, "description": "Employee already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Creates a new employee record in the system with personal information, department assignment and "
-    "position details. The DNI must be unique.",
+    description="Creates a comprehensive employee record with complete personal information, organizational assignments, "
+    "and professional details. Validates DNI uniqueness and verifies department and position assignments "
+    "to ensure organizational integrity. Establishes the foundational employment relationship within "
+    "the company structure for HR management and operational workflows.",
 )
 async def create_employee(
     employee_request: EmployeeRequestDTO,
@@ -56,16 +62,17 @@ async def create_employee(
     employee_service: IEmployeeService = Depends(get_employee_service),
 ) -> EmployeeResponseDTO:
     """
-    Endpoint to create a new employee.
+    Creates a new comprehensive employee record in the organizational system.
 
-    This endpoint allows the creation of a new employee in the system. The employee data
-    must be provided in the request body. If the employee is created successfully, a
-    status code 201 is returned with the details of the created employee.
+    This endpoint establishes a complete employee profile including personal identification,
+    organizational assignments, and professional details. Validates all required business rules
+    including DNI uniqueness, department and position validity, and organizational constraints.
+    Created employees are immediately integrated into the HR system and organizational structure.
 
-    :param employee_request: Request body containing the employee data.
-    :param current_user: The user creating the employee, used for auditing purposes.
-    :param employee_service: Service that handles the employee creation logic.
-    :return: The data of the created employee.
+    :param employee_request: Complete employee data including personal and organizational information
+    :param current_user: Authenticated user with employee creation privileges
+    :param employee_service: Service layer handling employee creation and validation logic
+    :return: Complete employee record with generated ID and system timestamps
     """
     return await employee_service.add_employee(employee_request)
 
@@ -84,8 +91,9 @@ async def create_employee(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete list of all employees registered in the system, including their personal "
-    "information, department assignments and position details.",
+    description="Retrieves the complete organizational directory of all employee records with comprehensive personal "
+    "information, departmental assignments, and position details. Provides a complete HR overview for "
+    "organizational management, reporting purposes, and strategic workforce planning initiatives.",
 )
 async def get_all_employees(
     current_user: CurrentUserResponseDTO = Security(
@@ -94,14 +102,16 @@ async def get_all_employees(
     employee_service: IEmployeeService = Depends(get_employee_service),
 ) -> list[EmployeeResponseDTO]:
     """
-    Endpoint to retrieve all employees.
+    Retrieves the complete organizational directory of all employees in the system.
 
-    This endpoint returns a list of all available employees in the system. The response will include
-    all employees stored in the database.
+    This endpoint provides comprehensive access to the entire employee database, delivering
+    complete personnel records including personal information, departmental assignments,
+    and position details. Essential for HR management, organizational reporting, and
+    strategic workforce planning initiatives.
 
-    :param current_user: The user requesting the data, used for auditing purposes.
-    :param employee_service: Service to handle the query and retrieve all employees.
-    :return: A list of employees in the system.
+    :param current_user: Authenticated user with employee read privileges for audit tracking
+    :param employee_service: Service layer handling comprehensive employee data retrieval
+    :return: Complete list of all employee records with full organizational context
     """
     return await employee_service.get_all_employees()
 
@@ -117,8 +127,9 @@ async def get_all_employees(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves employees in a paginated format to manage large datasets, allowing navigation through pages"
-    " and control over the number of records per page.",
+    description="Retrieves employee records in an optimized paginated format for efficient management of large "
+    "organizational datasets. Enables systematic navigation through employee directories with configurable "
+    "page sizes, supporting HR dashboards, reporting systems, and large-scale employee data management workflows.",
 )
 async def get_paginated_employees(
     page: int = Query(default=1, description="Page number to retrieve"),
@@ -129,16 +140,18 @@ async def get_paginated_employees(
     employee_service: IEmployeeService = Depends(get_employee_service),
 ) -> EmployeePage:
     """
-    Endpoint to retrieve employees in a paginated manner.
+    Retrieves employee records in an optimized paginated format for large organizational datasets.
 
-    This endpoint allows retrieving employees in a paginated format. The user can specify the page number
-    and the number of employees per page to optimize the query and reduce data overload.
+    This endpoint provides efficient access to employee data through pagination, supporting
+    large-scale HR management systems and organizational directories. Optimizes performance
+    for applications handling extensive employee databases while maintaining complete
+    data integrity and comprehensive employee information.
 
-    :param page: The page number to retrieve.
-    :param size: The number of employees to return per page.
-    :param current_user: The user requesting the data, used for auditing purposes.
-    :param employee_service: Service to handle the query and return paginated employees.
-    :return: A paginated list of employees.
+    :param page: Page number for systematic navigation through employee records
+    :param size: Number of employees per page for optimized data loading
+    :param current_user: Authenticated user with employee read privileges
+    :param employee_service: Service layer handling paginated employee data retrieval
+    :return: Paginated employee collection with navigation metadata and total counts
     """
     return await employee_service.get_employees_paginated(page, size)
 
@@ -155,8 +168,9 @@ async def get_paginated_employees(
         404: {"model": NotFoundError, "description": "Employee not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Performs employee searches based on names, surnames, or DNI. Results are returned paginated for better"
-    " management of search results.",
+    description="Performs advanced employee searches across personal identification, names, and organizational data "
+    "with intelligent matching algorithms. Supports HR personnel location, directory searches, and workforce "
+    "analytics with paginated results for efficient large-scale employee discovery and management workflows.",
 )
 async def find_employees(
     search_term: str | None = Query(
@@ -170,19 +184,118 @@ async def find_employees(
     employee_service: IEmployeeService = Depends(get_employee_service),
 ) -> EmployeePage:
     """
-    Endpoint to search employees using a search term.
+    Performs advanced employee searches with intelligent matching across multiple data fields.
 
-    This endpoint allows searching for employees based on a given term. Results are returned in a
-    paginated format, where the user can specify the page number and the number of results per page.
+    This endpoint provides sophisticated search capabilities for employee discovery within
+    the organizational database. Utilizes advanced matching algorithms to search across
+    personal identification, names, and other relevant employee data fields, delivering
+    paginated results for optimal performance and user experience.
 
-    :param search_term: Term to search in employee names, surnames, or DNI.
-    :param page: The page number to retrieve.
-    :param size: The number of results per page.
-    :param current_user: The user requesting the data, used for auditing purposes.
-    :param employee_service: Service to handle the search logic and return the results.
-    :return: A paginated list of employees that match the search term.
+    :param search_term: Intelligent search term for employee discovery across multiple fields
+    :param page: Page number for systematic navigation through search results
+    :param size: Number of search results per page for optimal performance
+    :param current_user: Authenticated user with employee read privileges
+    :param employee_service: Service layer handling advanced search logic and result compilation
+    :return: Paginated search results with comprehensive employee data and match relevance
     """
     return await employee_service.find(page, size, search_term)
+
+
+@router.delete(
+    "/bulk",
+    response_model=MessageResponse,
+    summary="Delete multiple employees by IDs",
+    responses={
+        200: {
+            "model": MessageResponse,
+            "description": "Employees deleted successfully",
+        },
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Performs bulk deletion of multiple employee records in a single atomic operation for efficient "
+    "organizational restructuring. Validates all employee IDs, maintains referential integrity, and provides "
+    "comprehensive audit trails for mass HR operations and organizational cleanup workflows.",
+)
+async def delete_employees_bulk(
+    employee_ids: list[int] = Body(
+        ..., description="List of employee IDs for bulk deletion operation"
+    ),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.EMPLOYEE_DELETE]
+    ),
+    employee_service: IEmployeeService = Depends(get_employee_service),
+) -> MessageResponse:
+    """
+    Performs efficient bulk deletion of multiple employee records in a single atomic operation.
+
+    This endpoint enables mass employee record deletion for organizational restructuring,
+    departmental closures, or large-scale HR operations. Implements comprehensive
+    validation, maintains system integrity, and provides detailed audit trails for
+    compliance and organizational record-keeping requirements.
+
+    :param employee_ids: List of unique employee identifiers for bulk deletion
+    :param current_user: Authenticated user with bulk employee deletion privileges
+    :param employee_service: Service layer handling complex bulk deletion logic
+    :return: Comprehensive operation summary with success counts and audit information
+    """
+    return await employee_service.delete_employees_by_ids(employee_ids)
+
+
+@router.post(
+    "/export-excel",
+    response_class=Response,
+    summary="Export employees to Excel",
+    responses={
+        200: {"description": "Archivo Excel con los empleados solicitados"},
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        404: {
+            "model": NotFoundError,
+            "description": "No se encontraron empleados para exportar",
+        },
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Generates comprehensive Excel reports of selected employee records with complete organizational data "
+    "for HR analytics, compliance reporting, and external system integration. Provides formatted spreadsheets "
+    "with professional layouts, complete employee information, and optimized data structures for business analysis.",
+)
+async def export_employees_to_excel(
+    employee_ids: list[int] = Body(
+        ..., description="List of employee IDs for Excel export generation"
+    ),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.EMPLOYEE_READ]
+    ),
+    employee_service: IEmployeeService = Depends(get_employee_service),
+) -> Response:
+    """
+    Generates comprehensive Excel reports of selected employee records for business analysis.
+
+    This endpoint creates professional Excel spreadsheets containing complete employee
+    data including personal information, organizational assignments, and professional
+    details. Optimized for HR analytics, compliance reporting, external system
+    integration, and strategic workforce planning initiatives.
+
+    :param employee_ids: List of employee identifiers for selective data export
+    :param current_user: Authenticated user with employee read privileges for audit tracking
+    :param employee_service: Service layer handling Excel generation and data formatting
+    :return: Excel file download response with formatted employee data and professional layout
+    """
+    excel_data = await employee_service.export_employees_to_excel(employee_ids)
+
+    current_datetime = datetime.now().strftime("%d%m%Y%H%M")
+    filename = f"{current_datetime}.xlsx"
+
+    headers = {
+        "Content-Disposition": f"attachment; filename={filename}",
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }
+
+    return Response(content=excel_data, headers=headers)
 
 
 @router.get(
@@ -197,7 +310,9 @@ async def find_employees(
         404: {"model": NotFoundError, "description": "Employee not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete details of a specific employee using their unique identifier.",
+    description="Retrieves comprehensive details of a specific employee using their unique organizational identifier. "
+    "Provides complete personal, professional, and organizational information for HR management, employee "
+    "verification, and detailed personnel record access within the company structure.",
 )
 async def get_employee_by_id(
     employee_id: int,
@@ -207,15 +322,17 @@ async def get_employee_by_id(
     employee_service: IEmployeeService = Depends(get_employee_service),
 ) -> EmployeeResponseDTO:
     """
-    Endpoint to retrieve an employee by their ID.
+    Retrieves comprehensive details of a specific employee by their unique identifier.
 
-    This endpoint retrieves the details of a specific employee identified by their ID.
-    If found, it returns the employee data. If not, it returns a 404 error.
+    This endpoint provides detailed access to individual employee records including
+    complete personal information, organizational assignments, and professional details.
+    Essential for HR management, employee verification processes, and detailed
+    personnel record access within organizational workflows.
 
-    :param employee_id: ID of the employee to retrieve.
-    :param current_user: The user requesting the data, used for auditing purposes.
-    :param employee_service: Service to handle the query and retrieve the employee.
-    :return: Employee details.
+    :param employee_id: Unique organizational identifier for specific employee retrieval
+    :param current_user: Authenticated user with employee read privileges
+    :param employee_service: Service layer handling individual employee data retrieval
+    :return: Complete employee record with full organizational and personal context
     """
     return await employee_service.get_employee_by_id(employee_id)
 
@@ -236,8 +353,9 @@ async def get_employee_by_id(
         409: {"model": ConflictError, "description": "Employee DNI already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Updates the details of an existing employee identified by their ID. Verifies that the new DNI is not "
-    "already in use by another employee.",
+    description="Updates comprehensive employee information including personal details, organizational assignments, "
+    "and professional data. Validates business rules, maintains data integrity, and preserves employment "
+    "history while enabling complete HR record management and organizational structure modifications.",
 )
 async def update_employee(
     employee_id: int,
@@ -248,17 +366,18 @@ async def update_employee(
     employee_service: IEmployeeService = Depends(get_employee_service),
 ) -> EmployeeResponseDTO:
     """
-    Endpoint to update an existing employee.
+    Updates comprehensive employee information with complete validation and business rule enforcement.
 
-    This endpoint allows updating the details of an existing employee identified by their ID.
-    If the employee is updated successfully, the updated employee data is returned.
-    If not found, it returns a 404 error.
+    This endpoint enables complete modification of employee records including personal
+    information, organizational assignments, and professional details. Implements
+    comprehensive validation to maintain data integrity and business rule compliance
+    while preserving employment history and organizational relationships.
 
-    :param employee_id: ID of the employee to update.
-    :param employee_request: New data for the employee.
-    :param current_user: The user updating the employee, used for auditing purposes.
-    :param employee_service: Service to handle the update logic.
-    :return: Updated data of the employee.
+    :param employee_id: Unique identifier for employee record modification
+    :param employee_request: Complete updated employee data with validation requirements
+    :param current_user: Authenticated user with employee update privileges
+    :param employee_service: Service layer handling complex update logic and validation
+    :return: Updated employee record with complete organizational context and change confirmation
     """
     return await employee_service.update_employee(employee_id, employee_request)
 
@@ -278,8 +397,9 @@ async def update_employee(
         404: {"model": NotFoundError, "description": "Employee not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Deletes a specific employee from the system using their ID. This operation is irreversible and removes "
-    "all associated employee data.",
+    description="Permanently removes an employee record from the organizational system with complete data cleanup. "
+    "This irreversible operation eliminates all associated employee data while maintaining referential "
+    "integrity and audit trails for compliance and organizational record-keeping requirements.",
 )
 async def delete_employee(
     employee_id: int,
@@ -289,15 +409,16 @@ async def delete_employee(
     employee_service: IEmployeeService = Depends(get_employee_service),
 ) -> MessageResponse:
     """
-    Endpoint to delete an employee.
+    Permanently removes an employee record from the organizational system.
 
-    This endpoint allows deleting a specific employee identified by their ID.
-    If deleted successfully, a success message is returned.
-    If not found, it returns a 404 error.
+    This endpoint performs comprehensive employee record deletion including all
+    associated data cleanup while maintaining system integrity and compliance
+    requirements. Implements safety checks and audit trail preservation for
+    organizational record-keeping and legal compliance.
 
-    :param employee_id: ID of the employee to delete.
-    :param current_user: The user deleting the employee, used for auditing purposes.
-    :param employee_service: Service to handle the deletion logic.
-    :return: Success message indicating the employee has been deleted.
+    :param employee_id: Unique identifier for employee record deletion
+    :param current_user: Authenticated user with employee deletion privileges
+    :param employee_service: Service layer handling secure deletion logic and cleanup
+    :return: Confirmation message with deletion success and audit information
     """
     return await employee_service.delete_employee(employee_id)

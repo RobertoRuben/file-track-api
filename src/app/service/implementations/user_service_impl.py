@@ -1,3 +1,5 @@
+import io
+import pandas as pd
 from datetime import datetime
 from src.app.model.entity import User
 from src.app.model.enum import StatusEnum
@@ -6,6 +8,7 @@ from src.app.dto.response import UserPage, UserResponseDTO
 from src.app.schema import MessageResponse
 from src.app.exception import BadRequestException, ConflictException, NotFoundException
 from src.app.exception.decorator import handle_exceptions
+from src.app.service.helpers import datetime_helper
 from src.app.repository.interfaces import (
     IUserRepository,
     IRoleRepository,
@@ -63,12 +66,14 @@ class UserServiceImpl(IUserService):
         )
         if existing_username:
             raise ConflictException(
+                message="Username already exists",
                 details=f"Username {user_request.username} already exists",
             )
 
         existing_role = await self.role_repository.exists_by(id=user_request.role_id)
         if not existing_role:
             raise NotFoundException(
+                message="Role not found",
                 details=f"Role with ID {user_request.role_id} not found",
             )
 
@@ -77,6 +82,7 @@ class UserServiceImpl(IUserService):
         )
         if not existing_employee:
             raise NotFoundException(
+                message="Employee not found",
                 details=f"Employee with ID {user_request.employee_id} not found",
             )
 
@@ -85,6 +91,7 @@ class UserServiceImpl(IUserService):
         )
         if employee_has_user:
             raise ConflictException(
+                message="Employee already has a user account",
                 details=f"Employee with ID {user_request.employee_id} already has a user account",
             )
 
@@ -151,6 +158,7 @@ class UserServiceImpl(IUserService):
         existing_user_id = await self.user_repository.exists_by(id=user_id)
         if not existing_user_id:
             raise NotFoundException(
+                message="User not found",
                 details=f"User with ID {user_id} not found",
             )
 
@@ -162,12 +170,14 @@ class UserServiceImpl(IUserService):
             )
             if existing_username:
                 raise ConflictException(
+                    message="Username already exists",
                     details=f"Username {user_request.username} already exists",
                 )
 
         existing_role = await self.role_repository.exists_by(id=user_request.role_id)
         if not existing_role:
             raise NotFoundException(
+                message="Role not found",
                 details=f"Role with ID {user_request.role_id} not found",
             )
 
@@ -176,6 +186,7 @@ class UserServiceImpl(IUserService):
         )
         if not existing_employee:
             raise NotFoundException(
+                message="Employee not found",
                 details=f"Employee with ID {user_request.employee_id} not found",
             )
 
@@ -220,6 +231,7 @@ class UserServiceImpl(IUserService):
         existing_user_id = await self.user_repository.exists_by(id=user_id)
         if not existing_user_id:
             raise NotFoundException(
+                message="User not found",
                 details=f"User with ID {user_id} not found",
             )
 
@@ -230,6 +242,7 @@ class UserServiceImpl(IUserService):
         )
         if not is_old_password_valid:
             raise BadRequestException(
+                message="Invalid password",
                 details="Old password is incorrect",
             )
 
@@ -265,6 +278,7 @@ class UserServiceImpl(IUserService):
         existing_user_id = await self.user_repository.exists_by(id=user_id)
         if not existing_user_id:
             raise NotFoundException(
+                message="User not found",
                 details=f"User with ID {user_id} not found",
             )
 
@@ -320,6 +334,7 @@ class UserServiceImpl(IUserService):
         existing_user_id = await self.user_repository.exists_by(id=user_id)
         if not existing_user_id:
             raise NotFoundException(
+                message="User not found",
                 details=f"User with ID {user_id} not found",
             )
         response = await self.user_repository.delete(user_id)
@@ -353,6 +368,7 @@ class UserServiceImpl(IUserService):
         existing_user_id = await self.user_repository.exists_by(id=user_id)
         if not existing_user_id:
             raise NotFoundException(
+                message="User not found",
                 details=f"User with ID {user_id} not found",
             )
         user = await self.user_repository.get_by_id(user_id)
@@ -381,6 +397,7 @@ class UserServiceImpl(IUserService):
         existing_username = await self.user_repository.exists_by(username=username)
         if not existing_username:
             raise NotFoundException(
+                message="User not found",
                 details=f"Username {username} not found",
             )
         user = await self.user_repository.get_by_username(username)
@@ -395,15 +412,18 @@ class UserServiceImpl(IUserService):
         )
 
     @handle_exceptions
-    async def get_users_paginated(self, page: int, size: int) -> UserPage:
+    async def get_users_paginated(
+        self, page: int, size: int, only_active: bool = True
+    ) -> UserPage:
         """
-        Retrieves a paginated list of users.
+        Retrieves a paginated list of users with option to filter by active status.
 
         This method validates the provided page and size values. If they are valid, it retrieves a paginated result
         of users from the repository. If the page or size is invalid (less than 1), a BadRequestException is raised.
 
         :param page: The page number to retrieve
         :param size: The number of items per page
+        :param only_active: If True, returns only active users; if False, returns all users
         :return: A paginated response containing the user data and metadata
         :raises BadRequestException: If the page number or size is less than 1
         """
@@ -418,7 +438,7 @@ class UserServiceImpl(IUserService):
                 details="Size must be greater than 0.",
             )
 
-        page_result = await self.user_repository.get_pageable(page, size)
+        page_result = await self.user_repository.get_pageable(page, size, only_active)
         user_response = [UserResponseDTO(**user_dict) for user_dict in page_result.data]
 
         return UserPage(
@@ -464,7 +484,8 @@ class UserServiceImpl(IUserService):
 
         if not page_result.data:
             raise NotFoundException(
-                details="No users match the search criteria.",
+                message="No users found",
+                details=f"No users match the search criteria for term '{search_term}'.",
             )
 
         user_response = [UserResponseDTO(**user_dict) for user_dict in page_result.data]
@@ -473,3 +494,69 @@ class UserServiceImpl(IUserService):
             data=user_response,
             meta=page_result.meta,
         )
+
+    @handle_exceptions
+    async def export_users_to_excel(self, user_ids: list[int]) -> bytes:
+        """
+        Export users to Excel format by their IDs.
+
+        :param user_ids: List of user IDs to export
+        :return: Excel file as bytes
+        :raises BadRequestException: If no user IDs are provided or if any ID is invalid
+        :raises NotFoundException: If any of the provided user IDs do not exist
+        """
+        if len(user_ids) == 0:
+            raise BadRequestException(
+                message="No user IDs provided",
+                details="At least one user ID must be provided for export.",
+            )
+
+        invalid_ids = [id for id in user_ids if id <= 0]
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid user IDs",
+                details=f"The following user IDs are invalid: {invalid_ids}. IDs must be positive integers.",
+            )
+
+        users = await self.user_repository.find_by_ids(user_ids)
+
+        found_ids = {user["id"] for user in users}
+        missing_ids = [id for id in user_ids if id not in found_ids]
+
+        if missing_ids:
+            raise NotFoundException(
+                message="Users not found",
+                details=f"The following user IDs were not found: {missing_ids}.",
+            )
+
+        users_data = [
+            {
+                "ID": user["id"],
+                "Usuario": user["username"],
+                "Empleado": user["employee_name"],
+                "Rol": user["role_name"],
+                "Departamento": user["department_name"],
+                "Estado": "Activo" if user["is_active"] else "Inactivo",
+                "Fecha de Creación": datetime_helper.format_datetime_for_excel(
+                    user["created_at"]
+                ),
+                "Última Actualización": datetime_helper.format_datetime_for_excel(
+                    user["updated_at"]
+                ),
+            }
+            for user in users
+        ]
+
+        df = pd.DataFrame(users_data)
+        output = io.BytesIO()
+
+        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+            df.to_excel(writer, sheet_name="Users", index=False)
+
+            worksheet = writer.sheets["Users"]
+            for i, col in enumerate(df.columns):
+                column_len = max(df[col].astype(str).map(len).max(), len(col)) + 2
+                worksheet.set_column(i, i, column_len)
+
+        output.seek(0)
+        return output.getvalue()

@@ -21,6 +21,9 @@ def transactional(
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         @functools.wraps(func)
         async def wrapper(self, *args: Any, **kwargs: Any) -> T:
+            # Crear instancia para identificar dónde ocurrió el error
+            instance = f"repository:{self.__class__.__module__}.{self.__class__.__name__}.{func.__name__}"
+
             try:
                 result = await func(self, *args, **kwargs)
 
@@ -42,6 +45,7 @@ def transactional(
                 raise DatabaseException(
                     message="Data integrity error",
                     details=str(e.orig),
+                    instance=instance,
                 )
             except InvalidFieldException as e:
                 await self.session.rollback()
@@ -49,19 +53,23 @@ def transactional(
             except AttributeError as e:
                 await self.session.rollback()
                 raise InvalidFieldException(
-                    message="Error in provided attributes", details=str(e)
+                    message="Error in provided attributes",
+                    details=str(e),
+                    instance=instance,
                 )
             except SQLAlchemyError as e:
                 await self.session.rollback()
                 raise DatabaseException(
                     message=f"Error in database operation: {func.__name__}",
                     details=str(e),
+                    instance=instance,
                 )
             except Exception as e:
                 await self.session.rollback()
                 raise DatabaseException(
                     message=f"Unexpected error in repository operation: {func.__name__}",
                     details=str(e),
+                    instance=instance,
                 )
 
         return wrapper

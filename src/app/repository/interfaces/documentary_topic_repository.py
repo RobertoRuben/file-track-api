@@ -84,3 +84,23 @@ class IDocumentaryTopicRepository(ABC):
         :return: True if a matching documentary topic exists, False otherwise
         """
         pass
+    
+    @abstractmethod
+    async def delete_by_ids(self, documentary_topic_ids: list[int]) -> bool:
+        """
+        Delete documentary topics by their IDs.
+
+        :param documentary_topic_ids: List of IDs of the documentary topics to delete
+        :return: True if the topics were successfully deleted, False otherwise
+        """
+        pass
+    
+    @abstractmethod
+    async def find_by_ids(self, documentary_topic_ids: list[int]) -> list[DocumentaryTopic]:
+        """
+        Find documentary topics by their IDs.
+
+        :param documentary_topic_ids: List of IDs of the documentary topics to find
+        :return: A list of documentary topics matching the provided IDs
+        """
+        pass

@@ -86,3 +86,25 @@ class ISubmitterService(ABC):
         :return: A SubmitterPage object containing submitters that match the search criteria
         """
         pass
+
+    @abstractmethod
+    async def delete_submitters_by_ids(
+        self, submitter_ids: list[int]
+    ) -> MessageResponse:
+        """
+        Delete multiple submitters by their IDs.
+
+        :param submitter_ids: List of submitter IDs to delete
+        :return: Message with the result of the deletion operation
+        """
+        pass
+
+    @abstractmethod
+    async def export_submitters_to_excel(self, submitter_ids: list[int]) -> bytes:
+        """
+        Export submitters to Excel format by their IDs.
+
+        :param submitter_ids: List of submitter IDs to export
+        :return: Excel file as bytes
+        """
+        pass

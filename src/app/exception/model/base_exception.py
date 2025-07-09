@@ -11,30 +11,36 @@ class BaseHTTPException(HTTPException):
 
     def __init__(
         self,
-        type_: str,
-        code: int,
-        message: str,
+        type_: str = None,
+        code: int = 500,
+        message: str = "An unexpected error occurred",
         details: str = None,
+        instance: str = None,
         time: str = None,
         headers: dict = None,
+        title: str = "Server Error",
     ):
         """
         Initialize a new BaseHTTPException.
 
-        :param type_: The type of the error
+        :param type_: URI that identifies the problem type
         :param code: HTTP status code
         :param message: Human-readable error message
         :param details: Additional details about the error
+        :param instance: URI that identifies the specific occurrence of the problem
         :param time: Timestamp when the error occurred, defaults to current time
         :param headers: HTTP headers to include in the response
+        :param title: A short, human-readable summary of the problem type
         """
 
         error = ErrorDetail(
             type=type_,
-            code=code,
-            message=message,
+            title=title,
+            status=code,
+            detail=message,
             details=details,
-            time=time or datetime.now().isoformat(),
+            instance=instance,
+            timestamp=time or datetime.now().isoformat(),
         )
 
         super().__init__(status_code=code, detail=error.model_dump(), headers=headers)

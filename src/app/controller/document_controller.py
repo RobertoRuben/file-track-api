@@ -28,11 +28,11 @@ router = APIRouter(prefix="/documents", tags=["Documents"])
 
 document_tags_metadata = {
     "name": "Documents",
-    "description": "Manages documents in the system. "
-    "These operations allow for creating, retrieving, updating, and deleting documents, "
-    "as well as performing searches and pagination. "
-    "Documents can be associated with various entities such as submitters, categories, "
-    "documentary topics, hamlets, and settlements.",
+    "description": "Comprehensive document management system providing complete lifecycle control for organizational "
+    "document processing, storage, and retrieval. Handles advanced document operations including secure file "
+    "upload, metadata management, multi-entity associations, intelligent search capabilities, and automated "
+    "categorization. Supports complex document workflows with submitter tracking, geographical assignments, "
+    "topic classification, and temporal filtering for efficient enterprise document administration and compliance.",
 }
 
 
@@ -56,8 +56,10 @@ document_tags_metadata = {
         },
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Creates a new document in the system with the provided details. "
-    "The document file is uploaded and stored, and associations with related entities are established.",
+    description="Creates comprehensive document records with secure file upload, metadata validation, and multi-entity "
+    "associations. Establishes complete document lifecycle management including submitter tracking, categorical "
+    "classification, geographical assignments, and topic organization. Validates all relational dependencies "
+    "and generates unique registration codes for enterprise document management workflows.",
 )
 async def create_document(
     title: str = Form(...),
@@ -124,8 +126,10 @@ async def create_document(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete list of all documents registered in the system, "
-    "including all their details and associations.",
+    description="Retrieves the complete collection of all documents registered in the enterprise document "
+    "management system with comprehensive metadata, relational associations, and workflow status information. "
+    "Returns complete document profiles including submitter details, categorical classifications, geographical "
+    "assignments, and temporal tracking for full enterprise document inventory management and audit trail purposes.",
 )
 async def get_all_documents(
     current_user: CurrentUserResponseDTO = Security(
@@ -164,8 +168,11 @@ async def get_all_documents(
         },
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves documents in a paginated format to manage large datasets, "
-    "allowing navigation through pages and control over the number of records per page.",
+    description="Provides optimized paginated access to enterprise document collections for efficient large-scale "
+    "dataset management and improved system performance. Implements server-side pagination with configurable page "
+    "sizes to handle extensive document repositories, reduce memory consumption, and enhance user experience through "
+    "controlled data loading. Essential for enterprise environments with high document volumes requiring responsive "
+    "browsing capabilities and resource optimization.",
 )
 async def get_paginated_documents(
     page: int = Query(default=1, description="Page number to retrieve"),
@@ -208,9 +215,11 @@ async def get_paginated_documents(
         },
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Performs document searches based on a keyword or phrase. Results are returned paginated "
-    "for better management of search results. The search covers registration code, title, subject, "
-    "and submitter DNI fields.",
+    description="Executes intelligent multi-field document search across registration codes, titles, subjects, and "
+    "submitter identification for comprehensive document discovery and retrieval. Implements fuzzy search capabilities "
+    "with paginated results to efficiently locate documents within large enterprise repositories. Supports complex "
+    "search scenarios including partial matches, case-insensitive queries, and cross-reference lookups for enhanced "
+    "document accessibility and knowledge management workflows.",
 )
 async def search_documents(
     search: str = Query(..., description="Search term to filter documents"),
@@ -256,8 +265,11 @@ async def search_documents(
         },
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves documents created on the current date in a paginated format, "
-    "allowing easy access to the most recent document entries.",
+    description="Provides real-time access to current day document registrations with temporal filtering for immediate "
+    "workflow management and daily operations monitoring. Delivers paginated results of documents processed within "
+    "the current business day, enabling efficient daily document tracking, workload assessment, and operational "
+    "oversight. Essential for time-sensitive document processing workflows, daily reporting requirements, and "
+    "administrative productivity analysis.",
 )
 async def get_documents_by_current_date(
     page: int = Query(default=1, description="Page number to retrieve"),
@@ -301,9 +313,11 @@ async def get_documents_by_current_date(
         },
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Performs document searches among documents created today based on a keyword or phrase. "
-    "Results are returned paginated for better management of search results. The search covers "
-    "registration code, title, subject, and submitter DNI fields.",
+    description="Executes targeted search operations within current day document registrations combining temporal "
+    "filtering with intelligent search capabilities for precise daily document discovery. Performs multi-field "
+    "searches across registration codes, titles, subjects, and submitter information within today's document "
+    "entries, providing real-time search functionality for immediate document location and daily workflow "
+    "optimization in time-critical enterprise environments.",
 )
 async def search_documents_by_current_date(
     search: str = Query(..., description="Search term to filter today's documents"),
@@ -346,7 +360,11 @@ async def search_documents_by_current_date(
         404: {"model": NotFoundError, "description": "Document not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete details of a specific document using its unique identifier.",
+    description="Retrieves comprehensive document profile and metadata for a specific document using its unique "
+    "system identifier. Provides complete document information including content details, relational associations, "
+    "workflow status, and audit trail information for detailed document inspection and verification purposes. "
+    "Essential for document management workflows requiring precise document identification and complete "
+    "administrative oversight.",
 )
 async def get_document_by_id(
     document_id: int,
@@ -391,8 +409,11 @@ async def get_document_by_id(
         },
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Updates the details of an existing document identified by its ID. "
-    "The document file can be replaced, and associations with related entities can be modified.",
+    description="Performs comprehensive document modification including metadata updates, file replacement, and "
+    "relational association changes with validation and audit trail maintenance. Supports partial or complete "
+    "document updates while preserving data integrity, enforcing business rules, and maintaining version control. "
+    "Enables document lifecycle management through secure modification workflows with rollback capabilities and "
+    "change tracking for enterprise document administration and compliance requirements.",
 )
 async def update_document(
     document_id: int,
@@ -466,8 +487,12 @@ async def update_document(
         404: {"model": NotFoundError, "description": "Document not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Deletes a specific document from the system using its ID. "
-    "This operation is irreversible and removes the document file from storage.",
+    description="Executes secure document removal including file deletion, metadata cleanup, and audit trail "
+    "preservation for complete document lifecycle management. Performs irreversible document elimination with "
+    "comprehensive validation, dependency checking, and cascade deletion handling to maintain system integrity. "
+    "Implements enterprise-grade deletion workflows with confirmation requirements, backup procedures, and "
+    "compliance logging for regulated document management environments. ⚠️ WARNING: This operation is permanent "
+    "and cannot be undone.",
 )
 async def delete_document(
     document_id: int,
@@ -503,8 +528,11 @@ async def delete_document(
         404: {"model": NotFoundError, "description": "Document not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Downloads a document file using its unique registration code. "
-    "The file is streamed to the client with appropriate headers for downloading.",
+    description="Provides secure document file retrieval and streaming download functionality using unique "
+    "registration codes for precise document access and distribution. Implements optimized file streaming with "
+    "appropriate content headers, MIME type detection, and download metadata for seamless client integration. "
+    "Supports enterprise document sharing workflows with access control validation, download tracking, and "
+    "secure file transmission for regulated document distribution and stakeholder collaboration.",
 )
 async def download_document_by_registration_code(
     registration_code: str,
@@ -558,8 +586,11 @@ async def download_document_by_registration_code(
         404: {"model": NotFoundError, "description": "Document not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves detailed information about a specific document including related information "
-    "such as category name, topic name, settlement details, and submitter information.",
+    description="Delivers comprehensive document intelligence including enriched metadata, complete relational "
+    "context, and administrative details for advanced document analysis and management oversight. Provides "
+    "detailed document profiles with expanded categorical information, geographical assignments, submitter "
+    "profiles, and topic classifications for thorough document understanding and enterprise-level document "
+    "intelligence workflows requiring complete contextual information.",
 )
 async def get_document_information_by_id(
     document_id: int,
@@ -599,7 +630,11 @@ async def get_document_information_by_id(
             "description": "Internal server error",
         },
     },
-    description="Generates and downloads a detailed PDF report of the document registration.",
+    description="Generates comprehensive PDF registration reports containing complete document profiles, metadata "
+    "summaries, and administrative details for compliance documentation and audit trail purposes. Creates "
+    "professional-grade reports with standardized formatting, institutional branding, and regulatory compliance "
+    "information for official document certification, administrative verification, and enterprise reporting "
+    "requirements in formal business and legal contexts.",
 )
 async def generate_document_report(
     document_id: int,

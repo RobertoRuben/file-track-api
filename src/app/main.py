@@ -86,7 +86,8 @@ app = FastAPI(
     lifespan=lifespan,
     contact={
         "name": "Roberto Ruben Chavez Vargas",
-        "email": "https://github.com/RobertoRuben",
+        "email": "robertoch263@gmail.com",
+        "url": "https://github.com/RobertoRuben",
     },
     license_info={
         "name": "MIT",

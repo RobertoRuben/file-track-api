@@ -204,3 +204,42 @@ class PositionRepositoryImpl(IPositionRepository):
 
         result = await self.session.exec(stmt)
         return result.first() is not None
+
+    @transactional(readonly=False)
+    async def delete_by_ids(self, position_ids: list[int]) -> bool:
+        """
+        Elimina múltiples posiciones de la base de datos por sus IDs.
+
+        :param position_ids: Lista de IDs de posiciones a eliminar
+        :return: True si todas las posiciones fueron eliminadas correctamente, False en caso contrario
+        :raises: DatabaseException si ocurre un error durante la eliminación
+        """
+        stmt = select(Position).where(Position.id.in_(position_ids))
+        results = await self.session.exec(stmt)
+        positions = results.all()
+
+        found_ids = {position.id for position in positions}
+        if len(found_ids) != len(position_ids):
+            return False
+
+        for position in positions:
+            await self.session.delete(position)
+
+        return True
+
+    @transactional(readonly=True)
+    async def find_by_ids(self, position_ids: list[int]) -> list[Position]:
+        """
+        Busca posiciones por una lista de IDs.
+
+        :param position_ids: Lista de IDs de posiciones a recuperar
+        :return: Lista de posiciones que coinciden con los IDs proporcionados
+        :raises: DatabaseException si ocurre un error durante la recuperación
+        """
+        if not position_ids:
+            return []
+
+        stmt = select(Position).where(Position.id.in_(position_ids))
+        results = await self.session.exec(stmt)
+        positions = list(results.all())
+        return positions

@@ -1,5 +1,9 @@
+import io
+from unicodedata import category
+import pandas as pd
 from datetime import datetime
-from src.app.model.entity import DocumentCategory
+from src.app.model.entity import DocumentCategory, document
+from src.app.service.helpers import datetime_helper
 from src.app.dto.request import DocumentCategoryRequestDTO
 from src.app.dto.response import DocumentCategoryPage, DocumentCategoryResponseDTO
 from src.app.schema import MessageResponse
@@ -43,6 +47,7 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
         )
         if exists_document_category:
             raise ConflictException(
+                message="Document category already exists",
                 details=f"Document category with name '{document_category_request.name}' already exists.",
             )
 
@@ -99,6 +104,7 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
         )
         if not exists_document_category_id:
             raise NotFoundException(
+                message="Document category not found",
                 details=f"Document category with ID {document_category_id} not found.",
             )
         document_category = await self.document_category_repository.get_by_id(
@@ -111,6 +117,7 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
             )
             if name_exists:
                 raise ConflictException(
+                    message="Document category name already exists",
                     details=f"Document category with name '{document_category_request.name}' already exists.",
                 )
 
@@ -130,7 +137,7 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
 
     @handle_exceptions
     async def delete_document_category(
-        self, document_category_id: int
+        self, document_category_id: int, request
     ) -> MessageResponse:
         """
         Delete a document category by its ID.
@@ -144,6 +151,7 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
         )
         if not exists_document_category_id:
             raise NotFoundException(
+                message="Document category not found",
                 details=f"Document category with ID {document_category_id} not found.",
             )
         response = await self.document_category_repository.delete(document_category_id)
@@ -178,6 +186,7 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
         )
         if not exists_document_category_id:
             raise NotFoundException(
+                message="Document category not found",
                 details=f"Document category with ID {document_category_id} not found.",
             )
         document_category = await self.document_category_repository.get_by_id(
@@ -209,8 +218,8 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
             )
         if size < 1:
             raise BadRequestException(
-                message="Invalid size number",
-                details="Size number must be greater than 0.",
+                message="Invalid page size",
+                details="Page size must be greater than 0.",
             )
 
         page_result = await self.document_category_repository.get_pageable(page, size)
@@ -233,13 +242,13 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
         self, page: int, size: int, search_term: str
     ) -> DocumentCategoryPage:
         """
-        Search for document categories with name filtering and pagination.
+        Find document categories by search term with pagination.
 
-        :param page: Page number (1-based indexing)
-        :param size: Number of items per page
-        :param search_term: Term to search for in document category names
-        :return: A page object containing the filtered document categories and pagination metadata
-        :raises BadRequestException: If page or size values are invalid
+        :param page: The page number (starts at 1)
+        :param size: The size of each page
+        :param search_term: The search term to filter document categories
+        :return: A DocumentCategoryPage with document categories matching the search criteria
+        :raises BadRequestException: If page or size parameters are invalid
         :raises NotFoundException: If no document categories match the search criteria
         """
         if page < 1:
@@ -249,32 +258,164 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
             )
         if size < 1:
             raise BadRequestException(
-                message="Invalid size number",
-                details="Size number must be greater than 0.",
+                message="Invalid page size",
+                details="Page size must be greater than 0.",
             )
 
-        search_dict = {"name": search_term}
+        search_dict = {}
+        if search_term and search_term.strip():
+            search_dict["name"] = search_term.strip()
 
         page_result = await self.document_category_repository.find(
-            page, size, search_dict
+            page=page, size=size, search_dict=search_dict
         )
 
-        if page_result.data is None:
+        if not page_result.data:
             raise NotFoundException(
-                details=f"No document categories found with search term: {search_term}",
+                message="No document categories found",
+                details=f"No document categories found matching the search term '{search_term}'.",
             )
 
         document_categories_response = [
             DocumentCategoryResponseDTO(
-                id=document_category.id,
-                name=document_category.name,
-                created_at=document_category.created_at,
-                updated_at=document_category.updated_at,
+                id=category.id,
+                name=category.name,
+                created_at=category.created_at,
+                updated_at=category.updated_at,
             )
-            for document_category in page_result.data
+            for category in page_result.data
         ]
 
         return DocumentCategoryPage(
             data=document_categories_response,
             meta=page_result.meta,
         )
+
+    @handle_exceptions
+    async def delete_document_categories_by_ids(
+        self, category_ids: list[int]
+    ) -> MessageResponse:
+        """
+        Delete multiple document categories by their IDs.
+
+        :param category_ids: List of document category IDs to delete
+        :return: A MessageResponse indicating the result of the deletion
+        :raises NotFoundException: If none of the document categories with the given IDs exist
+        :raises BadRequestException: If the category_ids list is empty
+        """
+        if len(category_ids) == 0:
+            raise BadRequestException(
+                message="No document category IDs provided",
+                details="Please provide a list of document category IDs to delete.",
+            )
+
+        invalid_ids = [id for id in category_ids if id <= 0]
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid document category IDs",
+                details=f"Document category IDs must be greater than 0. Invalid IDs: {invalid_ids}.",
+            )
+
+        document_categories = await self.document_category_repository.find_by_ids(
+            category_ids
+        )
+
+        found_ids = {
+            category["id"] if isinstance(category, dict) else category.id
+            for category in document_categories
+        }
+        missing_ids = [id for id in category_ids if id not in found_ids]
+
+        if missing_ids:
+            raise NotFoundException(
+                message="Document categories not found",
+                details=f"Document categories with IDs {missing_ids} not found. Cannot proceed with deletion.",
+            )
+
+        resp = await self.document_category_repository.delete_by_ids(category_ids)
+
+        if resp is True:
+            return MessageResponse(
+                message="Document categories deleted successfully.",
+                success=True,
+                details=f"Document categories with IDs {category_ids} deleted successfully.",
+                status_code=200,
+            )
+        else:
+            return MessageResponse(
+                message="Failed to delete document categories.",
+                success=False,
+                details=f"Document categories with IDs {category_ids} could not be deleted.",
+                status_code=500,
+            )
+
+    @handle_exceptions
+    async def export_document_categories_to_excel(
+        self, category_ids: list[int]
+    ) -> bytes:
+        """
+        Export document categories to Excel format.
+
+        :param category_ids: List of document category IDs to export. If empty, exports all categories
+        :return: Excel file content as bytes
+        :raises NotFoundException: If none of the document categories with the given IDs exist
+        :raises BadRequestException: If the category_ids list is empty or contains invalid IDs
+        """
+
+        if len(category_ids) == 0:
+            raise BadRequestException(
+                message="No document category IDs provided",
+                details="Please provide a list of document category IDs to export.",
+            )
+
+        invalid_ids = [id for id in category_ids if id <= 0]
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid document category IDs",
+                details=f"Document category IDs must be greater than 0. Invalid IDs: {invalid_ids}.",
+            )
+
+        document_categories = await self.document_category_repository.find_by_ids(
+            category_ids
+        )
+
+        found_ids = {
+            category["id"] if isinstance(category, dict) else category.id
+            for category in document_categories
+        }
+
+        missing_ids = [id for id in category_ids if id not in found_ids]
+
+        if missing_ids:
+            raise NotFoundException(
+                message="Document categories not found",
+                details=f"Document categories with IDs {missing_ids} not found. Cannot proceed with export.",
+            )
+
+        categories_data = [
+            {
+                "ID": category.id,
+                "Nombre": category.name,
+                "Fecha de Creación": datetime_helper.to_lima_timezone(
+                    category.created_at
+                ),
+                "Fecha de Actualización": datetime_helper.to_lima_timezone(
+                    category.updated_at
+                ),
+            }
+            for category in document_categories
+        ]
+
+        df = pd.DataFrame(categories_data)
+        output = io.BytesIO()
+
+        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+            df.to_excel(writer, index=False, sheet_name="Document Categories")
+
+            worksheet = writer.sheets["Document Categories"]
+            for i, col in enumerate(df.columns):
+                max_length = max(df[col].astype(str).map(len).max(), len(col)) + 2
+                worksheet.set_column(i, i, max_length)
+
+        output.seek(0)
+        return output.getvalue()

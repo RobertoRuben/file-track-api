@@ -86,3 +86,23 @@ class IEmployeeService(ABC):
         :return: An EmployeePage object containing the employees that match the search criteria
         """
         pass
+
+    @abstractmethod
+    async def delete_employees_by_ids(self, employee_ids: list[int]) -> MessageResponse:
+        """
+        Delete multiple employees by their IDs.
+
+        :param employee_ids: List of employee IDs to delete
+        :return: Message with the result of the deletion operation
+        """
+        pass
+
+    @abstractmethod
+    async def export_employees_to_excel(self, employee_ids: list[int]) -> bytes:
+        """
+        Export employees to Excel format by their IDs.
+
+        :param employee_ids: List of employee IDs to export
+        :return: Excel file as bytes
+        """
+        pass

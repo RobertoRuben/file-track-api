@@ -84,3 +84,23 @@ class IHamletService(ABC):
         :return: A HamletPage object containing hamlets that match the search criteria
         """
         pass
+
+    @abstractmethod
+    async def delete_hamlets_by_ids(self, hamlet_ids: list[int]) -> MessageResponse:
+        """
+        Delete multiple hamlets by their IDs.
+
+        :param hamlet_ids: List of hamlet IDs to delete
+        :return: Message with the result of the deletion operation
+        """
+        pass
+
+    @abstractmethod
+    async def export_hamlets_to_excel(self, hamlet_ids: list[int]) -> bytes:
+        """
+        Export hamlets to Excel format by their IDs.
+
+        :param hamlet_ids: List of hamlet IDs to export
+        :return: Excel file as bytes
+        """
+        pass

@@ -16,18 +16,18 @@ class BackRequestError(ErrorDetail):
     :ivar type: Type of error
     :ivar message: Human-readable error message
     :ivar details: Additional details about the error
-    :ivar time: Timestamp of when the error occurred
+    :ivar timestamp: Timestamp of when the error occurred
     """
 
-    type: str = Field(
+    title: str = Field(
         default="Back Request",
         description="Identifies the error as a client-side request error",
     )
-    code: int = Field(
+    status: int = Field(
         default=400,
         description="HTTP 400 Bad Request status code indicating that the server cannot process the request due to client error",
     )
-    message: str = Field(
+    detail: str = Field(
         default="The request contains invalid parameters.",
         description="Human-readable error message",
         examples=[

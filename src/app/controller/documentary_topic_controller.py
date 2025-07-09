@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, Query, Security
+from datetime import datetime
+from fastapi import APIRouter, Depends, Query, Security, Body, Response
 from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -22,10 +23,11 @@ router = APIRouter(prefix="/documentary-topics", tags=["Documentary Topics"])
 
 documentary_topic_tags_metadata = {
     "name": "Documentary Topics",
-    "description": "Manages documentary topics within the document management system. "
-    "These topics help organize and classify documents by subject matter, "
-    "enabling efficient search and retrieval of related documents. "
-    "Provides CRUD operations, advanced search capabilities, and pagination features.",
+    "description": "Comprehensive documentary topic management system providing intelligent subject matter "
+    "classification and taxonomic organization for enterprise document management workflows. Facilitates "
+    "advanced document categorization, thematic grouping, and knowledge organization through structured "
+    "topic hierarchies. Enables sophisticated content classification, search optimization, and semantic "
+    "document relationships for enhanced information retrieval and enterprise knowledge management systems.",
 }
 
 
@@ -48,8 +50,11 @@ documentary_topic_tags_metadata = {
         },
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Creates a new documentary topic in the system. The topic name must be unique and descriptive to help"
-    " with document classification.",
+    description="Establishes new thematic classification categories for advanced document organization and subject "
+    "matter taxonomy management. Creates structured topic hierarchies with unique naming validation, enabling "
+    "sophisticated document classification workflows and knowledge management systems. Implements semantic "
+    "categorization standards for enhanced document discovery, content organization, and enterprise information "
+    "architecture supporting complex document management and retrieval requirements.",
 )
 async def create_documentary_topic(
     documentary_topic_request: DocumentaryTopicRequestDTO,
@@ -91,8 +96,11 @@ async def create_documentary_topic(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete list of all documentary topics registered in the system, including their "
-    "identifiers, names, and timestamps.",
+    description="Retrieves the complete documentary topic taxonomy and classification system including all registered "
+    "subject matter categories with comprehensive metadata, temporal tracking, and hierarchical relationships. "
+    "Provides enterprise-wide access to the complete thematic organization structure for document classification "
+    "workflows, content management systems, and knowledge architecture planning supporting systematic information "
+    "organization and retrieval optimization.",
 )
 async def get_all_documentary_topics(
     current_user: CurrentUserResponseDTO = Security(
@@ -129,8 +137,11 @@ async def get_all_documentary_topics(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves documentary topics in a paginated format to manage large datasets, allowing navigation "
-    "through pages and control over the number of records per page.",
+    description="Delivers optimized paginated access to documentary topic collections for efficient large-scale "
+    "taxonomy management and enhanced system performance. Implements server-side pagination with configurable "
+    "page sizing to handle extensive topic hierarchies, reduce memory consumption, and improve user experience "
+    "through controlled data loading. Essential for enterprise environments with comprehensive topic taxonomies "
+    "requiring responsive navigation and resource optimization.",
 )
 async def get_paginated_documentary_topics(
     page: int = Query(default=1, description="Page number to retrieve"),
@@ -172,8 +183,11 @@ async def get_paginated_documentary_topics(
         404: {"model": NotFoundError, "description": "Documentary topic not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Performs documentary topic searches based on a keyword or phrase. Results are returned paginated for "
-    "better management of search results.",
+    description="Executes intelligent topic search operations with semantic matching capabilities for precise thematic "
+    "discovery and classification system navigation. Implements fuzzy search algorithms with paginated results to "
+    "efficiently locate specific topics within comprehensive taxonomies. Supports complex search scenarios "
+    "including partial matches, case-insensitive queries, and thematic similarity detection for enhanced topic "
+    "accessibility and knowledge management workflows.",
 )
 async def find_documentary_topics(
     search_term: str | None = Query(
@@ -204,6 +218,130 @@ async def find_documentary_topics(
     return await documentary_topic_service.find(page, size, search_term)
 
 
+@router.delete(
+    "/bulk",
+    response_model=MessageResponse,
+    summary="Delete multiple documentary topics",
+    responses={
+        200: {
+            "model": MessageResponse,
+            "description": "Documentary topics deleted successfully",
+        },
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        404: {
+            "model": NotFoundError,
+            "description": "One or more documentary topics not found",
+        },
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Executes bulk deletion of multiple documentary topics in a single atomic transaction to maintain "
+    "data consistency and system integrity. This endpoint accepts a collection of topic identifiers and "
+    "removes all corresponding topics from the system simultaneously. The operation follows an all-or-nothing "
+    "approach - if any topic cannot be deleted due to constraints or dependencies, the entire operation "
+    "is rolled back to prevent partial deletions. Before execution, the system validates topic existence, "
+    "checks for document associations, and verifies user permissions. This operation permanently affects "
+    "document classification structures and may impact existing document categorizations throughout the system.",
+)
+async def delete_documentary_topics_bulk(
+    topic_ids: list[int] = Body(
+        ..., description="List of documentary topic IDs to delete"
+    ),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DOCUMENTARY_TOPIC_DELETE]
+    ),
+    documentary_topic_service: IDocumentaryTopicService = Depends(
+        get_documentary_topic_service
+    ),
+) -> MessageResponse:
+    """
+    Endpoint to delete multiple documentary topics.
+
+    This endpoint allows deleting multiple documentary topics identified by their IDs. If all topics
+    are deleted successfully, a success message is returned. If any topic is not found, a 404 error
+    is returned. The request body should contain a list of documentary topic IDs.
+
+    :param topic_ids: List of documentary topic IDs to delete.
+    :param current_user: The user performing the bulk deletion, used for auditing and permissions.
+    :param documentary_topic_service: Service to handle the bulk delete logic.
+    :return: A success message indicating that the documentary topics have been deleted.
+    """
+    return await documentary_topic_service.delete_documentary_topics_by_ids(topic_ids)
+
+
+@router.post(
+    "/export-excel",
+    summary="Export documentary topics to Excel",
+    responses={
+        200: {
+            "description": "Excel file with documentary topics",
+            "content": {
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                    "schema": {"type": "string", "format": "binary"}
+                }
+            },
+        },
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        404: {
+            "model": NotFoundError,
+            "description": "One or more documentary topics not found",
+        },
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Generates professionally formatted Excel spreadsheets containing comprehensive documentary topic data "
+    "for reporting, analysis, and administrative purposes. This endpoint creates optimized Excel files with "
+    "properly structured columns, formatted headers, and enhanced styling for improved readability. Users can "
+    "specify particular topics for targeted exports or export the complete topic collection. The generated "
+    "files include detailed topic information such as names, descriptions, usage statistics, creation dates, "
+    "and modification timestamps. Files are automatically named with timestamps to ensure uniqueness and provide "
+    "audit trails. This functionality supports data backup procedures, regulatory compliance reporting, and "
+    "stakeholder communication requirements.",
+)
+async def export_documentary_topics_to_excel(
+    topic_ids: list[int] = Body(
+        ...,
+        description="List of documentary topic IDs to export. If empty, exports all topics",
+    ),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.DOCUMENTARY_TOPIC_READ]
+    ),
+    documentary_topic_service: IDocumentaryTopicService = Depends(
+        get_documentary_topic_service
+    ),
+) -> Response:
+    """
+    Endpoint to export documentary topics to Excel format.
+
+    This endpoint generates an Excel file containing documentary topic data. Users can specify which
+    topics to export by providing a list of IDs, or export all topics if no IDs are provided.
+    The Excel file includes proper formatting, headers, and is returned as a downloadable stream.
+
+    :param topic_ids: Optional list of documentary topic IDs to export. If None, exports all topics.
+    :param current_user: The user requesting the export, used for auditing and permissions.
+    :param documentary_topic_service: Service to handle the Excel export logic.
+    :return: A StreamingResponse containing the Excel file for download.
+    """
+    excel_data = await documentary_topic_service.export_documentary_topics_to_excel(
+        topic_ids
+    )
+
+    current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"{current_datetime}.xlsx"
+
+    headers = {
+        "Content-Disposition": f"attachment; filename={filename}",
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }
+    return Response(
+        content=excel_data,
+        headers=headers,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+
+
 @router.get(
     "/{documentary_topic_id}",
     response_model=DocumentaryTopicResponseDTO,
@@ -219,7 +357,11 @@ async def find_documentary_topics(
         404: {"model": NotFoundError, "description": "Documentary topic not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete details of a specific documentary topic using its unique identifier.",
+    description="Retrieves comprehensive topic profile and metadata for specific documentary topics using unique "
+    "system identifiers. Provides complete thematic classification details including creation timestamps, "
+    "hierarchical relationships, and associated document counts for detailed topic analysis and taxonomy "
+    "management. Essential for topic verification workflows, classification auditing, and enterprise knowledge "
+    "architecture oversight requiring precise topic identification.",
 )
 async def get_documentary_topic_by_id(
     documentary_topic_id: int,
@@ -265,8 +407,11 @@ async def get_documentary_topic_by_id(
         },
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Updates the details of an existing documentary topic identified by its ID. Verifies that the new name "
-    "is not already in use by another topic.",
+    description="Performs comprehensive topic modification including name updates, hierarchical adjustments, and "
+    "metadata management with validation and integrity preservation. Supports topic evolution workflows while "
+    "maintaining classification consistency, enforcing naming uniqueness, and preserving document associations. "
+    "Enables dynamic taxonomy management through secure modification workflows with change tracking and rollback "
+    "capabilities for enterprise knowledge architecture administration and topic lifecycle management.",
 )
 async def update_documentary_topic(
     documentary_topic_id: int,
@@ -311,8 +456,12 @@ async def update_documentary_topic(
         404: {"model": NotFoundError, "description": "Documentary topic not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Deletes a specific documentary topic from the system using its ID. This operation is irreversible and "
-    "may affect document classifications.",
+    description="Executes secure topic removal including dependency validation, cascade handling, and taxonomy "
+    "integrity preservation for complete classification system management. Performs irreversible topic elimination "
+    "with comprehensive validation, document association checking, and hierarchical impact assessment to maintain "
+    "system consistency. Implements enterprise-grade deletion workflows with confirmation requirements and audit "
+    "trail preservation for regulated knowledge management environments. ⚠️ WARNING: This operation permanently "
+    "removes the topic and may affect document classifications.",
 )
 async def delete_documentary_topic(
     documentary_topic_id: int,

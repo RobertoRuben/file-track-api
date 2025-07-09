@@ -86,3 +86,23 @@ class IEmployeeRepository(ABC):
         :return: True if a matching employee exists, False otherwise
         """
         pass
+
+    @abstractmethod
+    async def delete_by_ids(self, employee_ids: list[int]) -> bool:
+        """
+        Delete multiple employees from the database by their IDs.
+
+        :param employee_ids: List of employee IDs to delete
+        :return: True if all employees were successfully deleted, False otherwise
+        """
+        pass
+
+    @abstractmethod
+    async def find_by_ids(self, employee_ids: list[int]) -> list[dict]:
+        """
+        Retrieve multiple employees from the database by their IDs.
+
+        :param employee_ids: List of employee IDs to retrieve
+        :return: List of employees found with the same fields as returned by get_pageable
+        """
+        pass

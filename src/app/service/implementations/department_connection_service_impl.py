@@ -12,6 +12,7 @@ from src.app.exception.decorator import handle_exceptions
 from src.app.repository.interfaces import IDepartmentConnectionRepository
 from src.app.repository.interfaces import IDepartmentRepository
 from src.app.service.interfaces import IDepartmentConnectionService
+from src.app.exception.constants import ErrorTypes, ErrorTitles
 
 
 class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
@@ -54,6 +55,7 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
         )
         if not existing_source_department:
             raise NotFoundException(
+                message="Source department not found",
                 details=f"Department with ID {department_connection_request.source_department_id} not found.",
             )
         existing_target_department = await self.department_repository.exists_by(
@@ -61,6 +63,7 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
         )
         if not existing_target_department:
             raise NotFoundException(
+                message="Target department not found",
                 details=f"Department with ID {department_connection_request.target_department_id} not found.",
             )
         existing_connection = await self.department_connection_repository.exists_by(
@@ -69,8 +72,8 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
         )
         if existing_connection:
             raise ConflictException(
-                details=f"Department connection already exists between department {department_connection_request.source_department_id} and "
-                f"department {department_connection_request.target_department_id}.",
+                message="Department connection already exists",
+                details=f"Department connection already exists between department {department_connection_request.source_department_id} and department {department_connection_request.target_department_id}.",
             )
 
         new_connection = DepartmentConnection(
@@ -136,6 +139,7 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
         )
         if not existing_source_department:
             raise NotFoundException(
+                message="Source department not found",
                 details=f"Department with ID {department_connection_request.source_department_id} not found.",
             )
         existing_target_department = await self.department_repository.exists_by(
@@ -143,6 +147,7 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
         )
         if not existing_target_department:
             raise NotFoundException(
+                message="Target department not found",
                 details=f"Department with ID {department_connection_request.target_department_id} not found.",
             )
 
@@ -152,8 +157,8 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
         )
         if existing_connection:
             raise ConflictException(
-                details=f"Department connection already exists between department {department_connection_request.source_department_id} and "
-                f"department {department_connection_request.target_department_id}.",
+                message="Department connection already exists",
+                details=f"Department connection already exists between department {department_connection_request.source_department_id} and department {department_connection_request.target_department_id}.",
             )
 
         connection = await self.department_connection_repository.get_by_id(
@@ -196,6 +201,7 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
         )
         if not existing_connection:
             raise NotFoundException(
+                message="Department connection not found",
                 details=f"Department connection with ID {department_connection_id} not found.",
             )
         response = await self.department_connection_repository.delete(
@@ -237,6 +243,7 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
         )
         if not existing_connection:
             raise NotFoundException(
+                message="Department connection not found",
                 details=f"Department connection with ID {department_connection_id} not found.",
             )
 
@@ -315,6 +322,7 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
         )
         if not page_result.data:
             raise NotFoundException(
+                message="No results found",
                 details=f"No department connections found matching the search term {search_term}.",
             )
 
@@ -350,6 +358,7 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
         )
         if not existing_department:
             raise NotFoundException(
+                message="Department not found",
                 details=f"Department with ID {source_department_id} not found.",
             )
         connections = await self.department_connection_repository.get_connections_by_source_department_id(
@@ -373,6 +382,7 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
 
         if not current_user.department_id:
             raise NotFoundException(
+                message="User department not found",
                 details="Current user does not belong to any department.",
             )
 
@@ -383,6 +393,7 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
         )
         if not existing_department:
             raise NotFoundException(
+                message="Department not found",
                 details=f"Department with ID {department_id} not found.",
             )
 
@@ -392,6 +403,7 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
 
         if not connections:
             raise NotFoundException(
+                message="No connections found",
                 details=f"No department connections found for department ID {department_id}.",
             )
 

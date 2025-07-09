@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, Query, Security
+from datetime import datetime
+from fastapi import APIRouter, Depends, Query, Security, Body, Response
 from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -14,13 +15,16 @@ from src.app.service.interfaces import IRoleService
 from src.app.service.dependencies import get_role_service, get_current_user
 from src.app.security.auth.constants import Scopes
 
-router = APIRouter(prefix="/role", tags=["Roles"])
+router = APIRouter(prefix="/roles", tags=["Roles"])
 
 role_tags_metadata = {
     "name": "Roles",
-    "description": "Manages user roles within the system. "
-    "These roles define permissions and access levels for system users. "
-    "Allows complete CRUD operations, advanced search, and paginated listing.",
+    "description": "Comprehensive enterprise role-based access control system managing organizational permissions, "
+    "security hierarchies, and access level definitions for secure user authentication and authorization. "
+    "Facilitates granular permission management, administrative oversight, and security compliance through "
+    "structured role assignments supporting enterprise security frameworks, identity management systems, "
+    "and organizational access governance. Enables secure role lifecycle management with advanced search "
+    "capabilities, bulk operations, and detailed audit trails for enterprise security administration.",
 }
 
 
@@ -40,7 +44,10 @@ role_tags_metadata = {
         409: {"model": ConflictError, "description": "Role already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Creates a new role in the system. The name must be unique.",
+    description="Creates a new role in the system with the specified name and permissions. "
+    "The role name must be unique across the entire system. This endpoint validates "
+    "the role data and ensures no duplicate names exist before creating the role. "
+    "Requires appropriate permissions to perform this operation.",
 )
 async def create_role(
     role_request: RoleRequestDTO,
@@ -78,7 +85,10 @@ async def create_role(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete list of all roles registered in the system, including their identifiers, names, and timestamps.",
+    description="Retrieves a comprehensive list of all roles currently registered in the system. "
+    "This endpoint returns complete role information including identifiers, names, descriptions, "
+    "creation timestamps, and last modification dates. The response includes all active roles "
+    "without any filtering or pagination applied.",
 )
 async def get_all_roles(
     current_user: CurrentUserResponseDTO = Security(
@@ -110,8 +120,11 @@ async def get_all_roles(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves roles in a paginated format to manage large data sets, allowing navigation through pages and "
-    "control over the number of records per page.",
+    description="Retrieves roles using a paginated approach to efficiently handle large datasets. "
+    "This endpoint allows clients to navigate through role collections by specifying page numbers "
+    "and page sizes. The response includes metadata such as total records, total pages, current page, "
+    "and navigation flags (hasNext, hasPrevious) to facilitate user interface pagination controls. "
+    "Ideal for displaying role lists in data tables or grids with performance optimization.",
 )
 async def get_paginated_roles(
     page: int = Query(default=1, description="Page number to retrieve"),
@@ -148,8 +161,12 @@ async def get_paginated_roles(
         404: {"model": NotFoundError, "description": "Role not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Performs role searches based on a keyword or phrase. Results are returned paginated for better "
-    "management of search results.",
+    description="Performs advanced role searches using flexible text matching against role names and descriptions. "
+    "The search functionality supports partial text matching and case-insensitive queries to provide "
+    "comprehensive search results. Results are returned in a paginated format with configurable page "
+    "sizes to optimize performance and user experience. If no search term is provided, returns all roles "
+    "in paginated format. This endpoint is ideal for implementing search bars and filtering capabilities "
+    "in user interfaces.",
 )
 async def find_roles(
     search_term: str | None = Query(None, description="Search term to filter roles"),
@@ -176,6 +193,102 @@ async def find_roles(
     return await role_service.find(page, size, search_term)
 
 
+@router.delete(
+    "/bulk",
+    response_model=MessageResponse,
+    summary="Delete multiple roles",
+    responses={
+        200: {
+            "model": MessageResponse,
+            "description": "Roles deleted successfully",
+        },
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        404: {
+            "model": NotFoundError,
+            "description": "One or more roles not found",
+        },
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Performs bulk deletion of multiple roles in a single atomic operation using their unique identifiers. "
+    "This endpoint accepts a list of role IDs and removes all corresponding roles from the system. "
+    "The operation is transactional - either all specified roles are deleted successfully, or none are deleted "
+    "if any error occurs. Before deletion, the system validates that all provided role IDs exist and that "
+    "the user has sufficient permissions. This operation is irreversible and may impact user-role associations "
+    "throughout the system. Use with caution in production environments.",
+)
+async def delete_roles_bulk(
+    role_ids: list[int] = Body(..., description="List of role IDs to delete"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.ROLE_DELETE]
+    ),
+    role_service: IRoleService = Depends(get_role_service),
+) -> MessageResponse:
+    """
+    Endpoint to delete multiple roles.
+
+    This endpoint allows deleting multiple roles identified by their IDs. If all roles
+    are deleted successfully, a success message is returned. If any role is not found, a 404 error
+    is returned. The request body should contain a list of role IDs.
+
+    :param role_ids: List of role IDs to delete.
+    :param current_user: The user performing the operation, used for authorization.
+    :param role_service: Service to handle the bulk delete logic.
+    :return: A success message indicating that the roles have been deleted.
+    """
+    return await role_service.delete_roles_by_ids(role_ids)
+
+
+@router.post(
+    "/export-excel",
+    response_class=Response,
+    summary="Export roles to Excel",
+    responses={
+        200: {"description": "Excel file containing the requested roles"},
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        404: {"model": NotFoundError, "description": "No roles found to export"},
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Generates and downloads an Excel spreadsheet containing detailed information about selected roles. "
+    "This endpoint creates a professionally formatted Excel file with role data including names, descriptions, "
+    "creation dates, and other relevant metadata. The exported file includes proper headers, formatting, and "
+    "is optimized for reporting and data analysis purposes. The filename includes a timestamp to ensure "
+    "uniqueness and traceability. This feature is particularly useful for administrative reporting, "
+    "data backup, and sharing role information with external stakeholders.",
+)
+async def export_roles_to_excel(
+    role_ids: list[int] = Body(..., description="List of role IDs to export"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.ROLE_READ]
+    ),
+    role_service: IRoleService = Depends(get_role_service),
+) -> Response:
+    """
+    Endpoint to export selected roles to Excel.
+
+    This endpoint exports the selected roles to an Excel file format.
+
+    :param role_ids: List of IDs of roles to export
+    :param current_user: The user performing the export, used for authorization
+    :param role_service: Service to handle the export logic
+    :return: Excel file as a downloadable response
+    """
+    excel_data = await role_service.export_roles_to_excel(role_ids)
+
+    current_datetime = datetime.now().strftime("%d%m%Y%H%M")
+    filename = f"{current_datetime}.xlsx"
+
+    headers = {
+        "Content-Disposition": f"attachment; filename={filename}",
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }
+
+    return Response(content=excel_data, headers=headers)
+
+
 @router.get(
     "/{role_id}",
     response_model=RoleResponseDTO,
@@ -188,7 +301,12 @@ async def find_roles(
         404: {"model": NotFoundError, "description": "Role not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete details of a specific role using its unique identifier.",
+    description="Retrieves comprehensive details of a specific role using its unique identifier. "
+    "This endpoint returns complete role information including the role's name, description, "
+    "creation timestamp, last modification date, and any associated metadata. The role ID must "
+    "be a valid integer corresponding to an existing role in the system. This endpoint is ideal "
+    "for displaying detailed role information in user interfaces, role management dashboards, "
+    "or when performing role-specific operations.",
 )
 async def get_role_by_id(
     role_id: int,
@@ -227,8 +345,12 @@ async def get_role_by_id(
         409: {"model": ConflictError, "description": "Role name already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Updates the details of an existing role identified by its ID. Verifies that the new name is not "
-    "already in use by another role.",
+    description="Updates the details of an existing role identified by its unique ID. This endpoint allows "
+    "modification of role properties such as name and description while maintaining data integrity. "
+    "The system validates that the new role name is unique across the entire system (excluding the "
+    "current role being updated). All changes are validated before being persisted to ensure consistency. "
+    "The operation updates the role's modification timestamp automatically. This endpoint is essential "
+    "for role management and administrative maintenance tasks.",
 )
 async def update_role(
     role_id: int,
@@ -269,8 +391,12 @@ async def update_role(
         404: {"model": NotFoundError, "description": "Role not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Deletes a specific role from the system using its ID. This operation is irreversible and may affect"
-    " user associations.",
+    description="Permanently removes a specific role from the system using its unique identifier. "
+    "This operation is irreversible and will completely delete the role and all its associated "
+    "metadata from the database. Before deletion, the system may check for existing associations "
+    "with users or other entities to prevent data integrity issues. Any users currently assigned "
+    "to this role may be affected by this operation. This endpoint should be used with extreme "
+    "caution, particularly in production environments, and typically requires elevated privileges.",
 )
 async def delete_role(
     role_id: int,

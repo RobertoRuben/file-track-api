@@ -135,7 +135,7 @@ class SubmitterRepositoryImpl(ISubmitterRepository):
                     conditions.append(Submitter.dni == dni_value)
                 except ValueError:
                     conditions.append(
-                        func.cast(Submitter.dni, func.text('text')).like(
+                        func.cast(Submitter.dni, func.text("text")).like(
                             f"{search_value}%"
                         )
                     )
@@ -211,3 +211,45 @@ class SubmitterRepositoryImpl(ISubmitterRepository):
 
         result = await self.session.exec(stmt)
         return result.first() is not None
+
+    @transactional(readonly=False)
+    async def delete_by_ids(self, submitter_ids: list[int]) -> bool:
+        """
+        Delete multiple submitters from the database by their IDs.
+
+        :param submitter_ids: List of submitter IDs to delete
+        :return: True if all submitters were successfully deleted, False otherwise
+
+        :raises DatabaseException: If an error occurs during the deletion
+        """
+        stmt = select(Submitter).where(Submitter.id.in_(submitter_ids))
+        results = await self.session.exec(stmt)
+        submitters = results.all()
+
+        found_ids = {submitter.id for submitter in submitters}
+        if len(found_ids) != len(submitter_ids):
+            return False
+
+        for submitter in submitters:
+            await self.session.delete(submitter)
+
+        return True
+
+    @transactional(readonly=True)
+    async def find_by_ids(self, submitter_ids: list[int]) -> list[Submitter]:
+        """
+        Retrieve multiple submitters from the database by their IDs.
+
+        :param submitter_ids: List of submitter IDs to retrieve
+        :return: List of submitters found
+
+        :raises DatabaseException: If an error occurs during the retrieval
+        """
+        if not submitter_ids:
+            return []
+
+        stmt = select(Submitter).where(Submitter.id.in_(submitter_ids))
+        results = await self.session.exec(stmt)
+        submitters = results.all()
+
+        return list(submitters)

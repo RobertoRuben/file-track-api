@@ -84,3 +84,23 @@ class IDepartmentRepository(ABC):
         :return: True if a matching department exists, False otherwise
         """
         pass
+
+    @abstractmethod
+    async def delete_by_ids(self, department_ids: list[int]) -> bool:
+        """
+        Delete multiple role entities from the database by their IDs.
+
+        :param department_ids: List of department IDs to delete
+        :return: True if the departments were successfully deleted, False otherwise
+        """
+        pass
+
+    @abstractmethod
+    async def find_by_ids(self, department_ids: list[int]) -> list[Department]:
+        """
+        Retrieve multiple role entities from the database by their IDs.
+
+        :param department_ids: List of department IDs to retrieve
+        :return: List of found department entities
+        """
+        pass

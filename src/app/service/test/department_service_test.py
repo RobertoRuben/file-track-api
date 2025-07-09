@@ -210,7 +210,7 @@ class TestDepartmentServiceImpl:
         department_repository.delete = AsyncMock(return_value=True)
 
         result = await department_service.delete_department(1)
-        print(f"✅ {result.message}")
+        print(f"✅ {result.detail}")
 
         assert isinstance(result, MessageResponse)
         assert result.success is True
@@ -248,7 +248,7 @@ class TestDepartmentServiceImpl:
         department_repository.delete = AsyncMock(return_value=False)
 
         result = await department_service.delete_department(1)
-        print(f"⚠️ {result.message}")
+        print(f"⚠️ {result.detail}")
 
         assert isinstance(result, MessageResponse)
         assert result.success is False

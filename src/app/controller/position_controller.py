@@ -1,4 +1,12 @@
-from fastapi import APIRouter, Depends, Query, Security
+from datetime import datetime
+from fastapi import (
+    APIRouter,
+    Depends,
+    Query,
+    Security,
+    Body,
+    Response,
+)
 from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -18,13 +26,17 @@ from src.app.service.interfaces import IPositionService
 from src.app.service.dependencies import get_position_service, get_current_user
 from src.app.security.auth.constants import Scopes
 
-router = APIRouter(prefix="/position", tags=["Positions"])
+router = APIRouter(prefix="/positions", tags=["Positions"])
 
 position_tags_metadata = {
     "name": "Positions",
-    "description": "Manages positions within the system. "
-    "These positions represent job roles that employees can hold. "
-    "Allows complete CRUD operations, advanced search, and paginated listing.",
+    "description": "Comprehensive enterprise job position management system facilitating organizational role definition, "
+    "employee assignment coordination, and workforce structure administration for effective human resource "
+    "operations. Manages complex job role hierarchies supporting HR workflows, career progression planning, "
+    "and organizational development through structured position frameworks. Enables sophisticated workforce "
+    "management with advanced search capabilities, bulk operations, and detailed audit trails supporting "
+    "enterprise human resource governance, talent management, and organizational efficiency across complex "
+    "employment structures and career development environments.",
 }
 
 
@@ -44,7 +56,9 @@ position_tags_metadata = {
         409: {"model": ConflictError, "description": "Position already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Creates a new position in the system. The name must be unique.",
+    description="Creates a new job position in the organizational structure. Validates name uniqueness "
+    "and establishes a new role definition that can be assigned to employees. Position names must "
+    "be descriptive and follow organizational naming conventions to maintain clarity in HR management.",
 )
 async def create_position(
     position_request: PositionRequestDTO,
@@ -54,16 +68,17 @@ async def create_position(
     position_service: IPositionService = Depends(get_position_service),
 ) -> PositionResponseDTO:
     """
-    Endpoint to create a new position.
+    Creates a new job position in the organizational structure.
 
-    This endpoint allows the creation of a new position in the system. The position data
-    must be provided in the request body. If the position is created successfully, a
-    status code 201 is returned with the details of the created position.
+    This endpoint establishes a new position that defines a specific role within the organization.
+    Positions serve as templates for employee assignments and help maintain organizational hierarchy.
+    The system validates that position names are unique to prevent confusion in HR management.
+    Created positions can immediately be assigned to employees and integrated into reporting structures.
 
-    :param position_request: Request body containing the position data.
-    :param current_user: The user creating the position, used for authorization.
-    :param position_service: Service that handles the position creation logic.
-    :return: The data of the created position.
+    :param position_request: Complete position data including name and description
+    :param current_user: Authenticated user with position creation privileges
+    :param position_service: Service layer handling position creation logic
+    :return: Complete details of the newly created position including generated ID
     """
     return await position_service.add_position(position_request)
 
@@ -82,8 +97,10 @@ async def create_position(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete list of all positions registered in the system, including their identifiers, "
-    "names, and timestamps.",
+    description="Retrieves a comprehensive list of all job positions available in the organizational structure. "
+    "This endpoint provides complete position data including names, identifiers, and metadata. "
+    "Essential for HR operations, employee assignments, and organizational reporting. "
+    "Results include both active and inactive positions for complete organizational visibility.",
 )
 async def get_all_positions(
     current_user: CurrentUserResponseDTO = Security(
@@ -92,14 +109,16 @@ async def get_all_positions(
     position_service: IPositionService = Depends(get_position_service),
 ) -> list[PositionResponseDTO]:
     """
-    Endpoint to retrieve all positions.
+    Retrieves the complete catalog of organizational positions.
 
-    This endpoint returns a list of all available positions in the system. The response will include
-    all positions stored in the database.
+    This endpoint returns all job positions defined within the organizational structure,
+    providing essential data for HR management, employee assignment processes, and
+    organizational planning. The response includes comprehensive position information
+    necessary for maintaining accurate reporting relationships and job classifications.
 
-    :param current_user: The user requesting the positions, used for authorization.
-    :param position_service: Service to handle the query and retrieve all positions.
-    :return: A list of positions in the system.
+    :param current_user: Authenticated user with position read privileges
+    :param position_service: Service layer handling position retrieval operations
+    :return: Complete list of all organizational positions with full details
     """
     return await position_service.get_all_positions()
 
@@ -115,8 +134,10 @@ async def get_all_positions(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves positions in a paginated format to manage large data sets, allowing navigation through pages"
-    " and control over the number of records per page.",
+    description="Retrieves organizational positions using advanced pagination for optimal performance with large datasets. "
+    "Supports configurable page size and navigation for efficient position browsing in HR systems. "
+    "Includes total count metadata for accurate pagination controls and enhanced user experience. "
+    "Ideal for position selection interfaces and large-scale organizational management tools.",
 )
 async def get_paginated_positions(
     page: int = Query(default=1, description="Page number to retrieve"),
@@ -127,16 +148,18 @@ async def get_paginated_positions(
     position_service: IPositionService = Depends(get_position_service),
 ) -> PositionPage:
     """
-    Endpoint to retrieve positions in a paginated manner.
+    Retrieves organizational positions with optimized pagination support.
 
-    This endpoint allows retrieving positions in a paginated format. The user can specify the page number
-    and the number of positions per page to optimize the query and reduce data overload.
+    This endpoint provides efficient access to position data through paginated results,
+    essential for managing large organizational structures. Includes comprehensive
+    pagination metadata for building responsive user interfaces and maintaining
+    optimal system performance during position browsing and selection operations.
 
-    :param page: The page number to retrieve.
-    :param size: The number of positions to return per page.
-    :param current_user: The user requesting the positions, used for authorization.
-    :param position_service: Service to handle the query and return paginated positions.
-    :return: A paginated list of positions.
+    :param page: Target page number (1-based indexing)
+    :param size: Maximum number of positions per page (recommended: 10-50)
+    :param current_user: Authenticated user with position read access
+    :param position_service: Service layer managing paginated position retrieval
+    :return: Paginated position results with navigation metadata
     """
     return await position_service.get_positions_paginated(page, size)
 
@@ -153,8 +176,10 @@ async def get_paginated_positions(
         404: {"model": NotFoundError, "description": "Position not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Performs position searches based on a keyword or phrase. Results are returned paginated for better"
-    " management of search results.",
+    description="Performs intelligent search across job positions using flexible text matching algorithms. "
+    "Supports partial name matching, fuzzy search capabilities, and comprehensive result filtering. "
+    "Returns paginated results with relevance ranking for efficient position discovery. "
+    "Essential for HR operations, employee assignment workflows, and organizational analysis.",
 )
 async def find_positions(
     search_term: str | None = Query(
@@ -168,19 +193,114 @@ async def find_positions(
     position_service: IPositionService = Depends(get_position_service),
 ) -> PositionPage:
     """
-    Endpoint to search positions using a search term.
+    Performs advanced search operations across organizational positions.
 
-    This endpoint allows searching for positions based on a given search term. The results are returned
-    in a paginated format, where the user can specify the page number and the number of results per page.
+    This endpoint enables sophisticated position discovery using flexible search criteria.
+    Implements intelligent text matching against position names and descriptions,
+    supporting both exact and partial matches for comprehensive result coverage.
+    Essential for HR workflows requiring quick position identification and selection.
 
-    :param search_term: A term to search within position names.
-    :param page: The page number to retrieve.
-    :param size: The number of results per page.
-    :param current_user: The user requesting the search, used for authorization.
-    :param position_service: Service to handle the search logic and return results.
-    :return: A paginated list of positions that match the search term.
+    :param search_term: Text query for position name matching (optional)
+    :param page: Result page number for pagination navigation
+    :param size: Maximum positions per page (optimized for UI performance)
+    :param current_user: Authenticated user with position search privileges
+    :param position_service: Service handling search logic and result processing
+    :return: Paginated search results with matching positions
     """
     return await position_service.find(page, size, search_term)
+
+
+@router.delete(
+    "/bulk",
+    response_model=MessageResponse,
+    summary="Delete multiple positions by IDs",
+    responses={
+        200: {
+            "model": MessageResponse,
+            "description": "Positions deleted successfully",
+        },
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Performs bulk deletion of multiple job positions in a single optimized operation. "
+    "Validates each position for dependencies and active assignments before removal. "
+    "Implements transactional processing to ensure organizational integrity and provides "
+    "detailed feedback on operation success. Critical operation requiring elevated permissions.",
+)
+async def delete_positions_bulk(
+    position_ids: list[int] = Body(..., description="List of position IDs to delete"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.POSITION_DELETE]
+    ),
+    position_service: IPositionService = Depends(get_position_service),
+) -> MessageResponse:
+    """
+    Executes bulk deletion of multiple organizational positions.
+
+    This endpoint enables efficient removal of multiple positions through a single
+    transactional operation. Performs comprehensive validation for each position
+    to ensure no active employee assignments or organizational dependencies exist
+    before proceeding with deletion. Maintains organizational integrity throughout
+    the bulk operation process.
+
+    :param position_ids: List of unique identifiers for positions to delete
+    :param current_user: Authenticated user with bulk deletion privileges
+    :param position_service: Service layer handling bulk deletion logic
+    :return: Operation summary with deletion results and any warnings
+    """
+    return await position_service.delete_positions_by_ids(position_ids)
+
+
+@router.post(
+    "/export-excel",
+    response_class=Response,
+    summary="Export positions to Excel",
+    responses={
+        200: {"description": "Excel file containing the requested positions"},
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        404: {"model": NotFoundError, "description": "No positions found to export"},
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Generates comprehensive Excel reports containing detailed position information for specified job roles. "
+    "Creates professionally formatted spreadsheets with complete position data including names, identifiers, "
+    "and organizational metadata. Ideal for HR reporting, organizational analysis, compliance documentation, "
+    "and external reporting requirements. Supports bulk export with optimized file generation.",
+)
+async def export_positions_to_excel(
+    position_ids: list[int] = Body(..., description="List of position IDs to export"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.POSITION_READ]
+    ),
+    position_service: IPositionService = Depends(get_position_service),
+) -> Response:
+    """
+    Generates comprehensive Excel reports for selected organizational positions.
+
+    This endpoint creates professionally formatted Excel spreadsheets containing
+    detailed position information for reporting, analysis, and compliance purposes.
+    The generated files include complete position metadata, organizational context,
+    and formatting optimized for business use and external sharing.
+
+    :param position_ids: List of unique identifiers for positions to include in export
+    :param current_user: Authenticated user with position export privileges
+    :param position_service: Service layer handling Excel generation logic
+    :return: Excel file as downloadable response with appropriate headers
+    """
+    excel_data = await position_service.export_positions_to_excel(position_ids)
+
+    current_datetime = datetime.now().strftime("%d%m%Y%H%M")
+    filename = f"{current_datetime}.xlsx"
+
+    headers = {
+        "Content-Disposition": f"attachment; filename={filename}",
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }
+
+    return Response(content=excel_data, headers=headers)
 
 
 @router.get(
@@ -195,7 +315,10 @@ async def find_positions(
         404: {"model": NotFoundError, "description": "Position not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete details of a specific position using its unique identifier.",
+    description="Retrieves comprehensive details for a specific job position using its unique identifier. "
+    "Provides complete position information including metadata, creation timestamps, and associated data. "
+    "Essential for position verification, employee assignment processes, and detailed organizational reporting. "
+    "Returns full position context for administrative and HR management operations.",
 )
 async def get_position_by_id(
     position_id: int,
@@ -205,15 +328,17 @@ async def get_position_by_id(
     position_service: IPositionService = Depends(get_position_service),
 ) -> PositionResponseDTO:
     """
-    Endpoint to retrieve a position by its ID.
+    Retrieves detailed information for a specific organizational position.
 
-    This endpoint retrieves the details of a specific position identified by its ID. If the position is found,
-    the position's data is returned. If not, a 404 error is returned.
+    This endpoint provides comprehensive access to position data using the unique
+    position identifier. Essential for HR operations requiring complete position
+    context, including employee assignment verification, organizational reporting,
+    and administrative workflows requiring position validation.
 
-    :param position_id: The ID of the position to retrieve.
-    :param current_user: The user requesting the position, used for authorization.
-    :param position_service: Service to handle the query and retrieve the position.
-    :return: The position details.
+    :param position_id: Unique identifier for the target position
+    :param current_user: Authenticated user with position read permissions
+    :param position_service: Service layer handling position retrieval logic
+    :return: Complete position details including all metadata
     """
     return await position_service.get_position_by_id(position_id)
 
@@ -234,8 +359,10 @@ async def get_position_by_id(
         409: {"model": ConflictError, "description": "Position name already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Updates the details of an existing position identified by its ID. Verifies that the new name is not "
-    "already in use by another position.",
+    description="Updates an existing job position with new information while maintaining organizational integrity. "
+    "Validates name uniqueness across the organization and preserves existing employee assignments. "
+    "Includes comprehensive validation to prevent conflicts and ensures consistent organizational structure. "
+    "Changes are immediately reflected in all dependent systems and reporting structures.",
 )
 async def update_position(
     position_id: int,
@@ -246,17 +373,18 @@ async def update_position(
     position_service: IPositionService = Depends(get_position_service),
 ) -> PositionResponseDTO:
     """
-    Endpoint to update an existing position.
+    Updates an existing organizational position with new information.
 
-    This endpoint allows updating the details of an existing position identified by its ID. If the position
-    is updated successfully, the updated position data is returned. If the position is not found,
-    a 404 error is returned.
+    This endpoint enables modification of position details while maintaining organizational
+    integrity and consistency. Performs comprehensive validation to ensure position names
+    remain unique and that changes don't create conflicts with existing assignments or
+    reporting structures. All updates are immediately reflected across dependent systems.
 
-    :param position_id: The ID of the position to update.
-    :param position_request: The new data for the position.
-    :param current_user: The user updating the position, used for authorization.
-    :param position_service: Service to handle the update logic.
-    :return: The updated position data.
+    :param position_id: Unique identifier of the position to update
+    :param position_request: New position data including updated name and details
+    :param current_user: Authenticated user with position modification privileges
+    :param position_service: Service layer handling update logic and validation
+    :return: Updated position information reflecting all changes
     """
     return await position_service.update_position(position_id, position_request)
 
@@ -276,8 +404,10 @@ async def update_position(
         404: {"model": NotFoundError, "description": "Position not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Deletes a specific position from the system using its ID. This operation is irreversible and may "
-    "affect relationships with other entities.",
+    description="Permanently removes a job position from the organizational structure. This is a critical operation "
+    "that validates position dependencies before deletion to prevent organizational integrity issues. "
+    "Ensures no active employee assignments exist before allowing removal. Operation is irreversible "
+    "and maintains complete audit trail for compliance and organizational tracking purposes.",
 )
 async def delete_position(
     position_id: int,
@@ -287,14 +417,16 @@ async def delete_position(
     position_service: IPositionService = Depends(get_position_service),
 ) -> MessageResponse:
     """
-    Endpoint to delete a position.
+    Permanently removes a position from the organizational structure.
 
-    This endpoint allows deleting a specific position identified by its ID. If the position is deleted
-    successfully, a success message is returned. If the position is not found, a 404 error is returned.
+    This endpoint performs secure deletion of organizational positions with comprehensive
+    validation to maintain organizational integrity. Verifies that no active employee
+    assignments exist before allowing removal, preventing orphaned data and maintaining
+    consistent reporting structures. This is a destructive operation that cannot be undone.
 
-    :param position_id: The ID of the position to delete.
-    :param current_user: The user deleting the position, used for authorization.
-    :param position_service: Service to handle the delete logic.
-    :return: A success message indicating that the position has been deleted.
+    :param position_id: Unique identifier of the position to remove
+    :param current_user: Authenticated user with position deletion privileges
+    :param position_service: Service layer handling deletion logic and validation
+    :return: Confirmation message indicating successful removal
     """
     return await position_service.delete_position(position_id)

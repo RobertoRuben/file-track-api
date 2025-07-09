@@ -21,10 +21,11 @@ router = APIRouter(prefix="/auth", tags=["Authentication"])
 
 auth_tags_metadata = {
     "name": "Authentication",
-    "description": "Handles user authentication and authorization in the system. "
-    "Provides endpoints for login, token refresh, and user verification. "
-    "These operations are essential for securing the application and "
-    "ensuring that only authorized users can access protected resources.",
+    "description": "Comprehensive authentication and authorization management system providing secure user access control "
+    "and session management. Handles credential validation, JWT token generation and refresh, user identity "
+    "verification, and secure session continuity. Essential security layer ensuring only authorized users "
+    "can access protected resources while maintaining seamless user experience through advanced token management "
+    "and automated session handling for enterprise-grade security compliance.",
 }
 
 
@@ -41,8 +42,9 @@ auth_tags_metadata = {
         401: {"model": UnauthorizedError, "description": "Invalid credentials"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Authenticates a user with username and password credentials, generating both access and refresh "
-    "tokens upon successful authentication.",
+    description="Authenticates users with secure credential validation and generates JWT token pairs for authorized "
+    "system access. Validates username and password against the user database, enforces security policies, "
+    "and provides both access tokens for immediate resource access and refresh tokens for session continuity.",
 )
 async def login(
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
@@ -80,8 +82,9 @@ async def login(
         401: {"model": UnauthorizedError, "description": "Invalid refresh token"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Generates a new access token using a valid refresh token, allowing users to maintain their session "
-    "without re-entering credentials.",
+    description="Generates new access tokens using valid refresh tokens for seamless session management without "
+    "credential re-entry. Validates refresh token authenticity, checks expiration status, and issues fresh "
+    "access tokens while maintaining security boundaries and user session continuity for enhanced user experience.",
 )
 async def refresh_token(
     refresh_token: str,
@@ -114,7 +117,9 @@ async def refresh_token(
         404: {"model": NotFoundError, "description": "User not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the profile information of the currently authenticated user based on their access token.",
+    description="Retrieves comprehensive profile information of the currently authenticated user including personal "
+    "details, role assignments, and system permissions. Validates bearer token authenticity, extracts user "
+    "identity securely, and provides complete user context for client applications and user profile management.",
 )
 async def get_user_me(
     current_user: CurrentUserResponseDTO = Depends(get_current_user),

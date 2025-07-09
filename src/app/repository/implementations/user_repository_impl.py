@@ -122,12 +122,15 @@ class UserRepositoryImpl(IUserRepository):
         return current_user._asdict() if current_user else None
 
     @transactional(readonly=True)
-    async def get_pageable(self, page: int, size: int) -> Page:
+    async def get_pageable(
+        self, page: int, size: int, only_active: bool = True
+    ) -> Page:
         """
-        Retrieves a paginated list of users.
+        Retrieves a paginated list of users, with option to filter by active status.
 
         :param page: The page number to retrieve
         :param size: The number of users per page
+        :param only_active: If True, returns only active users; if False, returns all users
         :return: A Page object containing the paginated users
         """
         offset = (page - 1) * size
@@ -152,11 +155,22 @@ class UserRepositoryImpl(IUserRepository):
             .join(Employee, Employee.id == User.employee_id)
             .join(Role, Role.id == User.role_id)
         )
+
+        if only_active:
+            stmt = stmt.where(User.is_active == True)
+        elif only_active is False:
+            stmt = stmt.where(User.is_active == False)
+
         stmt = stmt.offset(offset).limit(size)
         results = await self.session.exec(stmt)
         users_data = [dict(row._mapping) for row in results]
 
         count_stmt = select(func.count(User.id))
+        if only_active:
+            count_stmt = count_stmt.where(User.is_active == True)
+        elif only_active is False:
+            count_stmt = count_stmt.where(User.is_active == False)
+
         count_result = await self.session.exec(count_stmt)
         total_items = count_result.first()
         total_pages = math.ceil(total_items / size) if total_items > 0 else 1
@@ -296,3 +310,44 @@ class UserRepositoryImpl(IUserRepository):
 
         result = await self.session.exec(stmt)
         return result.first() is not None
+
+    @transactional(readonly=True)
+    async def find_by_ids(self, user_ids: list[int]) -> list[User]:
+        """
+        Retrieve users by a list of IDs with complete information.
+
+        :param user_ids: List of user IDs to retrieve
+        :return: List of users matching the provided IDs
+        :raises DatabaseException: If an error occurs during retrieval
+        """
+        if not user_ids:
+            return []
+
+        stmt = (
+            select(
+                User.id,
+                User.username,
+                User.employee_id,
+                func.concat(
+                    Employee.paternal_surname,
+                    ' ',
+                    Employee.maternal_surname,
+                    ' ',
+                    Employee.names,
+                ).label('employee_name'),
+                User.is_active,
+                User.role_id,
+                Role.name.label("role_name"),
+                Department.name.label("department_name"),
+                User.created_at,
+                User.updated_at,
+            )
+            .join(Employee, Employee.id == User.employee_id)
+            .join(Role, Role.id == User.role_id)
+            .join(Department, Department.id == Employee.department_id)
+            .where(User.id.in_(user_ids))
+        )
+
+        results = await self.session.exec(stmt)
+        users_data = [dict(row._mapping) for row in results]
+        return users_data

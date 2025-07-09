@@ -15,18 +15,18 @@ class UnauthorizedError(ErrorDetail):
     :ivar code: HTTP status code
     :ivar message: Human-readable error message
     :ivar details: Additional details about the error
-    :ivar time: Timestamp of when the error occurred
+    :ivar timestamp: Timestamp of when the error occurred
     """
 
-    type: str = Field(
+    title: str = Field(
         default="Unauthorized",
         description="Identifies the error as an authentication failure",
     )
-    code: int = Field(
+    status: int = Field(
         default=401,
         description="HTTP 401 Unauthorized status code indicating that the request requires valid authentication credentials",
     )
-    message: str = Field(
+    detail: str = Field(
         default="Authentication credentials are missing or invalid.",
         description="Human-readable error message",
         examples=[

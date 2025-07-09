@@ -81,3 +81,23 @@ class ISettlementRepository(ABC):
         :return: True if a matching settlement exists, False otherwise
         """
         pass
+    
+    @abstractmethod
+    async def delete_by_ids(self, settlement_ids: list[int]) -> bool:
+        """
+        Deletes multiple settlement entities by their IDs.
+
+        :param settlement_ids: A list of IDs of the settlements to delete
+        :return: True if all settlements were successfully deleted, False otherwise
+        """
+        pass
+    
+    @abstractmethod
+    async def find_by_ids(self, settlement_ids: list[int]) -> list[Settlement]:
+        """
+        Finds multiple settlement entities by their IDs.
+
+        :param settlement_ids: A list of IDs of the settlements to find
+        :return: A list of found settlements
+        """
+        pass

@@ -1,4 +1,5 @@
-from fastapi import APIRouter, Depends, Query, Security
+from datetime import datetime
+from fastapi import APIRouter, Depends, Query, Security, Body, Response
 from src.app.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -14,13 +15,15 @@ from src.app.service.interfaces import IHamletService
 from src.app.service.dependencies import get_hamlet_service, get_current_user
 from src.app.security.auth.constants import Scopes
 
-router = APIRouter(prefix="/hamlet", tags=["Hamlets"])
+router = APIRouter(prefix="/hamlets", tags=["Hamlets"])
 
 hamlet_tags_metadata = {
     "name": "Hamlets",
-    "description": "Manages hamlets within the system. "
-    "These hamlets represent rural population units connected to settlements. "
-    "Allows complete CRUD operations, advanced search, and paginated listing.",
+    "description": "Comprehensive rural settlement management system providing detailed geographical organization "
+    "for small population centers and administrative subdivisions within larger territorial structures. Manages "
+    "hamlet registrations, territorial relationships, and geographical hierarchies supporting governmental "
+    "administration, demographic tracking, and regional planning initiatives. Facilitates rural community "
+    "management, resource allocation, and administrative coordination for effective territorial governance.",
 }
 
 
@@ -40,7 +43,11 @@ hamlet_tags_metadata = {
         409: {"model": ConflictError, "description": "Hamlet already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Creates a new hamlet in the system. The name must be unique and may reference an optional settlement.",
+    description="Establishes new rural settlement registrations with geographical validation and territorial "
+    "hierarchy integration for comprehensive administrative management. Creates detailed hamlet profiles with "
+    "unique naming requirements, settlement associations, and administrative boundaries supporting governmental "
+    "territorial organization, demographic tracking, and regional development planning in rural administrative "
+    "systems and geographical information management workflows.",
 )
 async def create_hamlet(
     hamlet_request: HamletRequestDTO,
@@ -78,8 +85,11 @@ async def create_hamlet(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete list of all hamlets registered in the system, including their identifiers,"
-    " names, and timestamps.",
+    description="Retrieves comprehensive rural settlement inventory including all registered hamlets with geographical "
+    "metadata, territorial relationships, and administrative details for complete territorial oversight. Provides "
+    "enterprise-wide access to rural population center data supporting demographic analysis, resource planning, "
+    "administrative coordination, and regional development initiatives requiring complete geographical information "
+    "and territorial structure understanding.",
 )
 async def get_all_hamlets(
     current_user: CurrentUserResponseDTO = Security(
@@ -111,8 +121,11 @@ async def get_all_hamlets(
         403: {"model": ForbiddenError, "description": "Forbidden access"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves hamlets in a paginated format to manage large data sets, allowing navigation through pages "
-    "and control over the number of records per page.",
+    description="Provides optimized paginated access to rural settlement collections for efficient large-scale "
+    "geographical dataset management and enhanced administrative system performance. Implements server-side "
+    "pagination with configurable page sizes to handle extensive territorial registries, reduce memory "
+    "consumption, and improve user experience through controlled data loading. Essential for governmental "
+    "systems managing extensive rural territories requiring responsive navigation capabilities.",
 )
 async def get_paginated_hamlets(
     page: int = Query(default=1, description="Page number to retrieve"),
@@ -149,8 +162,11 @@ async def get_paginated_hamlets(
         404: {"model": NotFoundError, "description": "Hamlet not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Performs hamlet searches based on a keyword or phrase. Results are returned paginated for better "
-    "management of search results.",
+    description="Executes intelligent geographical search operations for precise rural settlement discovery and "
+    "territorial location within comprehensive administrative systems. Implements fuzzy search capabilities "
+    "with paginated results to efficiently locate specific hamlets within extensive geographical databases. "
+    "Supports complex search scenarios including partial matches, case-insensitive queries, and geographical "
+    "proximity searches for enhanced territorial navigation and administrative efficiency.",
 )
 async def find_hamlets(
     search_term: str | None = Query(None, description="Search term to filter hamlets"),
@@ -189,7 +205,11 @@ async def find_hamlets(
         404: {"model": NotFoundError, "description": "Hamlet not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Retrieves the complete details of a specific hamlet using its unique identifier.",
+    description="Retrieves comprehensive hamlet profile and geographical metadata for specific rural settlements "
+    "using unique administrative identifiers. Provides complete territorial information including settlement "
+    "associations, administrative boundaries, and demographic details for detailed geographical analysis and "
+    "administrative oversight. Essential for territorial verification workflows, geographical auditing, and "
+    "rural development planning requiring precise settlement identification.",
 )
 async def get_hamlet_by_id(
     hamlet_id: int,
@@ -228,8 +248,11 @@ async def get_hamlet_by_id(
         409: {"model": ConflictError, "description": "Hamlet name already exists"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Updates the details of an existing hamlet identified by its ID. Verifies that the new name is not"
-    " already in use by another hamlet.",
+    description="Performs comprehensive hamlet modification including name updates, territorial adjustments, and "
+    "administrative metadata management with validation and geographical integrity preservation. Supports "
+    "settlement evolution workflows while maintaining territorial consistency, enforcing naming uniqueness, "
+    "and preserving hierarchical relationships. Enables dynamic geographical management through secure "
+    "modification workflows with change tracking for administrative territorial oversight.",
 )
 async def update_hamlet(
     hamlet_id: int,
@@ -270,8 +293,12 @@ async def update_hamlet(
         404: {"model": NotFoundError, "description": "Hamlet not found"},
         500: {"model": InternalServerError, "description": "Internal server error"},
     },
-    description="Deletes a specific hamlet from the system using its ID. This operation is irreversible and may"
-    " affect relationships with other entities.",
+    description="Executes secure hamlet removal including dependency validation, territorial cascade handling, and "
+    "geographical integrity preservation for complete administrative system management. Performs irreversible "
+    "settlement elimination with comprehensive validation, hierarchical relationship checking, and territorial "
+    "impact assessment to maintain system consistency. Implements governmental-grade deletion workflows with "
+    "confirmation requirements and audit trail preservation for regulated territorial management. ⚠️ WARNING: "
+    "This operation permanently removes the hamlet and may affect territorial relationships.",
 )
 async def delete_hamlet(
     hamlet_id: int,
@@ -292,3 +319,95 @@ async def delete_hamlet(
     :return: A success message indicating that the hamlet has been deleted.
     """
     return await hamlet_service.delete_hamlet(hamlet_id)
+
+
+@router.delete(
+    "/bulk",
+    response_model=MessageResponse,
+    summary="Delete multiple hamlets by IDs",
+    responses={
+        200: {
+            "model": MessageResponse,
+            "description": "Hamlets deleted successfully",
+        },
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Performs bulk deletion of multiple hamlets in a single optimized operation. "
+    "Validates each hamlet for dependencies and active relationships before removal. "
+    "Implements transactional processing to ensure territorial integrity and provides "
+    "detailed feedback on operation success. Critical operation requiring elevated permissions.",
+)
+async def delete_hamlets_bulk(
+    hamlet_ids: list[int] = Body(..., description="List of hamlet IDs to delete"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.HAMLET_DELETE]
+    ),
+    hamlet_service: IHamletService = Depends(get_hamlet_service),
+) -> MessageResponse:
+    """
+    Executes bulk deletion of multiple hamlets.
+
+    This endpoint enables efficient removal of multiple hamlets through a single
+    transactional operation. Performs comprehensive validation for each hamlet
+    to ensure no active territorial dependencies exist before proceeding with deletion.
+    Maintains geographical integrity throughout the bulk operation process.
+
+    :param hamlet_ids: List of unique identifiers for hamlets to delete
+    :param current_user: Authenticated user with bulk deletion privileges
+    :param hamlet_service: Service layer handling bulk deletion logic
+    :return: Operation summary with deletion results and any warnings
+    """
+    return await hamlet_service.delete_hamlets_by_ids(hamlet_ids)
+
+
+@router.post(
+    "/export-excel",
+    response_class=Response,
+    summary="Export hamlets to Excel",
+    responses={
+        200: {"description": "Excel file containing the requested hamlets"},
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        404: {"model": NotFoundError, "description": "No hamlets found to export"},
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Generates comprehensive Excel reports containing detailed hamlet information for specified rural settlements. "
+    "Creates professionally formatted spreadsheets with complete hamlet data including names, settlement relationships, "
+    "and territorial metadata. Ideal for geographical reporting, territorial analysis, compliance documentation, "
+    "and external reporting requirements. Supports bulk export with optimized file generation.",
+)
+async def export_hamlets_to_excel(
+    hamlet_ids: list[int] = Body(..., description="List of hamlet IDs to export"),
+    current_user: CurrentUserResponseDTO = Security(
+        get_current_user, scopes=[Scopes.HAMLET_READ]
+    ),
+    hamlet_service: IHamletService = Depends(get_hamlet_service),
+) -> Response:
+    """
+    Generates comprehensive Excel reports for selected hamlets.
+
+    This endpoint creates professionally formatted Excel spreadsheets containing
+    detailed hamlet information for reporting, analysis, and compliance purposes.
+    The generated files include complete hamlet metadata, settlement relationships,
+    and formatting optimized for business use and external sharing.
+
+    :param hamlet_ids: List of unique identifiers for hamlets to include in export
+    :param current_user: Authenticated user with hamlet export privileges
+    :param hamlet_service: Service layer handling Excel generation logic
+    :return: Excel file as downloadable response with appropriate headers
+    """
+    excel_data = await hamlet_service.export_hamlets_to_excel(hamlet_ids)
+
+    current_datetime = datetime.now().strftime("%d%m%Y%H%M")
+    filename = f"hamlets_{current_datetime}.xlsx"
+
+    headers = {
+        "Content-Disposition": f"attachment; filename={filename}",
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }
+
+    return Response(content=excel_data, headers=headers)

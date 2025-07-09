@@ -14,19 +14,19 @@ class ForbiddenError(ErrorDetail):
     :ivar code: HTTP status code
     :ivar message: Human-readable error message
     :ivar details: Additional details about the error
-    :ivar time: Timestamp of when the error occurred
+    :ivar timestamp: Timestamp of when the error occurred
     """
 
-    type: str = Field(
+    title: str = Field(
         default="Forbidden",
         description="Identifies the error as a forbidden error",
         examples=["Permission Error", "Access Denied", "Authorization Error"],
     )
-    code: int = Field(
+    status: int = Field(
         default=403,
         description="HTTP 403 Forbidden status code indicating that the server understands the request but refuses to authorize it",
     )
-    message: str = Field(
+    detail: str = Field(
         default="You do not have permission to access this resource.",
         description="Human-readable error message",
         examples=[

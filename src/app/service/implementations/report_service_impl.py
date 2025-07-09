@@ -1,5 +1,6 @@
 import os
 from src.app.dto.response import DocumentResponseDTO
+from src.app.exception.decorator.handle_exception import handle_exceptions
 from src.app.service.interfaces.report_service import IReportService
 from src.resources.templates.registration_document_report import create_document_report
 
@@ -29,6 +30,7 @@ class ReportServiceImpl(IReportService):
 
         self.logo_path = os.path.join(self.images_dir, "logo.png")
 
+    @handle_exceptions
     async def generate_document_registration_report(
         self, document_data: DocumentResponseDTO
     ) -> bytes:

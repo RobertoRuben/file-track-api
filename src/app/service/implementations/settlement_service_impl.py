@@ -1,5 +1,8 @@
+import io
+import pandas as pd
 from datetime import datetime
-from src.app.model.entity import Settlement
+from src.app.model.entity import Settlement, settlement
+from src.app.service.helpers import datetime_helper
 from src.app.dto.request import SettlementRequestDTO
 from src.app.dto.response import SettlementPage, SettlementResponseDTO
 from src.app.schema import MessageResponse
@@ -41,6 +44,7 @@ class SettlementServiceImpl(ISettlementService):
         )
         if existing_settlement:
             raise ConflictException(
+                message="Settlement already exists",
                 details=f"Settlement with name {settlement_request.name} already exists",
             )
 
@@ -93,6 +97,7 @@ class SettlementServiceImpl(ISettlementService):
         )
         if not exists_settlement_id:
             raise NotFoundException(
+                message="Settlement not found",
                 details=f"Settlement with id {settlement_id} not found",
             )
         settlement = await self.settlement_repository.get_by_id(settlement_id)
@@ -103,6 +108,7 @@ class SettlementServiceImpl(ISettlementService):
             )
             if existing_settlement:
                 raise ConflictException(
+                    message="Settlement name already exists",
                     details=f"Settlement with name {settlement_request.name} already exists",
                 )
 
@@ -132,6 +138,7 @@ class SettlementServiceImpl(ISettlementService):
         )
         if not existing_settlement_id:
             raise NotFoundException(
+                message="Settlement not found",
                 details=f"Settlement with id {settlement_id} not found",
             )
         response = await self.settlement_repository.delete(settlement_id)
@@ -164,6 +171,7 @@ class SettlementServiceImpl(ISettlementService):
         )
         if not existing_settlement_id:
             raise NotFoundException(
+                message="Settlement not found",
                 details=f"Settlement with id {settlement_id} not found",
             )
         settlement = await self.settlement_repository.get_by_id(settlement_id)
@@ -240,6 +248,7 @@ class SettlementServiceImpl(ISettlementService):
 
         if not page_result.data:
             raise NotFoundException(
+                message="No settlements found",
                 details=f"No settlements found with the search term {search_term}",
             )
 
@@ -257,3 +266,121 @@ class SettlementServiceImpl(ISettlementService):
             data=settlement_response,
             meta=page_result.meta,
         )
+
+    @handle_exceptions
+    async def delete_settlements_by_ids(
+        self, settlement_ids: list[int]
+    ) -> MessageResponse:
+        """
+        Deletes multiple settlements by their IDs.
+
+        :param settlement_ids: List of IDs of the settlements to delete
+        :return: Message response indicating success or failure
+        :raises NotFoundException: If none of the settlements with the given IDs exist
+        :raises BadRequestException: If the settlement_ids list is empty
+        """
+        if len(settlement_ids) == 0:
+            raise BadRequestException(
+                message="Invalid settlement IDs",
+                details="Settlement IDs list cannot be empty.",
+            )
+
+        invalid_ids = [id for id in settlement_ids if id <= 0]
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid settlement IDs",
+                details=f"Settlement IDs must be positive integers. Invalid IDs: {invalid_ids}",
+            )
+
+        settlements = await self.settlement_repository.find_by_ids(settlement_ids)
+
+        found_ids = {
+            settlement["id"] if isinstance(settlement, dict) else settlement.id
+            for settlement in settlements
+        }
+        missing_ids = [id for id in settlement_ids if id not in found_ids]
+
+        if missing_ids:
+            raise NotFoundException(
+                message="Settlements not found",
+                details=f"Settlements with ids {missing_ids} not found.",
+            )
+
+        resp = await self.settlement_repository.delete_by_ids(settlement_ids)
+
+        if resp is True:
+            return MessageResponse(
+                message="Settlements deleted successfully.",
+                success=True,
+                details=f"Settlements with ids {settlement_ids} deleted successfully.",
+                status_code=200,
+            )
+        else:
+            return MessageResponse(
+                message="Failed to delete settlements.",
+                success=False,
+                details=f"Settlements with ids {settlement_ids} could not be deleted.",
+                status_code=500,
+            )
+
+    @handle_exceptions
+    async def export_settlements_to_excel(self, settlement_ids) -> bytes:
+        """
+        Exports settlements to an Excel file.
+
+        :param settlement_ids: List of IDs of the settlements to export
+        :return: Bytes of the Excel file containing the settlements
+        :raises NotFoundException: If none of the settlements with the given IDs exist
+        :raises BadRequestException: If the settlement_ids list is empty or contains invalid IDs
+        """
+        if len(settlement_ids) == 0:
+            raise BadRequestException(
+                message="Invalid settlement IDs",
+                details="Settlement IDs list cannot be empty.",
+            )
+
+        invalid_ids = [id for id in settlement_ids if id <= 0]
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid settlement IDs",
+                details=f"Settlement IDs must be positive integers. Invalid IDs: {invalid_ids}",
+            )
+
+        settlements = await self.settlement_repository.find_by_ids(settlement_ids)
+
+        found_ids = {
+            settlement["id"] if isinstance(settlement, dict) else settlement.id
+            for settlement in settlements
+        }
+        missing_ids = [id for id in settlement_ids if id not in found_ids]
+        if missing_ids:
+            raise NotFoundException(
+                message="Settlements not found",
+                details=f"Settlements with ids {missing_ids} not found.",
+            )
+
+        settlements_data = [
+            {
+                "ID": settlement.id,
+                "Nombre": settlement.name,
+                "Fecha de Creación": datetime_helper.to_lima_timezone(
+                    settlement.created_at
+                ),
+                "Updated At": datetime_helper.to_lima_timezone(settlement.updated_at),
+            }
+            for settlement in settlements
+        ]
+
+        df = pd.DataFrame(settlements_data)
+        output = io.BytesIO()
+
+        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+            df.to_excel(writer, index=False, sheet_name="Settlements")
+
+            worksheet = writer.sheets["Settlements"]
+            for i, col in enumerate(df.columns):
+                max_length = max(df[col].astype(str).map(len).max(), len(col)) + 2
+                worksheet.set_column(i, i, max_length)
+
+        output.seek(0)
+        return output.getvalue()

@@ -172,24 +172,56 @@ class DocumentCategoryRepositoryImpl(IDocumentCategoryRepository):
     @transactional(readonly=True)
     async def exists_by(self, **kwargs) -> bool:
         """
-        Check if a document category exists based on the provided criteria.
+        Check if a document category exists based on the given criteria.
 
-        :param kwargs: Field-value pairs to check against
-        :return: True if a matching category exists, False otherwise
-        :raises InvalidFieldException: If an invalid field name is provided
+        :param kwargs: Key-value pairs representing the search criteria
+        :return: True if a matching document category exists, False otherwise
         :raises DatabaseException: If an error occurs during the query
         """
-        valid_fields = DocumentCategory.__dict__.keys()
-        for key in kwargs.keys():
-            if key not in valid_fields:
-                raise InvalidFieldException(
-                    message=f"Field '{key}' does not exist in the DocumentCategory model",
-                    details=f"Valid fields are: {', '.join([f for f in valid_fields if not f.startswith('_')])}",
-                )
+        stmt = select(DocumentCategory)
+        for field, value in kwargs.items():
+            if hasattr(DocumentCategory, field):
+                stmt = stmt.where(getattr(DocumentCategory, field) == value)
+            else:
+                raise InvalidFieldException(f"Invalid field: {field}")
 
-        stmt = select(DocumentCategory.id)
-        for key, value in kwargs.items():
-            stmt = stmt.where(getattr(DocumentCategory, key) == value)
+        results = await self.session.exec(stmt)
+        category = results.first()
+        return category is not None
 
-        result = await self.session.exec(stmt)
-        return result.first() is not None
+    @transactional(readonly=False)
+    async def delete_by_ids(self, category_ids: list[int]) -> bool:
+        """
+        Delete multiple document category entities from the database by their IDs.
+
+        :param category_ids: List of document category IDs to delete
+        :return: True if the document categories were successfully deleted, False otherwise
+        :raises DatabaseException: If an error occurs during deletion
+        """    
+        stmt = select(DocumentCategory).where(DocumentCategory.id.in_(category_ids))
+        results = await self.session.exec(stmt)
+        categories = results.all()
+        
+        found_ids = {category.id for category in categories}
+        if len(found_ids) != len(category_ids):
+            return False
+        for category in categories:
+            await self.session.delete(category)
+        return True
+
+    @transactional(readonly=True)
+    async def find_by_ids(self, category_ids: list[int]) -> list[DocumentCategory]:
+        """
+        Find multiple document categories by their IDs.
+
+        :param category_ids: List of document category IDs to find
+        :return: List of DocumentCategory entities matching the provided IDs
+        :raises DatabaseException: If an error occurs during the query
+        """
+        if not category_ids:
+            return []
+
+        stmt = select(DocumentCategory).where(DocumentCategory.id.in_(category_ids))
+        results = await self.session.exec(stmt)
+        categories = results.all()
+        return list(categories)

@@ -212,7 +212,7 @@ class TestSettlementServiceImpl:
         settlement_repository.delete = AsyncMock(return_value=True)
 
         result = await settlement_service.delete_settlement(1)
-        print(f"✅ {result.message}")
+        print(f"✅ {result.detail}")
 
         assert isinstance(result, MessageResponse)
         assert result.success is True
@@ -250,7 +250,7 @@ class TestSettlementServiceImpl:
         settlement_repository.delete = AsyncMock(return_value=False)
 
         result = await settlement_service.delete_settlement(1)
-        print(f"⚠️ {result.message}")
+        print(f"⚠️ {result.detail}")
 
         assert isinstance(result, MessageResponse)
         assert result.success is False

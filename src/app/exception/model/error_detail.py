@@ -7,19 +7,32 @@ class ErrorDetail(BaseModel):
     Error detail model for consistent error response format.
 
     This model is used to provide a standardized response format for errors
-    :ivar type: str: The type of the error
-    :ivar code: int: HTTP status code
-    :ivar message: str: The error message
+    :ivar title: str: The type of the error
+    :ivar status: int: HTTP status code
+    :ivar detail: str: The error message
     :ivar details: str: Additional details about the error
-    :ivar time: str: Timestamp of when the error occurred
+    :ivar timestamp: str: Timestamp of when the error occurred
     """
 
-    type: str = Field(..., description="The type of the error")
-    code: int = Field(..., description="HTTP status code")
-    message: str = Field(..., description="Human-readable error message")
+    type: str | None = Field(
+        default=None, description="URI that identifies the problem type"
+    )
+    title: str = Field(
+        ..., description="A short, human-readable summary of the problem type"
+    )
+    status: int = Field(..., description="HTTP status code")
+    detail: str = Field(
+        ...,
+        description="A human-readable explanation specific to this occurrence of the problem",
+    )
+    instance: str | None = Field(
+        default=None,
+        description="URI that identifies the specific occurrence of the problem",
+    )
+    timestamp: str = Field(
+        datetime.now().isoformat(), description="Timestamp when the error occurred"
+    )
+
     details: str | None = Field(
         default=None, description="Additional details about the error"
-    )
-    time: str = Field(
-        datetime.now().isoformat(), description="Timestamp of when the error occurred"
     )

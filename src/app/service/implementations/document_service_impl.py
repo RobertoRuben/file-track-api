@@ -27,7 +27,7 @@ class DocumentServiceImpl(IDocumentService):
     """
     Implementation of the Document Service interface.
 
-    Provides bussiness logic for document operations including creating, updating, deleting, and retrieving documents.
+    Provides business logic for document operations including creating, updating, deleting, and retrieving documents.
     """
 
     def __init__(
@@ -41,9 +41,15 @@ class DocumentServiceImpl(IDocumentService):
         report_service: IReportService,
     ):
         """
-        Initialize the DocumentService with a repository.
+        Initialize the DocumentService with repositories and services.
 
-        :param document_repository: An instance of IDocumentCategoryRepository for database operations
+        :param document_repository: An instance of IDocumentRepository for database operations
+        :param document_category_repository: Repository for document category operations
+        :param submitter_repository: Repository for submitter operations
+        :param hamlet_repository: Repository for hamlet operations
+        :param settlement_repository: Repository for settlement operations
+        :param documentary_topic_repository: Repository for documentary topic operations
+        :param report_service: Service for generating reports
         """
         self.document_repository = document_repository
         self.document_category_repository = document_category_repository
@@ -72,7 +78,8 @@ class DocumentServiceImpl(IDocumentService):
 
         if len(document_request.document) > MAX_FILE_SIZE_BYTES:
             raise BadRequestException(
-                details=f"Document file size exceeds the maximum allowed size of {MAX_FILE_SIZE_MB}MB"
+                message="Document file too large",
+                details=f"Document file size exceeds the maximum allowed size of {MAX_FILE_SIZE_MB}MB.",
             )
 
         exists_category = await self.document_category_repository.exists_by(
@@ -81,7 +88,8 @@ class DocumentServiceImpl(IDocumentService):
 
         if not exists_category:
             raise NotFoundException(
-                details=f"Category with id {document_request.document_category_id} not found"
+                message="Document category not found",
+                details=f"Category with ID {document_request.document_category_id} not found.",
             )
 
         exists_documentary_topic = await self.documentary_topic_repository.exists_by(
@@ -90,7 +98,8 @@ class DocumentServiceImpl(IDocumentService):
 
         if not exists_documentary_topic:
             raise NotFoundException(
-                details=f"Documentary topic with id {document_request.documentary_topic_id} not found"
+                message="Documentary topic not found",
+                details=f"Documentary topic with ID {document_request.documentary_topic_id} not found.",
             )
 
         exists_settlement = await self.settlement_repository.exists_by(
@@ -99,7 +108,8 @@ class DocumentServiceImpl(IDocumentService):
 
         if not exists_settlement:
             raise NotFoundException(
-                details=f"Settlement with id {document_request.settlement_id} not found"
+                message="Settlement not found",
+                details=f"Settlement with ID {document_request.settlement_id} not found.",
             )
 
         if document_request.hamlet_id:
@@ -109,7 +119,8 @@ class DocumentServiceImpl(IDocumentService):
 
             if not exists_hamlet:
                 raise NotFoundException(
-                    details=f"Hamlet with id {document_request.hamlet_id} not found"
+                    message="Hamlet not found",
+                    details=f"Hamlet with ID {document_request.hamlet_id} not found.",
                 )
 
         exists_submitter = await self.submitter_repository.exists_by(
@@ -118,7 +129,8 @@ class DocumentServiceImpl(IDocumentService):
 
         if not exists_submitter:
             raise NotFoundException(
-                details=f"Submitter with id {document_request.submitter_id} not found"
+                message="Submitter not found",
+                details=f"Submitter with ID {document_request.submitter_id} not found.",
             )
 
         exists_doc_with_title = await self.document_repository.exists_by(
@@ -127,7 +139,8 @@ class DocumentServiceImpl(IDocumentService):
 
         if exists_doc_with_title:
             raise ConflictException(
-                details=f"Document with title '{document_request.title}' already exists"
+                message="Document title already exists",
+                details=f"Document with title '{document_request.title}' already exists.",
             )
 
         storage_path, file_size = await document_helper.save_document_file(
@@ -224,7 +237,10 @@ class DocumentServiceImpl(IDocumentService):
         existing_document = await self.document_repository.get_by_id(document_id)
 
         if not existing_document:
-            raise NotFoundException(details=f"Document with ID {document_id} not found")
+            raise NotFoundException(
+                message="Document not found",
+                details=f"Document with ID {document_id} not found.",
+            )
 
         exists_category = await self.document_category_repository.exists_by(
             id=document_request.document_category_id
@@ -232,7 +248,8 @@ class DocumentServiceImpl(IDocumentService):
 
         if not exists_category:
             raise NotFoundException(
-                details=f"Category with ID {document_request.document_category_id} not found"
+                message="Document category not found",
+                details=f"Category with ID {document_request.document_category_id} not found.",
             )
 
         exists_documentary_topic = await self.documentary_topic_repository.exists_by(
@@ -241,7 +258,8 @@ class DocumentServiceImpl(IDocumentService):
 
         if not exists_documentary_topic:
             raise NotFoundException(
-                details=f"Documentary topic with ID {document_request.documentary_topic_id} not found"
+                message="Documentary topic not found",
+                details=f"Documentary topic with ID {document_request.documentary_topic_id} not found.",
             )
 
         exists_settlement = await self.settlement_repository.exists_by(
@@ -250,7 +268,8 @@ class DocumentServiceImpl(IDocumentService):
 
         if not exists_settlement:
             raise NotFoundException(
-                details=f"Settlement with ID {document_request.settlement_id} not found"
+                message="Settlement not found",
+                details=f"Settlement with ID {document_request.settlement_id} not found.",
             )
 
         if document_request.hamlet_id:
@@ -260,7 +279,8 @@ class DocumentServiceImpl(IDocumentService):
 
             if not exists_hamlet:
                 raise NotFoundException(
-                    details=f"Hamlet with ID {document_request.hamlet_id} not found"
+                    message="Hamlet not found",
+                    details=f"Hamlet with ID {document_request.hamlet_id} not found.",
                 )
 
         exists_submitter = await self.submitter_repository.exists_by(
@@ -269,7 +289,8 @@ class DocumentServiceImpl(IDocumentService):
 
         if not exists_submitter:
             raise NotFoundException(
-                details=f"Submitter with ID {document_request.submitter_id} not found"
+                message="Submitter not found",
+                details=f"Submitter with ID {document_request.submitter_id} not found.",
             )
 
         if document_request.title != existing_document.title:
@@ -279,7 +300,8 @@ class DocumentServiceImpl(IDocumentService):
 
             if exists_doc_with_title:
                 raise ConflictException(
-                    details=f"A document with title '{document_request.title}' already exists"
+                    message="Document title already exists",
+                    details=f"A document with title '{document_request.title}' already exists.",
                 )
 
         storage_path = existing_document.storage_path
@@ -291,10 +313,10 @@ class DocumentServiceImpl(IDocumentService):
 
             if len(document_request.document) > MAX_FILE_SIZE_BYTES:
                 raise BadRequestException(
-                    details=f"Document file size exceeds the maximum allowed size of {MAX_FILE_SIZE_MB}MB"
+                    message="Document file too large",
+                    details=f"Document file size exceeds the maximum allowed size of {MAX_FILE_SIZE_MB}MB.",
                 )
 
-            # Solo guardar el nuevo archivo si realmente se proporcionó uno
             storage_path, file_size = await document_helper.save_document_file(
                 document_request.document
             )
@@ -343,7 +365,10 @@ class DocumentServiceImpl(IDocumentService):
         existing_document = await self.document_repository.get_by_id(document_id)
 
         if not existing_document:
-            raise NotFoundException(details=f"Document with ID {document_id} not found")
+            raise NotFoundException(
+                message="Document not found",
+                details=f"Document with ID {document_id} not found.",
+            )
 
         response = await self.document_repository.delete(document_id)
 
@@ -351,14 +376,14 @@ class DocumentServiceImpl(IDocumentService):
             return MessageResponse(
                 message="Document deleted successfully",
                 success=True,
-                details=f"Document with code {existing_document.registration_code} deleted successfully",
+                details=f"Document with code {existing_document.registration_code} deleted successfully.",
                 status_code=200,
             )
         else:
             return MessageResponse(
                 message="Document deletion failed",
                 success=False,
-                details=f"Document with code {existing_document.registration_code} deletion failed",
+                details=f"Document with code {existing_document.registration_code} deletion failed.",
                 status_code=500,
             )
 
@@ -374,7 +399,10 @@ class DocumentServiceImpl(IDocumentService):
         document = await self.document_repository.get_by_id(document_id)
 
         if not document:
-            raise NotFoundException(details=f"Document with ID {document_id} not found")
+            raise NotFoundException(
+                message="Document not found",
+                details=f"Document with ID {document_id} not found.",
+            )
 
         return DocumentResponseDTO(
             id=document.id,
@@ -408,14 +436,15 @@ class DocumentServiceImpl(IDocumentService):
         if page < 1 or size < 1:
             raise BadRequestException(
                 message="Invalid pagination parameters",
-                details="Page and size must be greater than 0",
+                details="Page and size must be greater than 0.",
             )
 
         page_result = await self.document_repository.get_pageable(page, size)
 
         if not page_result.data:
             raise NotFoundException(
-                details=f"No documents found on page {page}",
+                message="No documents found",
+                details=f"No documents found on page {page}.",
             )
 
         document_responses = [
@@ -442,7 +471,7 @@ class DocumentServiceImpl(IDocumentService):
         if page < 1 or size < 1:
             raise BadRequestException(
                 message="Invalid pagination parameters",
-                details="Page and size must be greater than 0",
+                details="Page and size must be greater than 0.",
             )
 
         search_dict = {
@@ -456,7 +485,8 @@ class DocumentServiceImpl(IDocumentService):
 
         if not page_result.data:
             raise NotFoundException(
-                details=f"No documents found matching the search '{search}'",
+                message="No documents found",
+                details=f"No documents found matching the search '{search}'.",
             )
 
         document_responses = [
@@ -485,12 +515,14 @@ class DocumentServiceImpl(IDocumentService):
 
         if not document:
             raise NotFoundException(
-                details=f"Document with registration code {registration_code} not found"
+                message="Document not found",
+                details=f"Document with registration code '{registration_code}' not found.",
             )
 
         if not os.path.exists(document.storage_path):
             raise NotFoundException(
-                details=f"Document file for code {registration_code} not found in storage"
+                message="Document file not found",
+                details=f"Document file for code '{registration_code}' not found in storage.",
             )
 
         with open(document.storage_path, "rb") as file:
@@ -521,7 +553,7 @@ class DocumentServiceImpl(IDocumentService):
         if page < 1 or size < 1:
             raise BadRequestException(
                 message="Invalid pagination parameters",
-                details="Page and size must be greater than 0",
+                details="Page and size must be greater than 0.",
             )
 
         page_result = await self.document_repository.get_pageable_by_current_date(
@@ -530,7 +562,8 @@ class DocumentServiceImpl(IDocumentService):
 
         if not page_result.data:
             raise NotFoundException(
-                details=f"No documents found on page {page}",
+                message="No documents found",
+                details=f"No documents found on page {page}.",
             )
 
         document_responses = [
@@ -564,7 +597,7 @@ class DocumentServiceImpl(IDocumentService):
         if page < 1 or size < 1:
             raise BadRequestException(
                 message="Invalid pagination parameters",
-                details="Page and size must be greater than 0",
+                details="Page and size must be greater than 0.",
             )
 
         search_dict = {
@@ -580,7 +613,8 @@ class DocumentServiceImpl(IDocumentService):
 
         if not page_result.data:
             raise NotFoundException(
-                details=f"No documents found matching the search '{search}'",
+                message="No documents found",
+                details=f"No documents found matching the search '{search}'.",
             )
 
         document_responses = [
@@ -611,7 +645,10 @@ class DocumentServiceImpl(IDocumentService):
         )
 
         if not document_info:
-            raise NotFoundException(details=f"Document with ID {document_id} not found")
+            raise NotFoundException(
+                message="Document not found",
+                details=f"Document with ID {document_id} not found.",
+            )
 
         return DocumentResponseDTO(
             id=document_info["id"],
@@ -643,7 +680,10 @@ class DocumentServiceImpl(IDocumentService):
         document_info = await self.get_document_information_by_id(document_id)
 
         if not document_info:
-            raise NotFoundException(details=f"Document with ID {document_id} not found")
+            raise NotFoundException(
+                message="Document not found",
+                details=f"Document with ID {document_id} not found.",
+            )
 
         pdf_content = await self.report_service.generate_document_registration_report(
             document_info

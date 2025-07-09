@@ -2,6 +2,9 @@ import functools
 from typing import Callable, TypeVar, Any, Optional
 from src.app.exception.model import BaseHTTPException
 from src.app.exception import ServerException
+from src.app.exception.constants import ErrorTypes, ErrorTitles
+from src.app.config.settings import settings
+import inspect
 
 T = TypeVar('T')
 
@@ -22,14 +25,39 @@ def handle_exceptions(
     def decorator(func: Callable[..., T]) -> Callable[..., T]:
         @functools.wraps(func)
         async def wrapper(*args: Any, **kwargs: Any) -> T:
+            request = None
+            for arg in list(args) + list(kwargs.values()):
+                if hasattr(arg, 'url') and hasattr(arg, 'method'):
+                    request = arg
+                    break
+            if request is not None:
+                instance = request.url.path
+            else:
+                func_name = func.__name__
+                instance = f"urn:problem-instance:{func_name}"
+
             try:
                 return await func(*args, **kwargs)
-            except BaseHTTPException:
+            except BaseHTTPException as e:
+                # Si la excepción BaseHTTPException no tiene instance, la inyectamos
+                if hasattr(e, 'detail') and isinstance(e.detail, dict):
+                    if e.detail.get('instance') is None:
+                        e.detail['instance'] = instance
                 raise
             except AttributeError as e:
-                raise ServerException(details=f"Error de implementación: {str(e)}")
+                raise ServerException(
+                    details=f"Implementation error: {str(e)}",
+                    instance=instance,
+                    type_=ErrorTypes.IMPLEMENTATION_ERROR,
+                    title=ErrorTitles.IMPLEMENTATION_ERROR,
+                )
             except Exception as e:
-                raise ServerException(details=str(e))
+                raise ServerException(
+                    details=str(e),
+                    instance=instance,
+                    type_=ErrorTypes.SERVER_ERROR,
+                    title=ErrorTitles.INTERNAL_SERVER_ERROR,
+                )
 
         return wrapper
 

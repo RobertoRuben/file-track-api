@@ -15,18 +15,18 @@ class ConflictError(ErrorDetail):
     :ivar code: HTTP status code
     :ivar message: Human-readable error message
     :ivar details: Additional details about the error
-    :ivar time: Timestamp of when the error occurred
+    :ivar timestamp: Timestamp of when the error occurred
     """
 
-    type: str = Field(
+    title: str = Field(
         default="Conflict", description="Identifies the error as a conflict error"
     )
-    code: int = Field(
+    status: int = Field(
         default=409,
         description="HTTP 409 Conflict status code indicating that the request could not be completed due to a conflict with the current state of the target resource",
     )
 
-    message: str = Field(
+    detail: str = Field(
         default="The request could not be completed due to a conflict with the current state of the target resource.",
         description="Human-readable error message",
         examples=[

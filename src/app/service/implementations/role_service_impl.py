@@ -1,5 +1,8 @@
+import pandas as pd
+import io
 from datetime import datetime
 from src.app.model.entity import Role
+from src.app.service.helpers import datetime_helper
 from src.app.dto.request import RoleRequestDTO
 from src.app.dto.response import RolePage, RoleResponseDTO
 from src.app.schema import MessageResponse
@@ -41,6 +44,7 @@ class RoleServiceImpl(IRoleService):
         exists_role = await self.role_repository.exists_by(name=role_request.name)
         if exists_role:
             raise ConflictException(
+                message="Role already exists",
                 details=f"Role with name {role_request.name} already exists.",
             )
 
@@ -93,6 +97,7 @@ class RoleServiceImpl(IRoleService):
         exists_role_id = await self.role_repository.exists_by(id=role_id)
         if not exists_role_id:
             raise NotFoundException(
+                message="Role not found",
                 details=f"Role with id {role_id} not found.",
             )
         role = await self.role_repository.get_by_id(role_id)
@@ -101,6 +106,7 @@ class RoleServiceImpl(IRoleService):
             name_exists = await self.role_repository.exists_by(name=role_request.name)
             if name_exists:
                 raise ConflictException(
+                    message="Role name already exists",
                     details=f"Role with name {role_request.name} already exists.",
                 )
 
@@ -128,6 +134,7 @@ class RoleServiceImpl(IRoleService):
         exists_role_id = await self.role_repository.exists_by(id=role_id)
         if not exists_role_id:
             raise NotFoundException(
+                message="Role not found",
                 details=f"Role with ID {role_id} not found.",
             )
         response = await self.role_repository.delete(role_id)
@@ -158,6 +165,7 @@ class RoleServiceImpl(IRoleService):
         exists_role_id = await self.role_repository.exists_by(id=role_id)
         if not exists_role_id:
             raise NotFoundException(
+                message="Role not found",
                 details=f"Role with ID {role_id} not found.",
             )
         role = await self.role_repository.get_by_id(role_id)
@@ -224,8 +232,9 @@ class RoleServiceImpl(IRoleService):
 
         page_result = await self.role_repository.find(page, size, search_dict)
 
-        if page_result.data is None:
+        if not page_result.data:
             raise NotFoundException(
+                message="No roles found",
                 details=f"No roles found with the search term {search_term}.",
             )
 
@@ -235,3 +244,114 @@ class RoleServiceImpl(IRoleService):
             data=role_response,
             meta=page_result.meta,
         )
+
+    @handle_exceptions
+    async def delete_roles_by_ids(self, role_ids: list[int]) -> MessageResponse:
+        """
+        Delete multiple roles by their IDs.
+
+        :param role_ids: List of role IDs to delete
+        :return: Message with the number of deleted roles
+        """
+        if len(role_ids) == 0:
+            raise BadRequestException(
+                message="No role IDs provided",
+                details="At least one role ID must be specified for deletion.",
+            )
+
+        invalid_ids = [id for id in role_ids if id <= 0]
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid role IDs",
+                details=f"Role IDs must be positive integers. Invalid IDs: {invalid_ids}",
+            )
+
+        roles = await self.role_repository.find_by_ids(role_ids)
+
+        found_ids = {
+            role["id"] if isinstance(role, dict) else role.id for role in roles
+        }
+        missing_ids = [id for id in role_ids if id not in found_ids]
+
+        if missing_ids:
+            raise NotFoundException(
+                message="Roles not found",
+                details=f"Roles with IDs {missing_ids} not found.",
+            )
+
+        resp = await self.role_repository.delete_by_ids(role_ids)
+
+        if resp is True:
+            return MessageResponse(
+                message="Roles deleted successfully.",
+                success=True,
+                details=f"Roles with IDs {role_ids} deleted successfully.",
+                status_code=200,
+            )
+        else:
+            return MessageResponse(
+                message="Failed to delete roles.",
+                success=False,
+                details=f"Roles with IDs {role_ids} could not be deleted.",
+                status_code=500,
+            )
+
+    @handle_exceptions
+    async def export_roles_to_excel(self, role_ids: list[int]) -> bytes:
+        """
+        Export roles to Excel format by their IDs.
+
+        :param role_ids: List of role IDs to export
+        :return: Excel file as bytes
+        """
+        if len(role_ids) == 0:
+            raise BadRequestException(
+                message="No role IDs provided",
+                details="At least one role ID must be specified for export.",
+            )
+
+        invalid_ids = [id for id in role_ids if id <= 0]
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid role IDs",
+                details=f"Role IDs must be positive integers. Invalid IDs: {invalid_ids}",
+            )
+
+        roles = await self.role_repository.find_by_ids(role_ids)
+
+        found_ids = {
+            role["id"] if isinstance(role, dict) else role.id for role in roles
+        }
+        missing_ids = [id for id in role_ids if id not in found_ids]
+
+        if missing_ids:
+            raise NotFoundException(
+                message="Roles not found",
+                details=f"Roles with IDs {missing_ids} not found.",
+            )
+
+        roles_data = [
+            {
+                "ID": role.id,
+                "Nombre": role.name,
+                "Fecha de Creación": datetime_helper.to_lima_timezone(role.created_at),
+                "Fecha de Actualización": datetime_helper.to_lima_timezone(
+                    role.updated_at
+                ),
+            }
+            for role in roles
+        ]
+
+        df = pd.DataFrame(roles_data)
+        output = io.BytesIO()
+
+        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+            df.to_excel(writer, sheet_name="Roles", index=False)
+
+            worksheet = writer.sheets["Roles"]
+            for i, col in enumerate(df.columns):
+                column_width = max(df[col].astype(str).map(len).max(), len(col)) + 2
+                worksheet.set_column(i, i, column_width)
+
+        output.seek(0)
+        return output.getvalue()

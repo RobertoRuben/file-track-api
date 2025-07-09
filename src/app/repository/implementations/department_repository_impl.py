@@ -197,3 +197,41 @@ class DepartmentRepositoryImpl(IDepartmentRepository):
 
         result = await self.session.exec(stmt)
         return result.first() is not None
+
+    @transactional(readonly=False)
+    async def delete_by_ids(self, department_ids: list[int]) -> bool:
+        """
+        Delete multiple department entities from the database by their IDs.
+
+        :param department_ids: List of role IDs to delete
+        :return: True if all roles were successfully deleted, False otherwise
+        :raises: DatabaseException if an error occurs during deletion
+        """
+        stmt = select(Department).where(Department.id.in_(department_ids))
+        results = await self.session.exec(stmt)
+        departments = results.all()
+
+        found_ids = {department.id for department in departments}
+        if len(found_ids) != len(department_ids):
+            return False
+        for department in departments:
+            await self.session.delete(department)
+
+        return True
+
+    @transactional(readonly=True)
+    async def find_by_ids(self, department_ids: list[int]) -> list[Department]:
+        """
+        Find roles by a list of IDs.
+
+        :param department_ids: List of role IDs to retrieve
+        :return: List of departments matching the provided IDs
+        :raises: DatabaseException if an error occurs during retrieval
+        """
+        if not department_ids:
+            return []
+
+        stmt = select(Department).where(Department.id.in_(department_ids))
+        results = await self.session.exec(stmt)
+        departments = list(results.all())
+        return departments

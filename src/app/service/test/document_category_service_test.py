@@ -175,7 +175,7 @@ class TestDocumentCategoryServiceImpl:
         mock_repository.delete.return_value = True
 
         result = await document_category_service.delete_document_category(1)
-        print(f"✅ {result.message} - {result.details}")
+        print(f"✅ {result.detail} - {result.details}")
 
         mock_repository.exists_by.assert_called_once_with(id=1)
         mock_repository.delete.assert_called_once_with(1)

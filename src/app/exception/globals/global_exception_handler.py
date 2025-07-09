@@ -4,6 +4,7 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from datetime import datetime
 from fastapi.responses import JSONResponse
 from src.app.exception.model import ErrorDetail
+from src.app.exception.constants import ErrorTypes, ErrorTitles
 
 
 async def register_exception_handlers(app: FastAPI) -> None:
@@ -21,40 +22,64 @@ async def register_exception_handlers(app: FastAPI) -> None:
                 }
             )
 
+        instance = f"request:{request.url.path}"
+
         error = ErrorDetail(
-            type="Validation Error",
-            code=422,
-            message="Error en la validación de datos de entrada",
+            type=ErrorTypes.VALIDATION_ERROR,
+            title=ErrorTitles.UNPROCESSABLE_ENTITY,
+            status=422,
+            detail="Input data validation error",
             details=details,
-            time=datetime.now().isoformat(),
+            instance=instance,
+            timestamp=datetime.now().isoformat(),
         )
 
         return JSONResponse(status_code=422, content=error.model_dump())
 
     @app.exception_handler(StarletteHTTPException)
     async def http_exception_handler(request: Request, exc: StarletteHTTPException):
+        instance = f"request:{request.url.path}"
+
+        # Determinar el título genérico basado en el código de estado
+        if exc.status_code == 400:
+            title = ErrorTitles.BAD_REQUEST
+        elif exc.status_code == 401:
+            title = ErrorTitles.UNAUTHORIZED
+        elif exc.status_code == 403:
+            title = ErrorTitles.FORBIDDEN
+        elif exc.status_code == 404:
+            title = ErrorTitles.NOT_FOUND
+        elif exc.status_code == 409:
+            title = ErrorTitles.CONFLICT
+        else:
+            title = ErrorTitles.INTERNAL_SERVER_ERROR
+
         error = ErrorDetail(
-            type="HTTP Error",
-            code=exc.status_code,
-            message=(
-                str(exc.detail)
-                if isinstance(exc.detail, str)
-                else "Error en la solicitud"
+            type=ErrorTypes.HTTP_ERROR,
+            title=title,
+            status=exc.status_code,
+            detail=(
+                str(exc.detail) if isinstance(exc.detail, str) else "Request error"
             ),
             details=exc.detail if not isinstance(exc.detail, str) else None,
-            time=datetime.now().isoformat(),
+            instance=instance,
+            timestamp=datetime.now().isoformat(),
         )
 
         return JSONResponse(status_code=exc.status_code, content=error.model_dump())
 
     @app.exception_handler(AttributeError)
     async def attribute_error_handler(request: Request, exc: AttributeError):
+        instance = f"request:{request.url.path}"
+
         error = ErrorDetail(
-            type="Implementation Error",
-            code=500,
-            message="Error en la implementación del servicio",
+            type=ErrorTypes.IMPLEMENTATION_ERROR,
+            title=ErrorTitles.IMPLEMENTATION_ERROR,
+            status=500,
+            detail="Service implementation error",
             details=str(exc),
-            time=datetime.now().isoformat(),
+            instance=instance,
+            timestamp=datetime.now().isoformat(),
         )
 
         logger.error(f"AttributeError: {exc}", exc_info=True)
@@ -63,12 +88,16 @@ async def register_exception_handlers(app: FastAPI) -> None:
 
     @app.exception_handler(Exception)
     async def unhandled_exception_handler(request: Request, exc: Exception):
+        instance = f"request:{request.url.path}"
+
         error = ErrorDetail(
-            type="Server Error",
-            code=500,
-            message="Se produjo un error interno del servidor",
+            type=ErrorTypes.SERVER_ERROR,
+            title=ErrorTitles.INTERNAL_SERVER_ERROR,
+            status=500,
+            detail="An internal server error occurred",
             details=str(exc) if app.debug else None,
-            time=datetime.now().isoformat(),
+            instance=instance,
+            timestamp=datetime.now().isoformat(),
         )
 
         logger.error(f"Unhandled exception: {exc}", exc_info=True)
