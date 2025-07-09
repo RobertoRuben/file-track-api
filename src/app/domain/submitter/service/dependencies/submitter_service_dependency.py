@@ -1,8 +1,8 @@
 from fastapi import Depends
-from src.app.service.interfaces import ISubmitterService
-from src.app.service.implementations import SubmitterServiceImpl
-from src.app.repository.interfaces import ISubmitterRepository
-from src.app.repository.dependencies import get_submitter_repository
+from src.app.domain.submitter.service.interface import ISubmitterService
+from src.app.domain.submitter.service.implementations import SubmitterServiceImpl
+from src.app.domain.submitter.repository.interface import ISubmitterRepository
+from src.app.domain.submitter.repository.dependencies import get_submitter_repository
 
 
 async def get_submitter_service(

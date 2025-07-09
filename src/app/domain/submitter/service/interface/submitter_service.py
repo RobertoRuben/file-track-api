@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from src.app.dto.request import SubmitterRequestDTO
-from src.app.dto.response import SubmitterResponseDTO, SubmitterPage
+
 from src.app.core.schema import MessageResponse
+from src.app.domain.submitter.dto.request import SubmitterRequestDTO
+from src.app.domain.submitter.dto.response import SubmitterResponseDTO, SubmitterPage
 
 
 class ISubmitterService(ABC):

@@ -1,5 +1,4 @@
-from fastapi import APIRouter, Body, Depends, Query, Security
-from fastapi.responses import Response
+from fastapi import APIRouter, Body, Depends, Query, Security, Response
 from src.app.core.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -8,16 +7,18 @@ from src.app.core.exception.schema import (
     UnauthorizedError,
     ForbiddenError,
 )
-from src.app.dto.request import SubmitterRequestDTO
-from src.app.dto.response import (
+from src.app.core.security.auth.dependencies import get_current_user
+from src.app.core.security.auth.model import CurrentUser
+from src.app.core.security.auth.constants import Scopes
+from src.app.core.schema import MessageResponse
+from src.app.domain.submitter.dto.request import SubmitterRequestDTO
+from src.app.domain.submitter.dto.response import (
     SubmitterResponseDTO,
     SubmitterPage,
-    CurrentUserResponseDTO,
 )
-from src.app.core.schema import MessageResponse
-from src.app.service.interfaces import ISubmitterService
-from src.app.service.dependencies import get_submitter_service, get_current_user
-from src.app.core.security.auth import Scopes
+from src.app.domain.submitter.service.interface import ISubmitterService
+from src.app.domain.submitter.service.dependencies import get_submitter_service
+
 
 router = APIRouter(prefix="/submitters", tags=["Submitters"])
 
@@ -55,7 +56,7 @@ submitter_tags_metadata = {
 )
 async def create_submitter(
     submitter_request: SubmitterRequestDTO,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SUBMITTER_CREATE]
     ),
     submitter_service: ISubmitterService = Depends(get_submitter_service),
@@ -96,7 +97,7 @@ async def create_submitter(
     "information access and identity verification capabilities for governmental operations.",
 )
 async def get_all_submitters(
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SUBMITTER_READ]
     ),
     submitter_service: ISubmitterService = Depends(get_submitter_service),
@@ -134,7 +135,7 @@ async def get_all_submitters(
 async def get_paginated_submitters(
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of submitters per page"),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SUBMITTER_READ]
     ),
     submitter_service: ISubmitterService = Depends(get_submitter_service),
@@ -178,7 +179,7 @@ async def find_submitters(
     ),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of submitters per page"),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SUBMITTER_READ]
     ),
     submitter_service: ISubmitterService = Depends(get_submitter_service),
@@ -221,7 +222,7 @@ async def delete_submitters_bulk(
     submitter_ids: list[int] = Body(
         ..., description="List of submitter IDs for bulk deletion operation"
     ),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SUBMITTER_DELETE]
     ),
     submitter_service: ISubmitterService = Depends(get_submitter_service),
@@ -265,7 +266,7 @@ async def export_submitters_to_excel(
     submitter_ids: list[int] = Body(
         ..., description="List of submitter IDs for Excel export generation"
     ),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SUBMITTER_READ]
     ),
     submitter_service: ISubmitterService = Depends(get_submitter_service),
@@ -318,7 +319,7 @@ async def export_submitters_to_excel(
 )
 async def get_submitter_by_id(
     submitter_id: int,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SUBMITTER_READ]
     ),
     submitter_service: ISubmitterService = Depends(get_submitter_service),
@@ -362,7 +363,7 @@ async def get_submitter_by_id(
 async def update_submitter(
     submitter_id: int,
     submitter_request: SubmitterRequestDTO,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SUBMITTER_UPDATE]
     ),
     submitter_service: ISubmitterService = Depends(get_submitter_service),
@@ -407,7 +408,7 @@ async def update_submitter(
 )
 async def delete_submitter(
     submitter_id: int,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SUBMITTER_DELETE]
     ),
     submitter_service: ISubmitterService = Depends(get_submitter_service),
