@@ -8,19 +8,19 @@ from src.app.core.exception.schema import (
     UnauthorizedError,
     ForbiddenError,
 )
-from src.app.domain.document.dto import DocumentCategoryRequestDTO
-from src.app.domain.document.dto import (
+from src.app.core.security.auth.constants import Scopes
+from src.app.core.security.auth.model import CurrentUser
+from src.app.core.security.auth.dependencies import get_current_user
+from src.app.core.schema import MessageResponse
+from src.app.domain.document.dto.request import DocumentCategoryRequestDTO
+from src.app.domain.document.dto.response import (
     DocumentCategoryResponseDTO,
     DocumentCategoryPage,
-    CurrentUserResponseDTO,
 )
-from src.app.core.schema import MessageResponse
-from src.app.domain.document.service import IDocumentCategoryService
-from src.app.domain.document.service.dependencies import (
-    get_document_category_service,
-    get_current_user,
-)
-from src.app.core.security.auth import Scopes
+
+from src.app.domain.document.service.interface import IDocumentCategoryService
+from src.app.domain.document.service.dependencies import get_document_category_service
+
 
 router = APIRouter(prefix="/document-categories", tags=["Document Categories"])
 
@@ -63,7 +63,7 @@ document_category_tags_metadata = {
 )
 async def create_document_category(
     document_category_request: DocumentCategoryRequestDTO,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_CATEGORY_CREATE]
     ),
     document_category_service: IDocumentCategoryService = Depends(
@@ -109,7 +109,7 @@ async def create_document_category(
     "administrative oversight of the classification structure.",
 )
 async def get_all_document_categories(
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_CATEGORY_READ]
     ),
     document_category_service: IDocumentCategoryService = Depends(
@@ -153,7 +153,7 @@ async def get_all_document_categories(
 async def get_paginated_document_categories(
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of categories per page"),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_CATEGORY_READ]
     ),
     document_category_service: IDocumentCategoryService = Depends(
@@ -203,7 +203,7 @@ async def find_document_categories(
     ),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of document categories per page"),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_CATEGORY_READ]
     ),
     document_category_service: IDocumentCategoryService = Depends(
@@ -256,7 +256,7 @@ async def delete_document_categories_bulk(
     category_ids: list[int] = Body(
         ..., description="List of document category IDs to delete"
     ),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_CATEGORY_DELETE]
     ),
     document_category_service: IDocumentCategoryService = Depends(
@@ -315,7 +315,7 @@ async def export_document_categories_to_excel(
         ...,
         description="List of document category IDs to export. If empty, exports all categories",
     ),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_CATEGORY_READ]
     ),
     document_category_service: IDocumentCategoryService = Depends(
@@ -377,7 +377,7 @@ async def export_document_categories_to_excel(
 )
 async def get_document_category_by_id(
     document_category_id: int,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_CATEGORY_READ]
     ),
     document_category_service: IDocumentCategoryService = Depends(
@@ -431,7 +431,7 @@ async def get_document_category_by_id(
 async def update_document_category(
     document_category_id: int,
     document_category_request: DocumentCategoryRequestDTO,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_CATEGORY_UPDATE]
     ),
     document_category_service: IDocumentCategoryService = Depends(
@@ -483,7 +483,7 @@ async def update_document_category(
 async def delete_document_category(
     document_category_id: int,
     request: Request,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_CATEGORY_DELETE]
     ),
     document_category_service: IDocumentCategoryService = Depends(
@@ -497,6 +497,7 @@ async def delete_document_category(
     successfully, a success message is returned. If the category is not found, a 404 error is returned.
 
     :param document_category_id: The ID of the document category to delete.
+    :param request: The FastAPI request object, used for error context.
     :param current_user: The current user making the request, used for authorization.
     :param document_category_service: Service to handle the delete logic.
     :return: A success message indicating that the document category has been deleted.

@@ -10,19 +10,16 @@ from src.app.core.exception.schema import (
     ForbiddenError,
     UnauthorizedError,
 )
-from src.app.domain.document.dto import DocumentRequestDTO
-from src.app.domain.document.dto import (
-    DocumentResponseDTO,
-    DocumentPage,
-    CurrentUserResponseDTO,
-)
+from src.app.core.security.auth.constants import Scopes
 from src.app.core.schema import MessageResponse
-from src.app.domain.document.service.dependencies import (
-    get_document_service,
-    get_current_user,
-)
-from src.app.domain.document.service import IDocumentService
-from src.app.core.security.auth import Scopes
+from src.app.core.security.auth.model import CurrentUser
+from src.app.core.security.auth.dependencies import get_current_user
+from src.app.domain.document.dto.request import DocumentRequestDTO
+from src.app.domain.document.dto.response import DocumentResponseDTO, DocumentPage
+
+from src.app.domain.document.service.interface import IDocumentService
+from src.app.domain.document.service.dependencies import get_document_service
+
 
 router = APIRouter(prefix="/documents", tags=["Documents"])
 
@@ -71,7 +68,7 @@ async def create_document(
     documentary_topic_id: int = Form(...),
     settlement_id: int = Form(...),
     hamlet_id: Optional[int] = Form(None),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_CREATE]
     ),
     document_service: IDocumentService = Depends(get_document_service),
@@ -132,7 +129,7 @@ async def create_document(
     "assignments, and temporal tracking for full enterprise document inventory management and audit trail purposes.",
 )
 async def get_all_documents(
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_READ]
     ),
     document_service: IDocumentService = Depends(get_document_service),
@@ -177,7 +174,7 @@ async def get_all_documents(
 async def get_paginated_documents(
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of documents per page"),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_READ]
     ),
     document_service: IDocumentService = Depends(get_document_service),
@@ -225,7 +222,7 @@ async def search_documents(
     search: str = Query(..., description="Search term to filter documents"),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of documents per page"),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_READ]
     ),
     document_service: IDocumentService = Depends(get_document_service),
@@ -274,7 +271,7 @@ async def search_documents(
 async def get_documents_by_current_date(
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of documents per page"),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_READ]
     ),
     document_service: IDocumentService = Depends(get_document_service),
@@ -323,7 +320,7 @@ async def search_documents_by_current_date(
     search: str = Query(..., description="Search term to filter today's documents"),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of documents per page"),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_READ]
     ),
     document_service: IDocumentService = Depends(get_document_service),
@@ -368,7 +365,7 @@ async def search_documents_by_current_date(
 )
 async def get_document_by_id(
     document_id: int,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_READ]
     ),
     document_service: IDocumentService = Depends(get_document_service),
@@ -426,7 +423,7 @@ async def update_document(
     settlement_id: int = Form(...),
     hamlet_id: int | None = Form(default=None),
     document: UploadFile | None = File(default=None),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_UPDATE]
     ),
     document_service: IDocumentService = Depends(get_document_service),
@@ -496,7 +493,7 @@ async def update_document(
 )
 async def delete_document(
     document_id: int,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_DELETE]
     ),
     document_service: IDocumentService = Depends(get_document_service),
@@ -536,7 +533,7 @@ async def delete_document(
 )
 async def download_document_by_registration_code(
     registration_code: str,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_READ]
     ),
     document_service: IDocumentService = Depends(get_document_service),
@@ -594,7 +591,7 @@ async def download_document_by_registration_code(
 )
 async def get_document_information_by_id(
     document_id: int,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_READ]
     ),
     document_service: IDocumentService = Depends(get_document_service),
@@ -638,7 +635,7 @@ async def get_document_information_by_id(
 )
 async def generate_document_report(
     document_id: int,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_READ]
     ),
     document_service: IDocumentService = Depends(get_document_service),

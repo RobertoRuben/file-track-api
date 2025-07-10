@@ -22,9 +22,11 @@ from src.app.domain.document.repository.interface import (
     IDocumentaryTopicRepository,
 )
 from src.app.domain.submitter.repository.interface import ISubmitterRepository
-from src.app.domain.location.repository.interface import IHamletRepository, ISettlementRepository
+from src.app.domain.location.repository.interface import (
+    IHamletRepository,
+    ISettlementRepository,
+)
 from src.app.domain.document.service.interface import IDocumentService, IReportService
-
 
 
 class DocumentServiceImpl(IDocumentService):

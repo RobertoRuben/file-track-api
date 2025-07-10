@@ -8,19 +8,19 @@ from src.app.core.exception.schema import (
     UnauthorizedError,
     ForbiddenError,
 )
-from src.app.domain.document.dto import DocumentaryTopicRequestDTO
-from src.app.domain.document.dto import (
+from src.app.core.security.auth.constants import Scopes
+from src.app.core.security.auth.model import CurrentUser
+from src.app.core.security.auth.dependencies import get_current_user
+from src.app.core.schema import MessageResponse
+from src.app.domain.document.dto.request import DocumentaryTopicRequestDTO
+from src.app.domain.document.dto.response import (
     DocumentaryTopicResponseDTO,
     DocumentaryTopicPage,
-    CurrentUserResponseDTO,
 )
-from src.app.core.schema import MessageResponse
-from src.app.domain.document.service import IDocumentaryTopicService
-from src.app.domain.document.service.dependencies import (
-    get_documentary_topic_service,
-    get_current_user,
-)
-from src.app.core.security.auth import Scopes
+
+from src.app.domain.document.service.interface import IDocumentaryTopicService
+from src.app.domain.document.service.dependencies import get_documentary_topic_service
+
 
 router = APIRouter(prefix="/documentary-topics", tags=["Documentary Topics"])
 
@@ -61,7 +61,7 @@ documentary_topic_tags_metadata = {
 )
 async def create_documentary_topic(
     documentary_topic_request: DocumentaryTopicRequestDTO,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENTARY_TOPIC_CREATE]
     ),
     documentary_topic_service: IDocumentaryTopicService = Depends(
@@ -106,7 +106,7 @@ async def create_documentary_topic(
     "organization and retrieval optimization.",
 )
 async def get_all_documentary_topics(
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENTARY_TOPIC_READ]
     ),
     documentary_topic_service: IDocumentaryTopicService = Depends(
@@ -149,7 +149,7 @@ async def get_all_documentary_topics(
 async def get_paginated_documentary_topics(
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of topics per page"),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENTARY_TOPIC_READ]
     ),
     documentary_topic_service: IDocumentaryTopicService = Depends(
@@ -198,7 +198,7 @@ async def find_documentary_topics(
     ),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of documentary topics per page"),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENTARY_TOPIC_READ]
     ),
     documentary_topic_service: IDocumentaryTopicService = Depends(
@@ -251,7 +251,7 @@ async def delete_documentary_topics_bulk(
     topic_ids: list[int] = Body(
         ..., description="List of documentary topic IDs to delete"
     ),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENTARY_TOPIC_DELETE]
     ),
     documentary_topic_service: IDocumentaryTopicService = Depends(
@@ -308,7 +308,7 @@ async def export_documentary_topics_to_excel(
         ...,
         description="List of documentary topic IDs to export. If empty, exports all topics",
     ),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENTARY_TOPIC_READ]
     ),
     documentary_topic_service: IDocumentaryTopicService = Depends(
@@ -368,7 +368,7 @@ async def export_documentary_topics_to_excel(
 )
 async def get_documentary_topic_by_id(
     documentary_topic_id: int,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENTARY_TOPIC_READ]
     ),
     documentary_topic_service: IDocumentaryTopicService = Depends(
@@ -419,7 +419,7 @@ async def get_documentary_topic_by_id(
 async def update_documentary_topic(
     documentary_topic_id: int,
     documentary_topic_request: DocumentaryTopicRequestDTO,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENTARY_TOPIC_UPDATE]
     ),
     documentary_topic_service: IDocumentaryTopicService = Depends(
@@ -468,7 +468,7 @@ async def update_documentary_topic(
 )
 async def delete_documentary_topic(
     documentary_topic_id: int,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENTARY_TOPIC_DELETE]
     ),
     documentary_topic_service: IDocumentaryTopicService = Depends(
