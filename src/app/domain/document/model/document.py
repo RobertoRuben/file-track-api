@@ -14,12 +14,12 @@ from datetime import datetime
 from typing import TYPE_CHECKING, Optional
 
 if TYPE_CHECKING:
-    from .submitter import Submitter
+    from src.app.domain.submitter.model import Submitter
+    from src.app.domain.user.model import User
+    from src.app.domain.location.model import Hamlet
+    from src.app.domain.location.model import Settlement
     from .document_category import DocumentCategory
     from .documentary_topic import DocumentaryTopic
-    from .hamlet import Hamlet
-    from .settlement import Settlement
-    from .user import User
 
 
 class Document(SQLModel, table=True):
