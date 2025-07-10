@@ -8,7 +8,6 @@ from src.app.domain.document.dto.response import (
 )
 
 
-
 class IDocumentService(ABC):
     """
     Abstract base class for Document Service.
