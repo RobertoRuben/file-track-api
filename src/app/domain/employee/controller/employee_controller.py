@@ -8,16 +8,17 @@ from src.app.core.exception.schema import (
     UnauthorizedError,
     ForbiddenError,
 )
-from src.app.dto.request import EmployeeRequestDTO
-from src.app.dto.response import (
+from src.app.core.security.auth.constants import Scopes
+from src.app.core.security.auth.model import CurrentUser
+from src.app.core.security.auth.dependencies import get_current_user
+from src.app.core.schema import MessageResponse
+from src.app.domain.employee.dto.request import EmployeeRequestDTO
+from src.app.domain.employee.dto.response import (
     EmployeeResponseDTO,
     EmployeePage,
-    CurrentUserResponseDTO,
 )
-from src.app.core.schema import MessageResponse
-from src.app.service.interfaces import IEmployeeService
-from src.app.service.dependencies import get_employee_service, get_current_user
-from src.app.core.security.auth import Scopes
+from src.app.domain.employee.service.interface import IEmployeeService
+from src.app.domain.employee.service.dependencies import get_employee_service
 
 router = APIRouter(prefix="/employees", tags=["Employees"])
 
@@ -56,7 +57,7 @@ employee_tags_metadata = {
 )
 async def create_employee(
     employee_request: EmployeeRequestDTO,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.EMPLOYEE_CREATE]
     ),
     employee_service: IEmployeeService = Depends(get_employee_service),
@@ -96,7 +97,7 @@ async def create_employee(
     "organizational management, reporting purposes, and strategic workforce planning initiatives.",
 )
 async def get_all_employees(
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.EMPLOYEE_READ]
     ),
     employee_service: IEmployeeService = Depends(get_employee_service),
@@ -134,7 +135,7 @@ async def get_all_employees(
 async def get_paginated_employees(
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of employees per page"),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.EMPLOYEE_READ]
     ),
     employee_service: IEmployeeService = Depends(get_employee_service),
@@ -178,7 +179,7 @@ async def find_employees(
     ),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of employees per page"),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.EMPLOYEE_READ]
     ),
     employee_service: IEmployeeService = Depends(get_employee_service),
@@ -223,7 +224,7 @@ async def delete_employees_bulk(
     employee_ids: list[int] = Body(
         ..., description="List of employee IDs for bulk deletion operation"
     ),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.EMPLOYEE_DELETE]
     ),
     employee_service: IEmployeeService = Depends(get_employee_service),
@@ -267,7 +268,7 @@ async def export_employees_to_excel(
     employee_ids: list[int] = Body(
         ..., description="List of employee IDs for Excel export generation"
     ),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.EMPLOYEE_READ]
     ),
     employee_service: IEmployeeService = Depends(get_employee_service),
@@ -316,7 +317,7 @@ async def export_employees_to_excel(
 )
 async def get_employee_by_id(
     employee_id: int,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.EMPLOYEE_READ]
     ),
     employee_service: IEmployeeService = Depends(get_employee_service),
@@ -360,7 +361,7 @@ async def get_employee_by_id(
 async def update_employee(
     employee_id: int,
     employee_request: EmployeeRequestDTO,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.EMPLOYEE_UPDATE]
     ),
     employee_service: IEmployeeService = Depends(get_employee_service),
@@ -403,7 +404,7 @@ async def update_employee(
 )
 async def delete_employee(
     employee_id: int,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.EMPLOYEE_DELETE]
     ),
     employee_service: IEmployeeService = Depends(get_employee_service),

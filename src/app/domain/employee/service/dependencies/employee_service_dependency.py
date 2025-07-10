@@ -1,16 +1,16 @@
 from fastapi import Depends
-from src.app.service.interfaces import IEmployeeService
-from src.app.service.implementations import EmployeeServiceImpl
-from src.app.repository.interfaces import (
+from src.app.domain.employee.service.interface import IEmployeeService
+from src.app.domain.employee.service.implementations import EmployeeServiceImpl
+from src.app.domain.employee.repository.interface import (
     IEmployeeRepository,
     IPositionRepository,
-    IDepartmentRepository,
 )
-from src.app.repository.dependencies import (
+from src.app.domain.department.repository.interface import IDepartmentRepository
+from src.app.domain.employee.repository.dependencies import (
     get_employee_repository,
     get_position_repository,
-    get_department_repository,
 )
+from src.app.domain.department.repository.dependencies import get_department_repository
 
 
 async def get_employee_service(

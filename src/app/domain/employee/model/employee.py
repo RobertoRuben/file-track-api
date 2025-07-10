@@ -14,9 +14,9 @@ from datetime import datetime
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.app.domain.department.model.department import Department
+    from src.app.domain.department.model import Department
+    from src.app.domain.user.model import User
     from .position import Position
-    from .user import User
 
 
 class Employee(SQLModel, table=True):

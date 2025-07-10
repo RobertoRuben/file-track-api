@@ -2,10 +2,11 @@ import math
 from sqlmodel import select, func, or_
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.app.core.db.decorator import transactional
-from src.app.repository.interfaces import IEmployeeRepository
-from src.app.model.entity import Employee, Position, Department
 from src.app.core.exception import InvalidFieldException
 from src.app.core.schema import Page, Pagination
+from src.app.domain.department.model import Department
+from src.app.domain.employee.model import Employee, Position
+from src.app.domain.employee.repository.interface import IEmployeeRepository
 
 
 class EmployeeRepositoryImpl(IEmployeeRepository):

@@ -1,7 +1,7 @@
 from enum import Enum
 
 
-class GeneroEnum(Enum):
+class GenderEnum(Enum):
     """
     Enumeration representing the gender options available in the system.
 

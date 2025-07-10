@@ -1,6 +1,6 @@
 import re
 from pydantic import BaseModel, Field, ValidationInfo, field_validator, model_validator
-from src.app.model.enum import GeneroEnum
+from src.app.domain.employee.enum import GenderEnum
 
 
 class EmployeeRequestDTO(BaseModel):
@@ -42,7 +42,7 @@ class EmployeeRequestDTO(BaseModel):
         min_length=2,
         examples=["Gómez"],
     )
-    gender: GeneroEnum = Field(
+    gender: GenderEnum = Field(
         ..., description="Employee's gender", examples=["Male", "Female"]
     )
     position_id: int = Field(
