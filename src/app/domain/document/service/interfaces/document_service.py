@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
-from src.app.domain.document.dto import DocumentRequestDTO
-from src.app.domain.document.dto import (
+from src.app.core.schema import MessageResponse
+from src.app.core.security.auth.model import CurrentUser
+from src.app.domain.document.dto.request import DocumentRequestDTO
+from src.app.domain.document.dto.response import (
     DocumentResponseDTO,
     DocumentPage,
-    CurrentUserResponseDTO,
 )
-from src.app.core.schema import MessageResponse
+
 
 
 class IDocumentService(ABC):
@@ -17,7 +18,7 @@ class IDocumentService(ABC):
 
     @abstractmethod
     async def add_document(
-        self, document_request: DocumentRequestDTO, current_user: CurrentUserResponseDTO
+        self, document_request: DocumentRequestDTO, current_user: CurrentUser
     ) -> DocumentResponseDTO:
         """
         Add a new document.
