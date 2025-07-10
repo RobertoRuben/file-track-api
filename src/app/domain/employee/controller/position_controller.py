@@ -15,19 +15,17 @@ from src.app.core.exception.schema import (
     UnauthorizedError,
     ForbiddenError,
 )
-from src.app.domain.document.dto.request import PositionRequestDTO
-from src.app.domain.document.dto.response import (
+from src.app.core.security.auth.constants import Scopes
+from src.app.core.security.auth.model import CurrentUser
+from src.app.core.security.auth.dependencies import get_current_user
+from src.app.domain.employee.dto.request import PositionRequestDTO
+from src.app.domain.employee.dto.response import (
     PositionResponseDTO,
     PositionPage,
-    CurrentUserResponseDTO,
 )
 from src.app.core.schema import MessageResponse
-from src.app.domain.document.service.interface import IPositionService
-from src.app.domain.document.service.dependencies import (
-    get_position_service,
-    get_current_user,
-)
-from src.app.core.security.auth import Scopes
+from src.app.domain.employee.service.interface import IPositionService
+from src.app.domain.employee.service.dependencies import get_position_service
 
 router = APIRouter(prefix="/positions", tags=["Positions"])
 
@@ -65,7 +63,7 @@ position_tags_metadata = {
 )
 async def create_position(
     position_request: PositionRequestDTO,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.POSITION_CREATE]
     ),
     position_service: IPositionService = Depends(get_position_service),
@@ -106,7 +104,7 @@ async def create_position(
     "Results include both active and inactive positions for complete organizational visibility.",
 )
 async def get_all_positions(
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.POSITION_READ]
     ),
     position_service: IPositionService = Depends(get_position_service),
@@ -145,7 +143,7 @@ async def get_all_positions(
 async def get_paginated_positions(
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of positions per page"),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.POSITION_READ]
     ),
     position_service: IPositionService = Depends(get_position_service),
@@ -190,7 +188,7 @@ async def find_positions(
     ),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of positions per page"),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.POSITION_READ]
     ),
     position_service: IPositionService = Depends(get_position_service),
@@ -234,7 +232,7 @@ async def find_positions(
 )
 async def delete_positions_bulk(
     position_ids: list[int] = Body(..., description="List of position IDs to delete"),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.POSITION_DELETE]
     ),
     position_service: IPositionService = Depends(get_position_service),
@@ -275,7 +273,7 @@ async def delete_positions_bulk(
 )
 async def export_positions_to_excel(
     position_ids: list[int] = Body(..., description="List of position IDs to export"),
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.POSITION_READ]
     ),
     position_service: IPositionService = Depends(get_position_service),
@@ -325,7 +323,7 @@ async def export_positions_to_excel(
 )
 async def get_position_by_id(
     position_id: int,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.POSITION_READ]
     ),
     position_service: IPositionService = Depends(get_position_service),
@@ -370,7 +368,7 @@ async def get_position_by_id(
 async def update_position(
     position_id: int,
     position_request: PositionRequestDTO,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.POSITION_UPDATE]
     ),
     position_service: IPositionService = Depends(get_position_service),
@@ -414,7 +412,7 @@ async def update_position(
 )
 async def delete_position(
     position_id: int,
-    current_user: CurrentUserResponseDTO = Security(
+    current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.POSITION_DELETE]
     ),
     position_service: IPositionService = Depends(get_position_service),
