@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 
 from src.app.core.schema import Page
-from src.app.model.entity import Employee
+from src.app.domain.employee.model import Employee
 
 
 class IEmployeeRepository(ABC):

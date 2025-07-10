@@ -4,19 +4,23 @@ from src.app.domain.document.service.implementations import DocumentServiceImpl
 from src.app.domain.document.repository.interface import (
     IDocumentRepository,
     IDocumentCategoryRepository,
-    ISubmitterRepository,
-    IHamletRepository,
-    ISettlementRepository,
     IDocumentaryTopicRepository,
 )
-from src.app.domain.document.repository import (
+from src.app.domain.location.repository.interface import (
+    IHamletRepository,
+    ISettlementRepository,
+)
+from src.app.domain.submitter.repository.interface import ISubmitterRepository
+from src.app.domain.document.repository.dependencies import (
     get_document_repository,
     get_document_category_repository,
-    get_submitter_repository,
-    get_hamlet_repository,
-    get_settlement_repository,
     get_documentary_topic_repository,
 )
+from src.app.domain.location.repository.dependencies import (
+    get_settlement_repository,
+    get_hamlet_repository,
+)
+from src.app.domain.submitter.repository.dependencies import get_submitter_repository
 from .report_service_dependency import get_report_service
 
 

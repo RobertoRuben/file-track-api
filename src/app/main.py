@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from src.app.core.db import init_db
 from src.app.core.middleware import setup_cors_middleware
 from src.app.core.exception import register_exception_handlers
-from src.app.domain.document.service.dependencies import get_current_user
+from src.app.core.security.auth.dependencies import get_current_user
 from src.app.domain.user.controller import (
     auth_router,
     user_router,
