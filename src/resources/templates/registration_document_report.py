@@ -18,7 +18,7 @@ from reportlab.lib.enums import TA_LEFT, TA_CENTER
 from datetime import datetime
 from io import BytesIO
 import os
-from src.app.domain.document.dto import DocumentResponseDTO
+from src.app.domain.document.dto.response import DocumentResponseDTO
 
 
 async def create_document_report(
