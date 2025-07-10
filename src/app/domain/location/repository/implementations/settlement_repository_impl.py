@@ -2,7 +2,7 @@ import math
 from sqlmodel import select, func, or_
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.app.core.db.decorator import transactional
-from src.app.repository.interfaces import ISettlementRepository
+from src.app.domain.document.repository.interface import ISettlementRepository
 from src.app.model.entity import Settlement
 from src.app.core.exception import InvalidFieldException
 from src.app.core.schema import Page, Pagination

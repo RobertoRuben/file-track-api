@@ -1,6 +1,6 @@
 from datetime import datetime
-from src.app.core.schema import Page
 from pydantic import BaseModel, Field
+from src.app.core.schema import Page
 
 
 class SubmitterResponseDTO(BaseModel):

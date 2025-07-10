@@ -1,5 +1,5 @@
 import re
-from src.app.model.enum import GeneroEnum
+from src.app.domain.submitter.enum import GenderEnum
 from pydantic import BaseModel, Field, ValidationInfo, field_validator
 
 
@@ -39,7 +39,7 @@ class SubmitterRequestDTO(BaseModel):
         min_length=2,
         examples=["Rodríguez"],
     )
-    gender: GeneroEnum = Field(..., description="Submitter's gender", examples=["Male"])
+    gender: GenderEnum = Field(..., description="Submitter's gender", examples=["Male"])
 
     @field_validator("names", "paternal_surname", "maternal_surname", mode="before")
     def strip_and_validate_string(cls, v, info: ValidationInfo):
