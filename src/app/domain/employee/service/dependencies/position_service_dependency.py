@@ -1,8 +1,8 @@
 from fastapi import Depends
-from src.app.service.interfaces import IPositionService
-from src.app.service.implementations import PositionServiceImpl
-from src.app.repository.interfaces import IPositionRepository
-from src.app.repository.dependencies import get_position_repository
+from src.app.domain.employee.service.interface import IPositionService
+from src.app.domain.employee.service.implementations import PositionServiceImpl
+from src.app.domain.employee.repository.interface import IPositionRepository
+from src.app.domain.employee.repository.dependencies import get_position_repository
 
 
 async def get_position_service(

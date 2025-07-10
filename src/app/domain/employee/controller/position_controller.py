@@ -15,15 +15,18 @@ from src.app.core.exception.schema import (
     UnauthorizedError,
     ForbiddenError,
 )
-from src.app.dto.request import PositionRequestDTO
-from src.app.dto.response import (
+from src.app.domain.document.dto.request import PositionRequestDTO
+from src.app.domain.document.dto.response import (
     PositionResponseDTO,
     PositionPage,
     CurrentUserResponseDTO,
 )
 from src.app.core.schema import MessageResponse
-from src.app.service.interfaces import IPositionService
-from src.app.service.dependencies import get_position_service, get_current_user
+from src.app.domain.document.service.interfaces import IPositionService
+from src.app.domain.document.service.dependencies import (
+    get_position_service,
+    get_current_user,
+)
 from src.app.core.security.auth import Scopes
 
 router = APIRouter(prefix="/positions", tags=["Positions"])
@@ -137,7 +140,7 @@ async def get_all_positions(
     description="Retrieves organizational positions using advanced pagination for optimal performance with large datasets. "
     "Supports configurable page size and navigation for efficient position browsing in HR systems. "
     "Includes total count metadata for accurate pagination controls and enhanced user experience. "
-    "Ideal for position selection interfaces and large-scale organizational management tools.",
+    "Ideal for position selection interface and large-scale organizational management tools.",
 )
 async def get_paginated_positions(
     page: int = Query(default=1, description="Page number to retrieve"),
@@ -152,7 +155,7 @@ async def get_paginated_positions(
 
     This endpoint provides efficient access to position data through paginated results,
     essential for managing large organizational structures. Includes comprehensive
-    pagination metadata for building responsive user interfaces and maintaining
+    pagination metadata for building responsive user interface and maintaining
     optimal system performance during position browsing and selection operations.
 
     :param page: Target page number (1-based indexing)

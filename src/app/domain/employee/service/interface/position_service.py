@@ -1,7 +1,8 @@
 from abc import ABC, abstractmethod
-from src.app.dto.request import PositionRequestDTO
-from src.app.dto.response import PositionResponseDTO, PositionPage
+
 from src.app.core.schema import MessageResponse
+from src.app.domain.employee.dto.request import PositionRequestDTO
+from src.app.domain.employee.dto.response import PositionResponseDTO, PositionPage
 
 
 class IPositionService(ABC):

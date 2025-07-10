@@ -1,8 +1,8 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from src.app.core.db.dependencies import get_async_session
-from src.app.repository.interfaces import IPositionRepository
-from src.app.repository.implementations import PositionRepositoryImpl
+from src.app.domain.employee.repository.interface import IPositionRepository
+from src.app.domain.employee.repository.implementations import PositionRepositoryImpl
 
 
 async def get_position_repository(
