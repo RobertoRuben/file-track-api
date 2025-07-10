@@ -1,4 +1,4 @@
-from src.app.domain.document.service.interfaces.report_service import IReportService
+from src.app.domain.document.service.interface.report_service import IReportService
 from src.app.domain.document.service.implementations.report_service_impl import (
     ReportServiceImpl,
 )

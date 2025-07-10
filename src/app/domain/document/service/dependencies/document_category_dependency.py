@@ -1,5 +1,5 @@
 from fastapi import Depends
-from src.app.domain.document.service.interfaces import IDocumentCategoryService
+from src.app.domain.document.service.interface import IDocumentCategoryService
 from src.app.domain.document.service.implementations import DocumentCategoryServiceImpl
 from src.app.domain.document.repository.interface import IDocumentCategoryRepository
 from src.app.domain.document.repository import get_document_category_repository

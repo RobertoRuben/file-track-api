@@ -9,6 +9,12 @@ from sqlmodel import SQLModel
 from sqlalchemy.ext.asyncio import create_async_engine
 from sqlalchemy.pool import AsyncAdaptedQueuePool
 from src.app.core.config import settings
+from src.app.domain.document.model import Document, DocumentCategory, DocumentaryTopic
+from src.app.domain.department.model import Department, DepartmentConnection
+from src.app.domain.location.model import Hamlet, Settlement
+from src.app.domain.user.model import User, Role
+from src.app.domain.employee.model import Employee, Position
+from src.app.domain.submitter.model import Submitter
 
 # Database connection URL from application settings
 postgres_url = settings.database_url

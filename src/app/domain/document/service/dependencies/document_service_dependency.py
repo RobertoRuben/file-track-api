@@ -1,5 +1,5 @@
 from fastapi import Depends
-from src.app.domain.document.service.interfaces import IDocumentService, IReportService
+from src.app.domain.document.service.interface import IDocumentService, IReportService
 from src.app.domain.document.service.implementations import DocumentServiceImpl
 from src.app.domain.document.repository.interface import (
     IDocumentRepository,

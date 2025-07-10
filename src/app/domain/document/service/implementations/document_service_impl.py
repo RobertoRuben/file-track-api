@@ -1,30 +1,30 @@
-import mimetypes
 import os
+import mimetypes
 from datetime import datetime
-from src.app.model.entity import Document
-from src.app.domain.document.dto import DocumentRequestDTO
-from src.app.domain.document.dto import (
-    DocumentResponseDTO,
-    DocumentPage,
-    CurrentUserResponseDTO,
-)
+from src.app.core.helpers import document_helper
+from src.app.core.exception.decorator import handle_exceptions
+from src.app.core.security.auth.model import CurrentUser
 from src.app.core.schema import MessageResponse
 from src.app.core.exception import (
     BadRequestException,
     ConflictException,
     NotFoundException,
 )
-from src.app.core.exception import handle_exceptions
+from src.app.domain.document.model import Document
+from src.app.domain.document.dto.request import DocumentRequestDTO
+from src.app.domain.document.dto.response import (
+    DocumentResponseDTO,
+    DocumentPage,
+)
 from src.app.domain.document.repository.interface import (
     IDocumentRepository,
     IDocumentCategoryRepository,
-    ISubmitterRepository,
-    IHamletRepository,
-    ISettlementRepository,
     IDocumentaryTopicRepository,
 )
-from src.app.domain.document.service.interfaces import IDocumentService, IReportService
-from src.app.core.helpers import document_helper
+from src.app.domain.submitter.repository.interface import ISubmitterRepository
+from src.app.domain.location.repository.interface import IHamletRepository, ISettlementRepository
+from src.app.domain.document.service.interface import IDocumentService, IReportService
+
 
 
 class DocumentServiceImpl(IDocumentService):
@@ -65,7 +65,7 @@ class DocumentServiceImpl(IDocumentService):
 
     @handle_exceptions
     async def add_document(
-        self, document_request: DocumentRequestDTO, current_user: CurrentUserResponseDTO
+        self, document_request: DocumentRequestDTO, current_user: CurrentUser
     ) -> DocumentResponseDTO:
         """
         Add a new document to the system.

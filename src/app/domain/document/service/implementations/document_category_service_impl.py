@@ -1,22 +1,22 @@
 import io
 import pandas as pd
 from datetime import datetime
-from src.app.model.entity import DocumentCategory
 from src.app.core.helpers import datetime_helper
-from src.app.domain.document.dto import DocumentCategoryRequestDTO
-from src.app.domain.document.dto import (
-    DocumentCategoryPage,
-    DocumentCategoryResponseDTO,
-)
 from src.app.core.schema import MessageResponse
 from src.app.core.exception import (
     BadRequestException,
     ConflictException,
     NotFoundException,
 )
-from src.app.core.exception import handle_exceptions
+from src.app.core.exception.decorator import handle_exceptions
+from src.app.domain.document.dto.request import DocumentCategoryRequestDTO
+from src.app.domain.document.dto.response import (
+    DocumentCategoryPage,
+    DocumentCategoryResponseDTO,
+)
+from src.app.domain.document.model import DocumentCategory
 from src.app.domain.document.repository.interface import IDocumentCategoryRepository
-from src.app.domain.document.service.interfaces import IDocumentCategoryService
+from src.app.domain.document.service.interface import IDocumentCategoryService
 
 
 class DocumentCategoryServiceImpl(IDocumentCategoryService):

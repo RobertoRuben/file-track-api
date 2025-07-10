@@ -22,7 +22,7 @@ from src.app.domain.document.dto.response import (
     CurrentUserResponseDTO,
 )
 from src.app.core.schema import MessageResponse
-from src.app.domain.document.service.interfaces import IPositionService
+from src.app.domain.document.service.interface import IPositionService
 from src.app.domain.document.service.dependencies import (
     get_position_service,
     get_current_user,
