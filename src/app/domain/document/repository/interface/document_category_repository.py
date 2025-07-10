@@ -1,6 +1,7 @@
 from abc import ABC, abstractmethod
-from src.app.model.entity import DocumentCategory
+
 from src.app.core.schema import Page
+from src.app.domain.document.model import DocumentCategory
 
 
 class IDocumentCategoryRepository(ABC):
