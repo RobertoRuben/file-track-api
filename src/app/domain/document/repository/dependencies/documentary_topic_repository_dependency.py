@@ -1,8 +1,10 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from src.app.core.db.dependencies import get_async_session
-from src.app.repository.interfaces import IDocumentaryTopicRepository
-from src.app.repository.implementations import DocumentaryTopicRepositoryImpl
+from src.app.domain.document.repository.interface import IDocumentaryTopicRepository
+from src.app.domain.document.repository.implementations import (
+    DocumentaryTopicRepositoryImpl,
+)
 
 
 async def get_documentary_topic_repository(

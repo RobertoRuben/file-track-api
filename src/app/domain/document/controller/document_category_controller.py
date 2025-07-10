@@ -8,15 +8,18 @@ from src.app.core.exception.schema import (
     UnauthorizedError,
     ForbiddenError,
 )
-from src.app.dto.request import DocumentCategoryRequestDTO
-from src.app.dto.response import (
+from src.app.domain.document.dto import DocumentCategoryRequestDTO
+from src.app.domain.document.dto import (
     DocumentCategoryResponseDTO,
     DocumentCategoryPage,
     CurrentUserResponseDTO,
 )
 from src.app.core.schema import MessageResponse
-from src.app.service.interfaces import IDocumentCategoryService
-from src.app.service.dependencies import get_document_category_service, get_current_user
+from src.app.domain.document.service import IDocumentCategoryService
+from src.app.domain.document.service.dependencies import (
+    get_document_category_service,
+    get_current_user,
+)
 from src.app.core.security.auth import Scopes
 
 router = APIRouter(prefix="/document-categories", tags=["Document Categories"])
@@ -102,7 +105,7 @@ async def create_document_category(
     "This endpoint returns complete category information including unique identifiers, names, descriptions, "
     "creation timestamps, and modification dates. The response provides the complete taxonomy of document "
     "classifications available for organizing and categorizing documents. This data is essential for "
-    "populating category selection interfaces, implementing document filtering systems, and maintaining "
+    "populating category selection interface, implementing document filtering systems, and maintaining "
     "administrative oversight of the classification structure.",
 )
 async def get_all_document_categories(
@@ -145,7 +148,7 @@ async def get_all_document_categories(
     "total record counts, total pages, current page indicators, and navigation flags (hasNext, hasPrevious) "
     "to support sophisticated user interface components. The pagination approach significantly improves "
     "application responsiveness when dealing with extensive category hierarchies and enables smooth "
-    "navigation through large datasets in administrative interfaces and category selection controls.",
+    "navigation through large datasets in administrative interface and category selection controls.",
 )
 async def get_paginated_document_categories(
     page: int = Query(default=1, description="Page number to retrieve"),
@@ -368,7 +371,7 @@ async def export_document_categories_to_excel(
     "This endpoint returns complete category information including the category name, detailed description, "
     "creation timestamp, last modification date, usage statistics, and associated metadata. The category ID "
     "must correspond to an existing category in the system. This endpoint is essential for displaying detailed "
-    "category information in administrative interfaces, populating category edit forms, and providing context "
+    "category information in administrative interface, populating category edit forms, and providing context "
     "for document classification operations. The returned data supports various UI components and business "
     "logic that depends on specific category characteristics.",
 )
@@ -422,7 +425,7 @@ async def get_document_category_by_id(
     "entire category system (excluding the current category being modified). The system performs thorough "
     "validation of input data, checks for naming conflicts, and automatically updates modification timestamps. "
     "Changes are immediately reflected throughout the system, affecting document classification displays and "
-    "category selection interfaces. This operation is crucial for maintaining an organized and up-to-date "
+    "category selection interface. This operation is crucial for maintaining an organized and up-to-date "
     "document classification taxonomy.",
 )
 async def update_document_category(

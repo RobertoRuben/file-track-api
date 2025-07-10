@@ -1,7 +1,10 @@
 from abc import ABC, abstractmethod
 from src.app.core.schema import MessageResponse
-from src.app.dto.request import DocumentCategoryRequestDTO
-from src.app.dto.response import DocumentCategoryResponseDTO, DocumentCategoryPage
+from src.app.domain.document.dto import DocumentCategoryRequestDTO
+from src.app.domain.document.dto import (
+    DocumentCategoryResponseDTO,
+    DocumentCategoryPage,
+)
 
 
 class IDocumentCategoryService(ABC):

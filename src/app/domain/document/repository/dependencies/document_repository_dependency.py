@@ -1,8 +1,8 @@
 from fastapi import Depends
 from sqlalchemy.ext.asyncio.session import AsyncSession
 from src.app.core.db.dependencies import get_async_session
-from src.app.repository.interfaces import IDocumentRepository
-from src.app.repository.implementations import DocumentRepositoryImpl
+from src.app.domain.document.repository.interface import IDocumentRepository
+from src.app.domain.document.repository.implementations import DocumentRepositoryImpl
 
 
 async def get_document_repository(

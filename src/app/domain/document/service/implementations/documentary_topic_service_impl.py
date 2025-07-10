@@ -3,8 +3,11 @@ import pandas as pd
 from datetime import datetime
 from src.app.model.entity import DocumentaryTopic
 from src.app.core.helpers import datetime_helper
-from src.app.dto.request import DocumentaryTopicRequestDTO
-from src.app.dto.response import DocumentaryTopicPage, DocumentaryTopicResponseDTO
+from src.app.domain.document.dto import DocumentaryTopicRequestDTO
+from src.app.domain.document.dto import (
+    DocumentaryTopicPage,
+    DocumentaryTopicResponseDTO,
+)
 from src.app.core.schema import MessageResponse
 from src.app.core.exception import (
     BadRequestException,
@@ -12,8 +15,8 @@ from src.app.core.exception import (
     NotFoundException,
 )
 from src.app.core.exception import handle_exceptions
-from src.app.repository.interfaces import IDocumentaryTopicRepository
-from src.app.service.interfaces import IDocumentaryTopicService
+from src.app.domain.document.repository.interface import IDocumentaryTopicRepository
+from src.app.domain.document.service.interfaces import IDocumentaryTopicService
 
 
 class DocumentaryTopicServiceImpl(IDocumentaryTopicService):

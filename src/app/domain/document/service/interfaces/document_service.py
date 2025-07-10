@@ -1,6 +1,6 @@
 from abc import ABC, abstractmethod
-from src.app.dto.request import DocumentRequestDTO
-from src.app.dto.response import (
+from src.app.domain.document.dto import DocumentRequestDTO
+from src.app.domain.document.dto import (
     DocumentResponseDTO,
     DocumentPage,
     CurrentUserResponseDTO,

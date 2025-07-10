@@ -1,7 +1,7 @@
 from fastapi import Depends
-from src.app.service.interfaces import IDocumentService, IReportService
-from src.app.service.implementations import DocumentServiceImpl
-from src.app.repository.interfaces import (
+from src.app.domain.document.service.interfaces import IDocumentService, IReportService
+from src.app.domain.document.service.implementations import DocumentServiceImpl
+from src.app.domain.document.repository.interface import (
     IDocumentRepository,
     IDocumentCategoryRepository,
     ISubmitterRepository,
@@ -9,7 +9,7 @@ from src.app.repository.interfaces import (
     ISettlementRepository,
     IDocumentaryTopicRepository,
 )
-from src.app.repository.dependencies import (
+from src.app.domain.document.repository import (
     get_document_repository,
     get_document_category_repository,
     get_submitter_repository,

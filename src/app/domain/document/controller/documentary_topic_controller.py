@@ -8,15 +8,18 @@ from src.app.core.exception.schema import (
     UnauthorizedError,
     ForbiddenError,
 )
-from src.app.dto.request import DocumentaryTopicRequestDTO
-from src.app.dto.response import (
+from src.app.domain.document.dto import DocumentaryTopicRequestDTO
+from src.app.domain.document.dto import (
     DocumentaryTopicResponseDTO,
     DocumentaryTopicPage,
     CurrentUserResponseDTO,
 )
 from src.app.core.schema import MessageResponse
-from src.app.service.interfaces import IDocumentaryTopicService
-from src.app.service.dependencies import get_documentary_topic_service, get_current_user
+from src.app.domain.document.service import IDocumentaryTopicService
+from src.app.domain.document.service.dependencies import (
+    get_documentary_topic_service,
+    get_current_user,
+)
 from src.app.core.security.auth import Scopes
 
 router = APIRouter(prefix="/documentary-topics", tags=["Documentary Topics"])

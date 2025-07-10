@@ -1,6 +1,9 @@
 from abc import ABC, abstractmethod
-from src.app.dto.request import DocumentaryTopicRequestDTO
-from src.app.dto.response import DocumentaryTopicResponseDTO, DocumentaryTopicPage
+from src.app.domain.document.dto import DocumentaryTopicRequestDTO
+from src.app.domain.document.dto import (
+    DocumentaryTopicResponseDTO,
+    DocumentaryTopicPage,
+)
 from src.app.core.schema import MessageResponse
 
 

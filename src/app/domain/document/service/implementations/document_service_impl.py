@@ -2,8 +2,8 @@ import mimetypes
 import os
 from datetime import datetime
 from src.app.model.entity import Document
-from src.app.dto.request import DocumentRequestDTO
-from src.app.dto.response import (
+from src.app.domain.document.dto import DocumentRequestDTO
+from src.app.domain.document.dto import (
     DocumentResponseDTO,
     DocumentPage,
     CurrentUserResponseDTO,
@@ -15,7 +15,7 @@ from src.app.core.exception import (
     NotFoundException,
 )
 from src.app.core.exception import handle_exceptions
-from src.app.repository.interfaces import (
+from src.app.domain.document.repository.interface import (
     IDocumentRepository,
     IDocumentCategoryRepository,
     ISubmitterRepository,
@@ -23,7 +23,7 @@ from src.app.repository.interfaces import (
     ISettlementRepository,
     IDocumentaryTopicRepository,
 )
-from src.app.service.interfaces import IDocumentService, IReportService
+from src.app.domain.document.service.interfaces import IDocumentService, IReportService
 from src.app.core.helpers import document_helper
 
 

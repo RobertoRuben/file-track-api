@@ -10,18 +10,18 @@ from src.app.core.exception.schema import (
     ForbiddenError,
     UnauthorizedError,
 )
-from src.app.dto.request import DocumentRequestDTO
-from src.app.dto.response import (
+from src.app.domain.document.dto import DocumentRequestDTO
+from src.app.domain.document.dto import (
     DocumentResponseDTO,
     DocumentPage,
     CurrentUserResponseDTO,
 )
 from src.app.core.schema import MessageResponse
-from src.app.service.dependencies import (
+from src.app.domain.document.service.dependencies import (
     get_document_service,
     get_current_user,
 )
-from src.app.service.interfaces import IDocumentService
+from src.app.domain.document.service import IDocumentService
 from src.app.core.security.auth import Scopes
 
 router = APIRouter(prefix="/documents", tags=["Documents"])
