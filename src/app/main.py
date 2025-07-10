@@ -4,33 +4,43 @@ from src.app.core.db import init_db
 from src.app.core.middleware import setup_cors_middleware
 from src.app.core.exception import register_exception_handlers
 from src.app.domain.document.service.dependencies import get_current_user
+from src.app.domain.user.controller import (
+    auth_router,
+    user_router,
+    role_router,
+    user_tags_metadata,
+    role_tags_metadata,
+    auth_tags_metadata,
+)
 from src.app.domain.document.controller import (
     document_category_router,
-    document_category_tags_metadata,
-    role_router,
-    role_tags_metadata,
-    department_router,
-    department_tags_metadata,
     documentary_topic_router,
+    document_router,
+    document_category_tags_metadata,
     documentary_topic_tags_metadata,
+    document_tags_metadata,
+)
+from src.app.domain.department.controller import (
+    department_router,
+    department_connection_router,
+    department_tags_metadata,
+    department_connection_tags_metadata,
+)
+from src.app.domain.location.controller import (
     settlement_router,
+    hamlet_router,
     settlement_tags_metadata,
+    hamlet_tags_metadata,
+)
+from src.app.domain.submitter.controller import (
     submitter_router,
     submitter_tags_metadata,
-    position_router,
-    position_tags_metadata,
+)
+from src.app.domain.employee.controller import (
     employee_router,
+    position_router,
     employee_tags_metadata,
-    hamlet_router,
-    hamlet_tags_metadata,
-    department_connection_router,
-    department_connection_tags_metadata,
-    user_router,
-    user_tags_metadata,
-    auth_router,
-    auth_tags_metadata,
-    document_router,
-    document_tags_metadata,
+    position_tags_metadata,
 )
 
 API_PREFIX = "/api/v1"
