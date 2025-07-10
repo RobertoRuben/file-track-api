@@ -2,8 +2,8 @@ import io
 import pandas as pd
 from datetime import datetime
 from src.app.core.helpers import datetime_helper
-from src.app.dto.request import RoleRequestDTO
-from src.app.dto.response import RolePage, RoleResponseDTO
+from src.app.domain.document.dto import RoleRequestDTO
+from src.app.domain.document.dto import RolePage, RoleResponseDTO
 from src.app.core.schema import MessageResponse
 from src.app.core.exception import (
     BadRequestException,
