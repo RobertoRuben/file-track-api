@@ -1,5 +1,5 @@
 from abc import ABC, abstractmethod
-from src.app.dto.response import DocumentResponseDTO
+from src.app.domain.document.dto import DocumentResponseDTO
 
 
 class IReportService(ABC):

@@ -1,5 +1,7 @@
-from src.app.service.interfaces.report_service import IReportService
-from src.app.service.implementations.report_service_impl import ReportServiceImpl
+from src.app.domain.document.service.interfaces.report_service import IReportService
+from src.app.domain.document.service.implementations.report_service_impl import (
+    ReportServiceImpl,
+)
 
 
 async def get_report_service() -> IReportService:
