@@ -119,7 +119,7 @@ class DocumentResponseDTO(BaseModel):
         description="ID of the user who registered the document in the system",
         examples=[4, 27],
     )
-    registered_by_user_name: str | None = Field(
+    registered_by_username: str | None = Field(
         default=None,
         description="Name of the user who registered the document in the system",
         examples=["AJohnson45", "JDoe2645"],

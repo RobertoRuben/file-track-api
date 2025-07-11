@@ -52,7 +52,7 @@ class DocumentRequestDTO(BaseModel):
         examples=[5, 12],
     )
     hamlet_id: int | None = Field(
-        None,
+        default=None,
         description="Optional ID of the hamlet related to this document, if applicable.",
         examples=[None, 3],
     )
