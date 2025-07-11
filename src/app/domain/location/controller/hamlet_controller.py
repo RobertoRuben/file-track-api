@@ -1,5 +1,13 @@
 from datetime import datetime
-from fastapi import APIRouter, Depends, Query, Security, Body, Response
+from fastapi import (
+    APIRouter,
+    Depends,
+    Query,
+    Security,
+    Body,
+    Response,
+    Request
+)
 from src.app.core.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -8,6 +16,7 @@ from src.app.core.exception.schema import (
     UnauthorizedError,
     ForbiddenError,
 )
+from src.app.core.exception.decorator import controller_handle_exceptions
 from src.app.core.security.auth.model import CurrentUser
 from src.app.core.security.auth.dependencies import get_current_user
 from src.app.core.schema import MessageResponse
@@ -52,7 +61,9 @@ hamlet_tags_metadata = {
     "territorial organization, demographic tracking, and regional development planning in rural administrative "
     "systems and geographical information management workflows.",
 )
+@controller_handle_exceptions
 async def create_hamlet(
+    request: Request,
     hamlet_request: HamletRequestDTO,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.HAMLET_CREATE]
@@ -66,6 +77,7 @@ async def create_hamlet(
     must be provided in the request body. If the hamlet is created successfully, a
     status code 201 is returned with the details of the created hamlet.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param hamlet_request: Request body containing the hamlet data.
     :param current_user: The user creating the hamlet, used for authorization.
     :param hamlet_service: Service that handles the hamlet creation logic.
@@ -94,7 +106,9 @@ async def create_hamlet(
     "administrative coordination, and regional development initiatives requiring complete geographical information "
     "and territorial structure understanding.",
 )
+@controller_handle_exceptions
 async def get_all_hamlets(
+    request: Request,
     current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.HAMLET_READ]),
     hamlet_service: IHamletService = Depends(get_hamlet_service),
 ) -> list[HamletResponseDTO]:
@@ -104,6 +118,7 @@ async def get_all_hamlets(
     This endpoint returns a list of all available hamlets in the system. The response will include
     all hamlets stored in the database.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param current_user: The user requesting the hamlets, used for authorization.
     :param hamlet_service: Service to handle the query and retrieve all hamlets.
     :return: A list of hamlets in the system.
@@ -128,7 +143,9 @@ async def get_all_hamlets(
     "consumption, and improve user experience through controlled data loading. Essential for governmental "
     "systems managing extensive rural territories requiring responsive navigation capabilities.",
 )
+@controller_handle_exceptions
 async def get_paginated_hamlets(
+    request: Request,
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of hamlets per page"),
     current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.HAMLET_READ]),
@@ -140,6 +157,7 @@ async def get_paginated_hamlets(
     This endpoint allows retrieving hamlets in a paginated format. The user can specify the page number
     and the number of hamlets per page to optimize the query and reduce data overload.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param page: The page number to retrieve.
     :param size: The number of hamlets to return per page.
     :param current_user: The user requesting the paginated hamlets, used for authorization.
@@ -167,7 +185,9 @@ async def get_paginated_hamlets(
     "Supports complex search scenarios including partial matches, case-insensitive queries, and geographical "
     "proximity searches for enhanced territorial navigation and administrative efficiency.",
 )
+@controller_handle_exceptions
 async def find_hamlets(
+    request: Request,
     search_term: str | None = Query(None, description="Search term to filter hamlets"),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of hamlets per page"),
@@ -180,6 +200,7 @@ async def find_hamlets(
     This endpoint allows searching for hamlets based on a given search term. The results are returned
     in a paginated format, where the user can specify the page number and the number of results per page.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param search_term: A term to search within hamlet names.
     :param page: The page number to retrieve.
     :param size: The number of results per page.
@@ -209,7 +230,9 @@ async def find_hamlets(
     "Implements transactional processing to ensure territorial integrity and provides "
     "detailed feedback on operation success. Critical operation requiring elevated permissions.",
 )
+@controller_handle_exceptions
 async def delete_hamlets_bulk(
+    request: Request,
     hamlet_ids: list[int] = Body(..., description="List of hamlet IDs to delete"),
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.HAMLET_DELETE]
@@ -224,6 +247,7 @@ async def delete_hamlets_bulk(
     to ensure no active territorial dependencies exist before proceeding with deletion.
     Maintains geographical integrity throughout the bulk operation process.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param hamlet_ids: List of unique identifiers for hamlets to delete
     :param current_user: Authenticated user with bulk deletion privileges
     :param hamlet_service: Service layer handling bulk deletion logic
@@ -249,7 +273,9 @@ async def delete_hamlets_bulk(
     "and territorial metadata. Ideal for geographical reporting, territorial analysis, compliance documentation, "
     "and external reporting requirements. Supports bulk export with optimized file generation.",
 )
+@controller_handle_exceptions
 async def export_hamlets_to_excel(
+    request: Request,
     hamlet_ids: list[int] = Body(..., description="List of hamlet IDs to export"),
     current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.HAMLET_READ]),
     hamlet_service: IHamletService = Depends(get_hamlet_service),
@@ -262,6 +288,7 @@ async def export_hamlets_to_excel(
     The generated files include complete hamlet metadata, settlement relationships,
     and formatting optimized for business use and external sharing.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param hamlet_ids: List of unique identifiers for hamlets to include in export
     :param current_user: Authenticated user with hamlet export privileges
     :param hamlet_service: Service layer handling Excel generation logic
@@ -298,7 +325,9 @@ async def export_hamlets_to_excel(
     "administrative oversight. Essential for territorial verification workflows, geographical auditing, and "
     "rural development planning requiring precise settlement identification.",
 )
+@controller_handle_exceptions
 async def get_hamlet_by_id(
+    request: Request,
     hamlet_id: int,
     current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.HAMLET_READ]),
     hamlet_service: IHamletService = Depends(get_hamlet_service),
@@ -309,6 +338,7 @@ async def get_hamlet_by_id(
     This endpoint retrieves the details of a specific hamlet identified by its ID. If the hamlet is found,
     the hamlet's data is returned. If not, a 404 error is returned.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param hamlet_id: The ID of the hamlet to retrieve.
     :param current_user: The user requesting the hamlet, used for authorization.
     :param hamlet_service: Service to handle the query and retrieve the hamlet.
@@ -339,7 +369,9 @@ async def get_hamlet_by_id(
     "and preserving hierarchical relationships. Enables dynamic geographical management through secure "
     "modification workflows with change tracking for administrative territorial oversight.",
 )
+@controller_handle_exceptions
 async def update_hamlet(
+    request: Request,
     hamlet_id: int,
     hamlet_request: HamletRequestDTO,
     current_user: CurrentUser = Security(
@@ -354,6 +386,7 @@ async def update_hamlet(
     is updated successfully, the updated hamlet data is returned. If the hamlet is not found,
     a 404 error is returned.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param hamlet_id: The ID of the hamlet to update.
     :param hamlet_request: The new data for the hamlet.
     :param current_user: The user updating the hamlet, used for authorization.
@@ -385,7 +418,9 @@ async def update_hamlet(
     "confirmation requirements and audit trail preservation for regulated territorial management. ⚠️ WARNING: "
     "This operation permanently removes the hamlet and may affect territorial relationships.",
 )
+@controller_handle_exceptions
 async def delete_hamlet(
+    request: Request,
     hamlet_id: int,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.HAMLET_DELETE]
@@ -398,6 +433,7 @@ async def delete_hamlet(
     This endpoint allows deleting a specific hamlet identified by its ID. If the hamlet is deleted
     successfully, a success message is returned. If the hamlet is not found, a 404 error is returned.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param hamlet_id: The ID of the hamlet to delete.
     :param current_user: The user deleting the hamlet, used for authorization.
     :param hamlet_service: Service to handle the delete logic.

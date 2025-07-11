@@ -1,5 +1,13 @@
 from datetime import datetime
-from fastapi import APIRouter, Depends, Query, Security, Body, Response
+from fastapi import (
+    APIRouter,
+    Depends,
+    Query,
+    Security,
+    Body,
+    Response,
+    Request
+)
 from src.app.core.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -8,6 +16,7 @@ from src.app.core.exception.schema import (
     UnauthorizedError,
     ForbiddenError,
 )
+from src.app.core.exception.decorator import controller_handle_exceptions
 from src.app.core.security.auth.model import CurrentUser
 from src.app.core.security.auth.dependencies import get_current_user
 from src.app.core.security.auth.constants import Scopes
@@ -17,7 +26,6 @@ from src.app.domain.location.dto.response import (
     SettlementResponseDTO,
     SettlementPage,
 )
-
 from src.app.domain.location.service.interface import ISettlementService
 from src.app.domain.location.service.dependencies import get_settlement_service
 
@@ -56,7 +64,9 @@ settlement_tags_metadata = {
     "supporting governmental territorial organization, demographic administration, and regional development "
     "planning in municipal administrative systems and territorial governance workflows.",
 )
+@controller_handle_exceptions
 async def create_settlement(
+    request: Request,
     settlement_request: SettlementRequestDTO,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SETTLEMENT_CREATE]
@@ -70,6 +80,7 @@ async def create_settlement(
     must be provided in the request body. If the settlement is created successfully, a status code 201
     with the created settlement's details is returned.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param settlement_request: Request body containing settlement data.
     :param current_user: The user creating the settlement, used for authorization.
     :param settlement_service: Service to handle the settlement creation logic.
@@ -98,7 +109,9 @@ async def create_settlement(
     "planning, administrative coordination, and regional development initiatives requiring complete territorial "
     "information and municipal structure understanding for governmental operations.",
 )
+@controller_handle_exceptions
 async def get_all_settlements(
+    request: Request,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SETTLEMENT_READ]
     ),
@@ -110,6 +123,7 @@ async def get_all_settlements(
     This endpoint returns a list of all available settlements in the system. The response will include
     all settlements stored in the database.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param current_user: The user requesting the settlements, used for authorization.
     :param settlement_service: Service to handle the query and retrieve all settlements.
     :return: A list of settlements in the system.
@@ -134,7 +148,9 @@ async def get_all_settlements(
     "and improve user experience through controlled data loading. Essential for governmental systems managing "
     "extensive territorial databases requiring responsive navigation and administrative efficiency.",
 )
+@controller_handle_exceptions
 async def get_paginated_settlements(
+    request: Request,
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of settlements per page"),
     current_user: CurrentUser = Security(
@@ -148,6 +164,7 @@ async def get_paginated_settlements(
     This endpoint allows retrieving settlements in a paginated format. The user can specify the page number
     and the number of settlements per page to optimize the query and reduce data overload.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param page: The page number to retrieve.
     :param size: The number of settlements to return per page.
     :param current_user: The user requesting the settlements, used for authorization.
@@ -175,7 +192,9 @@ async def get_paginated_settlements(
     "search scenarios including partial matches, case-insensitive queries, and territorial proximity searches "
     "for enhanced municipal navigation and administrative coordination efficiency.",
 )
+@controller_handle_exceptions
 async def find_settlements(
+    request: Request,
     search_term: str | None = Query(
         None, description="Search term to filter settlements"
     ),
@@ -192,6 +211,7 @@ async def find_settlements(
     This endpoint allows searching for settlements based on a given search term. The results are returned
     in a paginated format, where the user can specify the page number and the number of results per page.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param search_term: A term to search within settlement names.
     :param page: The page number to retrieve.
     :param size: The number of results per page.
@@ -230,7 +250,9 @@ async def find_settlements(
     "administrative structures throughout the governmental system. ⚠️ WARNING: This operation permanently "
     "removes settlements and may affect territorial dependencies.",
 )
+@controller_handle_exceptions
 async def delete_settlements_bulk(
+    request: Request,
     settlement_ids: list[int] = Body(
         ..., description="List of settlement IDs to delete"
     ),
@@ -246,6 +268,7 @@ async def delete_settlements_bulk(
     are deleted successfully, a success message is returned. If any settlement is not found, a 404 error
     is returned. The request body should contain a list of settlement IDs.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param settlement_ids: List of settlement IDs to delete.
     :param current_user: The user performing the bulk deletion, used for auditing and permissions.
     :param settlement_service: Service to handle the bulk delete logic.
@@ -285,7 +308,9 @@ async def delete_settlements_bulk(
     "uniqueness and provide comprehensive audit trails. This functionality supports governmental data backup "
     "procedures, regulatory compliance reporting, territorial analysis, and stakeholder communication requirements.",
 )
+@controller_handle_exceptions
 async def export_settlements_to_excel(
+    request: Request,
     settlement_ids: list[int] = Body(
         ...,
         description="List of settlement IDs to export. If empty, exports all settlements",
@@ -302,6 +327,7 @@ async def export_settlements_to_excel(
     settlements to export by providing a list of IDs, or export all settlements if no IDs are provided.
     The Excel file includes proper formatting, headers, and is returned as a downloadable stream.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param settlement_ids: Optional list of settlement IDs to export. If None, exports all settlements.
     :param current_user: The user requesting the export, used for auditing and permissions.
     :param settlement_service: Service to handle the Excel export logic.
@@ -341,7 +367,9 @@ async def export_settlements_to_excel(
     "analysis and governmental oversight. Essential for territorial verification workflows, administrative "
     "auditing, and municipal development planning requiring precise settlement identification.",
 )
+@controller_handle_exceptions
 async def get_settlement_by_id(
+    request: Request,
     settlement_id: int,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SETTLEMENT_READ]
@@ -354,6 +382,7 @@ async def get_settlement_by_id(
     This endpoint retrieves the details of a specific settlement identified by its ID. If the settlement is found,
     the settlement's data is returned. If not, a 404 error is returned.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param settlement_id: The ID of the settlement to retrieve.
     :param current_user: The user requesting the settlement, used for authorization.
     :param settlement_service: Service to handle the query and retrieve the settlement.
@@ -384,7 +413,9 @@ async def get_settlement_by_id(
     "hierarchical relationships. Enables dynamic territorial management through secure modification workflows "
     "with change tracking for governmental administrative oversight and municipal development coordination.",
 )
+@controller_handle_exceptions
 async def update_settlement(
+    request: Request,
     settlement_id: int,
     settlement_request: SettlementRequestDTO,
     current_user: CurrentUser = Security(
@@ -399,6 +430,7 @@ async def update_settlement(
     is updated successfully, the updated settlement data is returned. If the settlement is not found,
     a 404 error is returned.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param settlement_id: The ID of the settlement to update.
     :param settlement_request: The new data for the settlement.
     :param current_user: The user updating the settlement, used for authorization.
@@ -430,7 +462,9 @@ async def update_settlement(
     "confirmation requirements and audit trail preservation for regulated territorial administration. ⚠️ WARNING: "
     "This operation permanently removes the settlement and may affect territorial hierarchies.",
 )
+@controller_handle_exceptions
 async def delete_settlement(
+    request: Request,
     settlement_id: int,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SETTLEMENT_DELETE]
@@ -443,6 +477,7 @@ async def delete_settlement(
     This endpoint allows deleting a specific settlement identified by its ID. If the settlement is deleted
     successfully, a success message is returned. If the settlement is not found, a 404 error is returned.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param settlement_id: The ID of the settlement to delete
     :param current_user: The user deleting the settlement, used for authorization
     :param settlement_service: Service to handle the delete logic
