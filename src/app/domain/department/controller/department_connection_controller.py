@@ -1,4 +1,10 @@
-from fastapi import APIRouter, Depends, Query, Security
+from fastapi import (
+    APIRouter,
+    Depends,
+    Query,
+    Security,
+    Request
+)
 from src.app.core.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -7,6 +13,7 @@ from src.app.core.exception.schema import (
     ForbiddenError,
     UnauthorizedError,
 )
+from src.app.core.exception.decorator import controller_handle_exceptions
 from src.app.core.security.auth.constants import Scopes
 from src.app.core.security.auth.model import CurrentUser
 from src.app.core.security.auth.dependencies import get_current_user
@@ -57,7 +64,9 @@ department_connection_tags_metadata = {
     "workflow dependencies, and communication pathways essential for organizational chart visualization "
     "and departmental coordination within the enterprise structure.",
 )
+@controller_handle_exceptions
 async def create_department_connection(
+    request: Request,
     department_connection: DepartmentConnectionRequestDTO,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_CREATE]
@@ -73,6 +82,7 @@ async def create_department_connection(
     The connection data must be provided in the request body. If the connection is created successfully,
     a status code 201 is returned with the details of the created connection.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param department_connection: Request body containing the department connection data.
     :param current_user: The user making the request, used for authorization.
     :param department_connection_service: Service that handles the department connection creation logic.
@@ -102,7 +112,9 @@ async def create_department_connection(
     "reporting hierarchies, and communication channels essential for organizational analysis, structure "
     "visualization, and strategic planning initiatives across the entire organizational ecosystem.",
 )
+@controller_handle_exceptions
 async def get_all_department_connections(
+    request: Request,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_READ]
     ),
@@ -116,6 +128,7 @@ async def get_all_department_connections(
     This endpoint returns a list of all available department connections in the system. The response will include
     all connections stored in the database.
 
+    :param request: FastAPI Request object, used to extract the controller route path where the exception occurred.
     :param current_user: The user making the request, used for authorization.
     :param department_connection_service: Service to handle the query and retrieve all department connections.
     :return: A list of department connections in the system.
@@ -146,7 +159,9 @@ async def get_all_department_connections(
     "only access connections pertinent to their departmental scope for enhanced security and operational "
     "focus within their specific organizational context and workflow requirements.",
 )
+@controller_handle_exceptions
 async def get_connections_by_current_user_department_id(
+    request: Request,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_READ]
     ),
@@ -163,6 +178,7 @@ async def get_connections_by_current_user_department_id(
     Appropriate error responses are provided for cases such as malformed requests,
     unauthorized access, or if the source department is not found.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param current_user: The currently authenticated user, providing the necessary department context.
     :param department_connection_service: Service responsible for retrieving the department connections linked to the
      user's department.
@@ -192,7 +208,9 @@ async def get_connections_by_current_user_department_id(
     "interdepartmental relationships, enabling systematic navigation through large connection datasets "
     "while maintaining responsive user experience and system performance.",
 )
+@controller_handle_exceptions
 async def get_paginated_department_connections(
+    request: Request,
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of connections per page"),
     current_user: CurrentUser = Security(
@@ -208,6 +226,7 @@ async def get_paginated_department_connections(
     This endpoint allows for retrieving department connections in a paginated format. The user can specify the page
     number and the number of connections per page to optimize the query and reduce data overload.
 
+    :param request: FastAPI Request object, used to extract the controller route path where the exception occurred.
     :param page: The page number to retrieve.
     :param size: The number of department connections to return per page.
     :param current_user: The user making the request, used for authorization.
@@ -242,7 +261,9 @@ async def get_paginated_department_connections(
     "flexible query capabilities, supporting department name searches, connection type filtering, and "
     "hierarchical relationship identification for comprehensive organizational insights.",
 )
+@controller_handle_exceptions
 async def find_department_connections(
+    request: Request,
     search_term: str | None = Query(
         None, description="Search term to filter connections"
     ),
@@ -261,6 +282,7 @@ async def find_department_connections(
     This endpoint allows searching for department connections based on a given term. Results are returned in a
     paginated format, where the user can specify the page number and the number of results per page.
 
+    :param request: FastAPI Request object, used to extract the controller route path where the exception occurred.
     :param search_term: Term to search for in the department connection details.
     :param page: The page number to retrieve.
     :param size: The number of results per page.
@@ -294,7 +316,9 @@ async def find_department_connections(
     "types, and hierarchical context essential for detailed organizational analysis and structure verification "
     "within the enterprise network.",
 )
+@controller_handle_exceptions
 async def get_department_connection_by_id(
+    request: Request,
     department_connection_id: int,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_READ]
@@ -309,6 +333,7 @@ async def get_department_connection_by_id(
     This endpoint retrieves the details of a specific department connection identified by its ID.
     If found, it returns the connection data. If not, it returns a 404 error.
 
+    :param request: FastAPI Request object, used to extract the controller route path where the exception occurred.
     :param department_connection_id: ID of the department connection to retrieve.
     :param current_user: The user making the request, used for authorization.
     :param department_connection_service: Service to handle the query and retrieve the connection.
@@ -343,7 +368,9 @@ async def get_department_connection_by_id(
     "consistency, preventing circular dependencies, and ensuring valid organizational workflows within "
     "the enterprise architecture for seamless departmental coordination.",
 )
+@controller_handle_exceptions
 async def update_department_connection(
+    request: Request,
     department_connection_id: int,
     department_connection_request: DepartmentConnectionRequestDTO,
     current_user: CurrentUser = Security(
@@ -359,6 +386,7 @@ async def update_department_connection(
     This endpoint allows updating the details of an existing connection identified by its ID.
     If the connection is updated successfully, it returns the updated data. If not found, it returns a 404 error.
 
+    :param request: FastAPI Request object, used to extract the controller route path where the exception occurred.
     :param department_connection_id: ID of the connection to update.
     :param department_connection_request: New data for the department connection.
     :param current_user: The user making the request, used for authorization.
@@ -393,7 +421,9 @@ async def update_department_connection(
     "while maintaining referential integrity, updating organizational charts, and preserving audit trails "
     "for compliance and structural change documentation within the enterprise network.",
 )
+@controller_handle_exceptions
 async def delete_department_connection(
+    request: Request,
     department_connection_id: int,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_DELETE]
@@ -408,6 +438,7 @@ async def delete_department_connection(
     This endpoint allows deleting a specific connection identified by its ID. If deleted successfully,
     it returns a success message. If not found, it returns a 404 error.
 
+    :param request: FastAPI Request object, used to extract the controller route path where the exception occurred.
     :param department_connection_id: ID of the connection to delete.
     :param current_user: The user making the request, used for authorization.
     :param department_connection_service: Service to handle the deletion logic.
@@ -441,7 +472,9 @@ async def delete_department_connection(
     "of departmental influence, reporting structures, and downstream workflow dependencies essential for "
     "hierarchical planning and organizational impact assessment within the enterprise structure.",
 )
+@controller_handle_exceptions
 async def get_connections_by_source_department_id(
+    request: Request,
     source_department_id: int,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_CONNECTION_READ]
@@ -456,6 +489,7 @@ async def get_connections_by_source_department_id(
     This endpoint returns a list of all connections with the specified source department.
     If no connections are found or if the source department does not exist, appropriate errors are returned.
 
+    :param request: FastAPI Request object, used to extract the controller route path where the exception occurred.
     :param source_department_id: ID of the source department to filter the connections.
     :param current_user: The user making the request, used for authorization.
     :param department_connection_service: Service to handle the query and retrieve filtered connections.
