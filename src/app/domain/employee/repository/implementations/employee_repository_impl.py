@@ -106,6 +106,7 @@ class EmployeeRepositoryImpl(IEmployeeRepository):
             )
             .join(Department, Department.id == Employee.department_id)
             .join(Position, Position.id == Employee.position_id)
+            .order_by(Employee.id)
         )
 
         stmt = stmt.offset(offset_value).limit(size)
