@@ -4,7 +4,7 @@ from src.app.core.security.auth.model import CurrentUser
 from src.app.core.security.auth.interface import IAuthService
 from src.app.core.security.auth.interface import ITokenProvider
 from src.app.core.security.hasher.interface import IHasherProvider
-from src.app.core.exception.decorator import handle_exceptions
+from src.app.core.exception.decorator import service_handle_exceptions
 from src.app.core.exception import UnauthorizedException, ForbiddenException
 from src.app.core.security.auth.constants import Scopes
 from src.app.core.exception.constants import ErrorTypes
@@ -43,7 +43,7 @@ class AuthServiceImpl(IAuthService):
         self.token_provider = token_provider
         self.hasher_provider = hasher_provider
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def authenticate(self, auth_request: AuthRequestDTO) -> AuthResponseDTO:
         """
         Authenticate a user using the provided username and password.
@@ -122,7 +122,7 @@ class AuthServiceImpl(IAuthService):
             expires_in=expires_in,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_current_user(self, token: str) -> CurrentUser:
         """
         Retrieve the current user's information using an access token.
@@ -186,7 +186,7 @@ class AuthServiceImpl(IAuthService):
 
         return user_dto
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def generate_refresh_access_token(
         self, refresh_token: str
     ) -> AuthResponseDTO:
@@ -259,7 +259,7 @@ class AuthServiceImpl(IAuthService):
             expires_in=expires_in,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_current_user_with_scopes(
         self, token: str, required_scopes: list[str]
     ) -> CurrentUser:

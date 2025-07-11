@@ -7,7 +7,7 @@ from src.app.core.exception import (
     NotFoundException,
 )
 from src.app.core.security.auth.model import CurrentUser
-from src.app.core.exception.decorator import handle_exceptions
+from src.app.core.exception.decorator import service_handle_exceptions
 from src.app.domain.department.repository.interface import (
     IDepartmentConnectionRepository,
     IDepartmentRepository,
@@ -44,7 +44,7 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
         self.department_connection_repository = department_connection_repository
         self.department_repository = department_repository
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def add_department_connection(
         self, department_connection_request: DepartmentConnectionRequestDTO
     ) -> DepartmentConnectionResponseDTO:
@@ -101,7 +101,7 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
             updated_at=created_connection.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_all_department_connections(
         self,
     ) -> list[DepartmentConnectionResponseDTO]:
@@ -120,7 +120,7 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
             for connection in connections
         ]
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def update_department_connection(
         self,
         department_connection_id: int,
@@ -193,7 +193,7 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
             updated_at=updated_connection.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def delete_department_connection(
         self, department_connection_id: int
     ) -> MessageResponse:
@@ -230,7 +230,7 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
                 status_code=500,
             )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_department_connection_by_id(
         self, department_connection_id: int
     ) -> DepartmentConnectionResponseDTO:
@@ -267,7 +267,7 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
             updated_at=connection.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_paginated_department_connections(
         self, page: int, size: int
     ) -> DepartmentConnectionPage:
@@ -298,7 +298,7 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def find(
         self, page: int, size: int, search_term: str
     ) -> DepartmentConnectionPage:
@@ -344,7 +344,7 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_connections_by_source_department_id(
         self, source_department_id: int
     ) -> list[DepartmentConnectionResponseDTO]:
@@ -383,7 +383,7 @@ class DepartmentConnectionServiceImpl(IDepartmentConnectionService):
             for connection in connections
         ]
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_department_connections_by_current_user_department(
         self, current_user: CurrentUser
     ) -> list[DepartmentConnectionResponseDTO]:

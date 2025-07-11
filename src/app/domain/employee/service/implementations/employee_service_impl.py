@@ -8,7 +8,7 @@ from src.app.core.exception import (
     NotFoundException,
 )
 from src.app.core.helpers import datetime_helper
-from src.app.core.exception.decorator import handle_exceptions
+from src.app.core.exception.decorator import service_handle_exceptions
 from src.app.domain.employee.repository.interface import (
     IEmployeeRepository,
     IPositionRepository,
@@ -43,7 +43,7 @@ class EmployeeServiceImpl(IEmployeeService):
         self.position_repository = position_repository
         self.department_repository = department_repository
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def add_employee(
         self, employee_request: EmployeeRequestDTO
     ) -> EmployeeResponseDTO:
@@ -107,7 +107,7 @@ class EmployeeServiceImpl(IEmployeeService):
             updated_at=created_employee.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_all_employees(self) -> list[EmployeeResponseDTO]:
         """
         Retrieves all employees from the database.
@@ -131,7 +131,7 @@ class EmployeeServiceImpl(IEmployeeService):
             for employee in employees
         ]
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def update_employee(
         self, employee_id: int, employee_request: EmployeeRequestDTO
     ) -> EmployeeResponseDTO:
@@ -206,7 +206,7 @@ class EmployeeServiceImpl(IEmployeeService):
             updated_at=updated_employee.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def delete_employee(self, employee_id: int) -> MessageResponse:
         """
         Deletes an employee by their ID.
@@ -239,7 +239,7 @@ class EmployeeServiceImpl(IEmployeeService):
                 status_code=500,
             )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_employee_by_id(self, employee_id: int) -> EmployeeResponseDTO:
         """
         Retrieves an employee by their ID.
@@ -270,7 +270,7 @@ class EmployeeServiceImpl(IEmployeeService):
             updated_at=employee.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_employees_paginated(self, page: int, size: int) -> EmployeePage:
         """
         Retrieves a paginated list of employees.
@@ -300,7 +300,7 @@ class EmployeeServiceImpl(IEmployeeService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def find(self, page: int, size: int, search_term: str) -> EmployeePage:
         """
         Searches for employees matching the given search criteria.
@@ -347,7 +347,7 @@ class EmployeeServiceImpl(IEmployeeService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def delete_employees_by_ids(self, employee_ids: list[int]) -> MessageResponse:
         """
         Delete multiple employees by their IDs.
@@ -400,7 +400,7 @@ class EmployeeServiceImpl(IEmployeeService):
                 status_code=500,
             )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def export_employees_to_excel(self, employee_ids: list[int]) -> bytes:
         """
         Export employees to Excel format by their IDs.

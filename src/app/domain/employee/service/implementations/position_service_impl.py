@@ -8,7 +8,7 @@ from src.app.core.exception import (
     ConflictException,
     NotFoundException,
 )
-from src.app.core.exception.decorator import handle_exceptions
+from src.app.core.exception.decorator import service_handle_exceptions
 from src.app.domain.employee.repository.interface import IPositionRepository
 from src.app.domain.employee.service.interface import IPositionService
 from src.app.domain.employee.model import Position
@@ -30,7 +30,7 @@ class PositionServiceImpl(IPositionService):
         """
         self.position_repository = position_repository
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def add_position(
         self, position_request: PositionRequestDTO
     ) -> PositionResponseDTO:
@@ -63,7 +63,7 @@ class PositionServiceImpl(IPositionService):
             updated_at=created_position.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_all_positions(self) -> list[PositionResponseDTO]:
         """
         Retrieves all positions from the database.
@@ -81,7 +81,7 @@ class PositionServiceImpl(IPositionService):
             for position in positions
         ]
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def update_position(
         self, position_id: int, position_request: PositionRequestDTO
     ) -> PositionResponseDTO:
@@ -124,7 +124,7 @@ class PositionServiceImpl(IPositionService):
             updated_at=updated_position.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def delete_position(self, position_id: int) -> MessageResponse:
         """
         Deletes a position by its ID.
@@ -155,7 +155,7 @@ class PositionServiceImpl(IPositionService):
                 status_code=500,
             )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_position_by_id(self, position_id: int) -> PositionResponseDTO:
         """
         Retrieves a position by its ID.
@@ -178,7 +178,7 @@ class PositionServiceImpl(IPositionService):
             updated_at=position.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_positions_paginated(self, page: int, size: int) -> PositionPage:
         """
         Retrieves a paginated list of positions.
@@ -209,7 +209,7 @@ class PositionServiceImpl(IPositionService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def find(self, page: int, size: int, search_term: str) -> PositionPage:
         """
         Searches for positions matching the given search term.
@@ -251,7 +251,7 @@ class PositionServiceImpl(IPositionService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def delete_positions_by_ids(self, position_ids: list[int]) -> MessageResponse:
         """
         Delete multiple positions by their IDs.
@@ -306,7 +306,7 @@ class PositionServiceImpl(IPositionService):
                 status_code=500,
             )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def export_positions_to_excel(self, position_ids: list[int]) -> bytes:
         """
         Export positions to Excel format by their IDs.

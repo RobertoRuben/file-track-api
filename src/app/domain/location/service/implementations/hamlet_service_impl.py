@@ -7,7 +7,7 @@ from src.app.core.exception import (
     ConflictException,
     NotFoundException,
 )
-from src.app.core.exception.decorator import handle_exceptions
+from src.app.core.exception.decorator import service_handle_exceptions
 from src.app.core.helpers import datetime_helper
 from src.app.domain.location.repository.interface import (
     IHamletRepository,
@@ -39,7 +39,7 @@ class HamletServiceImpl(IHamletService):
         self.hamlet_repository = hamlet_repository
         self.settlement_repository = settlement_repository
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def add_hamlet(self, hamlet_request: HamletRequestDTO) -> HamletResponseDTO:
         """
         Adds a new hamlet to the system.
@@ -84,7 +84,7 @@ class HamletServiceImpl(IHamletService):
             updated_at=created_hamlet.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_all_hamlets(self) -> list[HamletResponseDTO]:
         """
         Retrieves all hamlets from the database.
@@ -104,7 +104,7 @@ class HamletServiceImpl(IHamletService):
             for hamlet in hamlets
         ]
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def update_hamlet(
         self, hamlet_id: int, hamlet_request: HamletRequestDTO
     ) -> HamletResponseDTO:
@@ -162,7 +162,7 @@ class HamletServiceImpl(IHamletService):
             updated_at=updated_hamlet.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def delete_hamlet(self, hamlet_id: int) -> MessageResponse:
         """
         Deletes a hamlet by its ID.
@@ -195,7 +195,7 @@ class HamletServiceImpl(IHamletService):
                 status_code=500,
             )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_hamlet_by_id(self, hamlet_id: int) -> HamletResponseDTO:
         """
         Retrieves a hamlet by its ID.
@@ -222,7 +222,7 @@ class HamletServiceImpl(IHamletService):
             updated_at=hamlet.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_hamlets_paginated(self, page: int, size: int) -> HamletPage:
         """
         Retrieves a paginated list of hamlets.
@@ -253,7 +253,7 @@ class HamletServiceImpl(IHamletService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def find(self, page: int, size: int, search_term: str) -> HamletPage:
         """
         Searches for hamlets based on search criteria.
@@ -295,7 +295,7 @@ class HamletServiceImpl(IHamletService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def delete_hamlets_by_ids(self, hamlet_ids: list[int]) -> MessageResponse:
         """
         Delete multiple hamlets by their IDs.
@@ -347,7 +347,7 @@ class HamletServiceImpl(IHamletService):
                 status_code=500,
             )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def export_hamlets_to_excel(self, hamlet_ids: list[int]) -> bytes:
         """
         Export hamlets to Excel format by their IDs.

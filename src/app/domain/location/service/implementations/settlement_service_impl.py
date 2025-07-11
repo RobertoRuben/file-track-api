@@ -8,7 +8,7 @@ from src.app.core.exception import (
     ConflictException,
     NotFoundException,
 )
-from src.app.core.exception.decorator import handle_exceptions
+from src.app.core.exception.decorator import service_handle_exceptions
 from src.app.domain.location.model import Settlement
 from src.app.domain.location.repository.interface import ISettlementRepository
 from src.app.domain.location.service.interface import ISettlementService
@@ -32,7 +32,7 @@ class SettlementServiceImpl(ISettlementService):
         """
         self.settlement_repository = settlement_repository
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def add_settlement(
         self, settlement_request: SettlementRequestDTO
     ) -> SettlementResponseDTO:
@@ -65,7 +65,7 @@ class SettlementServiceImpl(ISettlementService):
             updated_at=created_settlement.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_all_settlements(self) -> list[SettlementResponseDTO]:
         """
         Retrieves all settlements from the database.
@@ -83,7 +83,7 @@ class SettlementServiceImpl(ISettlementService):
             for settlement in settlements
         ]
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def update_settlement(
         self, settlement_id: int, settlement_request: SettlementRequestDTO
     ) -> SettlementResponseDTO:
@@ -128,7 +128,7 @@ class SettlementServiceImpl(ISettlementService):
             updated_at=updated_settlement.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def delete_settlement(self, settlement_id: int) -> MessageResponse:
         """
         Deletes a settlement by its ID.
@@ -161,7 +161,7 @@ class SettlementServiceImpl(ISettlementService):
                 status_code=500,
             )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_settlement_by_id(self, settlement_id: int) -> SettlementResponseDTO:
         """
         Retrieves a settlement by its ID.
@@ -186,7 +186,7 @@ class SettlementServiceImpl(ISettlementService):
             updated_at=settlement.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_settlements_paginated(self, page: int, size: int) -> SettlementPage:
         """
         Retrieves a paginated list of settlements.
@@ -223,7 +223,7 @@ class SettlementServiceImpl(ISettlementService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def find(self, page: int, size: int, search_term: str) -> SettlementPage:
         """
         Searches for settlements matching the given search term.
@@ -271,7 +271,7 @@ class SettlementServiceImpl(ISettlementService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def delete_settlements_by_ids(
         self, settlement_ids: list[int]
     ) -> MessageResponse:
@@ -327,7 +327,7 @@ class SettlementServiceImpl(ISettlementService):
                 status_code=500,
             )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def export_settlements_to_excel(self, settlement_ids) -> bytes:
         """
         Exports settlements to an Excel file.

@@ -8,7 +8,7 @@ from src.app.core.exception import (
     ConflictException,
     NotFoundException,
 )
-from src.app.core.exception.decorator import handle_exceptions
+from src.app.core.exception.decorator import service_handle_exceptions
 from src.app.domain.document.model import DocumentaryTopic
 from src.app.domain.document.dto.request import DocumentaryTopicRequestDTO
 from src.app.domain.document.dto.response import (
@@ -33,7 +33,7 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
         """
         self.documentary_topic_repository = documentary_topic_repository
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def add_documentary_topic(
         self, documentary_topic_request: DocumentaryTopicRequestDTO
     ) -> DocumentaryTopicResponseDTO:
@@ -66,7 +66,7 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
             updated_at=created_topic.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_all_documentary_topics(self) -> list[DocumentaryTopicResponseDTO]:
         """
         Retrieves all documentary topics from the database.
@@ -84,7 +84,7 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
             for topic in topics
         ]
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def update_documentary_topic(
         self,
         documentary_topic_id: int,
@@ -132,7 +132,7 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
             updated_at=updated_topic.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def delete_documentary_topic(
         self, documentary_topic_id: int
     ) -> MessageResponse:
@@ -168,7 +168,7 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
                 status_code=500,
             )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_documentary_topic_by_id(
         self, documentary_topic_id: int
     ) -> DocumentaryTopicResponseDTO:
@@ -196,7 +196,7 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
             updated_at=topic.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_documentary_topics_paginated(
         self, page: int, size: int
     ) -> DocumentaryTopicPage:
@@ -235,7 +235,7 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def find(
         self, page: int, size: int, search_term: str
     ) -> DocumentaryTopicPage:
@@ -287,7 +287,7 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def delete_documentary_topic_by_ids(
         self, documentary_topic_ids: list[int]
     ) -> MessageResponse:
@@ -347,7 +347,7 @@ class DocumentaryTopicServiceImpl(IDocumentaryTopicService):
                 status_code=500,
             )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def export_documentary_topics_to_excel(
         self, documentary_topic_ids: list[int]
     ) -> bytes:

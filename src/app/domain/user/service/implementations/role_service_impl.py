@@ -10,7 +10,7 @@ from src.app.core.exception import (
     ConflictException,
     NotFoundException,
 )
-from src.app.core.exception.decorator import handle_exceptions
+from src.app.core.exception.decorator import service_handle_exceptions
 from src.app.domain.user.model import Role
 from src.app.domain.user.repository.interface import IRoleRepository
 from src.app.domain.user.service.interface import IRoleService
@@ -34,7 +34,7 @@ class RoleServiceImpl(IRoleService):
         """
         self.role_repository = role_repository
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def add_role(self, role_request: RoleRequestDTO) -> RoleResponseDTO:
         """
         Create a new role.
@@ -65,7 +65,7 @@ class RoleServiceImpl(IRoleService):
             updated_at=created_role.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_all_roles(self) -> list[RoleResponseDTO]:
         """
         Retrieve all roles.
@@ -83,7 +83,7 @@ class RoleServiceImpl(IRoleService):
             for role in roles
         ]
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def update_role(
         self, role_id: int, role_request: RoleRequestDTO
     ) -> RoleResponseDTO:
@@ -126,7 +126,7 @@ class RoleServiceImpl(IRoleService):
             updated_at=updated_role.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def delete_role(self, role_id: int) -> MessageResponse:
         """
         Delete a role by its ID.
@@ -157,7 +157,7 @@ class RoleServiceImpl(IRoleService):
                 status_code=500,
             )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_role_by_id(self, role_id: int) -> RoleResponseDTO:
         """
         Retrieve a role by its ID.
@@ -180,7 +180,7 @@ class RoleServiceImpl(IRoleService):
             updated_at=role.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_paginated_roles(self, page: int, size: int) -> RolePage:
         """
         Retrieve a paginated list of roles.
@@ -209,7 +209,7 @@ class RoleServiceImpl(IRoleService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def find(self, page: int, size: int, search_term: str) -> RolePage:
         """
         Search for roles with name filtering and pagination.
@@ -249,7 +249,7 @@ class RoleServiceImpl(IRoleService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def delete_roles_by_ids(self, role_ids: list[int]) -> MessageResponse:
         """
         Delete multiple roles by their IDs.
@@ -300,7 +300,7 @@ class RoleServiceImpl(IRoleService):
                 status_code=500,
             )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def export_roles_to_excel(self, role_ids: list[int]) -> bytes:
         """
         Export roles to Excel format by their IDs.

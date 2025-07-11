@@ -8,7 +8,7 @@ from src.app.core.exception import (
     NotFoundException,
 )
 from src.app.core.security.hasher.interface import IHasherProvider
-from src.app.core.exception.decorator import handle_exceptions
+from src.app.core.exception.decorator import service_handle_exceptions
 from src.app.core.helpers import datetime_helper
 from src.app.domain.user.model import User
 from src.app.domain.user.enum import StatusEnum
@@ -52,7 +52,7 @@ class UserServiceImpl(IUserService):
         self.employee_repository = employee_repository
         self.hasher_provider = hasher_provider
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def add_user(self, user_request: UserRequestDTO, re) -> UserResponseDTO:
         """
         Adds a new user to the system.
@@ -120,7 +120,7 @@ class UserServiceImpl(IUserService):
             updated_at=created_user.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_all_users(self) -> list[UserResponseDTO]:
         """
         Retrieves all users from the system.
@@ -143,7 +143,7 @@ class UserServiceImpl(IUserService):
             for user in users
         ]
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def update_user(
         self, user_id: int, user_request: UserRequestDTO
     ) -> UserResponseDTO:
@@ -215,7 +215,7 @@ class UserServiceImpl(IUserService):
             updated_at=updated_user.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def update_password(
         self, user_id: int, old_password: str, new_password: str
     ) -> MessageResponse:
@@ -264,7 +264,7 @@ class UserServiceImpl(IUserService):
             status_code=200,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def update_user_status(self, user_id: int, status: str) -> MessageResponse:
         """
         Updates the status of an existing user.
@@ -323,7 +323,7 @@ class UserServiceImpl(IUserService):
             status_code=200,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def delete_user(self, user_id: int) -> MessageResponse:
         """
         Deletes a user by their ID.
@@ -357,7 +357,7 @@ class UserServiceImpl(IUserService):
                 status_code=500,
             )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_user_by_id(self, user_id: int) -> UserResponseDTO:
         """
         Retrieves a user by their ID.
@@ -386,7 +386,7 @@ class UserServiceImpl(IUserService):
             updated_at=user.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_user_by_username(self, username: str) -> UserResponseDTO:
         """
         Retrieves a user by their username.
@@ -415,7 +415,7 @@ class UserServiceImpl(IUserService):
             updated_at=user.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_users_paginated(
         self, page: int, size: int, only_active: bool = True
     ) -> UserPage:
@@ -450,7 +450,7 @@ class UserServiceImpl(IUserService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def find(self, page: int, size: int, search_term: str) -> UserPage:
         """
         Searches for users based on a search term, and returns a paginated list of users matching the criteria.
@@ -499,7 +499,7 @@ class UserServiceImpl(IUserService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def export_users_to_excel(self, user_ids: list[int]) -> bytes:
         """
         Export users to Excel format by their IDs.

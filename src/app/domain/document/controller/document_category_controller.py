@@ -20,6 +20,9 @@ from src.app.domain.document.dto.response import (
 
 from src.app.domain.document.service.interface import IDocumentCategoryService
 from src.app.domain.document.service.dependencies import get_document_category_service
+from src.app.core.exception.decorator.controller_handle_exception import (
+    controller_handle_exceptions,
+)
 
 
 router = APIRouter(prefix="/document-categories", tags=["Document Categories"])
@@ -480,6 +483,7 @@ async def update_document_category(
     "with extreme caution in production environments. The operation supports administrative cleanup of obsolete "
     "categories and taxonomy restructuring initiatives.",
 )
+@controller_handle_exceptions
 async def delete_document_category(
     document_category_id: int,
     request: Request,
@@ -496,12 +500,12 @@ async def delete_document_category(
     This endpoint allows deleting a specific document category identified by its ID. If the category is deleted
     successfully, a success message is returned. If the category is not found, a 404 error is returned.
 
+    :param request:
     :param document_category_id: The ID of the document category to delete.
-    :param request: The FastAPI request object, used for error context.
     :param current_user: The current user making the request, used for authorization.
     :param document_category_service: Service to handle the delete logic.
     :return: A success message indicating that the document category has been deleted.
     """
     return await document_category_service.delete_document_category(
-        document_category_id, request
+        document_category_id
     )

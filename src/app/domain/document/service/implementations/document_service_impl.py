@@ -5,7 +5,7 @@ import pandas as pd
 from src.app.core.helpers import datetime_helper
 from datetime import datetime
 from src.app.core.helpers import document_helper
-from src.app.core.exception.decorator import handle_exceptions
+from src.app.core.exception.decorator import service_handle_exceptions
 from src.app.core.security.auth.model import CurrentUser
 from src.app.core.schema import MessageResponse
 from src.app.core.exception import (
@@ -68,7 +68,7 @@ class DocumentServiceImpl(IDocumentService):
         self.documentary_topic_repository = documentary_topic_repository
         self.report_service = report_service
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def add_document(
         self, document_request: DocumentRequestDTO, current_user: CurrentUser
     ) -> DocumentResponseDTO:
@@ -199,7 +199,7 @@ class DocumentServiceImpl(IDocumentService):
             updated_at=created_document.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_all_documents(self) -> list[DocumentResponseDTO]:
         """
         Retrieve all documents from the repository.
@@ -228,7 +228,7 @@ class DocumentServiceImpl(IDocumentService):
             for doc in documents
         ]
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def update_document(
         self, document_id: int, document_request: DocumentRequestDTO, user_id: int
     ) -> DocumentResponseDTO:
@@ -362,7 +362,7 @@ class DocumentServiceImpl(IDocumentService):
             updated_at=updated_document.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def delete_document(self, document_id: int) -> MessageResponse:
         """
         Delete a document from the system.
@@ -401,7 +401,7 @@ class DocumentServiceImpl(IDocumentService):
                 status_code=500,
             )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_document_by_id(self, document_id: int) -> DocumentResponseDTO:
         """
         Retrieve a document by its ID.
@@ -436,7 +436,7 @@ class DocumentServiceImpl(IDocumentService):
             updated_at=document.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_documents_paginated(self, page: int, size: int) -> DocumentPage:
         """
         Retrieve documents in a paginated format.
@@ -470,7 +470,7 @@ class DocumentServiceImpl(IDocumentService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def find(self, page: int, size: int, search: str) -> DocumentPage:
         """
         Search for documents based on a search string.
@@ -512,7 +512,7 @@ class DocumentServiceImpl(IDocumentService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_document_by_registration_code(
         self, registration_code: str
     ) -> tuple[bytes, str, str]:
@@ -550,7 +550,7 @@ class DocumentServiceImpl(IDocumentService):
 
         return content, filename, content_type
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_documents_by_current_date(self, page: int, size: int) -> DocumentPage:
         """
         Retrieve documents created on the current date in a paginated format.
@@ -589,7 +589,7 @@ class DocumentServiceImpl(IDocumentService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def find_by_current_date(
         self, page: int, size: int, search: str
     ) -> DocumentPage:
@@ -640,7 +640,7 @@ class DocumentServiceImpl(IDocumentService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_document_information_by_id(
         self, document_id: int
     ) -> DocumentResponseDTO:
@@ -666,7 +666,7 @@ class DocumentServiceImpl(IDocumentService):
 
         return DocumentResponseDTO(**document_info)
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def generate_document_registration_report(
         self, document_id: int
     ) -> tuple[bytes, str]:
@@ -694,7 +694,7 @@ class DocumentServiceImpl(IDocumentService):
 
         return pdf_content, filename
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def delete_documents_by_ids(self, document_ids: list[int]) -> MessageResponse:
         """
         Delete multiple documents by their IDs.
@@ -755,7 +755,7 @@ class DocumentServiceImpl(IDocumentService):
                 status_code=500,
             )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def export_documents_to_excel(self, document_ids: list[int]) -> bytes:
         """
         Export documents to Excel format.

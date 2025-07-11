@@ -1,7 +1,7 @@
 import io
 import pandas as pd
 from datetime import datetime
-from src.app.core.exception.decorator import handle_exceptions
+from src.app.core.exception.decorator import service_handle_exceptions
 from src.app.core.helpers import datetime_helper
 from src.app.core.schema import MessageResponse
 from src.app.core.exception import (
@@ -32,7 +32,7 @@ class DepartmentServiceImpl(IDepartmentService):
         """
         self.department_repository = department_repository
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def add_department(
         self, department_request: DepartmentRequestDTO
     ) -> DepartmentResponseDTO:
@@ -65,7 +65,7 @@ class DepartmentServiceImpl(IDepartmentService):
             updated_at=created_department.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_all_departments(self) -> list[DepartmentResponseDTO]:
         """
         Retrieve all departments.
@@ -83,7 +83,7 @@ class DepartmentServiceImpl(IDepartmentService):
             for department in departments
         ]
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def update_department(
         self, department_id: int, department_request: DepartmentRequestDTO
     ) -> DepartmentResponseDTO:
@@ -129,7 +129,7 @@ class DepartmentServiceImpl(IDepartmentService):
             updated_at=updated_department.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def delete_department(self, department_id: int) -> MessageResponse:
         """
         Delete a department by its ID.
@@ -163,7 +163,7 @@ class DepartmentServiceImpl(IDepartmentService):
                 status_code=500,
             )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_department_by_id(self, department_id: int) -> DepartmentResponseDTO:
         """
         Retrieve a department by its ID.
@@ -189,7 +189,7 @@ class DepartmentServiceImpl(IDepartmentService):
             updated_at=department.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_departments_paginated(self, page: int, size: int) -> DepartmentPage:
         """
         Retrieve a paginated list of departments.
@@ -227,7 +227,7 @@ class DepartmentServiceImpl(IDepartmentService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def find(self, page: int, size: int, search_term: str) -> DepartmentPage:
         """
         Find departments based on search criteria.
@@ -275,7 +275,7 @@ class DepartmentServiceImpl(IDepartmentService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def delete_departments_by_ids(
         self, department_ids: list[int]
     ) -> MessageResponse:
@@ -331,7 +331,7 @@ class DepartmentServiceImpl(IDepartmentService):
                 status_code=500,
             )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def export_departments_to_excel(self, department_ids: list[int]) -> bytes:
         """
         Export departments to Excel format by their IDs.

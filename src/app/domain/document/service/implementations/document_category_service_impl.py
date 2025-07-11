@@ -8,7 +8,7 @@ from src.app.core.exception import (
     ConflictException,
     NotFoundException,
 )
-from src.app.core.exception.decorator import handle_exceptions
+from src.app.core.exception.decorator import service_handle_exceptions
 from src.app.domain.document.dto.request import DocumentCategoryRequestDTO
 from src.app.domain.document.dto.response import (
     DocumentCategoryPage,
@@ -35,7 +35,7 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
         """
         self.document_category_repository = document_category_repository
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def add_document_category(
         self, document_category_request: DocumentCategoryRequestDTO
     ) -> DocumentCategoryResponseDTO:
@@ -70,7 +70,7 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
             updated_at=created_document_category.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_all_document_categories(self) -> list[DocumentCategoryResponseDTO]:
         """
         Retrieve all document categories.
@@ -88,7 +88,7 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
             for document_category in document_categories
         ]
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def update_document_category(
         self,
         document_category_id: int,
@@ -141,9 +141,9 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
             updated_at=updated_document_category.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def delete_document_category(
-        self, document_category_id: int, request
+        self, document_category_id: int
     ) -> MessageResponse:
         """
         Delete a document category by its ID.
@@ -176,7 +176,7 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
                 status_code=500,
             )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_document_category_by_id(
         self, document_category_id: int
     ) -> DocumentCategoryResponseDTO:
@@ -205,7 +205,7 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
             updated_at=document_category.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_paginated_document_categories(
         self, page: int, size: int
     ) -> DocumentCategoryPage:
@@ -243,7 +243,7 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def find(
         self, page: int, size: int, search_term: str
     ) -> DocumentCategoryPage:
@@ -297,7 +297,7 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def delete_document_categories_by_ids(
         self, category_ids: list[int]
     ) -> MessageResponse:
@@ -355,7 +355,7 @@ class DocumentCategoryServiceImpl(IDocumentCategoryService):
                 status_code=500,
             )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def export_document_categories_to_excel(
         self, category_ids: list[int]
     ) -> bytes:

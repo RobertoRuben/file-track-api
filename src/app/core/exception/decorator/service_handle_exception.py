@@ -7,49 +7,50 @@ from src.app.core.exception.constants import ErrorTypes, ErrorTitles
 T = TypeVar('T')
 
 
-def handle_exceptions(
+def service_handle_exceptions(
     func: Optional[Callable[..., T]] = None,
 ) -> Callable[[Callable[..., T]], Callable[..., T]]:
     """
-    Decorator that handles exceptions in a unified way.
-    BaseHTTPException subclasses are propagated without changes.
-    Other exceptions are converted to ServerException.
-
-    Can be used with or without parentheses:
-    @handle_exceptions
-    @handle_exceptions()
+    Decorator que unifica el manejo de excepciones:
+    - Propaga sin cambiar las BaseHTTPException.
+    - Convierte otras exceptions en ServerException.
+    Permite usarse con o sin paréntesis.
     """
 
-    def decorator(func: Callable[..., T]) -> Callable[..., T]:
-        @functools.wraps(func)
+    def decorator(fn: Callable[..., T]) -> Callable[..., T]:
+        @functools.wraps(fn)
         async def wrapper(*args: Any, **kwargs: Any) -> T:
+            # Buscamos un objeto Request en args/kwargs para extraer la ruta
             request = None
             for arg in list(args) + list(kwargs.values()):
                 if hasattr(arg, 'url') and hasattr(arg, 'method'):
                     request = arg
                     break
-            if request is not None:
-                instance = request.url.path
-            else:
-                func_name = func.__name__
-                instance = f"urn:problem-instance:{func_name}"
+
+            instance = (
+                request.url.path
+                if request is not None
+                else f"urn:problem-instance:{fn.__name__}"
+            )
 
             try:
-                return await func(*args, **kwargs)
-            except BaseHTTPException as e:
-                # Si la excepción BaseHTTPException no tiene instance, la inyectamos
-                if hasattr(e, 'detail') and isinstance(e.detail, dict):
-                    if e.detail.get('instance') is None:
-                        e.detail['instance'] = instance
+                return await fn(*args, **kwargs)
+
+            except BaseHTTPException:
+                # 1) Propagamos la excepción original sin modificarla
                 raise
+
             except AttributeError as e:
+                # errores de implementación (atributo faltante, etc.)
                 raise ServerException(
-                    details=f"Implementation error: {str(e)}",
+                    details=f"Implementation error: {e}",
                     instance=instance,
                     type_=ErrorTypes.IMPLEMENTATION_ERROR,
                     title=ErrorTitles.IMPLEMENTATION_ERROR,
                 )
+
             except Exception as e:
+                # cualquier otro error en el servicio
                 raise ServerException(
                     details=str(e),
                     instance=instance,
@@ -59,7 +60,8 @@ def handle_exceptions(
 
         return wrapper
 
-    if func is not None:
-        return decorator(func)
+    # Permite usar @handle_exceptions o @handle_exceptions()
+    if func:
+        return decorator(func)  # decoramos directamente
 
     return decorator

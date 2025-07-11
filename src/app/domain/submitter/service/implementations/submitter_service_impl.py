@@ -3,7 +3,7 @@ import pandas as pd
 from datetime import datetime
 from src.app.core.helpers import datetime_helper
 from src.app.core.schema import MessageResponse
-from src.app.core.exception.decorator import handle_exceptions
+from src.app.core.exception.decorator import service_handle_exceptions
 from src.app.core.exception import (
     BadRequestException,
     ConflictException,
@@ -30,7 +30,7 @@ class SubmitterServiceImpl(ISubmitterService):
         """
         self.submitter_repository = submitter_repository
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def add_submitter(
         self, submitter_request: SubmitterRequestDTO
     ) -> SubmitterResponseDTO:
@@ -71,7 +71,7 @@ class SubmitterServiceImpl(ISubmitterService):
             updated_at=created_submitter.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_all_submitters(self) -> list[SubmitterResponseDTO]:
         """
         Retrieves all submitters from the database.
@@ -93,7 +93,7 @@ class SubmitterServiceImpl(ISubmitterService):
             for submitter in submitters
         ]
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def update_submitter(
         self, submitter_id: int, submitter_request: SubmitterRequestDTO
     ) -> SubmitterResponseDTO:
@@ -144,7 +144,7 @@ class SubmitterServiceImpl(ISubmitterService):
             updated_at=updated_submitter.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def delete_submitter(self, submitter_id: int) -> MessageResponse:
         """
         Deletes a submitter by its ID.
@@ -177,7 +177,7 @@ class SubmitterServiceImpl(ISubmitterService):
                 status_code=500,
             )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_submitter_by_id(self, submitter_id: int) -> SubmitterResponseDTO:
         """
         Retrieves a submitter by its ID.
@@ -206,7 +206,7 @@ class SubmitterServiceImpl(ISubmitterService):
             updated_at=submitter.updated_at,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def get_submitters_paginated(self, page: int, size: int) -> SubmitterPage:
         """
         Retrieves a paginated list of submitters.
@@ -247,7 +247,7 @@ class SubmitterServiceImpl(ISubmitterService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def find(self, page: int, size: int, search_term: str) -> SubmitterPage:
         """
         Searches for submitters matching the given search term.
@@ -305,7 +305,7 @@ class SubmitterServiceImpl(ISubmitterService):
             meta=page_result.meta,
         )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def delete_submitters_by_ids(
         self, submitter_ids: list[int]
     ) -> MessageResponse:
@@ -332,7 +332,7 @@ class SubmitterServiceImpl(ISubmitterService):
                 status_code=500,
             )
 
-    @handle_exceptions
+    @service_handle_exceptions
     async def export_submitters_to_excel(self, submitter_ids: list[int]) -> bytes:
         """
         Export submitters to Excel format by their IDs.
