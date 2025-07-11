@@ -1,4 +1,12 @@
-from fastapi import APIRouter, Body, Depends, Query, Security, Response
+from fastapi import (
+    APIRouter,
+    Body,
+    Depends,
+    Query,
+    Security,
+    Response,
+    Request
+)
 from src.app.core.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -7,6 +15,7 @@ from src.app.core.exception.schema import (
     UnauthorizedError,
     ForbiddenError,
 )
+from src.app.core.exception.decorator import controller_handle_exceptions
 from src.app.core.security.auth.dependencies import get_current_user
 from src.app.core.security.auth.model import CurrentUser
 from src.app.core.security.auth.constants import Scopes
@@ -54,7 +63,9 @@ submitter_tags_metadata = {
     "document processing, citizen services, and stakeholder management in administrative systems requiring "
     "secure personal information handling and identity authentication.",
 )
+@controller_handle_exceptions
 async def create_submitter(
+    request: Request,
     submitter_request: SubmitterRequestDTO,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SUBMITTER_CREATE]
@@ -68,6 +79,7 @@ async def create_submitter(
     must be provided in the request body. If the submitter is created successfully, a
     status code 201 is returned with the details of the created submitter.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param submitter_request: Request body containing the submitter data.
     :param current_user: The user creating the submitter, used for authorization.
     :param submitter_service: Service that handles the submitter creation logic.
@@ -96,7 +108,9 @@ async def create_submitter(
     "workflows, administrative coordination, and stakeholder relationship management requiring complete personal "
     "information access and identity verification capabilities for governmental operations.",
 )
+@controller_handle_exceptions
 async def get_all_submitters(
+    request: Request,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SUBMITTER_READ]
     ),
@@ -108,6 +122,7 @@ async def get_all_submitters(
     This endpoint returns a list of all available submitters in the system. The response will include
     all submitters stored in the database.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param current_user: The user requesting the submitters, used for authorization.
     :param submitter_service: Service to handle the query and retrieve all submitters.
     :return: A list of submitters in the system.
@@ -132,7 +147,9 @@ async def get_all_submitters(
     "user experience through controlled data loading. Essential for governmental systems managing extensive "
     "citizen databases requiring responsive navigation and privacy-compliant data handling.",
 )
+@controller_handle_exceptions
 async def get_paginated_submitters(
+    request: Request,
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of submitters per page"),
     current_user: CurrentUser = Security(
@@ -146,6 +163,7 @@ async def get_paginated_submitters(
     This endpoint allows retrieving submitters in a paginated format. The user can specify the page number
     and the number of submitters per page to optimize the query and reduce data overload.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param page: The page number to retrieve.
     :param size: The number of submitters to return per page.
     :param current_user: The user requesting the submitters, used for authorization.
@@ -173,7 +191,9 @@ async def get_paginated_submitters(
     "maintaining privacy compliance. Supports complex search scenarios including partial matches and case-"
     "insensitive queries for enhanced citizen identification and administrative efficiency.",
 )
+@controller_handle_exceptions
 async def find_submitters(
+    request: Request,
     search_term: str | None = Query(
         None, description="Search term to filter submitters"
     ),
@@ -190,6 +210,7 @@ async def find_submitters(
     This endpoint allows searching for submitters based on a given search term. The results are returned
     in a paginated format, where the user can specify the page number and the number of results per page.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param search_term: A term to search within submitter names, surnames or DNI.
     :param page: The page number to retrieve.
     :param size: The number of results per page.
@@ -218,7 +239,9 @@ async def find_submitters(
     "citizen data management. Validates all submitter IDs, maintains referential integrity, and provides "
     "comprehensive audit trails for mass administrative operations and data cleanup workflows.",
 )
+@controller_handle_exceptions
 async def delete_submitters_bulk(
+    request: Request,
     submitter_ids: list[int] = Body(
         ..., description="List of submitter IDs for bulk deletion operation"
     ),
@@ -235,6 +258,7 @@ async def delete_submitters_bulk(
     validation, maintains system integrity, and provides detailed audit trails for
     compliance and organizational record-keeping requirements.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param submitter_ids: List of unique submitter identifiers for bulk deletion
     :param current_user: Authenticated user with bulk submitter deletion privileges
     :param submitter_service: Service layer handling complex bulk deletion logic
@@ -262,7 +286,9 @@ async def delete_submitters_bulk(
     "for administrative analytics, compliance reporting, and external system integration. Provides formatted spreadsheets "
     "with professional layouts, complete submitter information, and optimized data structures for governmental analysis.",
 )
+@controller_handle_exceptions
 async def export_submitters_to_excel(
+    request: Request,
     submitter_ids: list[int] = Body(
         ..., description="List of submitter IDs for Excel export generation"
     ),
@@ -279,6 +305,7 @@ async def export_submitters_to_excel(
     analytics, compliance reporting, external system integration, and strategic citizen
     data management initiatives.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param submitter_ids: List of submitter identifiers for selective data export
     :param current_user: Authenticated user with submitter read privileges for audit tracking
     :param submitter_service: Service layer handling Excel generation and data formatting
@@ -317,7 +344,9 @@ async def export_submitters_to_excel(
     "for identity verification workflows, citizen service provision, and administrative processes requiring "
     "precise personal identification and privacy-compliant data access.",
 )
+@controller_handle_exceptions
 async def get_submitter_by_id(
+    request: Request,
     submitter_id: int,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SUBMITTER_READ]
@@ -330,6 +359,7 @@ async def get_submitter_by_id(
     This endpoint retrieves the details of a specific submitter identified by its ID. If the submitter is found,
     the submitter's data is returned. If not, a 404 error is returned.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param submitter_id: The ID of the submitter to retrieve
     :param current_user: The user requesting the submitter, used for authorization.
     :param submitter_service: Service to handle the query and retrieve the submitter
@@ -360,7 +390,9 @@ async def get_submitter_by_id(
     "rules, and preserving audit trails. Enables secure personal information management through controlled "
     "modification workflows with change tracking for governmental administrative oversight and privacy compliance.",
 )
+@controller_handle_exceptions
 async def update_submitter(
+    request: Request,
     submitter_id: int,
     submitter_request: SubmitterRequestDTO,
     current_user: CurrentUser = Security(
@@ -375,6 +407,7 @@ async def update_submitter(
     is updated successfully, the updated submitter data is returned. If the submitter is not found,
     a 404 error is returned.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param submitter_id: The ID of the submitter to update.
     :param submitter_request: The new data for the submitter.
     :param current_user: The user updating the submitter, used for authorization.
@@ -406,7 +439,9 @@ async def update_submitter(
     "requirements and audit trail preservation for regulated personal data management. ⚠️ WARNING: This operation "
     "permanently removes the submitter and may affect document submissions.",
 )
+@controller_handle_exceptions
 async def delete_submitter(
+    request: Request,
     submitter_id: int,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.SUBMITTER_DELETE]
@@ -419,6 +454,7 @@ async def delete_submitter(
     This endpoint allows deleting a specific submitter identified by its ID. If the submitter is deleted
     successfully, a success message is returned. If the submitter is not found, a 404 error is returned.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param submitter_id: The ID of the submitter to delete.
     :param current_user: The user deleting the submitter, used for authorization.
     :param submitter_service: Service to handle the delete logic.
