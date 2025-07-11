@@ -1,5 +1,15 @@
 from io import BytesIO
-from fastapi import APIRouter, Depends, Query, Security, UploadFile, File, Form
+from fastapi import (
+    APIRouter,
+    Depends,
+    Query,
+    Security,
+    UploadFile,
+    File,
+    Form,
+    Body,
+    Response,
+)
 from fastapi.responses import StreamingResponse
 from typing import Optional
 from src.app.core.exception.schema import (
@@ -341,6 +351,82 @@ async def search_documents_by_current_date(
     :return: A paginated list of today's documents that match the search term
     """
     return await document_service.find_by_current_date(page, size, search)
+
+
+@router.delete(
+    "/bulk",
+    response_model=MessageResponse,
+    summary="Delete multiple documents",
+    responses={
+        200: {
+            "model": MessageResponse,
+            "description": "Documents deleted successfully",
+        },
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        404: {"model": NotFoundError, "description": "One or more documents not found"},
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Deletes multiple documents by their IDs in a single operation. All-or-nothing: if any document is not found, the operation is aborted.",
+)
+async def delete_documents_bulk(
+    document_ids: list[int] = Body(..., description="List of document IDs to delete"),
+    current_user: CurrentUser = Security(
+        get_current_user, scopes=[Scopes.DOCUMENT_DELETE]
+    ),
+    document_service: IDocumentService = Depends(get_document_service),
+) -> MessageResponse:
+    """
+    Endpoint to delete multiple documents by their IDs.
+    """
+    return await document_service.delete_documents_by_ids(document_ids)
+
+
+@router.post(
+    "/export-excel",
+    summary="Export documents to Excel",
+    responses={
+        200: {
+            "description": "Excel file with documents",
+            "content": {
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet": {
+                    "schema": {"type": "string", "format": "binary"}
+                }
+            },
+        },
+        400: {"model": BackRequestError, "description": "Bad request error"},
+        401: {"model": UnauthorizedError, "description": "Unauthorized access"},
+        403: {"model": ForbiddenError, "description": "Forbidden access"},
+        404: {"model": NotFoundError, "description": "One or more documents not found"},
+        500: {"model": InternalServerError, "description": "Internal server error"},
+    },
+    description="Exports selected documents to a formatted Excel file for download.",
+)
+async def export_documents_to_excel(
+    document_ids: list[int] = Body(..., description="List of document IDs to export"),
+    current_user: CurrentUser = Security(
+        get_current_user, scopes=[Scopes.DOCUMENT_READ]
+    ),
+    document_service: IDocumentService = Depends(get_document_service),
+) -> Response:
+    """
+    Endpoint to export documents to Excel format.
+    """
+    excel_data = await document_service.export_documents_to_excel(document_ids)
+    from datetime import datetime
+
+    current_datetime = datetime.now().strftime("%Y%m%d_%H%M%S")
+    filename = f"documents_{current_datetime}.xlsx"
+    headers = {
+        "Content-Disposition": f"attachment; filename={filename}",
+        "Content-Type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    }
+    return Response(
+        content=excel_data,
+        headers=headers,
+        media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
 
 
 @router.get(

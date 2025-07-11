@@ -1,5 +1,8 @@
+import io
 import os
 import mimetypes
+import pandas as pd
+from src.app.core.helpers import datetime_helper
 from datetime import datetime
 from src.app.core.helpers import document_helper
 from src.app.core.exception.decorator import handle_exceptions
@@ -690,3 +693,140 @@ class DocumentServiceImpl(IDocumentService):
         filename = f"{document_info.registration_code}_{current_datetime}.pdf"
 
         return pdf_content, filename
+
+    @handle_exceptions
+    async def delete_documents_by_ids(self, document_ids: list[int]) -> MessageResponse:
+        """
+        Delete multiple documents by their IDs.
+
+        :param document_ids: List of document IDs to delete
+        :return: MessageResponse indicating the result
+        :raises NotFoundException: If any of the documents with the given IDs do not exist
+        :raises BadRequestException: If the list is empty or contains invalid IDs
+        """
+        if len(document_ids) == 0:
+            raise BadRequestException(
+                message="No document IDs provided",
+                details="Please provide a list of document IDs to delete.",
+            )
+
+        invalid_ids = [id for id in document_ids if id <= 0]
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid document IDs",
+                details=f"Document IDs must be greater than 0. Invalid IDs: {invalid_ids}.",
+            )
+
+        documents = await self.document_repository.find_by_ids(document_ids)
+
+        found_ids = {
+            doc["id"] if isinstance(doc, dict) else doc.id for doc in documents
+        }
+
+        missing_ids = [id for id in document_ids if id not in found_ids]
+
+        if missing_ids:
+            raise NotFoundException(
+                message="Documents not found",
+                details=f"Documents with IDs {missing_ids} not found. Cannot proceed with deletion.",
+            )
+
+        for doc in documents:
+            storage_path = (
+                doc["storage_path"] if isinstance(doc, dict) else doc.storage_path
+            )
+            if storage_path and os.path.exists(storage_path):
+                os.remove(storage_path)
+
+        resp = await self.document_repository.delete_by_ids(document_ids)
+
+        if resp is True:
+            return MessageResponse(
+                message="Documents deleted successfully.",
+                success=True,
+                details=f"Documents with IDs {document_ids} deleted successfully.",
+                status_code=200,
+            )
+        else:
+            return MessageResponse(
+                message="Failed to delete documents.",
+                success=False,
+                details=f"Documents with IDs {document_ids} could not be deleted.",
+                status_code=500,
+            )
+
+    @handle_exceptions
+    async def export_documents_to_excel(self, document_ids: list[int]) -> bytes:
+        """
+        Export documents to Excel format.
+
+        :param document_ids: List of document IDs to export
+        :return: Excel file content as bytes
+        :raises NotFoundException: If any of the documents with the given IDs do not exist
+        :raises BadRequestException: If the list is empty or contains invalid IDs
+        """
+
+        if len(document_ids) == 0:
+            raise BadRequestException(
+                message="No document IDs provided",
+                details="Please provide a list of document IDs to export.",
+            )
+
+        invalid_ids = [id for id in document_ids if id <= 0]
+
+        if invalid_ids:
+            raise BadRequestException(
+                message="Invalid document IDs",
+                details=f"Document IDs must be greater than 0. Invalid IDs: {invalid_ids}.",
+            )
+
+        documents = await self.document_repository.find_by_ids(document_ids)
+
+        found_ids = {
+            doc["id"] if isinstance(doc, dict) else doc.id for doc in documents
+        }
+
+        missing_ids = [id for id in document_ids if id not in found_ids]
+
+        if missing_ids:
+            raise NotFoundException(
+                message="Documents not found",
+                details=f"Documents with IDs {missing_ids} not found. Cannot proceed with export.",
+            )
+
+        docs_data = [
+            {
+                "ID": doc.id if not isinstance(doc, dict) else doc["id"],
+                "Registration Code": (
+                    doc.registration_code
+                    if not isinstance(doc, dict)
+                    else doc["registration_code"]
+                ),
+                "Title": doc.title if not isinstance(doc, dict) else doc["title"],
+                "Subject": doc.subject if not isinstance(doc, dict) else doc["subject"],
+                "Pages": doc.pages if not isinstance(doc, dict) else doc["pages"],
+                "Size (bytes)": doc.size if not isinstance(doc, dict) else doc["size"],
+                "Created At": datetime_helper.to_lima_timezone(
+                    doc.created_at if not isinstance(doc, dict) else doc["created_at"]
+                ),
+                "Updated At": datetime_helper.to_lima_timezone(
+                    doc.updated_at if not isinstance(doc, dict) else doc["updated_at"]
+                ),
+            }
+            for doc in documents
+        ]
+
+        df = pd.DataFrame(docs_data)
+
+        output = io.BytesIO()
+
+        with pd.ExcelWriter(output, engine="xlsxwriter") as writer:
+            df.to_excel(writer, index=False, sheet_name="Documents")
+
+            worksheet = writer.sheets["Documents"]
+            for i, col in enumerate(df.columns):
+                max_length = max(df[col].astype(str).map(len).max(), len(col)) + 2
+                worksheet.set_column(i, i, max_length)
+
+        output.seek(0)
+        return output.getvalue()

@@ -159,3 +159,27 @@ class IDocumentService(ABC):
         :raises NotFoundException: Si el documento no existe
         """
         pass
+
+    @abstractmethod
+    async def delete_documents_by_ids(self, document_ids: list[int]) -> MessageResponse:
+        """
+        Delete multiple documents by their IDs.
+
+        :param document_ids: List of document IDs to delete
+        :return: A MessageResponse indicating the result of the deletion
+        :raises NotFoundException: If none of the documents with the given IDs exist
+        :raises BadRequestException: If the document_ids list is empty
+        """
+        pass
+
+    @abstractmethod
+    async def export_documents_to_excel(self, document_ids: list[int]) -> bytes:
+        """
+        Export documents to an Excel file.
+
+        :param document_ids: List of document IDs to include in the export
+        :return: Bytes representing the Excel file content
+        :raises NotFoundException: If none of the documents with the given IDs exist
+        :raises BadRequestException: If the document_ids list is empty
+        """
+        pass

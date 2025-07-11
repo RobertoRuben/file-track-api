@@ -4,13 +4,14 @@ from typing import Any
 
 from sqlmodel import select, func, or_, and_, cast, String, literal
 from sqlmodel.ext.asyncio.session import AsyncSession
+
 from src.app.core.db.decorator import transactional
 from src.app.core.exception import InvalidFieldException
 from src.app.core.schema import Page, Pagination
 from src.app.domain.document.model import Document, DocumentCategory, DocumentaryTopic
 from src.app.domain.document.repository.interface import IDocumentRepository
-from src.app.domain.submitter.model import Submitter
 from src.app.domain.location.model import Hamlet, Settlement
+from src.app.domain.submitter.model import Submitter
 from src.app.domain.user.model import User
 
 
@@ -624,3 +625,73 @@ class DocumentRepositoryImpl(IDocumentRepository):
         results = await self.session.exec(stmt)
         document_data = results.first()
         return dict(document_data._mapping) if document_data else None
+
+    @transactional(readonly=False)
+    async def delete_by_ids(self, document_ids: list[int]) -> bool:
+        """
+        Delete multiple documents from the database by their IDs.
+        :param document_ids: List of document IDs to delete
+        :return: True if all documents were successfully deleted, False otherwise
+
+        :raises DatabaseException: If an error occurs during the deletion process
+        """
+        stmt = select(Document).where(Document.id.in_(document_ids))
+        results = await self.session.exec(stmt)
+        documents = results.all()
+
+        found_ids = {document.id for document in documents}
+        if len(found_ids) != len(document_ids):
+            return False
+
+        for document in documents:
+            await self.session.delete(document)
+
+        return True
+
+    @transactional(readonly=True)
+    async def find_by_ids(self, document_ids: list[int]) -> list[Document]:
+        if not document_ids:
+            return []
+
+        stmt = (
+            select(
+                Document.id,
+                Document.registration_code,
+                Document.title,
+                Document.subject,
+                Document.pages,
+                Document.storage_path,
+                Document.size,
+                Submitter.dni.label("submitter_dni"),
+                func.concat(
+                    Submitter.paternal_surname,
+                    literal(' '),
+                    Submitter.maternal_surname,
+                    literal(' '),
+                    Submitter.names,
+                ).label("submitter_names"),
+                DocumentCategory.name.label("document_category_name"),
+                DocumentaryTopic.name.label("documentary_topic_name"),
+                Hamlet.name.label("hamlet_name"),
+                Settlement.name.label("settlement_name"),
+                User.username.label("registered_by_username"),
+                Document.created_at,
+                Document.updated_at,
+            )
+            .join(Submitter, Submitter.id == Document.submitter_id)
+            .join(
+                DocumentCategory, DocumentCategory.id == Document.document_category_id
+            )
+            .join(
+                DocumentaryTopic, DocumentaryTopic.id == Document.documentary_topic_id
+            )
+            .outerjoin(Hamlet, Hamlet.id == Document.hamlet_id)
+            .join(Settlement, Settlement.id == Document.settlement_id)
+            .join(User, User.id == Document.registered_by_user_id)
+            .where(Document.id.in_(document_ids))
+        )
+
+        results = await self.session.exec(stmt)
+        documents_data = [dict(row._mapping) for row in results]
+
+        return documents_data
