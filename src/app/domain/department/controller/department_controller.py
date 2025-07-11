@@ -1,5 +1,13 @@
 from datetime import datetime
-from fastapi import APIRouter, Depends, Query, Security, Body, Response
+from fastapi import (
+    APIRouter,
+    Depends,
+    Query,
+    Security,
+    Body,
+    Response,
+    Request
+)
 from src.app.core.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -8,6 +16,7 @@ from src.app.core.exception.schema import (
     UnauthorizedError,
     ForbiddenError,
 )
+from src.app.core.exception.decorator import controller_handle_exceptions
 from src.app.core.schema import MessageResponse
 from src.app.core.security.auth.constants import Scopes
 from src.app.core.security.auth.model import CurrentUser
@@ -54,7 +63,9 @@ department_tags_metadata = {
     "relationships, and administrative workflows. The created department becomes immediately available for "
     "employee associations and organizational management operations throughout the system.",
 )
+@controller_handle_exceptions
 async def create_department(
+    request: Request,
     department_request: DepartmentRequestDTO,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_CREATE]
@@ -68,6 +79,7 @@ async def create_department(
     must be provided in the request body. If the department is created successfully, a
     status code 201 is returned with the details of the created department.
 
+    :param request: FastAPI Request object, used to extract the controller route path where the exception occurred.
     :param department_request: Request body containing the department data.
     :param current_user: The current user making the request, used for authorization.
     :param department_service: Service that handles the department creation logic.
@@ -97,7 +109,9 @@ async def create_department(
     "This data supports various business processes including HR management, workflow routing, and departmental "
     "reporting requirements throughout the organization.",
 )
+@controller_handle_exceptions
 async def get_all_departments(
+    request: Request,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_READ]
     ),
@@ -109,6 +123,7 @@ async def get_all_departments(
     This endpoint returns a list of all available departments in the system. The response will include
     all departments stored in the database.
 
+    :param request: FastAPI Request object, used to extract the controller route path where the exception occurred.
     :param current_user: The current user making the request, used for authorization.
     :param department_service: Service to handle the query and retrieve all departments.
     :return: A list of departments in the system.
@@ -134,7 +149,9 @@ async def get_all_departments(
     "enhances application responsiveness when managing extensive organizational hierarchies and enables smooth "
     "navigation through large departmental datasets in management dashboards and organizational tools.",
 )
+@controller_handle_exceptions
 async def get_paginated_departments(
+    request: Request,
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of departments per page"),
     current_user: CurrentUser = Security(
@@ -148,6 +165,7 @@ async def get_paginated_departments(
     This endpoint allows retrieving departments in a paginated format. The user can specify the page number
     and the number of departments per page to optimize the query and reduce data overload.
 
+    :param request: FastAPI Request object, used to extract the controller route path where the exception occurred.
     :param page: The page number to retrieve.
     :param size: The number of departments to return per page.
     :param current_user: The current user making the request, used for authorization.
@@ -177,7 +195,9 @@ async def get_paginated_departments(
     "and department discovery tools. Results are delivered in paginated format with configurable page sizes to "
     "maintain optimal performance regardless of organizational complexity.",
 )
+@controller_handle_exceptions
 async def find_departments(
+    request: Request,
     search_term: str | None = Query(
         None, description="Search term to filter departments"
     ),
@@ -194,6 +214,7 @@ async def find_departments(
     This endpoint allows searching for departments based on a given search term. The results are returned
     in a paginated format, where the user can specify the page number and the number of results per page.
 
+    :param request: FastAPI Request object, used to extract the controller route path where the exception occurred.
     :param search_term: A term to search within department names.
     :param page: The page number to retrieve.
     :param size: The number of results per page.
@@ -231,7 +252,9 @@ async def find_departments(
     "verifies interdepartmental relationships, and confirms user permissions. This operation permanently affects "
     "the organizational structure and may impact employee assignments and departmental workflows throughout the system.",
 )
+@controller_handle_exceptions
 async def delete_departments_bulk(
+    request: Request,
     department_ids: list[int] = Body(
         ..., description="List of department IDs to delete"
     ),
@@ -245,6 +268,7 @@ async def delete_departments_bulk(
 
     This endpoint allows deleting multiple departments in a single operation by providing their IDs.
 
+    :param request: FastAPI Request object, used to extract the controller route path where the exception occurred.
     :param department_ids: List of IDs of departments to delete
     :param current_user: The user performing the operation, used for authorization
     :param department_service: Service to handle the deletion logic
@@ -274,7 +298,9 @@ async def delete_departments_bulk(
     "to ensure uniqueness and provide audit trails. This functionality supports organizational reporting requirements, "
     "compliance documentation, and stakeholder communication needs.",
 )
+@controller_handle_exceptions
 async def export_departments_to_excel(
+    request: Request,
     department_ids: list[int] = Body(
         ..., description="List of department IDs to export"
     ),
@@ -288,6 +314,7 @@ async def export_departments_to_excel(
 
     This endpoint exports the selected departments to an Excel file format.
 
+    :param request: FastAPI Request object, used to extract the controller route path where the exception occurred.
     :param department_ids: List of IDs of departments to export
     :param current_user: The user performing the export, used for authorization
     :param department_service: Service to handle the export logic
@@ -326,7 +353,9 @@ async def export_departments_to_excel(
     "populating department edit forms, supporting organizational reporting, and providing context for employee "
     "management and interdepartmental operations.",
 )
+@controller_handle_exceptions
 async def get_department_by_id(
+    request: Request,
     department_id: int,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_READ]
@@ -339,6 +368,7 @@ async def get_department_by_id(
     This endpoint retrieves the details of a specific department identified by its ID. If the department is found,
     the department's data is returned. If not, a 404 error is returned.
 
+    :param request: FastAPI Request object, used to extract the controller route path where the exception occurred.
     :param department_id: The ID of the department to retrieve.
     :param current_user: The current user making the request, used for authorization.
     :param department_service: Service to handle the query and retrieve the department.
@@ -371,7 +401,9 @@ async def get_department_by_id(
     "timestamps. Changes are immediately reflected throughout the system, affecting employee associations, "
     "organizational charts, and departmental reporting structures.",
 )
+@controller_handle_exceptions
 async def update_department(
+    request: Request,
     department_id: int,
     department_request: DepartmentRequestDTO,
     current_user: CurrentUser = Security(
@@ -386,6 +418,7 @@ async def update_department(
     is updated successfully, the updated department data is returned. If the department is not found,
     a 404 error is returned.
 
+    :param request: FastAPI Request object, used to extract the controller route path where the exception occurred.
     :param department_id: The ID of the department to update.
     :param department_request: The new data for the department.
     :param current_user: The current user making the request, used for authorization.
@@ -418,7 +451,9 @@ async def update_department(
     "operation, potentially requiring reassignment to other departments. This endpoint requires elevated administrative "
     "privileges and should be used with extreme caution in production environments.",
 )
+@controller_handle_exceptions
 async def delete_department(
+    request: Request,
     department_id: int,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DEPARTMENT_DELETE]
@@ -431,6 +466,7 @@ async def delete_department(
     This endpoint allows deleting a specific department identified by its ID. If the department is deleted
     successfully, a success message is returned. If the department is not found, a 404 error is returned.
 
+    :param request: FastAPI Request object, used to extract the controller route path where the exception occurred.
     :param department_id: The ID of the department to delete.
     :param current_user: The current user making the request, used for authorization.
     :param department_service: Service to handle the delete logic.
