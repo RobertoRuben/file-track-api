@@ -42,7 +42,7 @@ class DepartmentRepositoryImpl(IDepartmentRepository):
         :return: A list of all Department entities
         :raises: DatabaseException: If an error occurs while retrieving departments
         """
-        stmt = select(Department)
+        stmt = select(Department).order_by(Department.id)
         results = await self.session.exec(stmt)
         departments = results.all()
         return list(departments)
@@ -85,7 +85,7 @@ class DepartmentRepositoryImpl(IDepartmentRepository):
         :raises: DatabaseException: If an error occurs during the paginated query
         """
         offset = (page - 1) * size
-        stmt = select(Department)
+        stmt = select(Department).order_by(Department.id)
         stmt = stmt.offset(offset).limit(size)
         results = await self.session.exec(stmt)
         departments = list(results.all())
