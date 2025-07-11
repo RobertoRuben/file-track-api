@@ -6,6 +6,7 @@ from fastapi import (
     Security,
     Body,
     Response,
+    Request
 )
 from src.app.core.exception.schema import (
     BackRequestError,
@@ -15,6 +16,7 @@ from src.app.core.exception.schema import (
     UnauthorizedError,
     ForbiddenError,
 )
+from src.app.core.exception.decorator import controller_handle_exceptions
 from src.app.core.security.auth.constants import Scopes
 from src.app.core.security.auth.model import CurrentUser
 from src.app.core.security.auth.dependencies import get_current_user
@@ -61,7 +63,9 @@ position_tags_metadata = {
     "and establishes a new role definition that can be assigned to employees. Position names must "
     "be descriptive and follow organizational naming conventions to maintain clarity in HR management.",
 )
+@controller_handle_exceptions
 async def create_position(
+    request: Request,
     position_request: PositionRequestDTO,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.POSITION_CREATE]
@@ -76,6 +80,7 @@ async def create_position(
     The system validates that position names are unique to prevent confusion in HR management.
     Created positions can immediately be assigned to employees and integrated into reporting structures.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param position_request: Complete position data including name and description
     :param current_user: Authenticated user with position creation privileges
     :param position_service: Service layer handling position creation logic
@@ -103,7 +108,9 @@ async def create_position(
     "Essential for HR operations, employee assignments, and organizational reporting. "
     "Results include both active and inactive positions for complete organizational visibility.",
 )
+@controller_handle_exceptions
 async def get_all_positions(
+    request: Request,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.POSITION_READ]
     ),
@@ -117,6 +124,7 @@ async def get_all_positions(
     organizational planning. The response includes comprehensive position information
     necessary for maintaining accurate reporting relationships and job classifications.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param current_user: Authenticated user with position read privileges
     :param position_service: Service layer handling position retrieval operations
     :return: Complete list of all organizational positions with full details
@@ -140,7 +148,9 @@ async def get_all_positions(
     "Includes total count metadata for accurate pagination controls and enhanced user experience. "
     "Ideal for position selection interface and large-scale organizational management tools.",
 )
+@controller_handle_exceptions
 async def get_paginated_positions(
+    request: Request,
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of positions per page"),
     current_user: CurrentUser = Security(
@@ -156,6 +166,7 @@ async def get_paginated_positions(
     pagination metadata for building responsive user interface and maintaining
     optimal system performance during position browsing and selection operations.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param page: Target page number (1-based indexing)
     :param size: Maximum number of positions per page (recommended: 10-50)
     :param current_user: Authenticated user with position read access
@@ -182,7 +193,9 @@ async def get_paginated_positions(
     "Returns paginated results with relevance ranking for efficient position discovery. "
     "Essential for HR operations, employee assignment workflows, and organizational analysis.",
 )
+@controller_handle_exceptions
 async def find_positions(
+    request: Request,
     search_term: str | None = Query(
         None, description="Search term to filter positions"
     ),
@@ -201,6 +214,7 @@ async def find_positions(
     supporting both exact and partial matches for comprehensive result coverage.
     Essential for HR workflows requiring quick position identification and selection.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param search_term: Text query for position name matching (optional)
     :param page: Result page number for pagination navigation
     :param size: Maximum positions per page (optimized for UI performance)
@@ -230,7 +244,9 @@ async def find_positions(
     "Implements transactional processing to ensure organizational integrity and provides "
     "detailed feedback on operation success. Critical operation requiring elevated permissions.",
 )
+@controller_handle_exceptions
 async def delete_positions_bulk(
+    request: Request,
     position_ids: list[int] = Body(..., description="List of position IDs to delete"),
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.POSITION_DELETE]
@@ -246,6 +262,7 @@ async def delete_positions_bulk(
     before proceeding with deletion. Maintains organizational integrity throughout
     the bulk operation process.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param position_ids: List of unique identifiers for positions to delete
     :param current_user: Authenticated user with bulk deletion privileges
     :param position_service: Service layer handling bulk deletion logic
@@ -271,7 +288,9 @@ async def delete_positions_bulk(
     "and organizational metadata. Ideal for HR reporting, organizational analysis, compliance documentation, "
     "and external reporting requirements. Supports bulk export with optimized file generation.",
 )
+@controller_handle_exceptions
 async def export_positions_to_excel(
+    request: Request,
     position_ids: list[int] = Body(..., description="List of position IDs to export"),
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.POSITION_READ]
@@ -286,6 +305,7 @@ async def export_positions_to_excel(
     The generated files include complete position metadata, organizational context,
     and formatting optimized for business use and external sharing.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param position_ids: List of unique identifiers for positions to include in export
     :param current_user: Authenticated user with position export privileges
     :param position_service: Service layer handling Excel generation logic
@@ -321,7 +341,9 @@ async def export_positions_to_excel(
     "Essential for position verification, employee assignment processes, and detailed organizational reporting. "
     "Returns full position context for administrative and HR management operations.",
 )
+@controller_handle_exceptions
 async def get_position_by_id(
+    request: Request,
     position_id: int,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.POSITION_READ]
@@ -336,6 +358,7 @@ async def get_position_by_id(
     context, including employee assignment verification, organizational reporting,
     and administrative workflows requiring position validation.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param position_id: Unique identifier for the target position
     :param current_user: Authenticated user with position read permissions
     :param position_service: Service layer handling position retrieval logic
@@ -365,7 +388,9 @@ async def get_position_by_id(
     "Includes comprehensive validation to prevent conflicts and ensures consistent organizational structure. "
     "Changes are immediately reflected in all dependent systems and reporting structures.",
 )
+@controller_handle_exceptions
 async def update_position(
+    request: Request,
     position_id: int,
     position_request: PositionRequestDTO,
     current_user: CurrentUser = Security(
@@ -381,6 +406,7 @@ async def update_position(
     remain unique and that changes don't create conflicts with existing assignments or
     reporting structures. All updates are immediately reflected across dependent systems.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param position_id: Unique identifier of the position to update
     :param position_request: New position data including updated name and details
     :param current_user: Authenticated user with position modification privileges
@@ -410,7 +436,9 @@ async def update_position(
     "Ensures no active employee assignments exist before allowing removal. Operation is irreversible "
     "and maintains complete audit trail for compliance and organizational tracking purposes.",
 )
+@controller_handle_exceptions
 async def delete_position(
+    request: Request,
     position_id: int,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.POSITION_DELETE]
@@ -425,6 +453,7 @@ async def delete_position(
     assignments exist before allowing removal, preventing orphaned data and maintaining
     consistent reporting structures. This is a destructive operation that cannot be undone.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param position_id: Unique identifier of the position to remove
     :param current_user: Authenticated user with position deletion privileges
     :param position_service: Service layer handling deletion logic and validation

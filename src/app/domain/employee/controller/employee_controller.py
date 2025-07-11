@@ -1,5 +1,13 @@
 from datetime import datetime
-from fastapi import APIRouter, Depends, Query, Security, Body, Response
+from fastapi import (
+    APIRouter,
+    Depends,
+    Query,
+    Security,
+    Body,
+    Response,
+    Request
+)
 from src.app.core.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -8,6 +16,7 @@ from src.app.core.exception.schema import (
     UnauthorizedError,
     ForbiddenError,
 )
+from src.app.core.exception.decorator import controller_handle_exceptions
 from src.app.core.security.auth.constants import Scopes
 from src.app.core.security.auth.model import CurrentUser
 from src.app.core.security.auth.dependencies import get_current_user
@@ -55,7 +64,9 @@ employee_tags_metadata = {
     "to ensure organizational integrity. Establishes the foundational employment relationship within "
     "the company structure for HR management and operational workflows.",
 )
+@controller_handle_exceptions
 async def create_employee(
+    request: Request,
     employee_request: EmployeeRequestDTO,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.EMPLOYEE_CREATE]
@@ -70,6 +81,7 @@ async def create_employee(
     including DNI uniqueness, department and position validity, and organizational constraints.
     Created employees are immediately integrated into the HR system and organizational structure.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param employee_request: Complete employee data including personal and organizational information
     :param current_user: Authenticated user with employee creation privileges
     :param employee_service: Service layer handling employee creation and validation logic
@@ -96,7 +108,9 @@ async def create_employee(
     "information, departmental assignments, and position details. Provides a complete HR overview for "
     "organizational management, reporting purposes, and strategic workforce planning initiatives.",
 )
+@controller_handle_exceptions
 async def get_all_employees(
+    request: Request,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.EMPLOYEE_READ]
     ),
@@ -110,6 +124,7 @@ async def get_all_employees(
     and position details. Essential for HR management, organizational reporting, and
     strategic workforce planning initiatives.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param current_user: Authenticated user with employee read privileges for audit tracking
     :param employee_service: Service layer handling comprehensive employee data retrieval
     :return: Complete list of all employee records with full organizational context
@@ -132,7 +147,9 @@ async def get_all_employees(
     "organizational datasets. Enables systematic navigation through employee directories with configurable "
     "page sizes, supporting HR dashboards, reporting systems, and large-scale employee data management workflows.",
 )
+@controller_handle_exceptions
 async def get_paginated_employees(
+    request: Request,
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of employees per page"),
     current_user: CurrentUser = Security(
@@ -148,6 +165,7 @@ async def get_paginated_employees(
     for applications handling extensive employee databases while maintaining complete
     data integrity and comprehensive employee information.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param page: Page number for systematic navigation through employee records
     :param size: Number of employees per page for optimized data loading
     :param current_user: Authenticated user with employee read privileges
@@ -173,7 +191,9 @@ async def get_paginated_employees(
     "with intelligent matching algorithms. Supports HR personnel location, directory searches, and workforce "
     "analytics with paginated results for efficient large-scale employee discovery and management workflows.",
 )
+@controller_handle_exceptions
 async def find_employees(
+    request: Request,
     search_term: str | None = Query(
         None, description="Search term to filter employees"
     ),
@@ -192,6 +212,7 @@ async def find_employees(
     personal identification, names, and other relevant employee data fields, delivering
     paginated results for optimal performance and user experience.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param search_term: Intelligent search term for employee discovery across multiple fields
     :param page: Page number for systematic navigation through search results
     :param size: Number of search results per page for optimal performance
@@ -220,7 +241,9 @@ async def find_employees(
     "organizational restructuring. Validates all employee IDs, maintains referential integrity, and provides "
     "comprehensive audit trails for mass HR operations and organizational cleanup workflows.",
 )
+@controller_handle_exceptions
 async def delete_employees_bulk(
+    request: Request,
     employee_ids: list[int] = Body(
         ..., description="List of employee IDs for bulk deletion operation"
     ),
@@ -237,6 +260,7 @@ async def delete_employees_bulk(
     validation, maintains system integrity, and provides detailed audit trails for
     compliance and organizational record-keeping requirements.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param employee_ids: List of unique employee identifiers for bulk deletion
     :param current_user: Authenticated user with bulk employee deletion privileges
     :param employee_service: Service layer handling complex bulk deletion logic
@@ -264,7 +288,9 @@ async def delete_employees_bulk(
     "for HR analytics, compliance reporting, and external system integration. Provides formatted spreadsheets "
     "with professional layouts, complete employee information, and optimized data structures for business analysis.",
 )
+@controller_handle_exceptions
 async def export_employees_to_excel(
+    request: Request,
     employee_ids: list[int] = Body(
         ..., description="List of employee IDs for Excel export generation"
     ),
@@ -281,6 +307,7 @@ async def export_employees_to_excel(
     details. Optimized for HR analytics, compliance reporting, external system
     integration, and strategic workforce planning initiatives.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param employee_ids: List of employee identifiers for selective data export
     :param current_user: Authenticated user with employee read privileges for audit tracking
     :param employee_service: Service layer handling Excel generation and data formatting
@@ -315,7 +342,9 @@ async def export_employees_to_excel(
     "Provides complete personal, professional, and organizational information for HR management, employee "
     "verification, and detailed personnel record access within the company structure.",
 )
+@controller_handle_exceptions
 async def get_employee_by_id(
+    request: Request,
     employee_id: int,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.EMPLOYEE_READ]
@@ -330,6 +359,7 @@ async def get_employee_by_id(
     Essential for HR management, employee verification processes, and detailed
     personnel record access within organizational workflows.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param employee_id: Unique organizational identifier for specific employee retrieval
     :param current_user: Authenticated user with employee read privileges
     :param employee_service: Service layer handling individual employee data retrieval
@@ -358,7 +388,9 @@ async def get_employee_by_id(
     "and professional data. Validates business rules, maintains data integrity, and preserves employment "
     "history while enabling complete HR record management and organizational structure modifications.",
 )
+@controller_handle_exceptions
 async def update_employee(
+    request: Request,
     employee_id: int,
     employee_request: EmployeeRequestDTO,
     current_user: CurrentUser = Security(
@@ -374,6 +406,7 @@ async def update_employee(
     comprehensive validation to maintain data integrity and business rule compliance
     while preserving employment history and organizational relationships.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param employee_id: Unique identifier for employee record modification
     :param employee_request: Complete updated employee data with validation requirements
     :param current_user: Authenticated user with employee update privileges
@@ -402,7 +435,9 @@ async def update_employee(
     "This irreversible operation eliminates all associated employee data while maintaining referential "
     "integrity and audit trails for compliance and organizational record-keeping requirements.",
 )
+@controller_handle_exceptions
 async def delete_employee(
+    request: Request,
     employee_id: int,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.EMPLOYEE_DELETE]
@@ -417,6 +452,7 @@ async def delete_employee(
     requirements. Implements safety checks and audit trail preservation for
     organizational record-keeping and legal compliance.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param employee_id: Unique identifier for employee record deletion
     :param current_user: Authenticated user with employee deletion privileges
     :param employee_service: Service layer handling secure deletion logic and cleanup
