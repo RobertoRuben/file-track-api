@@ -1,6 +1,8 @@
 import os
 from src.app.domain.document.dto.response import DocumentResponseDTO
-from src.app.core.exception.decorator.service_handle_exception import service_handle_exceptions
+from src.app.core.exception.decorator.service_handle_exception import (
+    service_handle_exceptions,
+)
 from src.app.domain.document.service.interface.report_service import IReportService
 from src.resources.templates.registration_document_report import create_document_report
 
