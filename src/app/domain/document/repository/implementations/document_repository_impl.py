@@ -2,7 +2,7 @@ import math
 from datetime import date
 from typing import Any
 
-from sqlmodel import select, func, or_, and_, cast, String
+from sqlmodel import select, func, or_, and_, cast, String, literal
 from sqlmodel.ext.asyncio.session import AsyncSession
 from src.app.core.db.decorator import transactional
 from src.app.core.exception import InvalidFieldException
@@ -46,7 +46,7 @@ class DocumentRepositoryImpl(IDocumentRepository):
 
         :return: A list containing all documents
         """
-        stmt = select(Document)
+        stmt = select(Document).order_by(Document.id)
         results = await self.session.exec(stmt)
         documents = results.all()
         return list(documents)
@@ -98,6 +98,13 @@ class DocumentRepositoryImpl(IDocumentRepository):
                 Document.size,
                 Document.submitter_id,
                 Submitter.dni.label("submitter_dni"),
+                func.concat(
+                    Submitter.paternal_surname,
+                    literal(' '),
+                    Submitter.maternal_surname,
+                    literal(' '),
+                    Submitter.names,
+                ).label("submitter_names"),
                 Document.document_category_id,
                 DocumentCategory.name.label("document_category_name"),
                 Document.documentary_topic_id,
@@ -121,6 +128,7 @@ class DocumentRepositoryImpl(IDocumentRepository):
             .outerjoin(Hamlet, Hamlet.id == Document.hamlet_id)
             .join(Settlement, Settlement.id == Document.settlement_id)
             .join(User, User.id == Document.registered_by_user_id)
+            .order_by(Document.id)
         )
 
         stmt = stmt.offset(offset).limit(size)
