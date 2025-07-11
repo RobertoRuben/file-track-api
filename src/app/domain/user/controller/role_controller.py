@@ -1,5 +1,13 @@
 from datetime import datetime
-from fastapi import APIRouter, Depends, Query, Security, Body, Response
+from fastapi import (
+    APIRouter,
+    Depends,
+    Query,
+    Security,
+    Body,
+    Response,
+    Request
+)
 from src.app.core.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -8,6 +16,7 @@ from src.app.core.exception.schema import (
     UnauthorizedError,
     ForbiddenError,
 )
+from src.app.core.exception.decorator import controller_handle_exceptions
 from src.app.core.schema import MessageResponse
 from src.app.core.security.auth.constants import Scopes
 from src.app.core.security.auth.model import CurrentUser
@@ -52,7 +61,9 @@ role_tags_metadata = {
     "the role data and ensures no duplicate names exist before creating the role. "
     "Requires appropriate permissions to perform this operation.",
 )
+@controller_handle_exceptions
 async def create_role(
+    request: Request,
     role_request: RoleRequestDTO,
     current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.ROLE_CREATE]),
     role_service: IRoleService = Depends(get_role_service),
@@ -64,6 +75,7 @@ async def create_role(
     must be provided in the request body. If the role is created successfully, a
     status code 201 is returned with the details of the created role.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param role_request: Request body containing the role data.
     :param current_user: The user creating the role, used for authorization.
     :param role_service: Service that handles the role creation logic.
@@ -91,7 +103,9 @@ async def create_role(
     "creation timestamps, and last modification dates. The response includes all active roles "
     "without any filtering or pagination applied.",
 )
+@controller_handle_exceptions
 async def get_all_roles(
+    request: Request,
     current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.ROLE_READ]),
     role_service: IRoleService = Depends(get_role_service),
 ) -> list[RoleResponseDTO]:
@@ -101,6 +115,7 @@ async def get_all_roles(
     This endpoint returns a list of all available roles in the system. The response will include
     all roles stored in the database.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param current_user: The user requesting the roles, used for authorization.
     :param role_service: Service to handle the query and retrieve all roles.
     :return: A list of roles in the system.
@@ -125,7 +140,9 @@ async def get_all_roles(
     "and navigation flags (hasNext, hasPrevious) to facilitate user interface pagination controls. "
     "Ideal for displaying role lists in data tables or grids with performance optimization.",
 )
+@controller_handle_exceptions
 async def get_paginated_roles(
+    request: Request,
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of roles per page"),
     current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.ROLE_READ]),
@@ -137,6 +154,7 @@ async def get_paginated_roles(
     This endpoint allows retrieving roles in a paginated format. The user can specify the page number
     and the number of roles per page to optimize the query and reduce data overload.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param page: The page number to retrieve.
     :param size: The number of roles to return per page.
     :param current_user: The user requesting the roles, used for authorization.
@@ -165,7 +183,9 @@ async def get_paginated_roles(
     "in paginated format. This endpoint is ideal for implementing search bars and filtering capabilities "
     "in user interface.",
 )
+@controller_handle_exceptions
 async def find_roles(
+    request: Request,
     search_term: str | None = Query(None, description="Search term to filter roles"),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of roles per page"),
@@ -178,6 +198,7 @@ async def find_roles(
     This endpoint allows searching for roles based on a given search term. The results are returned
     in a paginated format, where the user can specify the page number and the number of results per page.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param search_term: A term to search within role names.
     :param page: The page number to retrieve.
     :param size: The number of results per page.
@@ -213,7 +234,9 @@ async def find_roles(
     "the user has sufficient permissions. This operation is irreversible and may impact user-role associations "
     "throughout the system. Use with caution in production environments.",
 )
+@controller_handle_exceptions
 async def delete_roles_bulk(
+    request: Request,
     role_ids: list[int] = Body(..., description="List of role IDs to delete"),
     current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.ROLE_DELETE]),
     role_service: IRoleService = Depends(get_role_service),
@@ -225,6 +248,7 @@ async def delete_roles_bulk(
     are deleted successfully, a success message is returned. If any role is not found, a 404 error
     is returned. The request body should contain a list of role IDs.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param role_ids: List of role IDs to delete.
     :param current_user: The user performing the operation, used for authorization.
     :param role_service: Service to handle the bulk delete logic.
@@ -252,7 +276,9 @@ async def delete_roles_bulk(
     "uniqueness and traceability. This feature is particularly useful for administrative reporting, "
     "data backup, and sharing role information with external stakeholders.",
 )
+@controller_handle_exceptions
 async def export_roles_to_excel(
+    request: Request,
     role_ids: list[int] = Body(..., description="List of role IDs to export"),
     current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.ROLE_READ]),
     role_service: IRoleService = Depends(get_role_service),
@@ -262,6 +288,7 @@ async def export_roles_to_excel(
 
     This endpoint exports the selected roles to an Excel file format.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param role_ids: List of IDs of roles to export
     :param current_user: The user performing the export, used for authorization
     :param role_service: Service to handle the export logic
@@ -299,7 +326,9 @@ async def export_roles_to_excel(
     "for displaying detailed role information in user interface, role management dashboards, "
     "or when performing role-specific operations.",
 )
+@controller_handle_exceptions
 async def get_role_by_id(
+    request: Request,
     role_id: int,
     current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.ROLE_READ]),
     role_service: IRoleService = Depends(get_role_service),
@@ -310,6 +339,7 @@ async def get_role_by_id(
     This endpoint retrieves the details of a specific role identified by its ID. If the role is found,
     the role's data is returned. If not, a 404 error is returned.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param role_id: The ID of the role to retrieve.
     :param current_user: The user requesting the role, used for authorization.
     :param role_service: Service to handle the query and retrieve the role.
@@ -342,6 +372,7 @@ async def get_role_by_id(
     "for role management and administrative maintenance tasks.",
 )
 async def update_role(
+    request: Request,
     role_id: int,
     role_request: RoleRequestDTO,
     current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.ROLE_UPDATE]),
@@ -354,6 +385,7 @@ async def update_role(
     is updated successfully, the updated role data is returned. If the role is not found,
     a 404 error is returned.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param role_id: The ID of the role to update.
     :param role_request: The new data for the role.
     :param current_user: The user updating the role, used for authorization.
@@ -385,7 +417,9 @@ async def update_role(
     "to this role may be affected by this operation. This endpoint should be used with extreme "
     "caution, particularly in production environments, and typically requires elevated privileges.",
 )
+@controller_handle_exceptions
 async def delete_role(
+    request: Request,
     role_id: int,
     current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.ROLE_DELETE]),
     role_service: IRoleService = Depends(get_role_service),
@@ -396,6 +430,7 @@ async def delete_role(
     This endpoint allows deleting a specific role identified by its ID. If the role is deleted
     successfully, a success message is returned. If the role is not found, a 404 error is returned.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param role_id: The ID of the role to delete.
     :param current_user: The user deleting the role, used for authorization.
     :param role_service: Service to handle the delete logic.

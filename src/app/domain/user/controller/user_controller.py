@@ -1,5 +1,13 @@
 from datetime import datetime
-from fastapi import APIRouter, Depends, Query, Security, Body, Request, Response
+from fastapi import (
+    APIRouter,
+    Depends,
+    Query,
+    Security,
+    Body,
+    Request,
+    Response
+)
 from src.app.core.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -8,6 +16,7 @@ from src.app.core.exception.schema import (
     UnauthorizedError,
     ForbiddenError,
 )
+from src.app.core.exception.decorator import controller_handle_exceptions
 from src.app.core.security.auth.constants import Scopes
 from src.app.core.security.auth.model import CurrentUser
 from src.app.core.security.auth.dependencies import get_current_user
@@ -54,7 +63,9 @@ user_tags_metadata = {
     "frameworks, identity management systems, and organizational access control requiring secure user account "
     "provisioning and administrative coordination workflows.",
 )
+@controller_handle_exceptions
 async def create_user(
+    request: Request,
     user_request: UserRequestDTO,
     current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.USER_CREATE]),
     user_service: IUserService = Depends(get_user_service),
@@ -66,6 +77,7 @@ async def create_user(
     must be provided in the request body. If the user is created successfully, a status code 201
     with the created user's details is returned.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param user_request: Request body containing user data.
     :param current_user: The user making the request, used for scope validation.
     :param user_service: Service to handle the user creation logic.
@@ -95,7 +107,9 @@ async def create_user(
     "coordination, and access control management requiring complete user information access and security "
     "compliance capabilities for organizational user administration.",
 )
+@controller_handle_exceptions
 async def get_all_users(
+    request: Request,
     current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.USER_READ]),
     user_service: IUserService = Depends(get_user_service),
 ) -> list[UserResponseDTO]:
@@ -105,6 +119,7 @@ async def get_all_users(
     This endpoint returns a list of all available users in the system. The response will include
     all users stored in the database.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param user_service: Service to handle the query and retrieve all users.
     :param current_user: The user making the request, used for scope validation.
     :return: A list of users in the system.
@@ -129,7 +144,9 @@ async def get_all_users(
     "extensive user registries, reduce memory consumption, and improve administrative experience through "
     "controlled data loading and targeted user subset access.",
 )
+@controller_handle_exceptions
 async def get_paginated_users(
+    request: Request,
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of users per page"),
     only_active: bool = Query(
@@ -147,6 +164,7 @@ async def get_paginated_users(
     - only_active=True: returns only active users
     - only_active=False: returns only inactive users
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param page: The page number to retrieve.
     :param size: The number of users to return per page.
     :param only_active: If True, returns only active users; if False, returns only inactive users.
@@ -175,7 +193,9 @@ async def get_paginated_users(
     "maintaining security compliance. Supports complex search scenarios including partial matches and case-"
     "insensitive queries for enhanced user identification and administrative efficiency.",
 )
+@controller_handle_exceptions
 async def find_users(
+    request: Request,
     search_term: str | None = Query(None, description="Search term to filter users"),
     page: int = Query(default=1, description="Page number for paginated results"),
     size: int = Query(default=10, description="Number of users per page"),
@@ -188,6 +208,7 @@ async def find_users(
     This endpoint allows searching for users based on a given search term. The results are returned
     in a paginated format, where the user can specify the page number and the number of results per page.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param search_term: A term to search within usernames, role names, or employee names.
     :param page: The page number to retrieve.
     :param size: The number of results per page.
@@ -221,7 +242,9 @@ async def find_users(
     "administrative documentation, and external reporting requirements. Supports bulk export with optimized file generation "
     "for enterprise user administration and compliance reporting.",
 )
+@controller_handle_exceptions
 async def export_users_to_excel(
+    request: Request,
     user_ids: list[int] = Body(..., description="List of user IDs to export"),
     current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.USER_READ]),
     user_service: IUserService = Depends(get_user_service),
@@ -234,6 +257,7 @@ async def export_users_to_excel(
     The generated files include complete user metadata, employee associations,
     role assignments, and formatting optimized for business use and external sharing.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param user_ids: List of unique identifiers for users to include in export
     :param current_user: Authenticated user with user export privileges
     :param user_service: Service layer handling Excel generation logic
@@ -270,7 +294,9 @@ async def export_users_to_excel(
     "Essential for identity verification workflows, security auditing, and administrative processes requiring "
     "precise user identification and security-compliant data access.",
 )
+@controller_handle_exceptions
 async def get_user_by_id(
+    request: Request,
     user_id: int,
     current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.USER_READ]),
     user_service: IUserService = Depends(get_user_service),
@@ -281,6 +307,7 @@ async def get_user_by_id(
     This endpoint retrieves the details of a specific user identified by their ID. If the user is found,
     the user's data is returned. If not, a 404 error is returned.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param user_id: The ID of the user to retrieve.
     :param current_user: The user making the request, used for scope validation.
     :param user_service: Service to handle the query and retrieve the user.
@@ -307,7 +334,9 @@ async def get_user_by_id(
     "Essential for username-based identity verification workflows, security auditing, and administrative "
     "processes requiring precise user identification through username lookup.",
 )
+@controller_handle_exceptions
 async def get_user_by_username(
+    request: Request,
     username: str,
     current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.USER_READ]),
     user_service: IUserService = Depends(get_user_service),
@@ -318,6 +347,7 @@ async def get_user_by_username(
     This endpoint retrieves the details of a specific user identified by their username. If the user is found,
     the user's data is returned. If not, a 404 error is returned.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param username: The username of the user to retrieve.
     :param current_user: The user making the request, used for scope validation.
     :param user_service: Service to handle the query and retrieve the user.
@@ -348,7 +378,9 @@ async def get_user_by_username(
     "and preserving role-based access control. Enables secure user account management through controlled "
     "modification workflows with change tracking for enterprise user administration and security compliance.",
 )
+@controller_handle_exceptions
 async def update_user(
+    request: Request,
     user_id: int,
     user_request: UserRequestDTO,
     current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.USER_UPDATE]),
@@ -361,6 +393,7 @@ async def update_user(
     is updated successfully, the updated user data is returned. If the user is not found,
     a 404 error is returned.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param user_id: The ID of the user to update.
     :param user_request: The new data for the user.
     :param current_user: The user making the request, used for scope validation.
@@ -388,7 +421,9 @@ async def update_user(
     "authentication integrity. Provides secure credential management supporting identity protection, "
     "security compliance requirements, and organizational password policies for robust user account security.",
 )
+@controller_handle_exceptions
 async def update_password(
+    request: Request,
     user_id: int,
     old_password: str,
     new_password: str,
@@ -401,6 +436,7 @@ async def update_password(
     This endpoint allows updating the password of a specific user identified by their ID.
     The old password must be provided for verification purposes.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param user_id: The ID of the user whose password is to be updated.
     :param old_password: The current password of the user.
     :param new_password: The new password to set.
@@ -429,7 +465,9 @@ async def update_password(
     "control over user privileges. Essential for maintaining organizational security through controlled "
     "user access management and enterprise-level account status governance for security compliance.",
 )
+@controller_handle_exceptions
 async def update_user_status(
+    request: Request,
     user_id: int,
     status: StatusEnum,
     current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.USER_UPDATE]),
@@ -440,6 +478,7 @@ async def update_user_status(
 
     This endpoint allows updating the status (active or inactive) of a specific user identified by their ID.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param user_id: The ID of the user whose status is to be updated.
     :param status: The new status to set for the user ("Activate" or "Deactivate").
     :param current_user: The user making the request, used for scope validation.
@@ -467,7 +506,9 @@ async def update_user_status(
     "and system references. Critical operation requiring careful consideration of data dependencies and "
     "organizational relationships before permanent user account deletion and security audit trail maintenance.",
 )
+@controller_handle_exceptions
 async def delete_user(
+    request: Request,
     user_id: int,
     current_user: CurrentUser = Security(get_current_user, scopes=[Scopes.USER_DELETE]),
     user_service: IUserService = Depends(get_user_service),
@@ -478,6 +519,7 @@ async def delete_user(
     This endpoint allows deleting a specific user identified by their ID. If the user is deleted
     successfully, a success message is returned. If the user is not found, a 404 error is returned.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param user_id: The ID of the user to delete.
     :param current_user: The user making the request, used for scope validation.
     :param user_service: Service to handle the delete logic.

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, Request
 from fastapi.security import OAuth2PasswordRequestForm
 from typing import Annotated
 
@@ -8,6 +8,7 @@ from src.app.core.exception.schema import (
     NotFoundError,
     UnauthorizedError,
 )
+from src.app.core.exception.decorator import controller_handle_exceptions
 from src.app.core.security.auth.dto.request import AuthRequestDTO
 from src.app.core.security.auth.dto.response import AuthResponseDTO
 from src.app.core.security.auth.model import CurrentUser
@@ -43,7 +44,9 @@ auth_tags_metadata = {
     "system access. Validates username and password against the user database, enforces security policies, "
     "and provides both access tokens for immediate resource access and refresh tokens for session continuity.",
 )
+@controller_handle_exceptions
 async def login(
+    request: Request,
     form_data: Annotated[OAuth2PasswordRequestForm, Depends()],
     auth_service: IAuthService = Depends(get_auth_service),
 ) -> AuthResponseDTO:
@@ -55,6 +58,7 @@ async def login(
     allows the user to access protected resources, while the refresh token can be used
     to obtain a new access token when the current one expires.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param form_data: Form containing username and password for authentication.
     :param auth_service: Service that handles the authentication logic.
     :return: Authentication response containing access and refresh tokens.
@@ -83,8 +87,10 @@ async def login(
     "credential re-entry. Validates refresh token authenticity, checks expiration status, and issues fresh "
     "access tokens while maintaining security boundaries and user session continuity for enhanced user experience.",
 )
+@controller_handle_exceptions
 async def refresh_token(
-    refresh_token: str,
+    request: Request,
+    token: str,
     auth_service: IAuthService = Depends(get_auth_service),
 ) -> AuthResponseDTO:
     """
@@ -94,11 +100,12 @@ async def refresh_token(
     refresh token. This is typically used when the original access token has expired
     but the user wishes to maintain their authenticated session without logging in again.
 
-    :param refresh_token: The refresh token used to generate a new access token.
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
+    :param token: The refresh token used to generate a new access token.
     :param auth_service: Service that handles the token refresh logic.
     :return: Authentication response containing new access token and the existing refresh token.
     """
-    return await auth_service.generate_refresh_access_token(refresh_token)
+    return await auth_service.generate_refresh_access_token(token)
 
 
 @router.get(
@@ -118,7 +125,9 @@ async def refresh_token(
     "details, role assignments, and system permissions. Validates bearer token authenticity, extracts user "
     "identity securely, and provides complete user context for client applications and user profile management.",
 )
+@controller_handle_exceptions
 async def get_user_me(
+    request: Request,
     current_user: CurrentUser = Depends(get_current_user),
 ) -> CurrentUser:
     """
@@ -128,6 +137,7 @@ async def get_user_me(
     It uses the access token provided in the Authorization header to identify and
     return the appropriate user data.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param current_user: The authenticated user retrieved from the bearer token.
     :return: User information of the currently authenticated user.
     """
