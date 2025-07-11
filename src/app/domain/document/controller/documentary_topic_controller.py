@@ -1,5 +1,5 @@
 from datetime import datetime
-from fastapi import APIRouter, Depends, Query, Security, Body, Response
+from fastapi import APIRouter, Depends, Query, Security, Body, Response, Request
 from src.app.core.exception.schema import (
     BackRequestError,
     ConflictError,
@@ -8,6 +8,7 @@ from src.app.core.exception.schema import (
     UnauthorizedError,
     ForbiddenError,
 )
+from src.app.core.exception.decorator import controller_handle_exceptions
 from src.app.core.security.auth.constants import Scopes
 from src.app.core.security.auth.model import CurrentUser
 from src.app.core.security.auth.dependencies import get_current_user
@@ -59,7 +60,9 @@ documentary_topic_tags_metadata = {
     "categorization standards for enhanced document discovery, content organization, and enterprise information "
     "architecture supporting complex document management and retrieval requirements.",
 )
+@controller_handle_exceptions
 async def create_documentary_topic(
+    request: Request,
     documentary_topic_request: DocumentaryTopicRequestDTO,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENTARY_TOPIC_CREATE]
@@ -75,6 +78,7 @@ async def create_documentary_topic(
     must be provided in the request body. If the topic is created successfully, a
     status code 201 is returned with the details of the created topic.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param documentary_topic_request: Request body containing the documentary topic data.
     :param current_user: The user creating the documentary topic, used for auditing and permissions.
     :param documentary_topic_service: Service that handles the documentary topic creation logic.
@@ -105,7 +109,9 @@ async def create_documentary_topic(
     "workflows, content management systems, and knowledge architecture planning supporting systematic information "
     "organization and retrieval optimization.",
 )
+@controller_handle_exceptions
 async def get_all_documentary_topics(
+    request: Request,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENTARY_TOPIC_READ]
     ),
@@ -119,6 +125,7 @@ async def get_all_documentary_topics(
     This endpoint returns a list of all available documentary topics in the system. The response will include
     all topics stored in the database.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param current_user: The user requesting the topics, used for auditing and permissions.
     :param documentary_topic_service: Service to handle the query and retrieve all documentary topics.
     :return: A list of documentary topics in the system.
@@ -146,7 +153,9 @@ async def get_all_documentary_topics(
     "through controlled data loading. Essential for enterprise environments with comprehensive topic taxonomies "
     "requiring responsive navigation and resource optimization.",
 )
+@controller_handle_exceptions
 async def get_paginated_documentary_topics(
+    request: Request,
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of topics per page"),
     current_user: CurrentUser = Security(
@@ -162,6 +171,7 @@ async def get_paginated_documentary_topics(
     This endpoint allows retrieving documentary topics in a paginated format. The user can specify the page number
     and the number of topics per page to optimize the query and reduce data overload.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param page: The page number to retrieve.
     :param size: The number of documentary topics to return per page.
     :param current_user: The user requesting the topics, used for auditing and permissions.
@@ -192,7 +202,9 @@ async def get_paginated_documentary_topics(
     "including partial matches, case-insensitive queries, and thematic similarity detection for enhanced topic "
     "accessibility and knowledge management workflows.",
 )
+@controller_handle_exceptions
 async def find_documentary_topics(
+    request: Request,
     search_term: str | None = Query(
         None, description="Search term to filter documentary topics"
     ),
@@ -211,6 +223,7 @@ async def find_documentary_topics(
     This endpoint allows searching for documentary topics based on a given search term. The results are returned
     in a paginated format, where the user can specify the page number and the number of results per page.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param search_term: A term to search within documentary topic names.
     :param page: The page number to retrieve.
     :param size: The number of results per page.
@@ -247,7 +260,9 @@ async def find_documentary_topics(
     "checks for document associations, and verifies user permissions. This operation permanently affects "
     "document classification structures and may impact existing document categorizations throughout the system.",
 )
+@controller_handle_exceptions
 async def delete_documentary_topics_bulk(
+    request: Request,
     topic_ids: list[int] = Body(
         ..., description="List of documentary topic IDs to delete"
     ),
@@ -265,12 +280,13 @@ async def delete_documentary_topics_bulk(
     are deleted successfully, a success message is returned. If any topic is not found, a 404 error
     is returned. The request body should contain a list of documentary topic IDs.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param topic_ids: List of documentary topic IDs to delete.
     :param current_user: The user performing the bulk deletion, used for auditing and permissions.
     :param documentary_topic_service: Service to handle the bulk delete logic.
     :return: A success message indicating that the documentary topics have been deleted.
     """
-    return await documentary_topic_service.delete_documentary_topics_by_ids(topic_ids)
+    return await documentary_topic_service.delete_documentary_topic_by_ids(topic_ids)
 
 
 @router.post(
@@ -303,7 +319,9 @@ async def delete_documentary_topics_bulk(
     "audit trails. This functionality supports data backup procedures, regulatory compliance reporting, and "
     "stakeholder communication requirements.",
 )
+@controller_handle_exceptions
 async def export_documentary_topics_to_excel(
+    request: Request,
     topic_ids: list[int] = Body(
         ...,
         description="List of documentary topic IDs to export. If empty, exports all topics",
@@ -322,6 +340,7 @@ async def export_documentary_topics_to_excel(
     topics to export by providing a list of IDs, or export all topics if no IDs are provided.
     The Excel file includes proper formatting, headers, and is returned as a downloadable stream.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param topic_ids: Optional list of documentary topic IDs to export. If None, exports all topics.
     :param current_user: The user requesting the export, used for auditing and permissions.
     :param documentary_topic_service: Service to handle the Excel export logic.
@@ -366,7 +385,9 @@ async def export_documentary_topics_to_excel(
     "management. Essential for topic verification workflows, classification auditing, and enterprise knowledge "
     "architecture oversight requiring precise topic identification.",
 )
+@controller_handle_exceptions
 async def get_documentary_topic_by_id(
+    request: Request,
     documentary_topic_id: int,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENTARY_TOPIC_READ]
@@ -381,6 +402,7 @@ async def get_documentary_topic_by_id(
     This endpoint retrieves the details of a specific documentary topic identified by its ID. If the topic is found,
     the topic's data is returned. If not, a 404 error is returned.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param documentary_topic_id: The ID of the documentary topic to retrieve.
     :param current_user: The user requesting the topic, used for auditing and permissions.
     :param documentary_topic_service: Service to handle the query and retrieve the documentary topic.
@@ -416,7 +438,9 @@ async def get_documentary_topic_by_id(
     "Enables dynamic taxonomy management through secure modification workflows with change tracking and rollback "
     "capabilities for enterprise knowledge architecture administration and topic lifecycle management.",
 )
+@controller_handle_exceptions
 async def update_documentary_topic(
+    request: Request,
     documentary_topic_id: int,
     documentary_topic_request: DocumentaryTopicRequestDTO,
     current_user: CurrentUser = Security(
@@ -433,6 +457,7 @@ async def update_documentary_topic(
     is updated successfully, the updated topic data is returned. If the topic is not found,
     a 404 error is returned.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param documentary_topic_id: The ID of the documentary topic to update.
     :param documentary_topic_request: The new data for the documentary topic.
     :param current_user: The user updating the topic, used for auditing and permissions.
@@ -466,7 +491,9 @@ async def update_documentary_topic(
     "trail preservation for regulated knowledge management environments. ⚠️ WARNING: This operation permanently "
     "removes the topic and may affect document classifications.",
 )
+@controller_handle_exceptions
 async def delete_documentary_topic(
+    request: Request,
     documentary_topic_id: int,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENTARY_TOPIC_DELETE]
@@ -481,6 +508,7 @@ async def delete_documentary_topic(
     This endpoint allows deleting a specific documentary topic identified by its ID. If the topic is deleted
     successfully, a success message is returned. If the topic is not found, a 404 error is returned.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param documentary_topic_id: The ID of the documentary topic to delete.
     :param current_user: The user deleting the topic, used for auditing and permissions.
     :param documentary_topic_service: Service to handle the delete logic.
