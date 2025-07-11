@@ -94,7 +94,7 @@ async def create_document(
     :return: The data of the created document
     """
     document_content = await document.read()
-
+    hamlet_id = hamlet_id if hamlet_id not in ("", None) else None
     document_request = DocumentRequestDTO(
         title=title,
         subject=subject,
