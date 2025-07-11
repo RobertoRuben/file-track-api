@@ -42,7 +42,7 @@ class SubmitterRepositoryImpl(ISubmitterRepository):
         :return: A list of all Submitter entities
         :raises: DatabaseException if an error occurs while retrieving submitters
         """
-        stmt = select(Submitter)
+        stmt = select(Submitter).order_by(Submitter.id)
         results = await self.session.exec(stmt)
         submitters = results.all()
         return list(submitters)
@@ -85,7 +85,7 @@ class SubmitterRepositoryImpl(ISubmitterRepository):
         :raises: DatabaseException if an error occurs during the paginated query
         """
         offset_value = (page - 1) * size
-        stmt = select(Submitter)
+        stmt = select(Submitter).order_by(Submitter.id)
         stmt = stmt.offset(offset_value).limit(size)
         results = await self.session.exec(stmt)
         submitters = list(results.all())

@@ -46,7 +46,7 @@ class DepartmentConnectionRepositoryImpl(IDepartmentConnectionRepository):
 
         :return: A list containing all department connections
         """
-        stmt = select(DepartmentConnection)
+        stmt = select(DepartmentConnection).order_by(DepartmentConnection.id)
         results = await self.session.exec(stmt)
         connections = results.all()
         return list(connections)
@@ -108,6 +108,7 @@ class DepartmentConnectionRepositoryImpl(IDepartmentConnectionRepository):
             .join(
                 TargetDept, TargetDept.id == DepartmentConnection.target_department_id
             )
+            .order_by(DepartmentConnection.id)
         )
 
         stmt = stmt.offset(offset).limit(size)

@@ -45,7 +45,7 @@ class UserRepositoryImpl(IUserRepository):
 
         :return: A list of User entities
         """
-        stmt = select(User)
+        stmt = select(User).order_by(User.id)
         results = await self.session.exec(stmt)
         users = results.all()
         return list(users)
@@ -156,6 +156,7 @@ class UserRepositoryImpl(IUserRepository):
             )
             .join(Employee, Employee.id == User.employee_id)
             .join(Role, Role.id == User.role_id)
+            .order_by(User.id)
         )
 
         if only_active:

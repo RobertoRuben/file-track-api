@@ -37,7 +37,7 @@ class DocumentaryTopicRepositoryImpl(IDocumentaryTopicRepository):
 
         :return: A list of all documentary topic entities
         """
-        stmt = select(DocumentaryTopic)
+        stmt = select(DocumentaryTopic).order_by(DocumentaryTopic.id)
         results = await self.session.exec(stmt)
         documentary_topics = results.all()
         return list(documentary_topics)
@@ -79,7 +79,7 @@ class DocumentaryTopicRepositoryImpl(IDocumentaryTopicRepository):
         :return: A Page object containing the documentary topics and pagination metadata
         """
         offset_value = (page - 1) * size
-        stmt = select(DocumentaryTopic)
+        stmt = select(DocumentaryTopic).order_by(DocumentaryTopic.id)
         stmt = stmt.offset(offset_value).limit(size)
         results = await self.session.exec(stmt)
         documentary_topics = list(results.all())

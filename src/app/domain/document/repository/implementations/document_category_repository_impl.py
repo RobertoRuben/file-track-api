@@ -42,7 +42,7 @@ class DocumentCategoryRepositoryImpl(IDocumentCategoryRepository):
         :return: A list of all DocumentCategory entities
         :raises DatabaseException: If an error occurs while retrieving categories
         """
-        stmt = select(DocumentCategory)
+        stmt = select(DocumentCategory).order_by(DocumentCategory.id)
         results = await self.session.exec(stmt)
         categories = results.all()
         return list(categories)
@@ -87,7 +87,7 @@ class DocumentCategoryRepositoryImpl(IDocumentCategoryRepository):
         :raises DatabaseException: If an error occurs during the paginated query
         """
         offset_value = (page - 1) * size
-        stmt = select(DocumentCategory)
+        stmt = select(DocumentCategory).order_by(DocumentCategory.id)
         stmt = stmt.offset(offset_value).limit(size)
         results = await self.session.exec(stmt)
         categories_document = list(results.all())

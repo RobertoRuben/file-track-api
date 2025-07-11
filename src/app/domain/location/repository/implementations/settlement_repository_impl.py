@@ -38,7 +38,7 @@ class SettlementRepositoryImpl(ISettlementRepository):
         :return: A list of all Settlement entities
         :raises: DatabaseException if an error occurs while retrieving settlements
         """
-        stmt = select(Settlement)
+        stmt = select(Settlement).order_by(Settlement.id)
         results = await self.session.exec(stmt)
         settlements = results.all()
         return list(settlements)
@@ -81,7 +81,7 @@ class SettlementRepositoryImpl(ISettlementRepository):
         :raises: DatabaseException if an error occurs during the paginated query
         """
         offset_value = (page - 1) * size
-        stmt = select(Settlement)
+        stmt = select(Settlement).order_by(Settlement.id)
         stmt = stmt.offset(offset_value).limit(size)
         results = await self.session.exec(stmt)
         settlements = list(results.all())

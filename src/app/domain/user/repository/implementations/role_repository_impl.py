@@ -42,7 +42,7 @@ class RoleRepositoryImpl(IRoleRepository):
         :return: A list of all Role entities
         :raises: DatabaseException if an error occurs while retrieving roles
         """
-        stmt = select(Role)
+        stmt = select(Role).order_by(Role.id)
         results = await self.session.exec(stmt)
         roles = results.all()
         return list(roles)
