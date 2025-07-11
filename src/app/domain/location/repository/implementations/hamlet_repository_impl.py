@@ -41,7 +41,7 @@ class HamletRepositoryImpl(IHamletRepository):
         :return: A list containing all hamlets
         :raises DatabaseException: If an error occurs during the retrieval
         """
-        stmt = select(Hamlet)
+        stmt = select(Hamlet).order_by(Hamlet.id)
         results = await self.session.exec(stmt)
         hamlets = results.all()
         return list(hamlets)
@@ -70,8 +70,8 @@ class HamletRepositoryImpl(IHamletRepository):
         :raises DatabaseException: If an error occurs during the retrieval
         """
         stmt = select(Hamlet).where(Hamlet.id == hamlet_id)
-        results = await self.session.exec(stmt)
-        hamlet = results.first()
+        result = await self.session.exec(stmt)
+        hamlet = result.first()
         return hamlet
 
     @transactional(readonly=True)
@@ -85,14 +85,18 @@ class HamletRepositoryImpl(IHamletRepository):
         :raises DatabaseException: If an error occurs during the retrieval
         """
         offset_value = (page - 1) * size
-        stmt = select(
-            Hamlet.id,
-            Hamlet.name,
-            Hamlet.settlement_id,
-            Settlement.name.label("settlement_name"),
-            Hamlet.created_at,
-            Hamlet.updated_at,
-        ).join(Settlement, Hamlet.settlement_id == Settlement.id, isouter=True)
+        stmt = (
+            select(
+                Hamlet.id,
+                Hamlet.name,
+                Hamlet.settlement_id,
+                Settlement.name.label("settlement_name"),
+                Hamlet.created_at,
+                Hamlet.updated_at,
+            )
+            .join(Settlement, Hamlet.settlement_id == Settlement.id, isouter=True)
+            .order_by(Hamlet.id)
+        )
 
         stmt = stmt.offset(offset_value).limit(size)
         results = await self.session.exec(stmt)
