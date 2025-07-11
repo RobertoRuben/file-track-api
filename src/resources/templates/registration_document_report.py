@@ -191,7 +191,7 @@ async def create_document_report(
                 styles["RegistrationInfo"],
             ),
             Paragraph(
-                f"<b>Registrado por:</b> {document_data.registered_by_user_name}",
+                f"<b>Registrado por:</b> {document_data.registered_by_username}",
                 styles["RegistrationInfo"],
             ),
             Spacer(1, 0.25 * inch),
@@ -266,7 +266,7 @@ async def create_document_report(
             ],
             [
                 Paragraph("Registrado por", styles["TableLabel"]),
-                format_cell(document_data.registered_by_user_name),
+                format_cell(document_data.registered_by_username),
             ],
         ]
         table = Table(data, colWidths=[label_width, content_width])
