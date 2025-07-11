@@ -8,6 +8,7 @@ from src.app.core.exception.schema import (
     UnauthorizedError,
     ForbiddenError,
 )
+from src.app.core.exception.decorator import controller_handle_exceptions
 from src.app.core.security.auth.constants import Scopes
 from src.app.core.security.auth.model import CurrentUser
 from src.app.core.security.auth.dependencies import get_current_user
@@ -17,12 +18,8 @@ from src.app.domain.document.dto.response import (
     DocumentCategoryResponseDTO,
     DocumentCategoryPage,
 )
-
 from src.app.domain.document.service.interface import IDocumentCategoryService
 from src.app.domain.document.service.dependencies import get_document_category_service
-from src.app.core.exception.decorator.controller_handle_exception import (
-    controller_handle_exceptions,
-)
 
 
 router = APIRouter(prefix="/document-categories", tags=["Document Categories"])
@@ -64,8 +61,10 @@ document_category_tags_metadata = {
     "used to categorize documents for improved organization, searchability, and management. The created category "
     "becomes immediately available for document assignment and filtering operations throughout the system.",
 )
+@controller_handle_exceptions
 async def create_document_category(
     document_category_request: DocumentCategoryRequestDTO,
+    request: Request,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_CATEGORY_CREATE]
     ),
@@ -81,6 +80,7 @@ async def create_document_category(
     status code 201 is returned with the details of the created category.
 
     :param document_category_request: Request body containing the document category data.
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param current_user: The current user making the request, used for authorization.
     :param document_category_service: Service that handles the document category creation logic.
     :return: The data of the created document category.
@@ -111,7 +111,9 @@ async def create_document_category(
     "populating category selection interface, implementing document filtering systems, and maintaining "
     "administrative oversight of the classification structure.",
 )
+@controller_handle_exceptions
 async def get_all_document_categories(
+    request: Request,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_CATEGORY_READ]
     ),
@@ -125,6 +127,7 @@ async def get_all_document_categories(
     This endpoint returns a list of all available document categories in the system. The response will include
     all categories stored in the database.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param current_user: The current user making the request, used for authorization.
     :param document_category_service: Service to handle the query and retrieve all document categories.
     :return: A list of document categories in the system.
@@ -153,7 +156,9 @@ async def get_all_document_categories(
     "application responsiveness when dealing with extensive category hierarchies and enables smooth "
     "navigation through large datasets in administrative interface and category selection controls.",
 )
+@controller_handle_exceptions
 async def get_paginated_document_categories(
+    request: Request,
     page: int = Query(default=1, description="Page number to retrieve"),
     size: int = Query(default=10, description="Number of categories per page"),
     current_user: CurrentUser = Security(
@@ -169,6 +174,7 @@ async def get_paginated_document_categories(
     This endpoint allows retrieving document categories in a paginated format. The user can specify the page number
     and the number of categories per page to optimize the query and reduce data overload.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param page: The page number to retrieve.
     :param size: The number of document categories to return per page.
     :param current_user: The current user making the request, used for authorization.
@@ -200,7 +206,9 @@ async def get_paginated_document_categories(
     "advanced filtering systems, and category discovery tools. Results are delivered in paginated format "
     "with configurable page sizes to maintain optimal performance regardless of search result volume.",
 )
+@controller_handle_exceptions
 async def find_document_categories(
+    request: Request,
     search_term: str | None = Query(
         None, description="Search term to filter document categories"
     ),
@@ -219,6 +227,7 @@ async def find_document_categories(
     This endpoint allows searching for document categories based on a given search term. The results are returned
     in a paginated format, where the user can specify the page number and the number of results per page.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param search_term: A term to search within document category names.
     :param page: The page number to retrieve.
     :param size: The number of results per page.
@@ -255,7 +264,9 @@ async def find_document_categories(
     "checks for document associations, and verifies user permissions. This operation permanently affects "
     "document classification structures and may impact existing document categorizations throughout the system.",
 )
+@controller_handle_exceptions
 async def delete_document_categories_bulk(
+    request: Request,
     category_ids: list[int] = Body(
         ..., description="List of document category IDs to delete"
     ),
@@ -273,6 +284,7 @@ async def delete_document_categories_bulk(
     are deleted successfully, a success message is returned. If any category is not found, a 404 error
     is returned. The request body should contain a list of document category IDs.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param category_ids: List of document category IDs to delete.
     :param current_user: The current user making the request, used for authorization.
     :param document_category_service: Service to handle the bulk delete logic.
@@ -313,7 +325,9 @@ async def delete_document_categories_bulk(
     "audit trails. This functionality supports data backup procedures, regulatory compliance reporting, and "
     "stakeholder communication requirements.",
 )
+@controller_handle_exceptions
 async def export_document_categories_to_excel(
+    request: Request,
     category_ids: list[int] = Body(
         ...,
         description="List of document category IDs to export. If empty, exports all categories",
@@ -332,6 +346,7 @@ async def export_document_categories_to_excel(
     categories to export by providing a list of IDs, or export all categories if no IDs are provided.
     The Excel file includes proper formatting, headers, and is returned as a downloadable stream.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param category_ids: Optional list of document category IDs to export. If None, exports all categories.
     :param current_user: The current user making the request, used for authorization.
     :param document_category_service: Service to handle the Excel export logic.
@@ -378,7 +393,9 @@ async def export_document_categories_to_excel(
     "for document classification operations. The returned data supports various UI components and business "
     "logic that depends on specific category characteristics.",
 )
+@controller_handle_exceptions
 async def get_document_category_by_id(
+    request: Request,
     document_category_id: int,
     current_user: CurrentUser = Security(
         get_current_user, scopes=[Scopes.DOCUMENT_CATEGORY_READ]
@@ -393,6 +410,7 @@ async def get_document_category_by_id(
     This endpoint retrieves the details of a specific document category identified by its ID. If the category is found,
     the category's data is returned. If not, a 404 error is returned.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param document_category_id: The ID of the document category to retrieve.
     :param current_user: The current user making the request, used for authorization.
     :param document_category_service: Service to handle the query and retrieve the document category.
@@ -431,7 +449,9 @@ async def get_document_category_by_id(
     "category selection interface. This operation is crucial for maintaining an organized and up-to-date "
     "document classification taxonomy.",
 )
+@controller_handle_exceptions
 async def update_document_category(
+    request: Request,
     document_category_id: int,
     document_category_request: DocumentCategoryRequestDTO,
     current_user: CurrentUser = Security(
@@ -448,6 +468,7 @@ async def update_document_category(
     is updated successfully, the updated category data is returned. If the category is not found,
     a 404 error is returned.
 
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param document_category_id: The ID of the document category to update.
     :param document_category_request: The new data for the document category.
     :param current_user: The current user making the request, used for authorization.
@@ -500,7 +521,7 @@ async def delete_document_category(
     This endpoint allows deleting a specific document category identified by its ID. If the category is deleted
     successfully, a success message is returned. If the category is not found, a 404 error is returned.
 
-    :param request:
+    :param request: FastAPI Request object,use to extract the controller route path where the exception occurred.
     :param document_category_id: The ID of the document category to delete.
     :param current_user: The current user making the request, used for authorization.
     :param document_category_service: Service to handle the delete logic.
