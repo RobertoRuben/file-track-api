@@ -376,6 +376,11 @@ class DocumentServiceImpl(IDocumentService):
                 details=f"Document with ID {document_id} not found.",
             )
 
+        if existing_document.storage_path and os.path.exists(
+            existing_document.storage_path
+        ):
+            os.remove(existing_document.storage_path)
+
         response = await self.document_repository.delete(document_id)
 
         if response is True:

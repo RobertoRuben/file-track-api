@@ -44,7 +44,7 @@ class PositionRepositoryImpl(IPositionRepository):
 
         :raises DatabaseException: If an error occurs while retrieving positions
         """
-        stmt = select(Position)
+        stmt = select(Position).order_by(Position.id)
         results = await self.session.exec(stmt)
         positions = results.all()
         return list(positions)
@@ -90,7 +90,7 @@ class PositionRepositoryImpl(IPositionRepository):
         :raises DatabaseException: If an error occurs during the paginated query
         """
         offset = (page - 1) * size
-        stmt = select(Position)
+        stmt = select(Position).order_by(Position.id)
         stmt = stmt.offset(offset).limit(size)
         results = await self.session.exec(stmt)
         positions = list(results.all())

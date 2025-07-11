@@ -97,7 +97,7 @@ class HamletServiceImpl(IHamletService):
                 id=hamlet.id,
                 name=hamlet.name,
                 settlement_id=hamlet.settlement_id,
-                settlement_name=hamlet.settlement.name if hamlet.settlement else None,
+                settlement_name=None,
                 created_at=hamlet.created_at,
                 updated_at=hamlet.updated_at,
             )
@@ -217,7 +217,7 @@ class HamletServiceImpl(IHamletService):
             id=hamlet.id,
             name=hamlet.name,
             settlement_id=hamlet.settlement_id,
-            settlement_name=hamlet.settlement.name if hamlet.settlement else None,
+            settlement_name=None,
             created_at=hamlet.created_at,
             updated_at=hamlet.updated_at,
         )
