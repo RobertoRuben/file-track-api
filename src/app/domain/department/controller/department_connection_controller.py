@@ -1,10 +1,4 @@
-from fastapi import (
-    APIRouter,
-    Depends,
-    Query,
-    Security,
-    Request
-)
+from fastapi import APIRouter, Depends, Query, Security, Request
 from src.app.core.exception.schema import (
     BackRequestError,
     ConflictError,
