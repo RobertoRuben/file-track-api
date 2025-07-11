@@ -661,21 +661,7 @@ class DocumentServiceImpl(IDocumentService):
                 details=f"Document with ID {document_id} not found.",
             )
 
-        return DocumentResponseDTO(
-            id=document_info["id"],
-            registration_code=document_info["registration_code"],
-            title=document_info["title"],
-            subject=document_info["subject"],
-            pages=document_info["pages"],
-            submitter_dni=document_info.get("submitter_dni"),
-            submitter_names=document_info.get("submitter_names"),
-            document_category_name=document_info.get("document_category_name"),
-            documentary_topic_name=document_info.get("documentary_topic_name"),
-            settlement_name=document_info.get("settlement_name"),
-            hamlet_name=document_info.get("hamlet_name"),
-            registered_by_user_name=document_info.get("registered_by_username"),
-            created_at=document_info["created_at"],
-        )
+        return DocumentResponseDTO(**document_info)
 
     @handle_exceptions
     async def generate_document_registration_report(

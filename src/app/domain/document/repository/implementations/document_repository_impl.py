@@ -225,6 +225,13 @@ class DocumentRepositoryImpl(IDocumentRepository):
                 Document.size,
                 Document.submitter_id,
                 Submitter.dni.label("submitter_dni"),
+                func.concat(
+                    Submitter.paternal_surname,
+                    literal(' '),
+                    Submitter.maternal_surname,
+                    literal(' '),
+                    Submitter.names,
+                ).label("submitter_names"),
                 Document.document_category_id,
                 DocumentCategory.name.label("document_category_name"),
                 Document.documentary_topic_id,
@@ -316,7 +323,11 @@ class DocumentRepositoryImpl(IDocumentRepository):
         :param registration_code: The registration code of the document to retrieve
         :return: The found document
         """
-        stmt = select(Document).where(Document.registration_code == registration_code)
+        stmt = (
+            select(Document)
+            .where(Document.registration_code == registration_code)
+            .join(User, User.id == Document.registered_by_user_id)
+        )
         results = await self.session.exec(stmt)
         document = results.first()
         return document
@@ -392,6 +403,13 @@ class DocumentRepositoryImpl(IDocumentRepository):
                 Document.size,
                 Document.submitter_id,
                 Submitter.dni.label("submitter_dni"),
+                func.concat(
+                    Submitter.paternal_surname,
+                    literal(' '),
+                    Submitter.maternal_surname,
+                    literal(' '),
+                    Submitter.names,
+                ).label("submitter_names"),
                 Document.document_category_id,
                 DocumentCategory.name.label("document_category_name"),
                 Document.documentary_topic_id,
@@ -489,6 +507,13 @@ class DocumentRepositoryImpl(IDocumentRepository):
                 Document.size,
                 Document.submitter_id,
                 Submitter.dni.label("submitter_dni"),
+                func.concat(
+                    Submitter.paternal_surname,
+                    literal(' '),
+                    Submitter.maternal_surname,
+                    literal(' '),
+                    Submitter.names,
+                ).label("submitter_names"),
                 Document.document_category_id,
                 DocumentCategory.name.label("document_category_name"),
                 Document.documentary_topic_id,
@@ -547,28 +572,55 @@ class DocumentRepositoryImpl(IDocumentRepository):
     async def get_document_information_by_id(
         self, document_id: int
     ) -> dict[str, Any] | None:
-        stmt = select(
-            Document.id,
-            Document.registration_code,
-            Document.title,
-            Document.subject,
-            Document.pages,
-            DocumentaryTopic.name.label("documentary_topic_name"),
-            DocumentCategory.name.label("document_category_name"),
-            Settlement.name.label("settlement_name"),
-            Hamlet.name.label("hamlet_name"),
-            Submitter.dni.label("submitter_dni"),
-            func.concat(
-                Submitter.paternal_surname,
-                ' ',
-                Submitter.maternal_surname,
-                ' ',
-                Submitter.names,
-            ).label("submitter_names"),
-            User.username.label("registered_by_username"),
-            Document.created_at,
-        ).where(Document.id == document_id)
-        results = await self.session.exec(stmt)
-        document_info = results.first()
+        """
+        Retrieve detailed information about a document by its ID.
 
-        return document_info._asdict() if document_info else None
+        :param document_id: The ID of the document to retrieve
+        :return: A dictionary containing detailed information about the document or None if not found
+        """
+        stmt = (
+            select(
+                Document.id,
+                Document.registration_code,
+                Document.title,
+                Document.subject,
+                Document.pages,
+                Document.storage_path,
+                Document.size,
+                Document.submitter_id,
+                Submitter.dni.label("submitter_dni"),
+                func.concat(
+                    Submitter.paternal_surname,
+                    literal(' '),
+                    Submitter.maternal_surname,
+                    literal(' '),
+                    Submitter.names,
+                ).label("submitter_names"),
+                Document.document_category_id,
+                DocumentCategory.name.label("document_category_name"),
+                Document.documentary_topic_id,
+                DocumentaryTopic.name.label("documentary_topic_name"),
+                Document.hamlet_id,
+                Hamlet.name.label("hamlet_name"),
+                Document.settlement_id,
+                Settlement.name.label("settlement_name"),
+                Document.registered_by_user_id,
+                User.username.label("registered_by_username"),
+                Document.created_at,
+                Document.updated_at,
+            )
+            .join(Submitter, Submitter.id == Document.submitter_id)
+            .join(
+                DocumentCategory, DocumentCategory.id == Document.document_category_id
+            )
+            .join(
+                DocumentaryTopic, DocumentaryTopic.id == Document.documentary_topic_id
+            )
+            .outerjoin(Hamlet, Hamlet.id == Document.hamlet_id)
+            .join(Settlement, Settlement.id == Document.settlement_id)
+            .join(User, User.id == Document.registered_by_user_id)
+            .where(Document.id == document_id)
+        )
+        results = await self.session.exec(stmt)
+        document_data = results.first()
+        return dict(document_data._mapping) if document_data else None
