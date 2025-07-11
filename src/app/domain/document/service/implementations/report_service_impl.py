@@ -14,14 +14,24 @@ class ReportServiceImpl(IReportService):
         """
         Initializes the report service by configuring the necessary resources.
         """
+        current_dir = os.path.dirname(__file__)
+        while True:
+            if os.path.basename(current_dir) == "src":
+                src_dir = current_dir
+                break
+            parent_dir = os.path.dirname(current_dir)
+            if parent_dir == current_dir:
+                raise RuntimeError(
+                    "No se encontró la carpeta 'src' en la jerarquía de carpetas."
+                )
+            current_dir = parent_dir
+
+        resources_base = os.path.join(src_dir, "resources")
+        if not os.path.exists(resources_base):
+            os.makedirs(resources_base)
+
         # Paths for static resources
-        resources_dir = os.path.join(
-            os.path.dirname(
-                os.path.dirname(os.path.dirname(os.path.dirname(__file__)))
-            ),
-            "resources",
-            "static",
-        )
+        resources_dir = os.path.join(resources_base, "static")
 
         # Path for images
         self.images_dir = os.path.join(resources_dir, "img")
