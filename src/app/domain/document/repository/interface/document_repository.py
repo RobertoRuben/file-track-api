@@ -144,3 +144,23 @@ class IDocumentRepository(ABC):
         :return: The document with detailed information
         """
         pass
+
+    @abstractmethod
+    async def delete_by_ids(self, document_ids: list[int]) -> bool:
+        """
+        Delete multiple documents by their IDs.
+
+        :param document_ids: A list of document IDs to delete
+        :return: True if all documents were successfully deleted, False otherwise
+        """
+        pass
+
+    @abstractmethod
+    async def find_by_ids(self, document_ids: list[int]) -> list[Document]:
+        """
+        Find documents by their IDs.
+
+        :param document_ids: A list of document IDs to retrieve
+        :return: A list of documents found
+        """
+        pass
